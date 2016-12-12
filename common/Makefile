@@ -1,15 +1,20 @@
-default: platform net_server.o libcommon.a 
+TARGET:= ../lib/libcommon.a
+
+default: platform all
 
 OS:=$(shell uname -s)
 
+CXX:=g++
 CFLAG:=-Wall -g
+
+SRC:=$(wildcard *.cpp)
+OBJ:=$(patsubst %.cpp, %.o, $(SRC))
 
 platform:
 	@echo Platform: $(OS)
 
 clean:
-	rm -rf net_server.o
-	rm -rf ../lib/libcommon.a
+	rm -rf $(TARGET) $(OBJ)
 	rm -rf *.dSYM
 
 net_server.o: net_server.cpp 
@@ -18,3 +23,9 @@ net_server.o: net_server.cpp
 libcommon.a: net_server.o
 	ar -crus ../lib/$@ $^
 
+%.o: %.cpp
+	$(CXX) $(CFLAG) -c $< -o $@
+	
+
+all: $(OBJ)
+	ar -crus $(TARGET) $(OBJ)
