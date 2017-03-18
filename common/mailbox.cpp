@@ -8,6 +8,7 @@ extern "C"
 MailBox::MailBox()
 {
 	m_pluto = NULL;
+	m_bev = NULL;
 }
 
 MailBox::~MailBox()
