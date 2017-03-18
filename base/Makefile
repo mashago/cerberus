@@ -1,19 +1,38 @@
-default: platform main 
+
+TARGET:=main
+
+CC:=gcc
+CXX:=g++
+
+C_FLAGS:=
+CPP_FLAGS:=-O0 -Wall --std=c++11
 
 OS:=$(shell uname -s)
+SRC:=$(wildcard *.cpp) $(wildcard *.c)
+OBJ:=$(patsubst %.cpp, %.o, $(patsubst %.c, %.o, $(SRC)))
 
-CXXFLAG:=-Wall -g
+USER_MACROS:=
+
 INC:=../common
 LIB_PATH:=../lib
-LIB:=-lcommon -levent
+LIB:=common event
 
-platform:
+default: $(TARGET)
+
+info:
 	@echo Platform: $(OS)
+	@echo SRC: $(SRC)
+	@echo OBJ: $(OBJ)
 
+%.o: %.cpp
+	$(CXX) $(CPP_FLAGS) $(addprefix -D, $(USER_MACROS)) $(addprefix -I, $(INC)) -c $< -o $@
+
+%.o: %.c
+	$(CC) $(C_FLAGS) $(addprefix -D, $(USER_MACROS)) $(addprefix -I, $(INC)) -c $< -o $@
+
+$(TARGET): $(OBJ)
+	$(CXX) $^ -o $@ $(addprefix -L, $(LIB_PATH)) $(addprefix -l, $(LIB))
+
+.PHONY: clean
 clean:
-	rm -rf main
-	rm -rf *.dSYM
-
-main: main.cpp 
-	g++ $(CXXFLAG) -o $@ $< -I $(INC) -L $(LIB_PATH) $(LIB)
-
+	rm -rf $(TARGET) $(OBJ)

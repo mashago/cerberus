@@ -19,26 +19,26 @@ extern "C"
 #include <event2/bufferevent.h>
 #include <event2/buffer.h>
 }
-#include "net_server.h"
+#include "net_service.h"
 
 static void listener_cb(struct evconnlistener *listener, evutil_socket_t fd, struct sockaddr *sa, int socklen, void *user_data);
 static void read_cb(struct bufferevent *bev, void *user_data);
 static void event_cb(struct bufferevent *bev, short event, void *user_data);
 
-NetServer::NetServer() : m_mainBase(0), m_evconnlistener(0)
+NetService::NetService() : m_mainBase(0), m_evconnlistener(0)
 {
 }
 
-NetServer::~NetServer()
+NetService::~NetService()
 {
 }
 
-int NetServer::LoadConfig(const char *path)
+int NetService::LoadConfig(const char *path)
 {
 	return 0;
 }
 
-int NetServer::StartServer(const char *addr, unsigned int port)
+int NetService::StartServer(const char *addr, unsigned int port)
 {
 	// 1. new event_base
 	// 2. init listener
@@ -54,7 +54,7 @@ int NetServer::StartServer(const char *addr, unsigned int port)
 
 	// 2.
 	struct sockaddr_in sin;
-	bzero(&sin, sizeof(sin));
+	memset(&sin, 0, sizeof(sin));
 	sin.sin_family = PF_INET;
 	sin.sin_addr.s_addr = inet_addr(addr);
 	sin.sin_port = htons(port);
@@ -73,7 +73,7 @@ int NetServer::StartServer(const char *addr, unsigned int port)
 	return 0;
 }
 
-int NetServer::Service(const char *addr, unsigned int port)
+int NetService::Service(const char *addr, unsigned int port)
 {
 	if (StartServer(addr, port))
 	{
@@ -87,7 +87,7 @@ int NetServer::Service(const char *addr, unsigned int port)
 	return 0;
 }
 
-int NetServer::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int socklen)
+int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int socklen)
 {
 	// 1. set fd non-block
 	// 2. new a bufferevent
@@ -109,7 +109,7 @@ int NetServer::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int 
 	return 0;
 }
 
-int NetServer::HandleSocketReadEvent(struct bufferevent *bev)
+int NetService::HandleSocketReadEvent(struct bufferevent *bev)
 {
 	
 	evutil_socket_t fd = bufferevent_getfd(bev);
@@ -141,17 +141,17 @@ int NetServer::HandleSocketReadEvent(struct bufferevent *bev)
 	return 0;
 }
 
-int NetServer::HandleSocketConnected(evutil_socket_t fd)
+int NetService::HandleSocketConnected(evutil_socket_t fd)
 {
 	return 0;
 }
 
-int NetServer::HandleSocketClosed(evutil_socket_t fd)
+int NetService::HandleSocketClosed(evutil_socket_t fd)
 {
 	return 0;
 }
 
-int NetServer::HandleSocketError(evutil_socket_t fd)
+int NetService::HandleSocketError(evutil_socket_t fd)
 {
 	return 0;
 }
@@ -162,7 +162,7 @@ static void listener_cb(struct evconnlistener *listener, evutil_socket_t fd, str
 	// handle new client connect event
 	
 	printf("listener_cb: fd=%d\n", fd);
-	NetServer *ns = (NetServer *)user_data;
+	NetService *ns = (NetService *)user_data;
 	ns->HandleNewConnection(fd, sa, socklen);
 }
 
@@ -170,14 +170,14 @@ static void read_cb(struct bufferevent *bev, void *user_data)
 {
 	printf("read_cb\n");
 	// handle read event
-	NetServer *ns = (NetServer *)user_data;
+	NetService *ns = (NetService *)user_data;
 	ns->HandleSocketReadEvent(bev);
 }
 
 static void event_cb(struct bufferevent *bev, short event, void *user_data)
 {
 	// handle other event
-	NetServer *ns = (NetServer *)user_data;
+	NetService *ns = (NetService *)user_data;
 	evutil_socket_t fd = bufferevent_getfd(bev);
 
 	bool bFinished = false;
