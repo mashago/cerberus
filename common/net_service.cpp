@@ -20,11 +20,13 @@ extern "C"
 #include <event2/buffer.h>
 }
 #include "logger.h"
+#include <string>
 #include "net_service.h"
 
 static void listen_cb(struct evconnlistener *listener, evutil_socket_t fd, struct sockaddr *sa, int socklen, void *user_data);
 static void read_cb(struct bufferevent *bev, void *user_data);
 static void event_cb(struct bufferevent *bev, short event, void *user_data);
+static void timer_cb(evutil_socket_t fd, short event, void *user_data);
 
 NetService::NetService() : m_mainEvent(0), m_evconnlistener(0)
 {
@@ -49,6 +51,13 @@ int NetService::Service(const char *addr, unsigned int port)
 
 	event_base_dispatch(m_mainEvent);
 
+	if (m_timerEvent)
+	{
+		event_del(m_timerEvent);
+		event_free(m_timerEvent);
+		m_timerEvent = NULL;
+	}
+
 	event_base_free(m_mainEvent);
 
 	return 0;
@@ -57,14 +66,26 @@ int NetService::Service(const char *addr, unsigned int port)
 int NetService::StartServer(const char *addr, unsigned int port)
 {
 	// 1. new event_base
-	// 2. init listener
-	// 3. set nonblock
+	// 2. init timer
+	// 3. init listener
+	// 4. set nonblock
 
 	// new event_base
 	m_mainEvent = event_base_new();
 	if (!m_mainEvent)
 	{
 		LogError("%s: event_base_new fail", __FUNCTION__);
+		return -1;
+	}
+
+	// init timer
+	m_timerEvent = event_new(m_mainEvent, -1, EV_PERSIST, timer_cb, this);
+	struct timeval tv;
+	tv.tv_sec = 0;
+	tv.tv_usec = 50 * 1000;
+	if (event_add(m_timerEvent, &tv) != 0)
+	{
+		printf("StartServer: event_add timer fail\n");
 		return -1;
 	}
 
@@ -89,18 +110,28 @@ int NetService::StartServer(const char *addr, unsigned int port)
 	return 0;
 }
 
-int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int socklen)
+MailBox *NetService::GetClientMailBox(int fd)
 {
-	LogDebug("%s: fd=%d", __FUNCTION__, fd);
+	std::map<int, MailBox *>::iterator iter = m_fds.find(fd);
+	if (iter == m_fds.end())
+	{
+		return NULL;
+	}
+	return iter->second;
+}
 
-	// 1. set fd non-block
+int NetService::OnNewFdAccepted(int fd)
+{
+	// 1. new a mailbox
 	// 2. new a bufferevent
 	// 3. set callback
 	// 4. add event into poll
 
 	// 1.
-	evutil_make_socket_nonblocking(fd);
+	MailBox *pmb = new MailBox();
 
+	m_fds[fd] = pmb;
+	
 	// 2.
 	struct bufferevent *bev = bufferevent_socket_new(m_mainEvent, fd, BEV_OPT_CLOSE_ON_FREE | BEV_OPT_DEFER_CALLBACKS);
 
@@ -110,6 +141,21 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 	// 4.
 	bufferevent_enable(bev, EV_READ);
 
+	pmb->m_bev = bev;
+
+	return 0;
+}
+
+int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int socklen)
+{
+	LogDebug("%s: fd=%d", __FUNCTION__, fd);
+	// 1. set fd non-block
+
+	// 1.
+	evutil_make_socket_nonblocking(fd);
+
+	OnNewFdAccepted(fd);
+
 	return 0;
 }
 
@@ -117,6 +163,26 @@ int NetService::HandleSocketReadEvent(struct bufferevent *bev)
 {
 	evutil_socket_t fd = bufferevent_getfd(bev);
 	LogDebug("%s: fd=%d", __FUNCTION__, fd);
+	int ret = 0;
+	do
+	{
+		ret = HandleSocketReadMessage(bev);
+	} while (ret != 1);
+
+	return 0;
+}
+
+int NetService::HandleSocketReadMessage(struct bufferevent *bev)
+{
+	
+	evutil_socket_t fd = bufferevent_getfd(bev);
+	printf("HandleSocketReadMessage: fd=%d\n", fd);
+
+	MailBox *pmb = GetClientMailBox(fd);
+	if (pmb == NULL)
+	{
+		return -1;
+	}
 
 	// 1. get input evbuffer and length
 	// 2. copy to local buffer
@@ -126,6 +192,8 @@ int NetService::HandleSocketReadEvent(struct bufferevent *bev)
 	// get input evbuffer and length
 	struct evbuffer *input = bufferevent_get_input(bev);
 	const size_t input_len = evbuffer_get_length(input);
+	/*
+<<<<<<< HEAD
 	LogDebug("%s input_len=%lu", __FUNCTION__, input_len);
 
 	// NOTE
@@ -143,8 +211,95 @@ int NetService::HandleSocketReadEvent(struct bufferevent *bev)
 	char out_buffer[100];
 	sprintf(out_buffer, "hello %lu", time(NULL));
 	evbuffer_add(output, out_buffer, strlen(out_buffer));
+=======
+*/
 
-	free(in_buffer);
+	printf("input_len=%lu\n", input_len);
+	if (input_len == 0)
+	{
+		return 0;
+	}
+
+	ev_ssize_t nLen = 0;
+	Pluto *u = pmb->m_pluto;
+	if (u == NULL)
+	{
+		if (input_len < PLUTO_MSGLEN_HEAD)
+		{
+			return 0;
+		}
+
+		char head[PLUTO_MSGLEN_HEAD];
+		nLen= evbuffer_copyout(input, head, PLUTO_MSGLEN_HEAD);
+		if (nLen < PLUTO_MSGLEN_HEAD)
+		{
+			return 0;
+		}
+
+		evbuffer_drain(input, nLen);
+		int msgLen = ntohl(*(uint32_t *)head);
+		if (msgLen > MSGLEN_MAX)
+		{
+			// warn it
+		}
+
+		u = new Pluto(msgLen);
+		char *buffer = u->m_recvBuffer;
+		memcpy(buffer, head, PLUTO_MSGLEN_HEAD);
+
+		int nWanted = msgLen - PLUTO_MSGLEN_HEAD;
+		nLen = evbuffer_copyout(input, buffer+PLUTO_MSGLEN_HEAD, nWanted);
+		if (nLen <= 0)
+		{
+			// no more data
+			u->m_recvLen = PLUTO_MSGLEN_HEAD;
+			pmb->m_pluto = u;
+			return 0;
+		}
+
+		evbuffer_drain(input, nLen);
+		if (nLen != nWanted)
+		{
+			// data not enough
+			u->m_recvLen = PLUTO_MSGLEN_HEAD + nLen;
+			pmb->m_pluto = u;
+			return 0;
+		}
+
+		// get a full msg
+		u->m_pmb = pmb;
+		m_recvMsgs.push_back(u);
+		pmb->m_pluto = NULL;
+
+		return 1;
+	}
+
+	// already has pluto in mailbox
+	else
+	{
+		char *buffer = u->m_recvBuffer;
+		int recvLen = u->m_recvLen;
+		int nWanted = u->m_bufferSize - recvLen;
+		nLen = evbuffer_copyout(input, buffer+recvLen, nWanted);
+		if (nLen <= 0)
+		{
+			return 0;
+		}
+		
+		evbuffer_drain(input, nLen);
+		if (nLen != nWanted)
+		{
+			u->m_recvLen = recvLen + nLen;
+			return 0;
+		}
+
+		// get a full msg
+		u->m_pmb = pmb;
+		m_recvMsgs.push_back(u);
+		pmb->m_pluto = NULL;
+
+		return 1;
+	}
 
 	return 0;
 }
@@ -156,14 +311,71 @@ int NetService::HandleSocketConnected(evutil_socket_t fd)
 
 int NetService::HandleSocketClosed(evutil_socket_t fd)
 {
+	MailBox *pmb = GetClientMailBox(fd);
+	if (pmb == NULL)
+	{
+		return 0;
+	}
+	pmb->m_bev = NULL;
+	m_fds.erase(fd);
 	return 0;
 }
 
 int NetService::HandleSocketError(evutil_socket_t fd)
 {
+	MailBox *pmb = GetClientMailBox(fd);
+	if (pmb == NULL)
+	{
+		return 0;
+	}
+	pmb->m_bev = NULL;
+	m_fds.erase(fd);
 	return 0;
 }
 
+int NetService::HandlePluto(Pluto *u)
+{
+	// do core logic here
+	// TODO
+	printf("HandleRecvPluto: u->m_bufferSize=%d\n", u->m_bufferSize);
+	std::string buffer(u->m_recvBuffer, u->m_bufferSize);
+	printf("%s\n", buffer.c_str()+PLUTO_MSGLEN_HEAD);
+	return 0;
+}
+
+int NetService::HandleRecvPluto()
+{
+	while (!m_recvMsgs.empty())
+	{
+		Pluto *u = m_recvMsgs.front();
+		m_recvMsgs.pop_front();
+		HandlePluto(u);
+		delete u;
+	}
+	return 0;
+}
+
+int NetService::HandleSendPluto()
+{
+	return 0;
+}
+
+int NetService::HandleSocketTickEvent()
+{
+	// 1. handle pluto
+	// 2. handle send pluto
+	// 3. TODO delete pluto
+	
+	// 1.
+	HandleRecvPluto();
+
+	// 2.
+	HandleSendPluto();
+
+	return 0;
+}
+
+////////// callback start [
 
 static void listen_cb(struct evconnlistener *listener, evutil_socket_t fd, struct sockaddr *sa, int socklen, void *user_data)
 {
@@ -210,3 +422,11 @@ static void event_cb(struct bufferevent *bev, short event, void *user_data)
 	}
 
 }
+
+static void timer_cb(evutil_socket_t fd, short event, void *user_data)
+{
+	NetService *server = (NetService *)user_data;
+	server->HandleSocketTickEvent();
+}
+
+////////// callback end ]
