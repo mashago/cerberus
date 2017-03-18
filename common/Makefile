@@ -1,31 +1,39 @@
-TARGET:= ../lib/libcommon.a
 
-default: platform all
+TARGET:=../lib/libcommon.a
+
+CC:=gcc
+CXX:=g++
+
+C_FLAGS:=
+CPP_FLAGS:=-O0 -Wall --std=c++11 -g
 
 OS:=$(shell uname -s)
+SRC:=$(wildcard *.cpp *.c)
+OBJ:=$(patsubst %.cpp, %.o, $(patsubst %.c, %.o, $(SRC)))
 
-CXX:=g++
-CFLAG:=-Wall -g
+USER_MACROS:=
 
-SRC:=$(wildcard *.cpp)
-OBJ:=$(patsubst %.cpp, %.o, $(SRC))
+INC:=. 
+LIB_PATH:=.
+LIB:=
 
-platform:
+default: $(TARGET)
+
+info:
 	@echo Platform: $(OS)
+	@echo SRC: $(SRC)
+	@echo OBJ: $(OBJ)
 
+%.o: %.cpp
+	$(CXX) $(CPP_FLAGS) $(addprefix -D, $(USER_MACROS)) $(addprefix -I, $(INC)) -c $< -o $@
+
+%.o: %.c
+	$(CC) $(C_FLAGS) $(addprefix -D, $(USER_MACROS)) $(addprefix -I, $(INC)) -c $< -o $@
+
+$(TARGET): $(OBJ)
+	ar -crus $(TARGET) $(OBJ)
+
+.PHONY: clean
 clean:
 	rm -rf $(TARGET) $(OBJ)
 	rm -rf *.dSYM
-
-net_server.o: net_server.cpp 
-	g++ -c -o $@ $^
-
-libcommon.a: net_server.o
-	ar -crus ../lib/$@ $^
-
-%.o: %.cpp
-	$(CXX) $(CFLAG) -c $< -o $@
-	
-
-all: $(OBJ)
-	ar -crus $(TARGET) $(OBJ)

@@ -26,15 +26,14 @@ extern "C"
 #include "mailbox.h"
 
 
-class NetServer
+class NetService
 {
 
 public:
-	NetServer();
-	virtual ~NetServer();
+	NetService();
+	virtual ~NetService();
 
 	int LoadConfig(const char *path);
-	int StartServer(const char *addr, unsigned int port);
 	int Service(const char *addr, unsigned int port);
 
 	virtual int HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int socklen);
@@ -55,6 +54,7 @@ public:
 	inline MailBox *GetClientMailBox(int fd);
 
 private:
+	int StartServer(const char *addr, unsigned int port);
 	struct event_base *m_mainBase;
 	struct event *m_timerEvent;
 	struct evconnlistener *m_evconnlistener;
