@@ -1,5 +1,5 @@
-#ifndef __NET_SERVER_H__
-#define __NET_SERVER_H__
+#ifndef __NET_SERVICE_H__
+#define __NET_SERVICE_H__
 
 extern "C"
 {
@@ -41,7 +41,7 @@ public:
 
 private:
 	int StartServer(const char *addr, unsigned int port);
-	struct event_base *m_mainBase;
+	struct event_base *m_mainEvent;
 	struct evconnlistener *m_evconnlistener;
 
 };
