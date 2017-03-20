@@ -23,6 +23,7 @@ extern "C"
 #include <event2/buffer.h>
 }
 
+#include "logger.h"
 #include "pluto.h"
 
 #define SERVER_HOST "0.0.0.0"
@@ -47,19 +48,19 @@ void read_cb(struct bufferevent *bev, void *user_data)
 	
 	// struct event_base *main_event = (struct event_base *)user_data;
 	evutil_socket_t fd = bufferevent_getfd(bev);
-	printf("read_cb: fd=%d\n", fd);
+	LOG_DEBUG("fd=%d", fd);
 
 	// 1. get input evbuffer and length
 	struct evbuffer *input = bufferevent_get_input(bev);
 	const size_t input_len = evbuffer_get_length(input);
-	printf("input_len=%lu\n", input_len);
+	LOG_DEBUG("input_len=%lu", input_len);
 
 	// local buffer must get all data from input because read_cb will not active again even if still has data in input, until receive client data next time
 	char *in_buffer = (char *)calloc(1, input_len+1); 
 
 	// 2. copy to local buffer
 	int n = evbuffer_copyout(input, in_buffer, input_len);
-	printf("n=%d in_buffer=%s\n", n, in_buffer);
+	LOG_DEBUG("n=%d in_buffer=%s", n, in_buffer);
 
 	// 3. remove header data in evbuffer
 	evbuffer_drain(input, n);
@@ -70,7 +71,7 @@ void read_cb(struct bufferevent *bev, void *user_data)
 void event_cb(struct bufferevent *bev, short what, void *user_data)
 {
 	// handle other event
-	printf("event_cb: what=%d\n", what);
+	LOG_DEBUG("what=%d", what);
 
 	// struct event_base *main_event = (struct event_base *)user_data;
 	evutil_socket_t fd = bufferevent_getfd(bev);
@@ -78,16 +79,16 @@ void event_cb(struct bufferevent *bev, short what, void *user_data)
 
 	if (what & BEV_EVENT_CONNECTED)
 	{
-		printf("event_cb: event connected fd=%d\n", fd);
+		LOG_DEBUG("event connected fd=%d", fd);
 	}
 	else if (what & BEV_EVENT_EOF)
 	{
-		printf("event_cb: event eof fd=%d\n", fd);
+		LOG_DEBUG("event eof fd=%d", fd);
 		event_base_loopexit(main_event, NULL);
 	}
 	else if (what & BEV_EVENT_ERROR)
 	{
-		printf("event_cb: event error fd=%d errno=%d\n", fd, errno);
+		LOG_DEBUG("event error fd=%d errno=%d", fd, errno);
 		event_base_loopexit(main_event, NULL);
 	}
 
@@ -95,7 +96,7 @@ void event_cb(struct bufferevent *bev, short what, void *user_data)
 
 void stdin_cb(evutil_socket_t fd, short what, void *user_data)
 {
-	printf("stdin_cb: fd=%d\n", fd);
+	LOG_DEBUG("fd=%d", fd);
 	struct bufferevent *bev = (struct bufferevent *)user_data;
 
 	char buffer[MSGLEN_MAX];
@@ -108,7 +109,7 @@ void stdin_cb(evutil_socket_t fd, short what, void *user_data)
 
 	if (len < 0)
 	{
-		printf("stdin_cb: read stdin fail\n");
+		LOG_ERROR("read stdin fail");
 		struct event_base *main_event = bufferevent_get_base(bev);
 		event_base_loopexit(main_event, NULL);
 		return;
@@ -204,7 +205,7 @@ struct bufferevent * create_connect_event(struct event_base *main_event)
 	int ret = bufferevent_socket_connect(bev, (struct sockaddr *)&sin, sizeof(sin));
 	if (ret < 0)
 	{
-		printf("create_connect_event: bufferevent connect fail\n");
+		LOG_ERROR("bufferevent connect fail");
 		bufferevent_free(bev);
 		return NULL;
 	}
@@ -218,7 +219,7 @@ struct event * create_stdin_event(struct event_base *main_event, struct bufferev
 	int ret = event_add(stdin_event, NULL);
 	if (ret != 0)
 	{
-		printf("create_stdin_event: event_add fail\n");
+		LOG_ERROR("event_add fail");
 		event_free(stdin_event);
 		return NULL;
 	}
@@ -228,14 +229,14 @@ struct event * create_stdin_event(struct event_base *main_event, struct bufferev
 
 int main(int argc, char **argv)
 {
-	printf("hello %s\n", argv[0]);
+	LOG_DEBUG("hello %s", argv[0]);
 
 	// 1. main base event init
 	// struct event_base *event_base_new(void);
 	struct event_base *main_event = event_base_new();
 	if (main_event == NULL)
 	{
-		printf("event_base_new fail\n");
+		LOG_ERROR("event_base_new fail");
 		return 0;
 	}
 
@@ -243,7 +244,7 @@ int main(int argc, char **argv)
 	struct bufferevent *bev = create_connect_event(main_event);
 	if (bev == NULL)
 	{
-		printf("create_connect_event fail\n");
+		LOG_ERROR("create_connect_event fail");
 		return 0;
 	}
 
@@ -251,14 +252,14 @@ int main(int argc, char **argv)
 	struct event *stdin_event = create_stdin_event(main_event, bev);
 	if (stdin_event == NULL)
 	{
-		printf("create_stdin_event fail\n");
+		LOG_ERROR("create_stdin_event fail");
 		return 0;
 	}
 
 	// 4. main loop
 	// int event_base_dispatch(struct event_base *);
 	int ret = event_base_dispatch(main_event);
-	printf("event_base_dispatch ret=%d\n", ret);
+	LOG_DEBUG("event_base_dispatch ret=%d", ret);
 
 	// 5. clean up
 	bufferevent_free(bev);

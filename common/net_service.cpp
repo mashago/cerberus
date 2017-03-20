@@ -448,6 +448,9 @@ int NetService::HandleSocketTickEvent()
 	// 1. handle recv pluto
 	// 2. handle send pluto
 	// 3. delete mailbox
+
+	// print some info
+	LOG_INFO("m_fds.size=%d m_mb4del.size=%d m_recvMsgs.size=%d", m_fds.size(), m_mb4del.size(), m_recvMsgs.size());
 	
 	// handle recv pluto
 	HandleRecvPluto();
