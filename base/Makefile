@@ -36,3 +36,4 @@ $(TARGET): $(OBJ)
 .PHONY: clean
 clean:
 	rm -rf $(TARGET) $(OBJ)
+	rm -rf *.dSYM

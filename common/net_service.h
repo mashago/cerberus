@@ -61,7 +61,6 @@ private:
 	void CloseFd(int fd);
 
 	struct event_base *m_mainEvent;
-	struct event_base *m_mainBase;
 	struct event *m_timerEvent;
 	struct evconnlistener *m_evconnlistener;
 
