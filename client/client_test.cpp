@@ -23,6 +23,8 @@ extern "C"
 #include <event2/buffer.h>
 }
 
+#include "pluto.h"
+
 #define SERVER_HOST "0.0.0.0"
 #define SERVER_PORT 7711
 
@@ -96,9 +98,8 @@ void stdin_cb(evutil_socket_t fd, short what, void *user_data)
 	printf("stdin_cb: fd=%d\n", fd);
 	struct bufferevent *bev = (struct bufferevent *)user_data;
 
-	const int MAX_BUFFER = 1024;
-	char buffer[MAX_BUFFER+4];
-	int len = read(fd, buffer+4, MAX_BUFFER);
+	char buffer[MSGLEN_MAX];
+	int len = read(fd, buffer+MSGLEN_TEXT_POS, MSGLEN_MAX-MSGLEN_TEXT_POS);
 	if (len == 0)
 	{
 		// EOF
@@ -113,12 +114,17 @@ void stdin_cb(evutil_socket_t fd, short what, void *user_data)
 		return;
 	}
 
+	int msgLen = MSGLEN_HEAD + MSGLEN_MSGID + len;
+	static int msgId = 0;
+
 	char *ptr = buffer;
-	*(uint32_t *)ptr = htonl(len+4);
+	*(uint32_t *)ptr = htonl(msgLen);
+	ptr += MSGLEN_HEAD;
+	*(uint32_t *)ptr = htonl(++msgId);
 
 	// put into bev output buffer
 	struct evbuffer *output = bufferevent_get_output(bev);
-	evbuffer_add(output, buffer, len+4);
+	evbuffer_add(output, buffer, msgLen);
 
 	/*
 	// use this function pair, to avoid memory copy

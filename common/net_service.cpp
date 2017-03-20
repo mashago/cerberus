@@ -19,8 +19,10 @@ extern "C"
 #include <event2/bufferevent.h>
 #include <event2/buffer.h>
 }
-#include "logger.h"
 #include <string>
+#include "logger.h"
+#include "common.h"
+#include "util.h"
 #include "net_service.h"
 
 static void listen_cb(struct evconnlistener *listener, evutil_socket_t fd, struct sockaddr *sa, int socklen, void *user_data);
@@ -44,7 +46,7 @@ int NetService::LoadConfig(const char *path)
 
 int NetService::Service(const char *addr, unsigned int port)
 {
-	if (StartServer(addr, port))
+	if (StartService(addr, port))
 	{
 		return -1;
 	}
@@ -63,29 +65,18 @@ int NetService::Service(const char *addr, unsigned int port)
 	return 0;
 }
 
-int NetService::StartServer(const char *addr, unsigned int port)
+int NetService::StartService(const char *addr, unsigned int port)
 {
 	// 1. new event_base
-	// 2. init timer
-	// 3. init listener
-	// 4. set nonblock
+	// 2. init listener
+	// 3. set nonblock
+	// 4. init timer
 
 	// new event_base
 	m_mainEvent = event_base_new();
 	if (!m_mainEvent)
 	{
-		LogError("%s: event_base_new fail", __FUNCTION__);
-		return -1;
-	}
-
-	// init timer
-	m_timerEvent = event_new(m_mainEvent, -1, EV_PERSIST, timer_cb, this);
-	struct timeval tv;
-	tv.tv_sec = 0;
-	tv.tv_usec = 50 * 1000;
-	if (event_add(m_timerEvent, &tv) != 0)
-	{
-		printf("StartServer: event_add timer fail\n");
+		LOG_ERROR("event_base_new fail");
 		return -1;
 	}
 
@@ -99,7 +90,7 @@ int NetService::StartServer(const char *addr, unsigned int port)
 	m_evconnlistener = evconnlistener_new_bind(m_mainEvent, listen_cb, (void *)this, LEV_OPT_REUSEABLE|LEV_OPT_CLOSE_ON_FREE, -1, (struct sockaddr *)&sin, sizeof(sin));
 	if (!m_evconnlistener)
 	{
-		LogError("%s: new bind fail", __FUNCTION__);
+		LOG_ERROR("new bind fail");
 		return -1;
 	}
 
@@ -107,202 +98,246 @@ int NetService::StartServer(const char *addr, unsigned int port)
 	evutil_socket_t listen_fd = evconnlistener_get_fd(m_evconnlistener);
 	evutil_make_socket_nonblocking(listen_fd);
 
+	// init timer
+	m_timerEvent = event_new(m_mainEvent, -1, EV_PERSIST, timer_cb, this);
+	struct timeval tv;
+	// tv.tv_sec = 0;
+	tv.tv_sec = 3;
+	tv.tv_usec = 50 * 1000;
+	if (event_add(m_timerEvent, &tv) != 0)
+	{
+		LOG_ERROR("StartService: event_add timer fail");
+		return -1;
+	}
+
 	return 0;
 }
 
 MailBox *NetService::GetClientMailBox(int fd)
 {
-	std::map<int, MailBox *>::iterator iter = m_fds.find(fd);
+	auto iter = m_fds.find(fd);
 	if (iter == m_fds.end())
 	{
-		return NULL;
+		return nullptr;
 	}
 	return iter->second;
 }
 
+
+int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int socklen)
+{
+	LOG_DEBUG("fd=%d", fd);
+
+	// 1. check connection num
+	// 2. check connection is valide
+	// 3. set fd non-block
+	// 4. accept clinet
+	
+	// check connection num
+	// TODO
+	
+	// check connection is valide
+	// TODO
+
+	// set fd non-block
+	evutil_make_socket_nonblocking(fd);
+
+	// accept client
+	OnNewFdAccepted(fd);
+
+	return 0;
+}
+
 int NetService::OnNewFdAccepted(int fd)
 {
-	// 1. new a mailbox
-	// 2. new a bufferevent
-	// 3. set callback
-	// 4. add event into poll
 
-	// 1.
-	MailBox *pmb = new MailBox();
-
-	m_fds[fd] = pmb;
+	// 1. create mailbox and init
+	// 2. init buffer socket
 	
-	// 2.
+	// create mailbox and init
+	AddFdAndMb(fd, FD_TYPE_ACCEPT);
+
+	// init buffer socket
+	MailBox *pmb = GetClientMailBox(fd);
+	if (!pmb)
+	{
+		LOG_ERROR("mailbox null fd=%d", fd);
+		return -1;
+	}
+
 	struct bufferevent *bev = bufferevent_socket_new(m_mainEvent, fd, BEV_OPT_CLOSE_ON_FREE | BEV_OPT_DEFER_CALLBACKS);
-
-	// 3.
 	bufferevent_setcb(bev, read_cb, NULL, event_cb, (void *)this);
-	
-	// 4.
-	bufferevent_enable(bev, EV_READ);
+	bufferevent_enable(bev, EV_READ); // XXX consider set EV_PERSIST ?
 
 	pmb->m_bev = bev;
 
 	return 0;
 }
 
-int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int socklen)
+void NetService::AddFdAndMb(int fd, EFDTYPE type)
 {
-	LogDebug("%s: fd=%d", __FUNCTION__, fd);
-	// 1. set fd non-block
+	MailBox *pmb = new MailBox(type);
 
-	// 1.
-	evutil_make_socket_nonblocking(fd);
-
-	OnNewFdAccepted(fd);
-
-	return 0;
+	// check if is trust connect
+	// TODO
+	
+	AddFdAndMb(fd, pmb);
 }
+
+void NetService::AddFdAndMb(int fd, MailBox *pmb)
+{
+	pmb->SetFd(fd);
+
+	auto iter = m_fds.lower_bound(fd);
+	if (iter != m_fds.end() && iter->first == fd)
+	{
+		// still has old mailbox
+		MailBox *oldmb = iter->second;
+		if (oldmb != pmb)
+		{
+			delete oldmb;
+			iter->second = pmb;
+		}
+		LOG_WARN("has old mailbox fd=%d", fd);
+	}
+	else
+	{
+		// normal logic, insert new mailbox
+		m_fds.insert(iter, std::make_pair(fd, pmb));
+	}
+	LOG_DEBUG("fd=%d", fd);
+}
+
+enum READ_MSG_RESULT
+{
+	READ_MSG_ERROR 		= -1
+,	READ_MSG_WAIT 		= 0 
+,	READ_MSG_FINISH 	= 1 
+};
 
 int NetService::HandleSocketReadEvent(struct bufferevent *bev)
 {
+	// loop to handle read data
+	
 	evutil_socket_t fd = bufferevent_getfd(bev);
-	LogDebug("%s: fd=%d", __FUNCTION__, fd);
-	int ret = 0;
+	LOG_DEBUG("fd=%d", fd);
+	int ret = READ_MSG_WAIT;
 	do
 	{
 		ret = HandleSocketReadMessage(bev);
-	} while (ret != 1);
+	} 
+	while (ret == READ_MSG_FINISH);
 
 	return 0;
 }
 
 int NetService::HandleSocketReadMessage(struct bufferevent *bev)
 {
-	
 	evutil_socket_t fd = bufferevent_getfd(bev);
-	printf("HandleSocketReadMessage: fd=%d\n", fd);
 
 	MailBox *pmb = GetClientMailBox(fd);
-	if (pmb == NULL)
+	if (pmb == nullptr)
 	{
-		return -1;
+		return READ_MSG_ERROR;
 	}
 
 	// 1. get input evbuffer and length
-	// 2. copy to local buffer
-	// 3. remove header data in evbuffer
-	// 4. debug test logic, get output evbuffer and add to send msg to client
+	// 2. check if has pluto in mailbox
+	// 3. copy to pluto buffer
+	// 4. if read msg finish, add into recv msg list, and clean mailbox pluto
 
 	// get input evbuffer and length
 	struct evbuffer *input = bufferevent_get_input(bev);
 	const size_t input_len = evbuffer_get_length(input);
-	/*
-<<<<<<< HEAD
-	LogDebug("%s input_len=%lu", __FUNCTION__, input_len);
 
-	// NOTE
-	// copy to local buffer
-	// must copy all data from input to local buffer, because read_cb will not active again even if still has data in input, until receive client data next time
-	char *in_buffer = (char *)calloc(1, input_len+1); 
-	int n = evbuffer_copyout(input, in_buffer, input_len);
-	LogDebug("%s n=%d in_buffer=%s", __FUNCTION__, n, in_buffer);
-
-	// remove data in evbuffer
-	evbuffer_drain(input, n);
-
-	// DEBUG get output evbuffer and add to send msg to client
-	struct evbuffer *output = bufferevent_get_output(bev);
-	char out_buffer[100];
-	sprintf(out_buffer, "hello %lu", time(NULL));
-	evbuffer_add(output, out_buffer, strlen(out_buffer));
-=======
-*/
-
-	printf("input_len=%lu\n", input_len);
+	LOG_DEBUG("input_len=%lu", input_len);
 	if (input_len == 0)
 	{
-		return 0;
+		return READ_MSG_WAIT;
 	}
 
+	char *buffer = nullptr;
+	int nWanted = 0;
 	ev_ssize_t nLen = 0;
+
 	Pluto *u = pmb->m_pluto;
-	if (u == NULL)
+	if (u == nullptr)
 	{
+		// no pluto in mailbox
+
 		if (input_len < PLUTO_MSGLEN_HEAD)
 		{
-			return 0;
+			// data less then msg head
+			return READ_MSG_WAIT;
 		}
 
+		// get msg head len
 		char head[PLUTO_MSGLEN_HEAD];
 		nLen= evbuffer_copyout(input, head, PLUTO_MSGLEN_HEAD);
 		if (nLen < PLUTO_MSGLEN_HEAD)
 		{
-			return 0;
+			return READ_MSG_WAIT;
 		}
 
+		// shift input data
 		evbuffer_drain(input, nLen);
+
 		int msgLen = ntohl(*(uint32_t *)head);
 		if (msgLen > MSGLEN_MAX)
 		{
-			// warn it
+			LOG_WARN("msg too long fd=%d msgLen=%d", fd, msgLen);
+			// TODO should kick this connection?
 		}
 
+		// new a pluto
 		u = new Pluto(msgLen);
-		char *buffer = u->m_recvBuffer;
+		pmb->m_pluto = u;
+
+		// copy msghead to buffer
+		buffer = u->m_recvBuffer;
 		memcpy(buffer, head, PLUTO_MSGLEN_HEAD);
+		buffer += PLUTO_MSGLEN_HEAD;
 
-		int nWanted = msgLen - PLUTO_MSGLEN_HEAD;
-		nLen = evbuffer_copyout(input, buffer+PLUTO_MSGLEN_HEAD, nWanted);
-		if (nLen <= 0)
-		{
-			// no more data
-			u->m_recvLen = PLUTO_MSGLEN_HEAD;
-			pmb->m_pluto = u;
-			return 0;
-		}
-
-		evbuffer_drain(input, nLen);
-		if (nLen != nWanted)
-		{
-			// data not enough
-			u->m_recvLen = PLUTO_MSGLEN_HEAD + nLen;
-			pmb->m_pluto = u;
-			return 0;
-		}
-
-		// get a full msg
-		u->m_pmb = pmb;
-		m_recvMsgs.push_back(u);
-		pmb->m_pluto = NULL;
-
-		return 1;
+		u->m_recvLen = PLUTO_MSGLEN_HEAD;
+		nWanted = msgLen - PLUTO_MSGLEN_HEAD;
 	}
 
-	// already has pluto in mailbox
 	else
 	{
-		char *buffer = u->m_recvBuffer;
-		int recvLen = u->m_recvLen;
-		int nWanted = u->m_bufferSize - recvLen;
-		nLen = evbuffer_copyout(input, buffer+recvLen, nWanted);
-		if (nLen <= 0)
-		{
-			return 0;
-		}
-		
-		evbuffer_drain(input, nLen);
-		if (nLen != nWanted)
-		{
-			u->m_recvLen = recvLen + nLen;
-			return 0;
-		}
-
-		// get a full msg
-		u->m_pmb = pmb;
-		m_recvMsgs.push_back(u);
-		pmb->m_pluto = NULL;
-
-		return 1;
+		// already has pluto in mailbox
+		buffer = u->m_recvBuffer + u->m_recvLen;
+		nWanted = u->m_bufferSize - u->m_recvLen;
 	}
 
-	return 0;
+	// copy remain data to buffer
+	nLen = evbuffer_copyout(input, buffer, nWanted);
+	if (nLen <= 0)
+	{
+		// no more data
+		return READ_MSG_WAIT;
+	}
+
+	evbuffer_drain(input, nLen);
+	if (nLen != nWanted)
+	{
+		// data not recv finish
+		// update recv len
+		u->m_recvLen = u->m_recvLen + nLen;
+		return READ_MSG_WAIT;
+	}
+
+	// get a full msg
+	// add into recv msg list
+	u->m_recvLen = u->m_bufferSize;
+	u->m_pmb = pmb;
+	m_recvMsgs.push_back(u);
+
+	// clean mailbox pluto
+	pmb->m_pluto = NULL;
+
+	return READ_MSG_FINISH;
 }
+
 
 int NetService::HandleSocketConnected(evutil_socket_t fd)
 {
@@ -314,32 +349,80 @@ int NetService::HandleSocketClosed(evutil_socket_t fd)
 	MailBox *pmb = GetClientMailBox(fd);
 	if (pmb == NULL)
 	{
+		LOG_WARN("mailbox null fd=%d", fd);
 		return 0;
 	}
-	pmb->m_bev = NULL;
-	m_fds.erase(fd);
+
+	// TODO broadcast to world
+	RemoveFd(fd);
+	pmb->m_bev = nullptr;
+
 	return 0;
 }
 
 int NetService::HandleSocketError(evutil_socket_t fd)
 {
 	MailBox *pmb = GetClientMailBox(fd);
-	if (pmb == NULL)
+	if (pmb == nullptr)
 	{
 		return 0;
 	}
-	pmb->m_bev = NULL;
-	m_fds.erase(fd);
+
+	RemoveFd(fd);
+	pmb->m_bev = nullptr;
+
 	return 0;
 }
 
+void NetService::RemoveFd(int fd)
+{
+	auto iter = m_fds.find(fd);
+	if (iter == m_fds.end())
+	{
+		return;
+	}
+
+	MailBox *pmb = iter->second;
+	if (pmb->m_fdType == FD_TYPE_ACCEPT)
+	{
+		// client
+		// push to list, delete by tick
+		pmb->SetDeleteFlag();
+		m_mb4del.push_back(pmb);
+		m_fds.erase(iter);
+	}
+	else if (pmb->m_fdType == FD_TYPE_MAILBOX)
+	{
+		// server
+		// try reconnect
+		// TODO
+	}
+}
+
+
 int NetService::HandlePluto(Pluto *u)
 {
+	LOG_DEBUG("u->m_bufferSize=%d", u->m_bufferSize);
+	std::string buffer(u->m_recvBuffer, u->m_bufferSize);
+	LOG_DEBUG("msgId=[%d] buffer=[%s]", u->GetMsgId(), buffer.c_str() + PLUTO_FILED_BEGIN_POS);
+
+	MailBox *pmb = u->m_pmb;
+	if (pmb == nullptr)
+	{
+		LOG_ERROR("mailbox null");
+		return 0;
+	}
+
+	if (pmb->IsDelete())
+	{
+		// mailbox will be delete, client is already disconnect, no need to handle this pluto
+		LOG_INFO("mailbox delete fd=%d", pmb->m_fd);
+		return 0;
+	}
+
 	// do core logic here
 	// TODO
-	printf("HandleRecvPluto: u->m_bufferSize=%d\n", u->m_bufferSize);
-	std::string buffer(u->m_recvBuffer, u->m_bufferSize);
-	printf("%s\n", buffer.c_str()+PLUTO_MSGLEN_HEAD);
+
 	return 0;
 }
 
@@ -362,15 +445,18 @@ int NetService::HandleSendPluto()
 
 int NetService::HandleSocketTickEvent()
 {
-	// 1. handle pluto
+	// 1. handle recv pluto
 	// 2. handle send pluto
-	// 3. TODO delete pluto
+	// 3. delete mailbox
 	
-	// 1.
+	// handle recv pluto
 	HandleRecvPluto();
 
-	// 2.
+	// handle send pluto
 	HandleSendPluto();
+
+	// delete mailbox
+	ClearContainer(m_mb4del);
 
 	return 0;
 }
@@ -400,18 +486,18 @@ static void event_cb(struct bufferevent *bev, short event, void *user_data)
 	bool bFinished = false;
 	if (event & BEV_EVENT_CONNECTED)
 	{
-		LogDebug("%s: event connected %d", __FUNCTION__, fd);
+		LOG_DEBUG("event connected %d", fd);
 		ns->HandleSocketConnected(fd);
 	}
 	else if (event & BEV_EVENT_EOF)
 	{
-		LogDebug("%s: event eof fd=%d", __FUNCTION__, fd);
+		LOG_DEBUG("event eof fd=%d", fd);
 		ns->HandleSocketClosed(fd);
 		bFinished = true;
 	}
 	else if (event & BEV_EVENT_ERROR)
 	{
-		LogError("%s: event error fd=%d errno=%d", __FUNCTION__, fd, errno);
+		LOG_ERROR("event error fd=%d errno=%d", fd, errno);
 		ns->HandleSocketError(fd);
 		bFinished = true;
 	}
@@ -425,6 +511,7 @@ static void event_cb(struct bufferevent *bev, short event, void *user_data)
 
 static void timer_cb(evutil_socket_t fd, short event, void *user_data)
 {
+	// LOG_DEBUG("fd=%d", fd);
 	NetService *server = (NetService *)user_data;
 	server->HandleSocketTickEvent();
 }

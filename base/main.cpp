@@ -4,7 +4,7 @@
 
 int main(int argc, char ** argv)
 {
-	LogDebug("%s %s", __FUNCTION__, argv[0]);
+	LOG_DEBUG("%s", argv[0]);
 
 	NetService *ns = new NetService();
 	ns->Service("0.0.0.0", 7711);

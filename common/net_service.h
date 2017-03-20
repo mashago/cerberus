@@ -35,35 +35,38 @@ public:
 
 	int LoadConfig(const char *path);
 	int Service(const char *addr, unsigned int port);
+	MailBox *GetClientMailBox(int fd);
 
 	virtual int HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int socklen);
-	virtual int HandleSocketConnected(evutil_socket_t fd);
-	virtual int HandleSocketClosed(evutil_socket_t fd);
-	virtual int HandleSocketError(evutil_socket_t fd);
 
 	virtual int HandleSocketReadEvent(struct bufferevent *bev);
 	virtual int HandleSocketReadMessage(struct bufferevent *bev);
 
-	virtual int HandleSocketTickEvent();
+	virtual int HandleSocketConnected(evutil_socket_t fd);
+	virtual int HandleSocketClosed(evutil_socket_t fd);
+	virtual int HandleSocketError(evutil_socket_t fd);
 
+	virtual int HandleSocketTickEvent();
 	virtual int HandleRecvPluto();
+	virtual int HandlePluto(Pluto *u);
 	virtual int HandleSendPluto();
 
-	virtual int HandlePluto(Pluto *u);
-
-	inline MailBox *GetClientMailBox(int fd);
 
 private:
-	int StartServer(const char *addr, unsigned int port);
+	int StartService(const char *addr, unsigned int port);
+	int OnNewFdAccepted(int fd);
+	void AddFdAndMb(int fd, EFDTYPE type);
+	void AddFdAndMb(int fd, MailBox *pmb);
+	void RemoveFd(int fd);
+
 	struct event_base *m_mainEvent;
 	struct event_base *m_mainBase;
 	struct event *m_timerEvent;
 	struct evconnlistener *m_evconnlistener;
 
-	std::map<int, MailBox*> m_fds;
+	std::map<int, MailBox *> m_fds;
+	std::list<MailBox *> m_mb4del;
 	std::list<Pluto *> m_recvMsgs;
-
-	int OnNewFdAccepted(int fd);
 };
 
 #endif

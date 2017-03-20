@@ -5,12 +5,14 @@ extern "C"
 }
 #include "mailbox.h"
 
-MailBox::MailBox()
+MailBox::MailBox(EFDTYPE type) : m_fdType(type), m_pluto(nullptr), m_bev(nullptr), m_bDeleteFlag(false)
 {
-	m_pluto = NULL;
-	m_bev = NULL;
 }
 
 MailBox::~MailBox()
 {
+	if (m_pluto)
+	{
+		delete m_pluto;
+	}
 }
