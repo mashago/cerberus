@@ -58,6 +58,7 @@ private:
 	void AddFdAndMb(int fd, EFDTYPE type);
 	void AddFdAndMb(int fd, MailBox *pmb);
 	void RemoveFd(int fd);
+	void CloseFd(int fd);
 
 	struct event_base *m_mainEvent;
 	struct event_base *m_mainBase;

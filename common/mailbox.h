@@ -30,6 +30,8 @@ public:
 		return m_bDeleteFlag;
 	}
 
+	int SendAll();
+
 // private:
 	EFDTYPE m_fdType;
 	int m_fd;

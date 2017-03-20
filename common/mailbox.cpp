@@ -16,3 +16,8 @@ MailBox::~MailBox()
 		delete m_pluto;
 	}
 }
+
+int MailBox::SendAll()
+{
+	return 0;
+}

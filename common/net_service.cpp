@@ -438,8 +438,47 @@ int NetService::HandleRecvPluto()
 	return 0;
 }
 
+void NetService::CloseFd(int fd)
+{
+	// TODO broadcast to world
+	
+	MailBox *pmb = GetClientMailBox(fd);
+	if (pmb == nullptr)
+	{
+		return;
+	}
+
+	if (pmb->m_bev == nullptr)
+	{
+		return;
+	}
+	
+	bufferevent_free(pmb->m_bev);
+	pmb->m_bev = nullptr;
+
+	RemoveFd(fd);
+}
+
 int NetService::HandleSendPluto()
 {
+	// loop add mailbox, do send all
+	std::list<int> ls4del;
+	for (auto iter = m_fds.begin(); iter != m_fds.end(); iter++)
+	{
+		MailBox *pmb = iter->second;
+		int ret = pmb->SendAll();
+		if (ret != 0)
+		{
+			ls4del.push_back(pmb->m_fd);
+		}
+	}
+
+	// close error connect
+	for (auto iter = ls4del.begin(); iter != ls4del.end(); iter++)
+	{
+		CloseFd(*iter);
+	}
+
 	return 0;
 }
 
