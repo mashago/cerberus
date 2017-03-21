@@ -30,7 +30,7 @@ static void read_cb(struct bufferevent *bev, void *user_data);
 static void event_cb(struct bufferevent *bev, short event, void *user_data);
 static void timer_cb(evutil_socket_t fd, short event, void *user_data);
 
-NetService::NetService() : m_mainEvent(0), m_evconnlistener(0)
+NetService::NetService() : m_mainEvent(nullptr), m_timerEvent(nullptr), m_evconnlistener(nullptr), m_world(nullptr)
 {
 }
 
@@ -121,6 +121,16 @@ MailBox *NetService::GetClientMailBox(int fd)
 		return nullptr;
 	}
 	return iter->second;
+}
+
+void NetService::SetWorld(World *world)
+{
+	m_world = world;
+}
+
+World *NetService::GetWorld()
+{
+	return m_world;
 }
 
 
@@ -282,7 +292,8 @@ int NetService::HandleSocketReadMessage(struct bufferevent *bev)
 		// shift input data
 		evbuffer_drain(input, nLen);
 
-		int msgLen = ntohl(*(uint32_t *)head);
+		// get msglen
+		int msgLen = (int)ntohl(*(uint32_t *)head);
 		if (msgLen > MSGLEN_MAX)
 		{
 			LOG_WARN("msg too long fd=%d msgLen=%d", fd, msgLen);
@@ -330,12 +341,17 @@ int NetService::HandleSocketReadMessage(struct bufferevent *bev)
 	// add into recv msg list
 	u->m_recvLen = u->m_bufferSize;
 	u->m_pmb = pmb;
-	m_recvMsgs.push_back(u);
+	AddRecvMsg(u);
 
 	// clean mailbox pluto
 	pmb->m_pluto = NULL;
 
 	return READ_MSG_FINISH;
+}
+
+void NetService::AddRecvMsg(Pluto *u)
+{
+	m_recvMsgs.push_back(u);
 }
 
 
@@ -400,39 +416,16 @@ void NetService::RemoveFd(int fd)
 }
 
 
-int NetService::HandlePluto(Pluto *u)
-{
-	LOG_DEBUG("u->m_bufferSize=%d", u->m_bufferSize);
-	std::string buffer(u->m_recvBuffer, u->m_bufferSize);
-	LOG_DEBUG("msgId=[%d] buffer=[%s]", u->GetMsgId(), buffer.c_str() + PLUTO_FILED_BEGIN_POS);
-
-	MailBox *pmb = u->m_pmb;
-	if (pmb == nullptr)
-	{
-		LOG_ERROR("mailbox null");
-		return 0;
-	}
-
-	if (pmb->IsDelete())
-	{
-		// mailbox will be delete, client is already disconnect, no need to handle this pluto
-		LOG_INFO("mailbox delete fd=%d", pmb->m_fd);
-		return 0;
-	}
-
-	// do core logic here
-	// TODO
-
-	return 0;
-}
-
 int NetService::HandleRecvPluto()
 {
 	while (!m_recvMsgs.empty())
 	{
 		Pluto *u = m_recvMsgs.front();
 		m_recvMsgs.pop_front();
-		HandlePluto(u);
+
+		// core logic
+		m_world->FromRpcCall(*u);
+
 		delete u;
 	}
 	return 0;

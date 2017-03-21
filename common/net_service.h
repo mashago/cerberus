@@ -24,6 +24,7 @@ extern "C"
 #include <map>
 #include <list>
 #include "mailbox.h"
+#include "world.h"
 
 
 class NetService
@@ -36,11 +37,14 @@ public:
 	int LoadConfig(const char *path);
 	int Service(const char *addr, unsigned int port);
 	MailBox *GetClientMailBox(int fd);
+	void SetWorld(World *world);
+	World *GetWorld();
 
 	virtual int HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int socklen);
 
 	virtual int HandleSocketReadEvent(struct bufferevent *bev);
 	virtual int HandleSocketReadMessage(struct bufferevent *bev);
+	virtual void AddRecvMsg(Pluto *u);
 
 	virtual int HandleSocketConnected(evutil_socket_t fd);
 	virtual int HandleSocketClosed(evutil_socket_t fd);
@@ -48,7 +52,6 @@ public:
 
 	virtual int HandleSocketTickEvent();
 	virtual int HandleRecvPluto();
-	virtual int HandlePluto(Pluto *u);
 	virtual int HandleSendPluto();
 
 
@@ -67,6 +70,7 @@ private:
 	std::map<int, MailBox *> m_fds;
 	std::list<MailBox *> m_mb4del;
 	std::list<Pluto *> m_recvMsgs;
+	World *m_world;
 };
 
 #endif

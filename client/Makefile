@@ -5,7 +5,7 @@ CC:=gcc
 CXX:=g++
 
 C_FLAGS:=
-CPP_FLAGS:=-O0 -Wall --std=c++11
+CPP_FLAGS:=-O0 -Wall --std=c++11 -g
 
 OS:=$(shell uname -s)
 SRC:=$(wildcard *.cpp) $(wildcard *.c)

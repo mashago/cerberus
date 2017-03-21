@@ -23,6 +23,7 @@ extern "C"
 #include <event2/buffer.h>
 }
 
+#include <string>
 #include "logger.h"
 #include "pluto.h"
 
@@ -46,26 +47,50 @@ void read_cb(struct bufferevent *bev, void *user_data)
 {
 	// handle read event
 	
-	// struct event_base *main_event = (struct event_base *)user_data;
-	evutil_socket_t fd = bufferevent_getfd(bev);
-	LOG_DEBUG("fd=%d", fd);
+	do
+	{
+		// struct event_base *main_event = (struct event_base *)user_data;
+		evutil_socket_t fd = bufferevent_getfd(bev);
+		LOG_DEBUG("fd=%d", fd);
 
-	// 1. get input evbuffer and length
-	struct evbuffer *input = bufferevent_get_input(bev);
-	const size_t input_len = evbuffer_get_length(input);
-	LOG_DEBUG("input_len=%lu", input_len);
+		// get input evbuffer and length
+		struct evbuffer *input = bufferevent_get_input(bev);
+		const size_t inputLen = evbuffer_get_length(input);
+		LOG_DEBUG("inputLen=%lu", inputLen);
 
-	// local buffer must get all data from input because read_cb will not active again even if still has data in input, until receive client data next time
-	char *in_buffer = (char *)calloc(1, input_len+1); 
+		// NOTE:
+		// local buffer must get all data from input because read_cb will not active again even if still has data in input, until receive client data next time
+		
+		// read head
+		char head[PLUTO_MSGLEN_HEAD];
+		ev_ssize_t nLen = evbuffer_copyout(input, head, PLUTO_MSGLEN_HEAD);
+		if (nLen < PLUTO_MSGLEN_HEAD)
+		{
+			// head not complete
+			return;
+		}
 
-	// 2. copy to local buffer
-	int n = evbuffer_copyout(input, in_buffer, input_len);
-	LOG_DEBUG("n=%d in_buffer=%s", n, in_buffer);
+		int msgLen = (int)ntohl(*(uint32_t *)head);
+		LOG_DEBUG("msgLen=%d", msgLen);
+		if (msgLen > (int)inputLen)
+		{
+			// msg not complete
+			return;
+		}
 
-	// 3. remove header data in evbuffer
-	evbuffer_drain(input, n);
+		Pluto *u = new Pluto(msgLen);
+		// copy to local buffer
+		nLen = evbuffer_copyout(input, u->GetBuffer(), msgLen);
 
-	free(in_buffer);
+		// shift data
+		evbuffer_drain(input, nLen);
+
+		u->Print();
+
+		delete u;
+	} 
+	while (true);
+
 }
 
 void event_cb(struct bufferevent *bev, short what, void *user_data)

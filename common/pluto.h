@@ -29,7 +29,13 @@ public:
 	Pluto(int bufferSize);
 	~Pluto();
 
+	int GetLen();
 	int GetMsgId();
+	char * GetBuffer();
+	char * GetContent();
+	int GetContentLen();
+
+	void Print();
 
 // private:
 	char *m_recvBuffer;

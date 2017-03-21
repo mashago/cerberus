@@ -6,6 +6,7 @@ extern "C"
 {
 #include <event2/bufferevent.h>
 }
+#include <list>
 #include "common.h"
 #include "pluto.h"
 
@@ -30,6 +31,7 @@ public:
 		return m_bDeleteFlag;
 	}
 
+	void PushPluto(Pluto *u);
 	int SendAll();
 
 // private:
@@ -38,7 +40,8 @@ public:
 	Pluto *m_pluto;
 	struct bufferevent *m_bev;
 	bool m_bDeleteFlag;
-
+	std::list<Pluto *> m_tobeSend;
+	int m_sendPos;
 };
 
 #endif
