@@ -24,13 +24,16 @@ public:
 
 	bool Init(const char *addr, int port);
 	bool Run();
-	void Send(Command *cmd);
+	bool IsConnect();
+	void SetConnect(bool flag);
+	void PushCommand(Command *cmd);
 	void HandleTickEvent();
 
 private:
 	bool CreateConnection();
 	bool CreateTimer();
-	Command *GetCommand();
+	void HandleCommand();
+	Command *PopCommand();
 
 	std::mutex m_mtx;
 	std::thread m_thread;
@@ -43,6 +46,7 @@ private:
 
 	std::string m_addr;
 	int m_port;
+	bool m_bConnectFlag;
 };
 
 #endif

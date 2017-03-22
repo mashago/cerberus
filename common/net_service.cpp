@@ -101,8 +101,8 @@ int NetService::StartService(const char *addr, unsigned int port)
 	// init timer
 	m_timerEvent = event_new(m_mainEvent, -1, EV_PERSIST, timer_cb, this);
 	struct timeval tv;
-	// tv.tv_sec = 0;
-	tv.tv_sec = 3;
+	tv.tv_sec = 0;
+	// tv.tv_sec = 3;
 	tv.tv_usec = 50 * 1000;
 	if (event_add(m_timerEvent, &tv) != 0)
 	{
@@ -482,7 +482,7 @@ int NetService::HandleSocketTickEvent()
 	// 3. delete mailbox
 
 	// print some info
-	LOG_INFO("m_fds.size=%d m_mb4del.size=%d m_recvMsgs.size=%d", m_fds.size(), m_mb4del.size(), m_recvMsgs.size());
+	// LOG_INFO("m_fds.size=%d m_mb4del.size=%d m_recvMsgs.size=%d", m_fds.size(), m_mb4del.size(), m_recvMsgs.size());
 	
 	// handle recv pluto
 	HandleRecvPluto();

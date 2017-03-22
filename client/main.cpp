@@ -32,11 +32,11 @@ extern "C"
 
 #define SERVER_HOST "0.0.0.0"
 #define SERVER_PORT 7711
-#define CLIENT_NUM 10
+#define CLIENT_NUM 1 // max 337 in cygwin
 
 Client *g_clientlist = nullptr;
 
-void SendMsg(const char *buffer, int len);
+void HandleInput(const char *buffer, int len);
 void stdin_cb(evutil_socket_t fd, short what, void *user_data);
 
 struct event * CreateStdinEvent(struct event_base *mainEvent)
@@ -73,22 +73,27 @@ void stdin_cb(evutil_socket_t fd, short what, void *user_data)
 	}
 
 	// LOG_DEBUG("buffer=[%s]", buffer);
-	SendMsg(buffer, len);
+	HandleInput(buffer, len);
 }
 
-void SendMsg(const char *buffer, int len)
+void HandleInput(const char *buffer, int len)
 {
 	CommandFactory *factory = CommandFactory::Instance();
-	// client send msg
+	// client handle command
 	for (int i = 0; i < CLIENT_NUM; i++)
 	{
+		Client *c = g_clientlist+i;
+		if (!c->IsConnect())
+		{
+			continue;
+		}
+
 		Command *cmd = factory->CreateCommand(buffer, len);
 		if (!cmd)
 		{
-			return;
+			continue;
 		}
-		Client *c = g_clientlist+i;
-		c->Send(cmd);
+		c->PushCommand(cmd);
 	}
 }
 
@@ -109,13 +114,9 @@ bool CreateClient()
 			return false;
 		}
 	}
+	LOG_DEBUG("init success");
 
-	LOG_DEBUG("success");
-	return true;
-}
-
-bool RunClient()
-{
+	// run
 	for (int i = 0; i < CLIENT_NUM; i++)
 	{
 		Client *c = g_clientlist+i;
@@ -124,8 +125,8 @@ bool RunClient()
 			return false;
 		}
 	}
+	LOG_DEBUG("run success");
 
-	LOG_DEBUG("success");
 	return true;
 }
 
@@ -133,6 +134,13 @@ bool RunClient()
 int main(int argc, char **argv)
 {
 	LOG_DEBUG("hello %s", argv[0]);
+
+	// create client
+	if (!CreateClient())
+	{
+		LOG_ERROR("CreateClient fail");
+		return 0;
+	}
 
 	// create main event
 	struct event_base *mainEvent = event_base_new();
@@ -147,20 +155,6 @@ int main(int argc, char **argv)
 	if (stdinEvent == NULL)
 	{
 		LOG_ERROR("CreateStdinEvent fail");
-		return 0;
-	}
-
-	// create client
-	if (!CreateClient())
-	{
-		LOG_ERROR("CreateClient fail");
-		return 0;
-	}
-
-	// run client
-	if (!RunClient())
-	{
-		LOG_ERROR("RunClient fail");
 		return 0;
 	}
 

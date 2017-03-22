@@ -33,7 +33,7 @@ void MailBox::PushPluto(Pluto *u)
 
 int MailBox::SendAll()
 {
-	LOG_DEBUG("m_tobeSend.size=%d", m_tobeSend.size());
+	// LOG_DEBUG("m_tobeSend.size=%d", m_tobeSend.size());
 
 	if (!m_bev)
 	{

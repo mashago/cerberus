@@ -33,7 +33,7 @@ void event_cb(struct bufferevent *bev, short what, void *user_data);
 void timer_cb(evutil_socket_t fd, short event, void *user_data);
 
 
-Client::Client() : m_mainEvent(nullptr), m_bev(nullptr), m_timerEvent(nullptr)
+Client::Client() : m_mainEvent(nullptr), m_bev(nullptr), m_timerEvent(nullptr), m_bConnectFlag(false)
 {
 }
 
@@ -129,8 +129,10 @@ bool Client::Run()
 {
 	m_thread = std::thread([&]()
 		{
+			SetConnect(true);
 			int ret = event_base_dispatch(m_mainEvent);
 			LOG_WARN("client run finish ret=%d", ret);
+			SetConnect(false);
 		}
 	);
 	LOG_DEBUG("success");
@@ -138,7 +140,17 @@ bool Client::Run()
 	return true;
 }
 
-void Client::Send(Command *cmd)
+void Client::SetConnect(bool flag)
+{
+	m_bConnectFlag = flag;
+}
+
+bool Client::IsConnect()
+{
+	return m_bConnectFlag;
+}
+
+void Client::PushCommand(Command *cmd)
 {
 	std::unique_lock<std::mutex> lock(m_mtx);
 	
@@ -147,9 +159,14 @@ void Client::Send(Command *cmd)
 
 void Client::HandleTickEvent()
 {
+	HandleCommand();
+}
+
+void Client::HandleCommand()
+{
 	do
 	{
-		Command *c = GetCommand();
+		Command *c = PopCommand();
 		if (!c)
 		{
 			break;
@@ -165,7 +182,7 @@ void Client::HandleTickEvent()
 	while (true);
 }
 
-Command * Client::GetCommand()
+Command * Client::PopCommand()
 {
 	std::unique_lock<std::mutex> lock(m_mtx);
 	
