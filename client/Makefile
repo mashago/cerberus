@@ -1,5 +1,5 @@
 
-TARGET:=client_test
+TARGET:=main
 
 CC:=gcc
 CXX:=g++
