@@ -56,9 +56,9 @@ void stdin_cb(evutil_socket_t fd, short what, void *user_data)
 {
 	struct event_base *mainEvent = (struct event_base *)user_data;
 
-	enum {MAX_INPUT = 1024};
-	char buffer[MAX_INPUT] = {0};
-	int len = read(fd, buffer, MAX_INPUT);
+	const int MAX_BUFFER = 1024;
+	char buffer[MAX_BUFFER] = {0};
+	int len = read(fd, buffer, MAX_BUFFER);
 	if (len == 0)
 	{
 		// EOF
