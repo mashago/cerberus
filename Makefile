@@ -1,5 +1,5 @@
 
-SUBDIRS:= common base client
+SUBDIRS:= common router client
 
 all: $(SUBDIRS)
 	@for dir in $(SUBDIRS); do make -C $$dir || exit"$$?"; done

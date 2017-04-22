@@ -31,11 +31,17 @@ class NetService
 {
 
 public:
+	enum NetServiceType
+	{
+		WITH_LISTENER = 1,
+		NO_LISTENER = 2,
+	};
 	NetService();
 	virtual ~NetService();
 
-	int LoadConfig(const char *path);
-	int Service(const char *addr, unsigned int port);
+	int Service(NetServiceType netType, const char *addr, unsigned int port);
+	int ConnectTo(const char *addr, unsigned int port);
+
 	MailBox *GetClientMailBox(int fd);
 	void SetWorld(World *world);
 	World *GetWorld();
@@ -56,10 +62,9 @@ public:
 
 
 private:
-	int StartService(const char *addr, unsigned int port);
-	int OnNewFdAccepted(int fd);
-	void AddFdAndMb(int fd, EFDTYPE type);
-	void AddFdAndMb(int fd, MailBox *pmb);
+	bool Listen(const char *addr, unsigned int port);
+	bool Accept(int fd, EFDTYPE type);
+	MailBox * NewMailbox(int fd, EFDTYPE type);
 	void RemoveFd(int fd);
 	void CloseFd(int fd);
 

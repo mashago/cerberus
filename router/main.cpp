@@ -10,7 +10,7 @@ int main(int argc, char ** argv)
 	World *w = new RouterWorld();
 	NetService *ns = new NetService();
 	ns->SetWorld(w);
-	ns->Service("0.0.0.0", 7711);
+	ns->Service(NetService::WITH_LISTENER, "0.0.0.0", 7711);
 
 	return 0;
 }

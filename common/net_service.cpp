@@ -38,16 +38,33 @@ NetService::~NetService()
 {
 }
 
-int NetService::LoadConfig(const char *path)
+int NetService::Service(NetServiceType netType, const char *addr, unsigned int port)
 {
-	// load other net service config
-	return 0;
-}
 
-int NetService::Service(const char *addr, unsigned int port)
-{
-	if (StartService(addr, port))
+	// new event_base
+	m_mainEvent = event_base_new();
+	if (!m_mainEvent)
 	{
+		LOG_ERROR("event_base_new fail");
+		return -1;
+	}
+
+	// listen
+	if (netType == NetServiceType::WITH_LISTENER && !Listen(addr, port))
+	{
+		LOG_ERROR("listen fail");
+		return -1;
+	}
+
+	// init timer
+	m_timerEvent = event_new(m_mainEvent, -1, EV_PERSIST, timer_cb, this);
+	struct timeval tv;
+	tv.tv_sec = 0;
+	// tv.tv_sec = 3;
+	tv.tv_usec = 50 * 1000;
+	if (event_add(m_timerEvent, &tv) != 0)
+	{
+		LOG_ERROR("add timer fail");
 		return -1;
 	}
 
@@ -65,20 +82,17 @@ int NetService::Service(const char *addr, unsigned int port)
 	return 0;
 }
 
-int NetService::StartService(const char *addr, unsigned int port)
+int NetService::ConnectTo(const char *addr, unsigned int port)
+{
+	return -1;
+};
+
+bool NetService::Listen(const char *addr, unsigned int port)
 {
 	// 1. new event_base
 	// 2. init listener
 	// 3. set nonblock
 	// 4. init timer
-
-	// new event_base
-	m_mainEvent = event_base_new();
-	if (!m_mainEvent)
-	{
-		LOG_ERROR("event_base_new fail");
-		return -1;
-	}
 
 	// init listener
 	struct sockaddr_in sin;
@@ -91,26 +105,14 @@ int NetService::StartService(const char *addr, unsigned int port)
 	if (!m_evconnlistener)
 	{
 		LOG_ERROR("new bind fail");
-		return -1;
+		return false;
 	}
 
 	// set nonblock
 	evutil_socket_t listen_fd = evconnlistener_get_fd(m_evconnlistener);
 	evutil_make_socket_nonblocking(listen_fd);
 
-	// init timer
-	m_timerEvent = event_new(m_mainEvent, -1, EV_PERSIST, timer_cb, this);
-	struct timeval tv;
-	tv.tv_sec = 0;
-	// tv.tv_sec = 3;
-	tv.tv_usec = 50 * 1000;
-	if (event_add(m_timerEvent, &tv) != 0)
-	{
-		LOG_ERROR("StartService: event_add timer fail");
-		return -1;
-	}
-
-	return 0;
+	return true;
 }
 
 MailBox *NetService::GetClientMailBox(int fd)
@@ -143,8 +145,17 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 	// 3. set fd non-block
 	// 4. accept clinet
 	
+	struct sockaddr_in *sin = (struct sockaddr_in *)sa;
+
+	const char *clientHost = inet_ntoa(sin->sin_addr);
+	uint16_t clientPort = ntohs(sin->sin_port);
+	LOG_DEBUG("clientHost=%s clientPort=%d", clientHost, clientPort);
+
 	// check connection num
 	// TODO
+
+	// check connection is server or client
+	EFDTYPE type = FD_TYPE_CLIENT_TRUST;
 	
 	// check connection is valide
 	// TODO
@@ -153,49 +164,38 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 	evutil_make_socket_nonblocking(fd);
 
 	// accept client
-	OnNewFdAccepted(fd);
+	Accept(fd, type);
 
 	return 0;
 }
 
-int NetService::OnNewFdAccepted(int fd)
+bool NetService::Accept(int fd, EFDTYPE type)
 {
-
-	// 1. create mailbox and init
+	// 1. new mailbox
 	// 2. init buffer socket
 	
-	// create mailbox and init
-	AddFdAndMb(fd, FD_TYPE_ACCEPT);
-
-	// init buffer socket
-	MailBox *pmb = GetClientMailBox(fd);
+	// new mailbox
+	MailBox *pmb = NewMailbox(fd, type);
 	if (!pmb)
 	{
 		LOG_ERROR("mailbox null fd=%d", fd);
-		return -1;
+		return false;
 	}
 
+	// init buffer socket
 	struct bufferevent *bev = bufferevent_socket_new(m_mainEvent, fd, BEV_OPT_CLOSE_ON_FREE | BEV_OPT_DEFER_CALLBACKS);
 	bufferevent_setcb(bev, read_cb, NULL, event_cb, (void *)this);
 	bufferevent_enable(bev, EV_READ); // XXX consider set EV_PERSIST ?
 
 	pmb->m_bev = bev;
 
-	return 0;
+	return true;
 }
 
-void NetService::AddFdAndMb(int fd, EFDTYPE type)
+MailBox * NetService::NewMailbox(int fd, EFDTYPE type)
 {
 	MailBox *pmb = new MailBox(type);
 
-	// check if is trust connect
-	// TODO
-	
-	AddFdAndMb(fd, pmb);
-}
-
-void NetService::AddFdAndMb(int fd, MailBox *pmb)
-{
 	pmb->SetFd(fd);
 
 	auto iter = m_fds.lower_bound(fd);
@@ -215,7 +215,8 @@ void NetService::AddFdAndMb(int fd, MailBox *pmb)
 		// normal logic, insert new mailbox
 		m_fds.insert(iter, std::make_pair(fd, pmb));
 	}
-	LOG_DEBUG("fd=%d", fd);
+
+	return pmb;
 }
 
 enum READ_MSG_RESULT
@@ -399,7 +400,7 @@ void NetService::RemoveFd(int fd)
 	}
 
 	MailBox *pmb = iter->second;
-	if (pmb->m_fdType == FD_TYPE_ACCEPT)
+	if (pmb->m_fdType == FD_TYPE_CLIENT_UNTRUST or pmb->m_fdType == FD_TYPE_CLIENT_TRUST)
 	{
 		// client
 		// push to list, delete by tick
@@ -407,7 +408,7 @@ void NetService::RemoveFd(int fd)
 		m_mb4del.push_back(pmb);
 		m_fds.erase(iter);
 	}
-	else if (pmb->m_fdType == FD_TYPE_MAILBOX)
+	else if (pmb->m_fdType == FD_TYPE_SERVER_UNTRUST or pmb->m_fdType == FD_TYPE_SERVER_TRUST)
 	{
 		// server
 		// try reconnect

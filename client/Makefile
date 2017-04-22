@@ -1,5 +1,5 @@
 
-TARGET:=main
+TARGET:=Client
 
 CC:=gcc
 CXX:=g++
