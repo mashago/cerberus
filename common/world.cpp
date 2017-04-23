@@ -11,7 +11,7 @@ World::~World()
 {
 }
 
-bool World::CheckClientRpc(Pluto &u)
+bool World::CheckPluto(Pluto &u)
 {
 	MailBox *pmb = u.m_pmb;
 	if (pmb == nullptr)

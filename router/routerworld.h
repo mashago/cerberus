@@ -11,7 +11,9 @@ public:
 	virtual ~RouterWorld();
 
 private:
-	virtual int FromRpcCall(Pluto &u) override;
+	virtual int HandlePluto(Pluto &u) override;
+	virtual void HandleDisconnect(MailBox *pmb) override;
+	virtual void HandleConnectToSuccess(MailBox *pmb) override;
 };
 
 #endif

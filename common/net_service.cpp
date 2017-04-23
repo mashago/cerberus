@@ -84,7 +84,32 @@ int NetService::Service(NetServiceType netType, const char *addr, unsigned int p
 
 int NetService::ConnectTo(const char *addr, unsigned int port)
 {
-	return -1;
+    // init a sin
+    struct sockaddr_in sin;
+    memset(&sin, 0, sizeof(sin));
+    sin.sin_family = PF_INET;
+    sin.sin_addr.s_addr = inet_addr(addr);
+    sin.sin_port = htons(port);
+
+	// init buffer socket
+	struct bufferevent *bev = bufferevent_socket_new(m_mainEvent, -1, BEV_OPT_CLOSE_ON_FREE | BEV_OPT_DEFER_CALLBACKS);
+	if (!bev)
+	{
+		return -1;
+	}
+	bufferevent_setcb(bev, read_cb, NULL, event_cb, (void *)this);
+	bufferevent_enable(bev, EV_READ); // XXX consider set EV_PERSIST ?
+
+	// connect
+	int ret = bufferevent_socket_connect(bev, (struct sockaddr *)&sin, sizeof(sin));
+    if (ret < 0)
+    {
+        LOG_ERROR("bufferevent connect fail");
+        bufferevent_free(bev);
+        return -1;
+    }	
+
+	return 0;
 };
 
 bool NetService::Listen(const char *addr, unsigned int port)
@@ -425,7 +450,7 @@ int NetService::HandleRecvPluto()
 		m_recvMsgs.pop_front();
 
 		// core logic
-		m_world->FromRpcCall(*u);
+		m_world->HandlePluto(*u);
 
 		delete u;
 	}

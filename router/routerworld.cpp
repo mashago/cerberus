@@ -13,9 +13,9 @@ RouterWorld::~RouterWorld()
 {
 }
 
-void TestSendPluto(Pluto &u)
+void TestSendPluto(MailBox *pmb, int msgId)
 {
-	if (!u.m_pmb)
+	if (pmb)
 	{
 		// local pluto
 		return;
@@ -37,29 +37,37 @@ void TestSendPluto(Pluto &u)
 	ptr = buffer;
 	*(uint32_t *)ptr = htonl(msgLen);
 	ptr += MSGLEN_HEAD;
-	*(uint32_t *)ptr = htonl(u.GetMsgId());
+	*(uint32_t *)ptr = htonl(msgId);
 
 	Pluto *p = new Pluto(msgLen); // will delete by mailbox
-	p->m_pmb = u.m_pmb;
+	p->m_pmb = pmb;
 	memcpy(p->GetBuffer(), buffer, msgLen);
 	// p->Print();
 
-	u.m_pmb->PushPluto(p);
+	pmb->PushPluto(p);
 
 }
 
-int RouterWorld::FromRpcCall(Pluto &u)
+int RouterWorld::HandlePluto(Pluto &u)
 {
 	u.Print();
 
-	if (!CheckClientRpc(u))
+	if (!CheckPluto(u))
 	{
 		return 0;
 	}
 
 	// do core logic here
 	// TODO
-	TestSendPluto(u);
+	TestSendPluto(u.m_pmb, u.m_msgId);
 
 	return 0;
+}
+
+void RouterWorld::HandleDisconnect(MailBox *pmb)
+{
+}
+
+void RouterWorld::HandleConnectToSuccess(MailBox *pmb)
+{
 }

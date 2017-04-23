@@ -10,8 +10,10 @@ public:
 	World();
 	virtual ~World();
 
-	virtual int FromRpcCall(Pluto &u) = 0;
-	virtual bool CheckClientRpc(Pluto &u);
+	virtual int HandlePluto(Pluto &u) = 0;
+	virtual bool CheckPluto(Pluto &u);
+	virtual void HandleDisconnect(MailBox *pmb) = 0;
+	virtual void HandleConnectToSuccess(MailBox *pmb) = 0;
 };
 
 #endif
