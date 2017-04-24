@@ -13,7 +13,7 @@ RouterWorld::~RouterWorld()
 {
 }
 
-void TestSendPluto(MailBox *pmb, int msgId)
+void TestSendPluto(Mailbox *pmb, int msgId)
 {
 	if (pmb)
 	{
@@ -24,27 +24,21 @@ void TestSendPluto(MailBox *pmb, int msgId)
 	// new a pluto, and push into mailbox
 	
 	enum { BUFFER_SIZE = 1024,};
-	char buffer[BUFFER_SIZE];
-
-	int msgLen = PLUTO_FILED_BEGIN_POS;
-	char *ptr = buffer;
-	ptr += PLUTO_FILED_BEGIN_POS;
+	Pluto *pu = new Pluto(BUFFER_SIZE); // will delete by mailbox
 
 	// set content
-	msgLen += snprintf(ptr, BUFFER_SIZE-PLUTO_FILED_BEGIN_POS, "welcome %ld", time(NULL));
+	char tmp[100];
+	int len = sprintf(tmp, "welcome %ld", time(NULL));
+	pu->WriteString(tmp, len);
 
 	// set head
-	ptr = buffer;
-	*(uint32_t *)ptr = htonl(msgLen);
-	ptr += MSGLEN_HEAD;
-	*(uint32_t *)ptr = htonl(msgId);
+	pu->SetMsgLen();
+	pu->SetMsgId(msgId);
 
-	Pluto *p = new Pluto(msgLen); // will delete by mailbox
-	p->m_pmb = pmb;
-	memcpy(p->GetBuffer(), buffer, msgLen);
-	// p->Print();
+	pu->SetMailbox(pmb);
+	pu->Print();
 
-	pmb->PushPluto(p);
+	pmb->PushPluto(pu);
 
 }
 
@@ -59,15 +53,15 @@ int RouterWorld::HandlePluto(Pluto &u)
 
 	// do core logic here
 	// TODO
-	TestSendPluto(u.m_pmb, u.m_msgId);
+	TestSendPluto(u.GetMailbox(), u.GetMsgId());
 
 	return 0;
 }
 
-void RouterWorld::HandleDisconnect(MailBox *pmb)
+void RouterWorld::HandleDisconnect(Mailbox *pmb)
 {
 }
 
-void RouterWorld::HandleConnectToSuccess(MailBox *pmb)
+void RouterWorld::HandleConnectToSuccess(Mailbox *pmb)
 {
 }

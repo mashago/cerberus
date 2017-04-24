@@ -13,10 +13,11 @@ World::~World()
 
 bool World::CheckPluto(Pluto &u)
 {
-	MailBox *pmb = u.m_pmb;
+	Mailbox *pmb = u.GetMailbox();
 	if (pmb == nullptr)
 	{
 		// may from local rpc
+		LOG_INFO("mailbox null fd=%d", pmb->m_fd);
 		return true;
 	}
 

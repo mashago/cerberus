@@ -140,7 +140,7 @@ bool NetService::Listen(const char *addr, unsigned int port)
 	return true;
 }
 
-MailBox *NetService::GetClientMailBox(int fd)
+Mailbox *NetService::GetClientMailBox(int fd)
 {
 	auto iter = m_fds.find(fd);
 	if (iter == m_fds.end())
@@ -200,7 +200,7 @@ bool NetService::Accept(int fd, EFDTYPE type)
 	// 2. init buffer socket
 	
 	// new mailbox
-	MailBox *pmb = NewMailbox(fd, type);
+	Mailbox *pmb = NewMailbox(fd, type);
 	if (!pmb)
 	{
 		LOG_ERROR("mailbox null fd=%d", fd);
@@ -217,9 +217,9 @@ bool NetService::Accept(int fd, EFDTYPE type)
 	return true;
 }
 
-MailBox * NetService::NewMailbox(int fd, EFDTYPE type)
+Mailbox * NetService::NewMailbox(int fd, EFDTYPE type)
 {
-	MailBox *pmb = new MailBox(type);
+	Mailbox *pmb = new Mailbox(type);
 
 	pmb->SetFd(fd);
 
@@ -227,7 +227,7 @@ MailBox * NetService::NewMailbox(int fd, EFDTYPE type)
 	if (iter != m_fds.end() && iter->first == fd)
 	{
 		// still has old mailbox
-		MailBox *oldmb = iter->second;
+		Mailbox *oldmb = iter->second;
 		if (oldmb != pmb)
 		{
 			delete oldmb;
@@ -271,7 +271,7 @@ int NetService::HandleSocketReadMessage(struct bufferevent *bev)
 {
 	evutil_socket_t fd = bufferevent_getfd(bev);
 
-	MailBox *pmb = GetClientMailBox(fd);
+	Mailbox *pmb = GetClientMailBox(fd);
 	if (pmb == nullptr)
 	{
 		return READ_MSG_ERROR;
@@ -296,8 +296,8 @@ int NetService::HandleSocketReadMessage(struct bufferevent *bev)
 	int nWanted = 0;
 	ev_ssize_t nLen = 0;
 
-	Pluto *u = pmb->m_pluto;
-	if (u == nullptr)
+	Pluto *pu = pmb->m_pluto;
+	if (pu == nullptr)
 	{
 		// no pluto in mailbox
 
@@ -327,23 +327,23 @@ int NetService::HandleSocketReadMessage(struct bufferevent *bev)
 		}
 
 		// new a pluto
-		u = new Pluto(msgLen);
-		pmb->m_pluto = u;
+		pu = new Pluto(msgLen);
+		pmb->m_pluto = pu;
 
 		// copy msghead to buffer
-		buffer = u->m_recvBuffer;
+		buffer = pu->GetBuffer();
 		memcpy(buffer, head, PLUTO_MSGLEN_HEAD);
 		buffer += PLUTO_MSGLEN_HEAD;
 
-		u->m_recvLen = PLUTO_MSGLEN_HEAD;
+		pu->SetRecvLen(PLUTO_MSGLEN_HEAD);
 		nWanted = msgLen - PLUTO_MSGLEN_HEAD;
 	}
 
 	else
 	{
 		// already has pluto in mailbox
-		buffer = u->m_recvBuffer + u->m_recvLen;
-		nWanted = u->m_bufferSize - u->m_recvLen;
+		buffer = pu->GetBuffer() + pu->GetRecvLen();
+		nWanted = pu->GetMsgLen() - pu->GetRecvLen();
 	}
 
 	// copy remain data to buffer
@@ -359,15 +359,15 @@ int NetService::HandleSocketReadMessage(struct bufferevent *bev)
 	{
 		// data not recv finish
 		// update recv len
-		u->m_recvLen = u->m_recvLen + nLen;
+		pu->SetRecvLen(pu->GetRecvLen() + nLen);
 		return READ_MSG_WAIT;
 	}
 
 	// get a full msg
 	// add into recv msg list
-	u->m_recvLen = u->m_bufferSize;
-	u->m_pmb = pmb;
-	AddRecvMsg(u);
+	pu->SetRecvLen(pu->GetMsgLen());
+	pu->SetMailbox(pmb);
+	AddRecvMsg(pu);
 
 	// clean mailbox pluto
 	pmb->m_pluto = NULL;
@@ -375,9 +375,9 @@ int NetService::HandleSocketReadMessage(struct bufferevent *bev)
 	return READ_MSG_FINISH;
 }
 
-void NetService::AddRecvMsg(Pluto *u)
+void NetService::AddRecvMsg(Pluto *pu)
 {
-	m_recvMsgs.push_back(u);
+	m_recvMsgs.push_back(pu);
 }
 
 
@@ -388,7 +388,7 @@ int NetService::HandleSocketConnected(evutil_socket_t fd)
 
 int NetService::HandleSocketClosed(evutil_socket_t fd)
 {
-	MailBox *pmb = GetClientMailBox(fd);
+	Mailbox *pmb = GetClientMailBox(fd);
 	if (pmb == NULL)
 	{
 		LOG_WARN("mailbox null fd=%d", fd);
@@ -404,7 +404,7 @@ int NetService::HandleSocketClosed(evutil_socket_t fd)
 
 int NetService::HandleSocketError(evutil_socket_t fd)
 {
-	MailBox *pmb = GetClientMailBox(fd);
+	Mailbox *pmb = GetClientMailBox(fd);
 	if (pmb == nullptr)
 	{
 		return 0;
@@ -424,7 +424,7 @@ void NetService::RemoveFd(int fd)
 		return;
 	}
 
-	MailBox *pmb = iter->second;
+	Mailbox *pmb = iter->second;
 	if (pmb->m_fdType == FD_TYPE_CLIENT_UNTRUST or pmb->m_fdType == FD_TYPE_CLIENT_TRUST)
 	{
 		// client
@@ -446,13 +446,13 @@ int NetService::HandleRecvPluto()
 {
 	while (!m_recvMsgs.empty())
 	{
-		Pluto *u = m_recvMsgs.front();
+		Pluto *pu = m_recvMsgs.front();
 		m_recvMsgs.pop_front();
 
 		// core logic
-		m_world->HandlePluto(*u);
+		m_world->HandlePluto(*pu);
 
-		delete u;
+		delete pu;
 	}
 	return 0;
 }
@@ -461,7 +461,7 @@ void NetService::CloseFd(int fd)
 {
 	// TODO broadcast to world
 	
-	MailBox *pmb = GetClientMailBox(fd);
+	Mailbox *pmb = GetClientMailBox(fd);
 	if (pmb == nullptr)
 	{
 		return;
@@ -484,7 +484,7 @@ int NetService::HandleSendPluto()
 	std::list<int> ls4del;
 	for (auto iter = m_fds.begin(); iter != m_fds.end(); iter++)
 	{
-		MailBox *pmb = iter->second;
+		Mailbox *pmb = iter->second;
 		int ret = pmb->SendAll();
 		if (ret != 0)
 		{

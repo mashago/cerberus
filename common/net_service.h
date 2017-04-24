@@ -42,7 +42,7 @@ public:
 	int Service(NetServiceType netType, const char *addr, unsigned int port);
 	int ConnectTo(const char *addr, unsigned int port);
 
-	MailBox *GetClientMailBox(int fd);
+	Mailbox *GetClientMailBox(int fd);
 	void SetWorld(World *world);
 	World *GetWorld();
 
@@ -64,7 +64,7 @@ public:
 private:
 	bool Listen(const char *addr, unsigned int port);
 	bool Accept(int fd, EFDTYPE type);
-	MailBox * NewMailbox(int fd, EFDTYPE type);
+	Mailbox * NewMailbox(int fd, EFDTYPE type);
 	void RemoveFd(int fd);
 	void CloseFd(int fd);
 
@@ -72,8 +72,8 @@ private:
 	struct event *m_timerEvent;
 	struct evconnlistener *m_evconnlistener;
 
-	std::map<int, MailBox *> m_fds;
-	std::list<MailBox *> m_mb4del;
+	std::map<int, Mailbox *> m_fds;
+	std::list<Mailbox *> m_mb4del;
 	std::list<Pluto *> m_recvMsgs;
 	World *m_world;
 };

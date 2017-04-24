@@ -10,11 +10,11 @@ extern "C"
 #include "util.h"
 #include "mailbox.h"
 
-MailBox::MailBox(EFDTYPE type) : m_fdType(type), m_pluto(nullptr), m_bev(nullptr), m_bDeleteFlag(false), m_sendPos(0)
+Mailbox::Mailbox(EFDTYPE type) : m_fdType(type), m_pluto(nullptr), m_bev(nullptr), m_bDeleteFlag(false), m_sendPos(0)
 {
 }
 
-MailBox::~MailBox()
+Mailbox::~Mailbox()
 {
 	// delete recv pluto
 	if (m_pluto)
@@ -26,12 +26,12 @@ MailBox::~MailBox()
 	ClearContainer(m_tobeSend);
 }
 
-void MailBox::PushPluto(Pluto *u)
+void Mailbox::PushPluto(Pluto *u)
 {
 	m_tobeSend.push_back(u);
 }
 
-int MailBox::SendAll()
+int Mailbox::SendAll()
 {
 	// LOG_DEBUG("m_tobeSend.size=%d", m_tobeSend.size());
 
@@ -45,7 +45,7 @@ int MailBox::SendAll()
 	{
 		// send pluto
 		Pluto *u = m_tobeSend.front();
-		int nSendWant = u->GetLen() - m_sendPos;
+		int nSendWant = u->GetMsgLen() - m_sendPos;
 
 		struct evbuffer_iovec v[1]; // the vector struct to access evbuffer directly, without memory copy
 		// reserve space

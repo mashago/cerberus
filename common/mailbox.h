@@ -10,11 +10,11 @@ extern "C"
 #include "common.h"
 #include "pluto.h"
 
-class MailBox
+class Mailbox
 {
 public:
-	MailBox(EFDTYPE type);
-	~MailBox();
+	Mailbox(EFDTYPE type);
+	~Mailbox();
 
 	void SetFd(int fd)
 	{

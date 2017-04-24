@@ -1,47 +1,121 @@
 
 #include <arpa/inet.h>
+#include <string.h>
 #include <string>
 
 #include "pluto.h"
 #include "logger.h"
 
-Pluto::Pluto(int bufferSize) : m_recvBuffer(nullptr), m_bufferSize(bufferSize), m_msgId(0), m_recvLen(0)
+Pluto::Pluto(int bufferSize) : m_buffer(nullptr), m_cursor(nullptr), m_bufferSize(bufferSize), m_recvLen(0)
 {
-	m_recvBuffer = new char[m_bufferSize];
+	m_buffer = new char[m_bufferSize];
+	m_cursor = m_buffer + PLUTO_FILED_BEGIN_POS;
 }
 
 Pluto::~Pluto()
 {
-	delete [] m_recvBuffer;
+	delete [] m_buffer;
 }
 
-int Pluto::GetLen()
+int Pluto::GetMsgLen()
 {
-	return (int)ntohl(*(uint32_t *)(m_recvBuffer));
+	return (int)ntohl(*(uint32_t *)(m_buffer));
+}
+
+void Pluto::SetMsgLen(int len)
+{
+	if (len == 0)
+	{
+		*(uint32_t *)m_buffer = htonl(m_cursor - m_buffer);
+	}
+	else
+	{
+		*(uint32_t *)m_buffer = htonl(len);
+	}
 }
 
 int Pluto::GetMsgId()
 {
-	return (int)ntohl(*(uint32_t *)(m_recvBuffer + PLUTO_MSGLEN_HEAD));
+	return (int)ntohl(*(uint32_t *)(m_buffer + PLUTO_MSGLEN_HEAD));
+}
+
+void Pluto::SetMsgId(int msgId)
+{
+	*(uint32_t *)(m_buffer+PLUTO_MSGLEN_HEAD) = htonl(msgId);
 }
 
 char * Pluto::GetBuffer()
 {
-	return m_recvBuffer;
+	return m_buffer;
 }
 
 char * Pluto::GetContent()
 {
-	return m_recvBuffer + PLUTO_FILED_BEGIN_POS;
+	return m_buffer + PLUTO_FILED_BEGIN_POS;
 }
 
 int Pluto::GetContentLen()
 {
-	return GetLen() - PLUTO_FILED_BEGIN_POS;
+	return GetMsgLen() - PLUTO_FILED_BEGIN_POS;
 }
+
+void Pluto::InitCursor()
+{
+	m_cursor = m_buffer + PLUTO_FILED_BEGIN_POS;
+}
+
+#define write_val(val) \
+do { \
+if (m_cursor + sizeof(val) - m_buffer > m_bufferSize) { return; } \
+memcpy(m_cursor, &val, sizeof(val)); \
+m_cursor += sizeof(val); \
+} while (false)
+
+
+void Pluto::WriteByte(char val)
+{
+	write_val(val);
+}
+
+void Pluto::WriteInt(int val)
+{
+	write_val(val);
+}
+
+void Pluto::WriteFloat(float val)
+{
+	write_val(val);
+}
+
+void Pluto::WriteBool(bool val)
+{
+	WriteByte(val ? '1' : '0');
+}
+
+void Pluto::WriteShort(short val)
+{
+	write_val(val);
+}
+
+void Pluto::WriteInt64(int64_t val)
+{
+	write_val(val);
+}
+
+void Pluto::WriteString(const char* str, unsigned short len)
+{
+	if (m_cursor + sizeof(len) - m_buffer > m_bufferSize) { return; }
+	memcpy(m_cursor, &len, sizeof(len));
+	m_cursor += sizeof(len);
+
+	if (m_cursor + len - m_buffer > m_bufferSize) { return; }
+	memcpy(m_cursor, &str, len);
+	m_cursor += len;
+}
+
 
 void Pluto::Print()
 {
 	std::string content(GetContent(), GetContentLen());
-	LOG_DEBUG("bufferSize=[%d] msgLen=[%d] msgId=[%d] buffer=[%s]", m_bufferSize, GetLen(), GetMsgId(), content.c_str());
+	LOG_DEBUG("bufferSize=[%d] msgLen=[%d] msgId=[%d] buffer=[%s]", m_bufferSize, GetMsgLen(), GetMsgId(), content.c_str());
 }

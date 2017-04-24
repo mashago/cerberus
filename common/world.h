@@ -12,8 +12,8 @@ public:
 
 	virtual int HandlePluto(Pluto &u) = 0;
 	virtual bool CheckPluto(Pluto &u);
-	virtual void HandleDisconnect(MailBox *pmb) = 0;
-	virtual void HandleConnectToSuccess(MailBox *pmb) = 0;
+	virtual void HandleDisconnect(Mailbox *pmb) = 0;
+	virtual void HandleConnectToSuccess(Mailbox *pmb) = 0;
 };
 
 #endif
