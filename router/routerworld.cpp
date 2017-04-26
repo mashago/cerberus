@@ -15,7 +15,7 @@ RouterWorld::~RouterWorld()
 
 void TestSendPluto(Mailbox *pmb, int msgId)
 {
-	if (pmb)
+	if (!pmb)
 	{
 		// local pluto
 		return;
@@ -34,9 +34,7 @@ void TestSendPluto(Mailbox *pmb, int msgId)
 	// set head
 	pu->SetMsgLen();
 	pu->SetMsgId(msgId);
-
 	pu->SetMailbox(pmb);
-	pu->Print();
 
 	pmb->PushPluto(pu);
 

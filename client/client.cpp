@@ -237,7 +237,10 @@ void read_cb(struct bufferevent *bev, void *user_data)
 
 		// evutil_socket_t fd = bufferevent_getfd(bev);
 		// LOG_DEBUG("fd=%d", fd);
-		u->Print();
+		char tmp[1024];
+		memset(tmp, 0, sizeof(tmp));
+		u->ReadString(tmp);
+		LOG_DEBUG("data:%s", tmp);
 
 		delete u;
 	} 

@@ -59,7 +59,7 @@ int Pluto::GetContentLen()
 	return GetMsgLen() - PLUTO_FILED_BEGIN_POS;
 }
 
-void Pluto::InitCursor()
+void Pluto::ResetCursor()
 {
 	m_cursor = m_buffer + PLUTO_FILED_BEGIN_POS;
 }
@@ -113,9 +113,61 @@ void Pluto::WriteString(const char* str, unsigned short len)
 	m_cursor += len;
 }
 
+template<typename T>
+T read_val(char *cursor)
+{
+	T out_val = *((T *)(cursor));
+	cursor += sizeof(T);
+	return out_val;
+}
+
+char Pluto::ReadByte()
+{
+	char out_val = read_val<char>(m_cursor);
+	return out_val;
+}
+
+int Pluto::ReadInt()
+{
+	int out_val = read_val<int>(m_cursor);
+	return out_val;
+}
+
+float Pluto::ReadFloat()
+{
+	float out_val = read_val<float>(m_cursor);
+	return out_val;
+}
+
+bool Pluto::ReadBool()
+{
+	char out_val = read_val<char>(m_cursor);
+	return out_val != '1';
+}
+
+short Pluto::ReadShort()
+{
+	short out_val = read_val<short>(m_cursor);
+	return out_val;
+}
+
+int64_t Pluto::ReadInt64()
+{
+	int64_t out_val = read_val<int64_t>(m_cursor);
+	return out_val;
+}
+
+bool Pluto::ReadString(char *out_val)
+{
+	short len = ReadShort();
+	memcpy(out_val, m_cursor, len);
+	m_cursor += len;
+	return true;
+}
+
 
 void Pluto::Print()
 {
-	std::string content(GetContent(), GetContentLen());
-	LOG_DEBUG("bufferSize=[%d] msgLen=[%d] msgId=[%d] buffer=[%s]", m_bufferSize, GetMsgLen(), GetMsgId(), content.c_str());
+	// std::string content(GetContent(), GetContentLen());
+	// LOG_DEBUG("bufferSize=[%d] msgLen=[%d] msgId=[%d] buffer=[%s]", m_bufferSize, GetMsgLen(), GetMsgId(), content.c_str());
 }

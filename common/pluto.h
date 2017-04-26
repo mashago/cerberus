@@ -61,7 +61,7 @@ public:
 		m_pmb = ptr;
 	}
 
-	void InitCursor();
+	void ResetCursor();
 
 	void WriteByte(char val);
 	void WriteInt(int val);
