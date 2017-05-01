@@ -69,7 +69,7 @@ public:
 	void WriteBool(bool val);
 	void WriteShort(short val);
 	void WriteInt64(int64_t val);
-	void WriteString(const char* str, unsigned short len);
+	void WriteString(const char* str, short len);
 
 	char ReadByte();
 	int ReadInt();
@@ -77,7 +77,7 @@ public:
 	bool ReadBool();
 	short ReadShort();
 	int64_t ReadInt64();
-	bool ReadString(char *out_val);
+	short ReadString(char *out_val);
 
 	void Print();
 

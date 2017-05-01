@@ -102,19 +102,19 @@ void Pluto::WriteInt64(int64_t val)
 	write_val(val);
 }
 
-void Pluto::WriteString(const char* str, unsigned short len)
+void Pluto::WriteString(const char* str, short len)
 {
 	if (m_cursor + sizeof(len) - m_buffer > m_bufferSize) { return; }
 	memcpy(m_cursor, &len, sizeof(len));
 	m_cursor += sizeof(len);
 
 	if (m_cursor + len - m_buffer > m_bufferSize) { return; }
-	memcpy(m_cursor, &str, len);
+	memcpy(m_cursor, str, len);
 	m_cursor += len;
 }
 
 template<typename T>
-T read_val(char *cursor)
+T read_val(char * &cursor)
 {
 	T out_val = *((T *)(cursor));
 	cursor += sizeof(T);
@@ -157,12 +157,12 @@ int64_t Pluto::ReadInt64()
 	return out_val;
 }
 
-bool Pluto::ReadString(char *out_val)
+short Pluto::ReadString(char *out_val)
 {
 	short len = ReadShort();
 	memcpy(out_val, m_cursor, len);
 	m_cursor += len;
-	return true;
+	return len;
 }
 
 

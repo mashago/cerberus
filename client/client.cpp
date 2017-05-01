@@ -20,6 +20,7 @@ extern "C"
 #include "logger.h"
 #include "util.h"
 #include "pluto.h"
+#include "common.h"
 
 
 // bufferevent data callback
@@ -235,12 +236,21 @@ void read_cb(struct bufferevent *bev, void *user_data)
 		// shift data
 		evbuffer_drain(input, nLen);
 
-		// evutil_socket_t fd = bufferevent_getfd(bev);
-		// LOG_DEBUG("fd=%d", fd);
-		char tmp[1024];
-		memset(tmp, 0, sizeof(tmp));
-		u->ReadString(tmp);
-		LOG_DEBUG("data:%s", tmp);
+
+		int msgId = u->GetMsgId();
+		switch (msgId)
+		{
+			case MSGID_TYPE::CLIENT_TEST:
+			{
+				char tmp[1024];
+				memset(tmp, 0, sizeof(tmp));
+				int n = u->ReadInt();
+				LOG_DEBUG("n=%d", n);
+				int len = u->ReadString(tmp);
+				LOG_DEBUG("len=%d data=%s", len, tmp);
+				break;
+			}
+		}
 
 		delete u;
 	} 

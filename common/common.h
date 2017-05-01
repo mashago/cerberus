@@ -11,4 +11,9 @@ enum EFDTYPE
 	FD_TYPE_CLIENT_TRUST 	= 4,
 };
 
+enum MSGID_TYPE
+{
+	CLIENT_TEST = 1,
+};
+
 #endif
