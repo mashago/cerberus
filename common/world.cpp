@@ -11,6 +11,11 @@ World::~World()
 {
 }
 
+bool World::init(int server_id, int server_type, char * entry_file_name)
+{
+	return true;
+}
+
 bool World::CheckPluto(Pluto &u)
 {
 	Mailbox *pmb = u.GetMailbox();
