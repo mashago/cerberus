@@ -1,6 +1,9 @@
 
+extern "C"
+{
 #include <lauxlib.h>
 #include <lualib.h>
+}
 #include "logger.h"
 #include "luaworld.h"
 #include "mailbox.h"
@@ -13,7 +16,7 @@ LuaWorld::~LuaWorld()
 {
 }
 
-bool LuaWorld::init(int server_id, int server_type, char * entry_file_name)
+bool LuaWorld::Init(int server_id, int server_type, const char *entry_file_name)
 {
 
 	_L = luaL_newstate();

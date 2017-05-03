@@ -38,9 +38,9 @@ NetService::~NetService()
 {
 }
 
-int NetService::Service(NetServiceType netType, const char *addr, unsigned int port)
-{
 
+int NetService::Init(NetServiceType netType, const char *addr, unsigned int port)
+{
 	// new event_base
 	m_mainEvent = event_base_new();
 	if (!m_mainEvent)
@@ -67,6 +67,12 @@ int NetService::Service(NetServiceType netType, const char *addr, unsigned int p
 		LOG_ERROR("add timer fail");
 		return -1;
 	}
+
+	return 0;
+}
+
+int NetService::Service()
+{
 
 	event_base_dispatch(m_mainEvent);
 

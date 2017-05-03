@@ -2,7 +2,7 @@
 #ifndef __LUAWORLD_H__
 #define __LUAWORLD_H__
 
-#include <lua.h>
+#include <lua.hpp>
 #include "world.h"
 #include "pluto.h"
 
@@ -12,12 +12,11 @@ public:
 	LuaWorld();
 	virtual ~LuaWorld();
 
-	virtual bool init(int server_id, int server_type, char * entry_file_name);
+	virtual bool Init(int server_id, int server_type, const char *entry_file_name) override;
 
-	virtual int HandlePluto(Pluto &u) = 0;
-	virtual bool CheckPluto(Pluto &u);
-	virtual void HandleDisconnect(Mailbox *pmb) = 0;
-	virtual void HandleConnectToSuccess(Mailbox *pmb) = 0;
+	virtual int HandlePluto(Pluto &u) override;
+	virtual void HandleDisconnect(Mailbox *pmb) override;
+	virtual void HandleConnectToSuccess(Mailbox *pmb) override;
 private:
 	lua_State *_L;
 };

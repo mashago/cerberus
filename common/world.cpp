@@ -3,7 +3,7 @@
 #include "world.h"
 #include "mailbox.h"
 
-World::World()
+World::World() : m_net(nullptr)
 {
 }
 
@@ -11,7 +11,7 @@ World::~World()
 {
 }
 
-bool World::init(int server_id, int server_type, char * entry_file_name)
+bool World::Init(int server_id, int server_type, const char *entry_file_name)
 {
 	return true;
 }

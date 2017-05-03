@@ -39,7 +39,8 @@ public:
 	NetService();
 	virtual ~NetService();
 
-	int Service(NetServiceType netType, const char *addr, unsigned int port);
+	int Init(NetServiceType netType, const char *addr, unsigned int port);
+	int Service();
 	int ConnectTo(const char *addr, unsigned int port);
 
 	Mailbox *GetClientMailBox(int fd);

@@ -15,7 +15,7 @@ USER_MACROS:=
 
 INC:=../common
 LIB_PATH:=../lib
-LIB:=common event
+LIB:=common lua event dl m
 
 default: $(TARGET)
 
