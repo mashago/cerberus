@@ -16,7 +16,7 @@ LuaWorld::~LuaWorld()
 {
 }
 
-bool LuaWorld::Init(int server_id, int server_type, const char *entry_file_name)
+bool LuaWorld::Init(int server_id, int server_type, const char *entry_file)
 {
 
 	_L = luaL_newstate();
@@ -37,6 +37,7 @@ bool LuaWorld::Init(int server_id, int server_type, const char *entry_file_name)
 		{ LUA_DBLIBNAME, luaopen_debug },
 		{ LUA_LOADLIBNAME, luaopen_package },
 		{ LUA_STRLIBNAME, luaopen_string },
+		// TODO register luanetwork
 		{ NULL, NULL },
 	};
 
@@ -50,14 +51,24 @@ bool LuaWorld::Init(int server_id, int server_type, const char *entry_file_name)
 	lua_setglobal(_L, "g_server_id");
 	lua_pushinteger(_L, server_type);
 	lua_setglobal(_L, "g_server_type");
-	lua_pushstring(_L, entry_file_name);
-	lua_setglobal(_L, "g_entry_file_name");
+	lua_pushstring(_L, entry_file);
+	lua_setglobal(_L, "g_entry_file");
+
+	if (luaL_dofile(_L, "../script/main.lua"))
+	{
+		const char * msg = lua_tostring(_L, -1);
+		LOG_ERROR("msg=%s", msg);
+		return false;
+	}
 
 	return true;
 }
 
 int LuaWorld::HandlePluto(Pluto &u)
 {
+	// TODO set pluto into a luanetwork
+
+
 	return 0;
 }
 
