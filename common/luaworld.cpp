@@ -68,8 +68,18 @@ int LuaWorld::HandlePluto(Pluto &u)
 {
 	// TODO set pluto into a luanetwork
 
+	Mailbox *pmb = u.GetMailbox();
+	int mailboxId = pmb->GetMailboxId();
+	int msgId = u.GetMsgId();
+	// char *content = u.GetContent();
+
+	handleMsg(mailboxId, msgId, u);
 
 	return 0;
+}
+
+void LuaWorld::handleMsg(int mailboxId, int msgId, Pluto &u)
+{
 }
 
 void LuaWorld::HandleDisconnect(Mailbox *pmb)

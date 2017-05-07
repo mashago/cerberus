@@ -18,6 +18,7 @@ public:
 	virtual void HandleDisconnect(Mailbox *pmb) override;
 	virtual void HandleConnectToSuccess(Mailbox *pmb) override;
 private:
+	void handleMsg(int mailboxId, int msgId, Pluto &u);
 	lua_State *_L;
 };
 

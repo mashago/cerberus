@@ -168,6 +168,14 @@ short Pluto::ReadString(char *out_val)
 
 void Pluto::Print()
 {
-	// std::string content(GetContent(), GetContentLen());
-	// LOG_DEBUG("bufferSize=[%d] msgLen=[%d] msgId=[%d] buffer=[%s]", m_bufferSize, GetMsgLen(), GetMsgId(), content.c_str());
+	LOG_DEBUG("bufferSize=[%d] msgLen=[%d] msgId=[%d]", m_bufferSize, GetMsgLen(), GetMsgId());
+}
+
+Pluto *Pluto::Clone()
+{
+	int len = GetMsgLen();
+	Pluto *pu = new Pluto(len);
+	char *buffer = pu->GetBuffer();
+	memcpy(buffer, m_buffer, len);
+	return pu;
 }

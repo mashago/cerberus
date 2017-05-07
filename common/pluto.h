@@ -79,6 +79,8 @@ public:
 	int64_t ReadInt64();
 	short ReadString(char *out_val);
 
+	Pluto *Clone();
+
 	void Print();
 
 private:

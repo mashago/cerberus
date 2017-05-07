@@ -227,7 +227,7 @@ Mailbox * NetService::NewMailbox(int fd, EFDTYPE type)
 {
 	Mailbox *pmb = new Mailbox(type);
 
-	pmb->SetFd(fd);
+	pmb->SetMailboxId(fd);
 
 	auto iter = m_fds.lower_bound(fd);
 	if (iter != m_fds.end() && iter->first == fd)

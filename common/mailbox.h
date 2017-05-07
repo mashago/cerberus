@@ -16,7 +16,12 @@ public:
 	Mailbox(EFDTYPE type);
 	~Mailbox();
 
-	void SetFd(int fd)
+	int GetMailboxId()
+	{
+		return m_fd;
+	}
+
+	void SetMailboxId(int fd)
 	{
 		m_fd = fd;
 	}
