@@ -43,7 +43,7 @@ public:
 	int Service();
 	int ConnectTo(const char *addr, unsigned int port);
 
-	Mailbox *GetClientMailBox(int fd);
+	Mailbox *GetMailbox(int fd);
 	void SetWorld(World *world);
 	World *GetWorld();
 

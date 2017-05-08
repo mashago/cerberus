@@ -1,13 +1,20 @@
 #pragma once
 
 #include <stdint.h>
+// #include "net_service.h"
 
 class Pluto;
+class NetService;
 
-class LuaServerSocket
+class LuaNetwork
 {
 public:
-	static LuaServerSocket *Instance();
+	static LuaNetwork *Instance();
+
+	void SetNetService(NetService *net)
+	{
+		m_net = net;
+	}
 
 	// bool connect_to(const char* ip, int port, unsigned& out_session_id);
 	void WriteMsgId(int msg_id);
@@ -37,11 +44,13 @@ public:
 	void CloseSocket(int mailboxId);
 
 private:
-	LuaServerSocket();
-	~LuaServerSocket();
+	void initSendPluto();
+
+	LuaNetwork();
+	~LuaNetwork();
 
 	Pluto *m_recvPluto;
 	Pluto *m_sendPluto;
 
-	void initSendPluto();
+	NetService *m_net;
 };

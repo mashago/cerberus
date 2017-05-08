@@ -146,7 +146,7 @@ bool NetService::Listen(const char *addr, unsigned int port)
 	return true;
 }
 
-Mailbox *NetService::GetClientMailBox(int fd)
+Mailbox *NetService::GetMailbox(int fd)
 {
 	auto iter = m_fds.find(fd);
 	if (iter == m_fds.end())
@@ -277,7 +277,7 @@ int NetService::HandleSocketReadMessage(struct bufferevent *bev)
 {
 	evutil_socket_t fd = bufferevent_getfd(bev);
 
-	Mailbox *pmb = GetClientMailBox(fd);
+	Mailbox *pmb = GetMailbox(fd);
 	if (pmb == nullptr)
 	{
 		return READ_MSG_ERROR;
@@ -394,7 +394,7 @@ int NetService::HandleSocketConnected(evutil_socket_t fd)
 
 int NetService::HandleSocketClosed(evutil_socket_t fd)
 {
-	Mailbox *pmb = GetClientMailBox(fd);
+	Mailbox *pmb = GetMailbox(fd);
 	if (pmb == NULL)
 	{
 		LOG_WARN("mailbox null fd=%d", fd);
@@ -410,7 +410,7 @@ int NetService::HandleSocketClosed(evutil_socket_t fd)
 
 int NetService::HandleSocketError(evutil_socket_t fd)
 {
-	Mailbox *pmb = GetClientMailBox(fd);
+	Mailbox *pmb = GetMailbox(fd);
 	if (pmb == nullptr)
 	{
 		return 0;
@@ -467,7 +467,7 @@ void NetService::CloseFd(int fd)
 {
 	// TODO broadcast to world
 	
-	Mailbox *pmb = GetClientMailBox(fd);
+	Mailbox *pmb = GetMailbox(fd);
 	if (pmb == nullptr)
 	{
 		return;

@@ -16,13 +16,18 @@ public:
 	{
 		m_net = net;
 	}
+
+	NetService * GetNetService()
+	{
+		return m_net;
+	}
 	virtual bool Init(int server_id, int server_type, const char * entry_file_name);
 
 	virtual bool CheckPluto(Pluto &u);
 	virtual int HandlePluto(Pluto &u) = 0;
 	virtual void HandleDisconnect(Mailbox *pmb) = 0;
 	virtual void HandleConnectToSuccess(Mailbox *pmb) = 0;
-private:
+protected:
 	NetService *m_net;
 };
 

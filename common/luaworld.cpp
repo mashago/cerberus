@@ -7,6 +7,7 @@ extern "C"
 #include "logger.h"
 #include "luaworld.h"
 #include "mailbox.h"
+#include "luanetwork.h"
 
 LuaWorld::LuaWorld() : _L(nullptr)
 {
@@ -18,6 +19,7 @@ LuaWorld::~LuaWorld()
 
 bool LuaWorld::Init(int server_id, int server_type, const char *entry_file)
 {
+	LuaNetwork::Instance()->SetNetService(m_net);
 
 	_L = luaL_newstate();
 	if (!_L)
