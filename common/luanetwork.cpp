@@ -55,42 +55,42 @@ void LuaNetwork::initSendPluto()
 
 void LuaNetwork::WriteMsgId(int msgId)
 {
-	m_sendPluto->SetMsgId(msgId);
+	m_sendPluto->WriteMsgId(msgId);
 }
 
-void LuaNetwork::WriteByte(char val)
+bool LuaNetwork::WriteByte(char val)
 {
-	m_sendPluto->WriteByte(val);
+	return m_sendPluto->WriteByte(val);
 }
 
-void LuaNetwork::WriteInt(int val)
+bool LuaNetwork::WriteInt(int val)
 {
-	m_sendPluto->WriteInt(val);
+	return m_sendPluto->WriteInt(val);
 }
 
-void LuaNetwork::WriteFloat(float val)
+bool LuaNetwork::WriteFloat(float val)
 {
-	m_sendPluto->WriteFloat(val);
+	return m_sendPluto->WriteFloat(val);
 }
 
-void LuaNetwork::WriteBool(bool val)
+bool LuaNetwork::WriteBool(bool val)
 {
-	m_sendPluto->WriteBool(val);
+	return m_sendPluto->WriteBool(val);
 }
 
-void LuaNetwork::WriteShort(short val)
+bool LuaNetwork::WriteShort(short val)
 {
-	m_sendPluto->WriteShort(val);
+	return m_sendPluto->WriteShort(val);
 }
 
-void LuaNetwork::WriteInt64(int64_t val)
+bool LuaNetwork::WriteInt64(int64_t val)
 {
-	m_sendPluto->WriteInt64(val);
+	return m_sendPluto->WriteInt64(val);
 }
 
-void LuaNetwork::WriteString(const char* str, short len)
+bool LuaNetwork::WriteString(short len, const char* str)
 {
-	m_sendPluto->WriteString(str, len);
+	return m_sendPluto->WriteString(len, str);
 }
 
 bool LuaNetwork::Send(int mailboxId)
@@ -104,9 +104,14 @@ bool LuaNetwork::Send(int mailboxId)
 
 	// TODO check pluto size
 
+
+	m_sendPluto->SetMsgLen();
 	Pluto *pu = m_sendPluto->Clone();
+	pu->SetMsgLen(m_sendPluto->GetMsgLen());
 	pu->SetMailbox(pmb);
 	pmb->PushPluto(pu);
+
+	m_sendPluto->ResetCursor();
 
 	return true;
 }
@@ -118,42 +123,42 @@ void LuaNetwork::SetRecvPluto(Pluto *pu)
 
 int LuaNetwork::ReadMsgId()
 {
-	return m_recvPluto->GetMsgId();
+	return m_recvPluto->ReadMsgId();
 }
 
-char LuaNetwork::ReadByte()
+bool LuaNetwork::ReadByte(char &out_val)
 {
-	return m_recvPluto->ReadByte();
+	return m_recvPluto->ReadByte(out_val);
 }
 
-int LuaNetwork::ReadInt()
+bool LuaNetwork::ReadInt(int &out_val)
 {
-	return m_recvPluto->ReadByte();
+	return m_recvPluto->ReadInt(out_val);
 }
 
-float LuaNetwork::ReadFloat()
+bool LuaNetwork::ReadFloat(float &out_val)
 {
-	return m_recvPluto->ReadFloat();
+	return m_recvPluto->ReadFloat(out_val);
 }
 
-bool LuaNetwork::ReadBool()
+bool LuaNetwork::ReadBool(bool &out_val)
 {
-	return m_recvPluto->ReadBool();
+	return m_recvPluto->ReadBool(out_val);
 }
 
-short LuaNetwork::ReadShort()
+bool LuaNetwork::ReadShort(short &out_val)
 {
-	return m_recvPluto->ReadShort();
+	return m_recvPluto->ReadShort(out_val);
 }
 
-int64_t LuaNetwork::ReadInt64()
+bool LuaNetwork::ReadInt64(int64_t &out_val)
 {
-	return m_recvPluto->ReadInt64();
+	return m_recvPluto->ReadInt64(out_val);
 }
 
-short LuaNetwork::ReadString(char *out_val)
+bool LuaNetwork::ReadString(short &out_len, char *out_val)
 {
-	return m_recvPluto->ReadString(out_val);
+	return m_recvPluto->ReadString(out_len, out_val);
 }
 
 void LuaNetwork::CloseSocket(int mailboxId)

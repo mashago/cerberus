@@ -25,20 +25,23 @@ void TestPluto()
 	char tmp[100];
 	int len = sprintf(tmp, "welcome %ld", time(NULL));
 	LOG_DEBUG("tmp=%s, len=%d", tmp, len);
-	pu->WriteString(tmp, len);
+	pu->WriteString(len, tmp);
 
 	// set head
 	pu->SetMsgLen();
-	pu->SetMsgId(1);
+	pu->WriteMsgId(1);
 
 	// check string
 	memset(tmp, 0, sizeof(tmp));
 	pu->ResetCursor();
-	int n1 = pu->ReadInt();
-	int n2 = pu->ReadInt();
+	int n1 = 0, n2 = 0;
+	pu->ReadInt(n1);
+	pu->ReadInt(n2);
 	LOG_DEBUG("n1=%d n2=%d", n1, n2);
-	len = pu->ReadString(tmp);
-	LOG_DEBUG("tmp=%s, len=%d", tmp, len);
+
+	short out_len;
+	pu->ReadString(out_len, tmp);
+	LOG_DEBUG("tmp=%s, out_len=%d", tmp, out_len);
 
 	delete pu;
 }
@@ -62,21 +65,12 @@ void ClientTestPluto(Pluto &u)
 	char tmp[100];
 	int len = sprintf(tmp, "welcome");
 	LOG_DEBUG("tmp=%s, len=%d", tmp, len);
-	out->WriteString(tmp, len);
+	out->WriteString(len, tmp);
 
 	// set head
 	out->SetMsgLen();
-	out->SetMsgId(MSGID_TYPE::CLIENT_TEST);
+	out->WriteMsgId(MSGID_TYPE::CLIENT_TEST);
 	out->SetMailbox(pmb);
-
-	/*
-	// check string
-	out->ResetCursor();
-	int n = out->ReadInt();
-	memset(tmp, 0, sizeof(tmp));
-	len = out->ReadString(tmp);
-	LOG_DEBUG("n=%d tmp=%s, len=%d", n, tmp, len);
-	*/
 
 	// push
 	pmb->PushPluto(out);
@@ -91,7 +85,7 @@ int RouterWorld::HandlePluto(Pluto &u)
 		return 0;
 	}
 
-	int msgId = u.GetMsgId();
+	int msgId = u.ReadMsgId();
 
 	switch (msgId)
 	{

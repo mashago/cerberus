@@ -72,7 +72,7 @@ int LuaWorld::HandlePluto(Pluto &u)
 
 	Mailbox *pmb = u.GetMailbox();
 	int mailboxId = pmb->GetMailboxId();
-	int msgId = u.GetMsgId();
+	int msgId = u.ReadMsgId();
 	// char *content = u.GetContent();
 
 	handleMsg(mailboxId, msgId, u);

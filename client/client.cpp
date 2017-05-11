@@ -237,17 +237,21 @@ void read_cb(struct bufferevent *bev, void *user_data)
 		evbuffer_drain(input, nLen);
 
 
-		int msgId = u->GetMsgId();
+		int msgId = u->ReadMsgId();
 		switch (msgId)
 		{
 			case MSGID_TYPE::CLIENT_TEST:
 			{
 				char tmp[1024];
 				memset(tmp, 0, sizeof(tmp));
-				int n = u->ReadInt();
+
+				int n = 0;
+				u->ReadInt(n);
 				LOG_DEBUG("n=%d", n);
-				int len = u->ReadString(tmp);
-				LOG_DEBUG("len=%d data=%s", len, tmp);
+
+				short out_len = 0;
+				u->ReadString(out_len, tmp);
+				LOG_DEBUG("out_len=%d data=%s", out_len, tmp);
 				break;
 			}
 		}

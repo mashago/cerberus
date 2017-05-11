@@ -34,9 +34,6 @@ public:
 	int GetMsgLen();
 	void SetMsgLen(int len = 0);
 
-	int GetMsgId();
-	void SetMsgId(int msgId);
-
 	char * GetBuffer();
 	char * GetContent();
 	int GetContentLen();
@@ -63,21 +60,24 @@ public:
 
 	void ResetCursor();
 
-	void WriteByte(char val);
-	void WriteInt(int val);
-	void WriteFloat(float val);
-	void WriteBool(bool val);
-	void WriteShort(short val);
-	void WriteInt64(int64_t val);
-	void WriteString(const char* str, short len);
 
-	char ReadByte();
-	int ReadInt();
-	float ReadFloat();
-	bool ReadBool();
-	short ReadShort();
-	int64_t ReadInt64();
-	short ReadString(char *out_val);
+	void WriteMsgId(int msgId);
+	bool WriteByte(char val);
+	bool WriteInt(int val);
+	bool WriteFloat(float val);
+	bool WriteBool(bool val);
+	bool WriteShort(short val);
+	bool WriteInt64(int64_t val);
+	bool WriteString(short len, const char* str);
+
+	int  ReadMsgId();
+	bool ReadByte(char &out_val);
+	bool ReadInt(int &out_val);
+	bool ReadFloat(float &out_val);
+	bool ReadBool(bool &out_val);
+	bool ReadShort(short &out_val);
+	bool ReadInt64(int64_t &out_val);
+	bool ReadString(short &out_len, char *out_val);
 
 	Pluto *Clone();
 
