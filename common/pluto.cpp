@@ -105,9 +105,9 @@ bool Pluto::WriteInt64(int64_t val)
 	return true;
 }
 
-bool Pluto::WriteString(short len, const char* str)
+bool Pluto::WriteString(int len, const char* str)
 {
-	if (!WriteShort(len))
+	if (!WriteInt(len))
 	{
 		return false;
 	}
@@ -177,9 +177,9 @@ bool Pluto::ReadInt64(int64_t &out_val)
 	return read_val<int64_t>(m_cursor, m_buffer + m_bufferSize, out_val);
 }
 
-bool Pluto::ReadString(short &out_len, char *out_val)
+bool Pluto::ReadString(int &out_len, char *out_val)
 {
-	if (!ReadShort(out_len))
+	if (!ReadInt(out_len))
 	{
 		return false;
 	}

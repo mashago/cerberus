@@ -434,7 +434,7 @@ int luanetwork_read_string(lua_State* L)
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
 	luaL_argcheck(L, s != NULL, 1, "invalid user data");
 
-	short out_len = 0;
+	int out_len = 0;
 	char out_val[MSGLEN_MAX+1] = {};
 	bool ret = (*s)->ReadString(out_len, out_val);
 
@@ -676,7 +676,7 @@ int luanetwork_read_string_array(lua_State* L)
 	lua_newtable(L);
 
 	for (unsigned short i = 1; i <= (unsigned short)count; ++i){
-		short out_len = 0;
+		int out_len = 0;
 		char out_val[MSGLEN_MAX+1] = {};
 		bool ret = (*s)->ReadString(out_len, out_val);
 		if (!ret)

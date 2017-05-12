@@ -88,7 +88,7 @@ bool LuaNetwork::WriteInt64(int64_t val)
 	return m_sendPluto->WriteInt64(val);
 }
 
-bool LuaNetwork::WriteString(short len, const char* str)
+bool LuaNetwork::WriteString(int len, const char* str)
 {
 	return m_sendPluto->WriteString(len, str);
 }
@@ -156,7 +156,7 @@ bool LuaNetwork::ReadInt64(int64_t &out_val)
 	return m_recvPluto->ReadInt64(out_val);
 }
 
-bool LuaNetwork::ReadString(short &out_len, char *out_val)
+bool LuaNetwork::ReadString(int &out_len, char *out_val)
 {
 	return m_recvPluto->ReadString(out_len, out_val);
 }

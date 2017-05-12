@@ -24,7 +24,7 @@ public:
 	bool WriteBool(bool val);
 	bool WriteShort(short val);
 	bool WriteInt64(int64_t val);
-	bool WriteString(short len, const char* str);
+	bool WriteString(int len, const char* str);
 
 	bool Send(int mailboxId);
 
@@ -39,7 +39,7 @@ public:
 	bool ReadBool(bool &out_val);
 	bool ReadShort(short &out_val);
 	bool ReadInt64(int64_t &out_val);
-	bool ReadString(short &out_len, char *out_val);
+	bool ReadString(int &out_len, char *out_val);
 
 	void CloseSocket(int mailboxId);
 

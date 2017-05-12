@@ -39,7 +39,7 @@ void TestPluto()
 	pu->ReadInt(n2);
 	LOG_DEBUG("n1=%d n2=%d", n1, n2);
 
-	short out_len;
+	int out_len;
 	pu->ReadString(out_len, tmp);
 	LOG_DEBUG("tmp=%s, out_len=%d", tmp, out_len);
 

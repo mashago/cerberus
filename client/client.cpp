@@ -249,7 +249,7 @@ void read_cb(struct bufferevent *bev, void *user_data)
 				u->ReadInt(n);
 				LOG_DEBUG("n=%d", n);
 
-				short out_len = 0;
+				int out_len = 0;
 				u->ReadString(out_len, tmp);
 				LOG_DEBUG("out_len=%d data=%s", out_len, tmp);
 				break;
