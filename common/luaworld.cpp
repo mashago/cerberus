@@ -7,6 +7,7 @@ extern "C"
 #include "logger.h"
 #include "luaworld.h"
 #include "mailbox.h"
+#include "luanetworkreg.h"
 #include "luanetwork.h"
 
 LuaWorld::LuaWorld() : _L(nullptr)
@@ -39,7 +40,7 @@ bool LuaWorld::Init(int server_id, int server_type, const char *entry_file)
 		{ LUA_DBLIBNAME, luaopen_debug },
 		{ LUA_LOADLIBNAME, luaopen_package },
 		{ LUA_STRLIBNAME, luaopen_string },
-		// TODO register luanetwork
+		{ "LuaNetwork", luaopen_luanetwork },
 		{ NULL, NULL },
 	};
 
@@ -73,7 +74,6 @@ int LuaWorld::HandlePluto(Pluto &u)
 	Mailbox *pmb = u.GetMailbox();
 	int mailboxId = pmb->GetMailboxId();
 	int msgId = u.ReadMsgId();
-	// char *content = u.GetContent();
 
 	handleMsg(mailboxId, msgId, u);
 
@@ -82,6 +82,11 @@ int LuaWorld::HandlePluto(Pluto &u)
 
 void LuaWorld::handleMsg(int mailboxId, int msgId, Pluto &u)
 {
+	LuaNetwork::Instance()->SetRecvPluto(&u);
+	lua_getglobal(_L, "ccall_net_recv_msg_handler");
+	lua_pushinteger(_L, mailboxId);
+	lua_pushinteger(_L, msgId);
+	lua_call(_L, 2, 0);
 }
 
 void LuaWorld::HandleDisconnect(Mailbox *pmb)

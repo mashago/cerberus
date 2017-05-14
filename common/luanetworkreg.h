@@ -3,4 +3,4 @@
 
 #include <lua.hpp>
 
-int luaopen_luanetwork_libs(lua_State *L);
+int luaopen_luanetwork(lua_State *L);

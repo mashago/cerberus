@@ -1,6 +1,8 @@
 
 package.path = package.path .. ";../script/?.lua"
 
+require "sys.init"
+
 local function main()
 	print("g_server_id=", g_server_id)
 	print("g_server_type=", g_server_type)

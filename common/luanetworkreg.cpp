@@ -806,7 +806,7 @@ static const luaL_Reg lua_reg_member_funcs[] =
 	{ NULL, NULL },
 };
 
-int luaopen_luanetwork_libs(lua_State *L)
+int luaopen_luanetwork(lua_State *L)
 {
 	luaL_newmetatable(L, "LuaNetwork");
 
