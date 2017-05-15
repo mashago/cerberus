@@ -9,9 +9,11 @@ class TestCommand : public Command
 {
 public:
 	TestCommand() : Command() {}
+	TestCommand(std::string &&data) : Command(), m_data(data) {}
 	virtual ~TestCommand() {}
 	virtual std::string Pack() override;
 
+private:
 	std::string m_data;
 };
 

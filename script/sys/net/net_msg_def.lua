@@ -21,6 +21,7 @@ MID = {}
 MID._id_name_map = 
 {
 	[1] = "CLIENT_TEST",
+	[2] = "CLIENT_TEST_RET",
 }
 
 local function create_msg_id_array()
@@ -38,5 +39,11 @@ MSG_DEF_MAP =
 	{
 		{ "client_time", _Int },
 		{ "client_data", _String },
+	},
+
+	[MID.CLIENT_TEST_RET] =
+	{
+		{ "server_time", _Int },
+		{ "server_data", _String },
 	},
 }

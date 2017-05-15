@@ -4,6 +4,7 @@ extern "C"
 #include <lauxlib.h>
 #include <lualib.h>
 }
+#include "logger.h"
 #include "pluto.h"
 #include "luanetworkreg.h"
 #include "luanetwork.h"
@@ -367,6 +368,8 @@ int luanetwork_read_int(lua_State* L)
 	int out_val = 0;
 	bool ret = (*s)->ReadInt(out_val);
 
+	LOG_DEBUG("out_val=%d", out_val);
+
 	lua_pushboolean(L, ret);
 	lua_pushinteger(L, out_val);
 
@@ -437,6 +440,8 @@ int luanetwork_read_string(lua_State* L)
 	int out_len = 0;
 	char out_val[MSGLEN_MAX+1] = {};
 	bool ret = (*s)->ReadString(out_len, out_val);
+
+	LOG_DEBUG("out_val=%s", out_val);
 
 	lua_pushboolean(L, ret);
 	lua_pushstring(L, out_val);

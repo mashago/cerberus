@@ -15,9 +15,19 @@ CommandFactory * CommandFactory::Instance()
 
 Command * CommandFactory::CreateCommand(const char *input, int len)
 {
-	TestCommand *cmd = new TestCommand();
-	cmd->m_data = std::string(input, len);
+	char cmd[100];
+	int n;
+	int ret = sscanf(input, "%s %n", cmd, &n);
+	if (ret != 1)
+	{
+		return nullptr;
+	}
 
-	return cmd;
-	// return nullptr;
+	Command *ret_cmd = nullptr;
+	if (!strcmp(cmd, "test"))
+	{
+		ret_cmd = new TestCommand(std::string(input+n, len-n));
+	}
+
+	return ret_cmd;
 }

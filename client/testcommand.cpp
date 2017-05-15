@@ -8,20 +8,13 @@
 
 std::string TestCommand::Pack() 
 {
-	int msgLen = MSGLEN_HEAD + MSGLEN_MSGID + m_data.size();
-	char *buffer = new char[msgLen];
-
-	char *ptr = buffer;
-	*(uint32_t *)ptr = htonl(msgLen);
-	ptr += MSGLEN_HEAD;
-	*(uint32_t *)ptr = htonl(MSGID_TYPE::CLIENT_TEST);
-	ptr += MSGLEN_MSGID;
-
-	memcpy(ptr, m_data.c_str(), m_data.size());
-
-	std::string msg(buffer, msgLen);
-
-	delete []buffer;
+	Pluto u(1024);
+	u.WriteInt(time(NULL));
+	u.WriteString(m_data.size(), m_data.c_str());
+	u.WriteMsgId(MSGID_TYPE::CLIENT_TEST);
+	u.SetMsgLen();
+	
+	std::string msg(u.GetBuffer(), u.GetMsgLen());
 
 	return msg;
 }
