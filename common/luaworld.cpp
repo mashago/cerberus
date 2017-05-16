@@ -69,8 +69,6 @@ bool LuaWorld::Init(int server_id, int server_type, const char *entry_file)
 
 int LuaWorld::HandlePluto(Pluto &u)
 {
-	// TODO set pluto into a luanetwork
-
 	Mailbox *pmb = u.GetMailbox();
 	int mailboxId = pmb->GetMailboxId();
 	int msgId = u.ReadMsgId();
@@ -83,7 +81,7 @@ int LuaWorld::HandlePluto(Pluto &u)
 void LuaWorld::handleMsg(int mailboxId, int msgId, Pluto &u)
 {
 	LuaNetwork::Instance()->SetRecvPluto(&u);
-	lua_getglobal(_L, "ccall_net_recv_msg_handler");
+	lua_getglobal(_L, "ccall_recv_msg_handler");
 	lua_pushinteger(_L, mailboxId);
 	lua_pushinteger(_L, msgId);
 	lua_call(_L, 2, 0);

@@ -13,7 +13,7 @@ end
 
 local function read_data_by_def(msgdef, deep)
 	if deep > 10 then
-		print("too deep")
+		Log.warn("read_data_by_def too deep")
 	end
 
 	local read_val_action = 
@@ -41,7 +41,6 @@ local function read_data_by_def(msgdef, deep)
 		local val_name = v[1]
 		local val_type = v[2]
 
-		print("val_name=", val_name, " val_type=", val_type)
 		if (val_type == _Struct) then
 			flag, ret[val_name] = read_data_by_msg_def(v[3], deep + 1)
 		elseif (val_type == _StructArray) then
@@ -50,41 +49,50 @@ local function read_data_by_def(msgdef, deep)
 			flag, ret[val_name] = read_val_action[val_type]()
 		end
 		if not flag then
-			print("read_data_by_def read error")
+			Log.warn("read_data_by_def read error")
+			flag = false
 			break
 		end
 	end
-	return true, ret
+	return flag, ret
 end
 
 local function recv_msg(msg_id)
 	local def = MSG_DEF_MAP[msg_id]
 	if not def then
-		print("recv_msg(msg_id) def not exists")
-		return
+		Log.err("recv_msg def not exists msg_id=%d", msg_id)
+		return false
 	end
 
 	local flag, data = read_data_by_def(def, 0)
 	return flag, data
 end
 
-
 local function recv_msg_handler(mailbox_id, msg_id)
+
 	local flag, data = recv_msg(msg_id)	
-	
-	if msg_id == MID.CLIENT_TEST then
-		print("data.client_time=", data.client_time, " data.client_data=", data.client_data)
+	if not flag then
+		Log.err("recv_msg_handler recv_msg fail mailbox_id=%d msg_id=%d", mailbox_id, msg_id)
+		return
 	end
+	
+	local msg_handler = Net.get_msg_handler(msg_id)
+	if not msg_handler then
+		Log.warn("recv_msg_handler handler not exists msg_id=%d", msg_id)
+		return
+	end
+
+	msg_handler(data, mailbox_id, msg_id)
 end
 
 local function error_handler(msg, mailbox_id, msg_id)
-	print("error_handler ", msg)
+	Log.err("error_handler=%s mailbox_id=%d msg_id=%d", msg, mailbox_id, msg_id)
 end
 
-function ccall_net_recv_msg_handler(mailbox_id, msg_id)
-	print("mailbox_id=", mailbox_id, " msg_id=", msg_id)
+function ccall_recv_msg_handler(mailbox_id, msg_id)
+	Log.info("mailbox_id=", mailbox_id, " msg_id=", msg_id)
 	local msg_name = MID._id_name_map[msg_id]
-	print("msg_name=", msg_name)
+	Log.info("msg_name=", msg_name)
 	
 	local status = xpcall(recv_msg_handler
 	, function(msg) return error_handler(msg, mailbox_id, msg_id) end
