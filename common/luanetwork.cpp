@@ -107,11 +107,11 @@ bool LuaNetwork::Send(int mailboxId)
 
 	m_sendPluto->SetMsgLen();
 	Pluto *pu = m_sendPluto->Clone();
-	pu->SetMsgLen(m_sendPluto->GetMsgLen());
+	// pu->SetMsgLen(m_sendPluto->GetMsgLen());
 	pu->SetMailbox(pmb);
 	pmb->PushPluto(pu);
 
-	m_sendPluto->ResetCursor();
+	initSendPluto();
 
 	return true;
 }

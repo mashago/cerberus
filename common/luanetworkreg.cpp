@@ -337,7 +337,7 @@ int luanetwork_send(lua_State* L)
 
 	luaL_checktype(L, -1, LUA_TNUMBER);
 
-	bool ret = (*s)->Send((unsigned)lua_tointeger(L,-1));
+	bool ret = (*s)->Send((int)lua_tointeger(L,-1));
 
 	lua_pushboolean(L, ret);
 
