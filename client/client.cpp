@@ -240,7 +240,7 @@ void read_cb(struct bufferevent *bev, void *user_data)
 		int msgId = u->ReadMsgId();
 		switch (msgId)
 		{
-			case MSGID_TYPE::CLIENT_TEST:
+			case MSGID_TYPE::CLIENT_TEST_RET:
 			{
 				char tmp[1024];
 				memset(tmp, 0, sizeof(tmp));

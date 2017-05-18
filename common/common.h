@@ -14,6 +14,7 @@ enum EFDTYPE
 enum MSGID_TYPE
 {
 	CLIENT_TEST = 1,
+	CLIENT_TEST_RET = 2,
 };
 
 #endif

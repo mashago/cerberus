@@ -1,16 +1,6 @@
 
 g_network = LuaNetwork:instance()
 
-local function read_struct_array(structdef, deep)
-	local ret = {}
-	local count = g_network:read_int()
-	for i = 1, count do
-		local st = read_data_by_msgdef(structdef, deep)
-		table.insert(ret, st)
-	end
-	return ret
-end
-
 local read_val_action = 
 {
 	[_Byte] = function() return g_network:read_byte() end,
@@ -29,6 +19,16 @@ local read_val_action =
 	[_Int64Array] = function() return g_network:read_int64_array() end,
 	[_StringArray] = function() return g_network:read_string_array() end,
 }
+
+local function read_struct_array(structdef, deep)
+	local ret = {}
+	local count = g_network:read_int()
+	for i = 1, count do
+		local st = read_data_by_msgdef(structdef, deep)
+		table.insert(ret, st)
+	end
+	return ret
+end
 
 local function read_data_by_msgdef(msgdef, deep)
 	if deep > 10 then
@@ -90,9 +90,9 @@ local function error_handler(msg, mailbox_id, msg_id)
 end
 
 function ccall_recv_msg_handler(mailbox_id, msg_id)
-	Log.info("mailbox_id=", mailbox_id, " msg_id=", msg_id)
+	Log.info("mailbox_id=%d msg_id=%d", mailbox_id, msg_id)
 	local msg_name = MID._id_name_map[msg_id]
-	Log.info("msg_name=", msg_name)
+	Log.info("msg_name=%s", msg_name)
 	
 	local status = xpcall(recv_msg_handler
 	, function(msg) return error_handler(msg, mailbox_id, msg_id) end

@@ -14,7 +14,7 @@ static const char *tags[] =
 
 void _logcore(int type, const char *filename, const char *funcname, int linenum, const char *fmt, ...)
 {
-	enum {MAX_LOG_BUFFER_SIZE = 1024};
+	enum {MAX_LOG_BUFFER_SIZE = 2048};
 	char buffer[MAX_LOG_BUFFER_SIZE];
 
 	va_list ap;
@@ -22,7 +22,7 @@ void _logcore(int type, const char *filename, const char *funcname, int linenum,
 	vsnprintf(buffer, MAX_LOG_BUFFER_SIZE, fmt, ap);
 	va_end(ap);
 
-	printf("%s %s:%s[%d]: %s\n", tags[type], filename, funcname, linenum, buffer);
+	printf("[%s] %s:%s[%d] : %s\n", tags[type], filename, funcname, linenum, buffer);
 }
 
 /*

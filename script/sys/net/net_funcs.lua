@@ -21,7 +21,28 @@ local write_val_action =
 	[_StringArray] = function(val) return g_network:write_string_array(val) end,
 }
 
-function write_data_by_msgdef(data, msgdef, deep)
+local function write_struct_array(data, structdef, deep)
+	if not data then
+		Log.err("write_struct_array data nil")
+		return false
+	end
+
+	local ret = g_network:write_int(#data)
+	if not ret then
+		Log.err("write_struct_array write size error")
+		return false
+	end
+	for k, v in ipairs(data) do
+		ret = write_data_by_msgdef(v, structdef, deep)
+		if not ret then
+			Log.err("write_struct_array write struct error")
+			return false
+		end
+	end
+	return true
+end
+
+local function write_data_by_msgdef(data, msgdef, deep)
 
 	for idx, v in ipairs(msgdef) do
 		local val_name = v[1]
@@ -78,14 +99,13 @@ function Net.send_msg(mailbox_id, msg_id, ...)
 		return false
 	end
 
-	local flag, data = write_data_by_msgdef(args, msgdef, 0)
-	return flag, data
+	local flag = write_data_by_msgdef(args, msgdef, 0)
 	if not flag then
 		Log.err("Net.send_msg write data error msg_id=%d", msg_id)
 		return false
 	end
 
-	g_network:write_msg_id()
+	g_network:write_msg_id(msg_id)
 	return g_network:send(mailbox_id)
 end
 
