@@ -11,7 +11,6 @@ std::string TestCommand::Pack()
 	Pluto u(1024);
 
 	std::string str = "hello world";
-	int str_len = strlen(str.c_str());
 
 	u.WriteByte('a');
 	u.WriteBool(true);
@@ -19,7 +18,7 @@ std::string TestCommand::Pack()
 	u.WriteFloat(3.14);
 	u.WriteShort(12);
 	u.WriteInt64(123456789123);
-	u.WriteString(str_len, str.c_str());
+	u.WriteString(str.size(), str.c_str());
 
 	// TestStruct
 	u.WriteByte('b');
@@ -28,7 +27,8 @@ std::string TestCommand::Pack()
 	u.WriteFloat(3.15);
 	u.WriteShort(13);
 	u.WriteInt64(987654321987);
-	u.WriteString(str_len, str.c_str());
+	str = "hello world 2";
+	u.WriteString(str.size(), str.c_str());
 
 	// array
 	u.WriteShort(2);
@@ -56,20 +56,31 @@ std::string TestCommand::Pack()
 	u.WriteInt64(22222222222);
 
 	u.WriteShort(2);
-	u.WriteString(str_len, str.c_str());
-	u.WriteString(str_len, str.c_str());
+	str = "hello world 3";
+	u.WriteString(str.size(), str.c_str());
+	str = "hello world 4";
+	u.WriteString(str.size(), str.c_str());
 
-	/*
 	// TestStruct array
-	u.WriteShort(1);
-	u.WriteByte('k');
+	u.WriteShort(2);
+
+	u.WriteByte('x');
 	u.WriteBool(false);
 	u.WriteInt(123);
 	u.WriteFloat(3.45);
-	u.WriteShort(14);
+	u.WriteShort(32766);
 	u.WriteInt64(333333333333);
-	u.WriteString(str_len, str.c_str());
-	*/
+	str = "hello world 5";
+	u.WriteString(str.size(), str.c_str());
+
+	u.WriteByte('y');
+	u.WriteBool(true);
+	u.WriteInt(456);
+	u.WriteFloat(6.78);
+	u.WriteShort(32767);
+	u.WriteInt64(444444444444);
+	str = "hello world 6";
+	u.WriteString(str.size(), str.c_str());
 
 
 	u.WriteMsgId(MSGID_TYPE::CLIENT_TEST);

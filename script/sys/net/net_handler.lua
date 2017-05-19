@@ -22,15 +22,24 @@ local read_val_action =
 
 local function read_struct_array(structdef, deep)
 	local ret = {}
-	local count = g_network:read_int()
+	local flag, count = g_network:read_short()
+	if not flag then
+		Log.warn("read_struct_array count error")
+		return flag, ret
+	end
+
 	for i = 1, count do
-		local st = read_data_by_msgdef(structdef, deep)
+		local flag, st = read_data_by_msgdef(structdef, deep)
+		if not flag then
+			Log.warn("read_struct_array read data error")
+			return flag, ret
+		end
 		table.insert(ret, st)
 	end
-	return ret
+	return flag, ret
 end
 
-local function read_data_by_msgdef(msgdef, deep)
+function read_data_by_msgdef(msgdef, deep)
 	if deep > 10 then
 		Log.warn("read_data_by_msgdef too deep")
 	end
@@ -49,7 +58,7 @@ local function read_data_by_msgdef(msgdef, deep)
 			flag, ret[val_name] = read_val_action[val_type]()
 		end
 		if not flag then
-			Log.warn("read_data_by_msgdef read error")
+			Log.warn("read_data_by_msgdef read error val_type=%d", val_type)
 			flag = false
 			break
 		end

@@ -1,6 +1,7 @@
 
 package.path = package.path .. ";../script/?.lua"
 
+require "util.util"
 require "sys.init"
 
 local function main()

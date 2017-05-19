@@ -62,7 +62,7 @@ MSG_DEF_MAP =
 		{ "shortarray", _ShortArray },
 		{ "int64array", _Int64Array },
 		{ "stringarray", _StringArray },
-		-- { "structarray", _StructArray, TestStruct },
+		{ "structarray", _StructArray, TestStruct },
 	},
 
 	[MID.CLIENT_TEST_RET] =
