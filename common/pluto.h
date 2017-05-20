@@ -1,6 +1,5 @@
 
-#ifndef __PLUTO_H__
-#define __PLUTO_H__
+#pragma once
 
 #include <stdint.h>
 
@@ -93,4 +92,3 @@ private:
 	Mailbox *m_pmb;
 };
 
-#endif

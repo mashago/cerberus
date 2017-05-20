@@ -1,6 +1,5 @@
 
-#ifndef __COMMON_H__
-#define __COMMON_H__
+#pragma once
 
 enum EFDTYPE
 {
@@ -17,4 +16,3 @@ enum MSGID_TYPE
 	CLIENT_TEST_RET = 2,
 };
 
-#endif

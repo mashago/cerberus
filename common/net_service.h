@@ -1,5 +1,5 @@
-#ifndef __NET_SERVICE_H__
-#define __NET_SERVICE_H__
+
+#pragma once
 
 extern "C"
 {
@@ -21,6 +21,7 @@ extern "C"
 #include <event2/bufferevent.h>
 #include <event2/buffer.h>
 }
+
 #include <map>
 #include <list>
 #include "mailbox.h"
@@ -79,4 +80,3 @@ private:
 	World *m_world;
 };
 
-#endif

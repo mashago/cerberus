@@ -409,7 +409,7 @@ int luanetwork_read_int64(lua_State* L)
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
 	luaL_argcheck(L, s != NULL, 1, "invalid user data");
 
-	long long out_val = 0;
+	int64_t out_val = 0;
 	bool ret = (*s)->ReadInt64(out_val);
 
 	lua_pushboolean(L, ret);
@@ -609,7 +609,7 @@ int luanetwork_read_int64_array(lua_State* L)
 	lua_newtable(L);
 
 	for (unsigned short i = 1; i <= (unsigned short)count; ++i){
-		long long out_val = 0;
+		int64_t out_val = 0;
 		bool ret = (*s)->ReadInt64(out_val);
 		if (!ret)
 		{

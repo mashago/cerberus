@@ -10,7 +10,7 @@ extern "C"
 #include "luanetworkreg.h"
 #include "luanetwork.h"
 
-LuaWorld::LuaWorld() : _L(nullptr)
+LuaWorld::LuaWorld() : m_L(nullptr)
 {
 }
 
@@ -22,8 +22,8 @@ bool LuaWorld::Init(int server_id, int server_type, const char *entry_file)
 {
 	LuaNetwork::Instance()->SetNetService(m_net);
 
-	_L = luaL_newstate();
-	if (!_L)
+	m_L = luaL_newstate();
+	if (!m_L)
 	{
 		return false;
 	}
@@ -46,20 +46,20 @@ bool LuaWorld::Init(int server_id, int server_type, const char *entry_file)
 
 	for (const luaL_Reg *libptr = lua_reg_libs; libptr->func; ++libptr)
 	{
-		luaL_requiref(_L, libptr->name, libptr->func, 1);
-		lua_pop(_L, 1);
+		luaL_requiref(m_L, libptr->name, libptr->func, 1);
+		lua_pop(m_L, 1);
 	}
 
-	lua_pushinteger(_L, server_id);
-	lua_setglobal(_L, "g_server_id");
-	lua_pushinteger(_L, server_type);
-	lua_setglobal(_L, "g_server_type");
-	lua_pushstring(_L, entry_file);
-	lua_setglobal(_L, "g_entry_file");
+	lua_pushinteger(m_L, server_id);
+	lua_setglobal(m_L, "g_server_id");
+	lua_pushinteger(m_L, server_type);
+	lua_setglobal(m_L, "g_server_type");
+	lua_pushstring(m_L, entry_file);
+	lua_setglobal(m_L, "g_entry_file");
 
-	if (luaL_dofile(_L, "../script/main.lua"))
+	if (luaL_dofile(m_L, "../script/main.lua"))
 	{
-		const char * msg = lua_tostring(_L, -1);
+		const char * msg = lua_tostring(m_L, -1);
 		LOG_ERROR("msg=%s", msg);
 		return false;
 	}
@@ -81,10 +81,10 @@ int LuaWorld::HandlePluto(Pluto &u)
 void LuaWorld::handleMsg(int mailboxId, int msgId, Pluto &u)
 {
 	LuaNetwork::Instance()->SetRecvPluto(&u);
-	lua_getglobal(_L, "ccall_recv_msg_handler");
-	lua_pushinteger(_L, mailboxId);
-	lua_pushinteger(_L, msgId);
-	lua_call(_L, 2, 0);
+	lua_getglobal(m_L, "ccall_recv_msg_handler");
+	lua_pushinteger(m_L, mailboxId);
+	lua_pushinteger(m_L, msgId);
+	lua_call(m_L, 2, 0);
 }
 
 void LuaWorld::HandleDisconnect(Mailbox *pmb)

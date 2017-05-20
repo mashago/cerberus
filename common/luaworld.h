@@ -1,6 +1,5 @@
 
-#ifndef __LUAWORLD_H__
-#define __LUAWORLD_H__
+#pragma once
 
 #include <lua.hpp>
 #include "world.h"
@@ -19,7 +18,6 @@ public:
 	virtual void HandleConnectToSuccess(Mailbox *pmb) override;
 private:
 	void handleMsg(int mailboxId, int msgId, Pluto &u);
-	lua_State *_L;
+	lua_State *m_L;
 };
 
-#endif

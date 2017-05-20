@@ -1,6 +1,5 @@
 
-#ifndef __WORLD_H__
-#define __WORLD_H__
+#pragma once
 
 #include "pluto.h"
 
@@ -31,4 +30,3 @@ protected:
 	NetService *m_net;
 };
 
-#endif

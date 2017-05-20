@@ -1,6 +1,5 @@
 
-#ifndef __LOGGER_H__
-#define __LOGGER_H__
+#pragma once
 
 enum
 {
@@ -17,4 +16,3 @@ void _logcore(int type, const char *filename, const char *funcname, int linenum,
 #define LOG_WARN(fmt, ...) _logcore(LOG_TYPE_WARN, __FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
 #define LOG_ERROR(fmt, ...) _logcore(LOG_TYPE_ERROR, __FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
 
-#endif

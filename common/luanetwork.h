@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-// #include "net_service.h"
 
 class Pluto;
 class NetService;

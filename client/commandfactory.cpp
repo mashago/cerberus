@@ -1,4 +1,9 @@
 
+extern "C"
+{
+#include <string.h>
+}
+#include <string>
 #include <string>
 #include "commandfactory.h"
 #include "testcommand.h"

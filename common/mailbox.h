@@ -1,6 +1,5 @@
 
-#ifndef __MAILBOX_H__
-#define __MAILBOX_H__
+#pragma once
 
 extern "C"
 {
@@ -49,4 +48,3 @@ public:
 	int m_sendPos;
 };
 
-#endif

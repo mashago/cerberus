@@ -1,6 +1,5 @@
 
-#ifndef __ROUTERWORLD_H__
-#define __ROUTERWORLD_H__
+#pragma once
 
 #include "world.h"
 
@@ -16,4 +15,3 @@ private:
 	virtual void HandleConnectToSuccess(Mailbox *pmb) override;
 };
 
-#endif
