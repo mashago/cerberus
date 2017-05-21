@@ -67,7 +67,23 @@ MSG_DEF_MAP =
 
 	[MID.CLIENT_TEST_RET] =
 	{
-		{ "server_time", _Int },
-		{ "server_data", _String },
+		{ "byte", _Byte },
+		{ "bool", _Bool },
+		{ "int", _Int },
+		{ "float", _Float },
+		{ "short", _Short },
+		{ "int64", _Int64 },
+		{ "string", _String },
+		{ "struct", _Struct, TestStruct },
+		--[[
+		{ "bytearray", _ByteArray },
+		{ "boolarray", _BoolArray },
+		{ "intarray", _IntArray },
+		{ "floatarray", _FloatArray },
+		{ "shortarray", _ShortArray },
+		{ "int64array", _Int64Array },
+		{ "stringarray", _StringArray },
+		{ "structarray", _StructArray, TestStruct },
+		--]]
 	},
 }

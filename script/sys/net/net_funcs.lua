@@ -50,7 +50,7 @@ local function write_data_by_msgdef(data, msgdef, deep)
 
 		local value = data[idx]
 		if value == nil then
-			Log.warning("write_data_by_msgdef value[%s] nil", val_name)
+			Log.warn("write_data_by_msgdef value[%s] nil", val_name)
 			return false
 		end
 
@@ -63,9 +63,9 @@ local function write_data_by_msgdef(data, msgdef, deep)
 			and val_type ~= _ShortArray and val_type ~= _IntArray
 			and val_type ~= _FloatArray and val_type ~= _Int64Array
 			and val_type ~= _BoolArray and val_type ~= _StringArray
-			and val_type ~= _StructArray))
+			and val_type ~= _Struct and val_type ~= _StructArray))
 		then
-			Log.warning("write_data_by_msgdef value[%s] type error", val_name)
+			Log.warn("write_data_by_msgdef value[%s] type error type(value)=%s val_type=%d", val_name, type(value), val_type)
 			return false
 		end
 

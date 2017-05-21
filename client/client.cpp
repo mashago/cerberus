@@ -197,6 +197,68 @@ Command * Client::PopCommand()
 	return c;
 }
 
+void handle_test_ret(Pluto *u)
+{
+	LOG_DEBUG("xxxxxx");
+	/*
+	{ "byte", _Byte },
+	{ "bool", _Bool },
+	{ "int", _Int },
+	{ "float", _Float },
+	{ "short", _Short },
+	{ "int64", _Int64 },
+	{ "string", _String },
+	{ "struct", _Struct, TestStruct },
+	{ "bytearray", _ByteArray },
+	{ "boolarray", _BoolArray },
+	{ "intarray", _IntArray },
+	{ "floatarray", _FloatArray },
+	{ "shortarray", _ShortArray },
+	{ "int64array", _Int64Array },
+	{ "stringarray", _StringArray },
+	{ "structarray", _StructArray, TestStruct },
+	*/
+	
+	bool flag = true;
+
+	char out_byte = '\0';
+	flag = u->ReadByte(out_byte);
+	if (!flag) { LOG_ERROR("read byte error"); return;}
+	LOG_DEBUG("out_byte=%c", out_byte);
+	
+	bool out_bool = 0;
+	flag = u->ReadBool(out_bool);
+	if (!flag) {LOG_ERROR("read bool error"); return;}
+	LOG_DEBUG("out_bool=%s", out_bool ? "true" : "false");
+	
+	int out_int = 0;
+	flag = u->ReadInt(out_int);
+	if (!flag) {LOG_ERROR("read int error"); return;}
+	LOG_DEBUG("out_int=%d", out_int);
+	
+	float out_float = 0;
+	flag = u->ReadFloat(out_float);
+	if (!flag) {LOG_ERROR("read float error"); return;}
+	LOG_DEBUG("out_float=%f", out_float);
+	
+	short out_short = 0;
+	flag = u->ReadShort(out_short);
+	if (!flag) {LOG_ERROR("read short error"); return;}
+	LOG_DEBUG("out_short=%d", out_short);
+	
+	int64_t out_int64 = 0;
+	flag = u->ReadInt64(out_int64);
+	if (!flag) {LOG_ERROR("read int64 error"); return;}
+	LOG_DEBUG("out_int64=%lld", out_int64);
+
+	char out_string[1024];
+	memset(out_string, 0, sizeof(out_string));
+	int out_len = 0;
+	flag = u->ReadString(out_len, out_string);
+	if (!flag) {LOG_ERROR("read string error"); return;}
+	LOG_DEBUG("out_len=%d out_string=%s", out_len, out_string);
+
+}
 
 void read_cb(struct bufferevent *bev, void *user_data)
 {
@@ -242,16 +304,7 @@ void read_cb(struct bufferevent *bev, void *user_data)
 		{
 			case MSGID_TYPE::CLIENT_TEST_RET:
 			{
-				char tmp[1024];
-				memset(tmp, 0, sizeof(tmp));
-
-				int n = 0;
-				u->ReadInt(n);
-				LOG_DEBUG("n=%d", n);
-
-				int out_len = 0;
-				u->ReadString(out_len, tmp);
-				LOG_DEBUG("out_len=%d data=%s", out_len, tmp);
+				handle_test_ret(u);
 				break;
 			}
 		}
