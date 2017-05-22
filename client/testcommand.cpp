@@ -31,38 +31,38 @@ std::string TestCommand::Pack()
 	u.WriteString(str.size(), str.c_str());
 
 	// array
-	u.WriteShort(2);
+	u.WriteInt(2);
 	u.WriteByte('c');
 	u.WriteByte('d');
 
-	u.WriteShort(2);
+	u.WriteInt(2);
 	u.WriteBool(true);
 	u.WriteBool(false);
 
-	u.WriteShort(2);
+	u.WriteInt(2);
 	u.WriteInt(123);
 	u.WriteInt(456);
 
-	u.WriteShort(2);
+	u.WriteInt(2);
 	u.WriteFloat(1.23);
 	u.WriteFloat(3.45);
 
-	u.WriteShort(2);
+	u.WriteInt(2);
 	u.WriteShort(77);
 	u.WriteShort(88);
 
-	u.WriteShort(2);
+	u.WriteInt(2);
 	u.WriteInt64(11111111111);
 	u.WriteInt64(22222222222);
 
-	u.WriteShort(2);
+	u.WriteInt(2);
 	str = "hello world 3";
 	u.WriteString(str.size(), str.c_str());
 	str = "hello world 4";
 	u.WriteString(str.size(), str.c_str());
 
 	// TestStruct array
-	u.WriteShort(2);
+	u.WriteInt(2);
 
 	u.WriteByte('x');
 	u.WriteBool(false);

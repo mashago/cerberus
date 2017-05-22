@@ -130,8 +130,8 @@ int luanetwork_write_string(lua_State* L)
 
 #define write_table_len(count) \
 do { \
-count = (unsigned short)luaL_len(L, -1); \
-bool ret = (*s)->WriteShort(count); \
+count = (int)luaL_len(L, -1); \
+bool ret = (*s)->WriteInt(count); \
 if (!ret) \
 { \
 	lua_pushboolean(L, ret); \
@@ -147,10 +147,10 @@ int luanetwork_write_byte_array(lua_State* L)
 	luaL_checktype(L, -1, LUA_TTABLE);
 
 	//得到table长度
-	unsigned short count = 0;
+	int count = 0;
 	write_table_len(count);
 
-	for (unsigned short i = 1; i <= count; ++i)
+	for (int i = 1; i <= count; ++i)
 	{
 		lua_pushinteger(L,i);
 		lua_rawget(L, -2);
@@ -175,10 +175,10 @@ int luanetwork_write_int_array(lua_State* L)
 	luaL_checktype(L, -1, LUA_TTABLE);
 
 	//得到table长度
-	unsigned short count = 0;
+	int count = 0;
 	write_table_len(count);
 
-	for (unsigned short i = 1; i <= count; ++i)
+	for (int i = 1; i <= count; ++i)
 	{
 		lua_pushinteger(L, i);
 		lua_rawget(L, -2);
@@ -203,10 +203,10 @@ int luanetwork_write_float_array(lua_State* L)
 	luaL_checktype(L, -1, LUA_TTABLE);
 
 	//得到table长度
-	unsigned short count = 0;
+	int count = 0;
 	write_table_len(count);
 
-	for (unsigned short i = 1; i <= count; ++i){
+	for (int i = 1; i <= count; ++i){
 		lua_pushinteger(L, i);
 		lua_rawget(L, -2);
 		bool ret = (*s)->WriteFloat((float)lua_tonumber(L,-1));
@@ -230,10 +230,10 @@ int luanetwork_write_bool_array(lua_State* L)
 	luaL_checktype(L, -1, LUA_TTABLE);
 
 	//得到table长度
-	unsigned short count = 0;
+	int count = 0;
 	write_table_len(count);
 
-	for (unsigned short i = 1; i <= count; ++i){
+	for (int i = 1; i <= count; ++i){
 		lua_pushinteger(L, i);
 		lua_rawget(L, -2);
 		bool ret = (*s)->WriteBool(lua_toboolean(L, -1) != 0);
@@ -257,10 +257,10 @@ int luanetwork_write_short_array(lua_State* L)
 	luaL_checktype(L, -1, LUA_TTABLE);
 
 	//得到table长度
-	unsigned short count = 0;
+	int count = 0;
 	write_table_len(count);
 
-	for (unsigned short i = 1; i <= count; ++i){
+	for (int i = 1; i <= count; ++i){
 		lua_pushinteger(L, i);
 		lua_rawget(L, -2);
 		bool ret = (*s)->WriteShort((short)lua_tointeger(L, -1));
@@ -284,10 +284,10 @@ int luanetwork_write_int64_array(lua_State* L)
 	luaL_checktype(L, -1, LUA_TTABLE);
 
 	//得到table长度
-	unsigned short count = 0;
+	int count = 0;
 	write_table_len(count);
 
-	for (unsigned short i = 1; i <= count; ++i){
+	for (int i = 1; i <= count; ++i){
 		lua_pushinteger(L, i);
 		lua_rawget(L, -2);
 		bool ret = (*s)->WriteInt64(lua_tointeger(L, -1));
@@ -311,10 +311,10 @@ int luanetwork_write_string_array(lua_State* L)
 	luaL_checktype(L, -1, LUA_TTABLE);
 
 	//得到table长度
-	unsigned short count = 0;
+	int count = 0;
 	write_table_len(count);
 
-	for (unsigned short i = 1; i <= count; ++i){
+	for (int i = 1; i <= count; ++i){
 		lua_pushinteger(L, i);
 		lua_rawget(L, -2);
 		bool ret = (*s)->WriteString((int)luaL_len(L, -1), lua_tostring(L, -1));
@@ -454,8 +454,8 @@ int luanetwork_read_byte_array(lua_State* L)
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
 	luaL_argcheck(L, s != NULL, 1, "invalid user data");
 
-	short count = 0;
-	bool ret = (*s)->ReadShort(count);
+	int count = 0;
+	bool ret = (*s)->ReadInt(count);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -464,7 +464,7 @@ int luanetwork_read_byte_array(lua_State* L)
 
 	lua_newtable(L);
 
-	for (unsigned short i = 1; i <= (unsigned short)count; ++i){
+	for (int i = 1; i <= count; ++i){
 		char out_val = 0;
 		bool ret = (*s)->ReadByte(out_val);
 		if (!ret)
@@ -490,8 +490,8 @@ int luanetwork_read_int_array(lua_State* L)
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
 	luaL_argcheck(L, s != NULL, 1, "invalid user data");
 
-	short count = 0;
-	bool ret = (*s)->ReadShort(count);
+	int count = 0;
+	bool ret = (*s)->ReadInt(count);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -500,7 +500,7 @@ int luanetwork_read_int_array(lua_State* L)
 
 	lua_newtable(L);
 
-	for (unsigned short i = 1; i <= (unsigned short)count; ++i){
+	for (int i = 1; i <= count; ++i){
 		int out_val = 0;
 		bool ret = (*s)->ReadInt(out_val);
 		if (!ret)
@@ -526,8 +526,8 @@ int luanetwork_read_float_array(lua_State* L)
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
 	luaL_argcheck(L, s != NULL, 1, "invalid user data");
 
-	short count = 0;
-	bool ret = (*s)->ReadShort(count);
+	int count = 0;
+	bool ret = (*s)->ReadInt(count);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -536,7 +536,7 @@ int luanetwork_read_float_array(lua_State* L)
 
 	lua_newtable(L);
 
-	for (unsigned short i = 1; i <= (unsigned short)count; ++i){
+	for (int i = 1; i <= count; ++i){
 		float out_val = 0;
 		bool ret = (*s)->ReadFloat(out_val);
 		if (!ret)
@@ -562,8 +562,8 @@ int luanetwork_read_bool_array(lua_State* L)
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
 	luaL_argcheck(L, s != NULL, 1, "invalid user data");
 
-	short count = 0;
-	bool ret = (*s)->ReadShort(count);
+	int count = 0;
+	bool ret = (*s)->ReadInt(count);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -572,7 +572,7 @@ int luanetwork_read_bool_array(lua_State* L)
 
 	lua_newtable(L);
 
-	for (unsigned short i = 1; i <= (unsigned short)count; ++i){
+	for (int i = 1; i <= count; ++i){
 		bool out_val = 0;
 		bool ret = (*s)->ReadBool(out_val);
 		if (!ret)
@@ -598,8 +598,8 @@ int luanetwork_read_int64_array(lua_State* L)
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
 	luaL_argcheck(L, s != NULL, 1, "invalid user data");
 
-	short count = 0;
-	bool ret = (*s)->ReadShort(count);
+	int count = 0;
+	bool ret = (*s)->ReadInt(count);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -608,7 +608,7 @@ int luanetwork_read_int64_array(lua_State* L)
 
 	lua_newtable(L);
 
-	for (unsigned short i = 1; i <= (unsigned short)count; ++i){
+	for (int i = 1; i <= count; ++i){
 		int64_t out_val = 0;
 		bool ret = (*s)->ReadInt64(out_val);
 		if (!ret)
@@ -634,8 +634,8 @@ int luanetwork_read_short_array(lua_State* L)
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
 	luaL_argcheck(L, s != NULL, 1, "invalid user data");
 
-	short count = 0;
-	bool ret = (*s)->ReadShort(count);
+	int count = 0;
+	bool ret = (*s)->ReadInt(count);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -644,7 +644,7 @@ int luanetwork_read_short_array(lua_State* L)
 
 	lua_newtable(L);
 
-	for (unsigned short i = 1; i <= (unsigned short)count; ++i){
+	for (int i = 1; i <= count; ++i){
 		short out_val = 0;
 		bool ret = (*s)->ReadShort(out_val);
 		if (!ret)
@@ -670,8 +670,8 @@ int luanetwork_read_string_array(lua_State* L)
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
 	luaL_argcheck(L, s != NULL, 1, "invalid user data");
 
-	short count = 0;
-	bool ret = (*s)->ReadShort(count);
+	int count = 0;
+	bool ret = (*s)->ReadInt(count);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -680,7 +680,7 @@ int luanetwork_read_string_array(lua_State* L)
 
 	lua_newtable(L);
 
-	for (unsigned short i = 1; i <= (unsigned short)count; ++i){
+	for (int i = 1; i <= count; ++i){
 		int out_len = 0;
 		char out_val[MSGLEN_MAX+1] = {};
 		bool ret = (*s)->ReadString(out_len, out_val);

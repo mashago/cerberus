@@ -22,6 +22,35 @@ local function handle_client_test(data, mailbox_id, msg_id)
 			22222222222,
 			"hello world 2",
 		},
+
+		{67, 68, 69},
+		{true, false},
+		{111111, 222222},
+		{1.1, 2.2},
+		{444, 555},
+		{33333333333, 44444444444},
+		{"hello world 3", "hello world 4"},
+		{
+			{
+				70,
+				false,
+				456,
+				5.16,
+				78,
+				55555555555,
+				"hello world 5",
+			},
+			{
+				71,
+				false,
+				456,
+				5.16,
+				78,
+				66666666666,
+				"hello world 6",
+			},
+		},
+
 	}
 	Net.send_msg(mailbox_id, MID.CLIENT_TEST_RET, table.unpack(data_send))
 end

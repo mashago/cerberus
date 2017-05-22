@@ -253,10 +253,145 @@ void handle_test_ret(Pluto *u)
 
 	char out_string[1024];
 	memset(out_string, 0, sizeof(out_string));
-	int out_len = 0;
-	flag = u->ReadString(out_len, out_string);
+	int out_string_len = 0;
+	flag = u->ReadString(out_string_len, out_string);
 	if (!flag) {LOG_ERROR("read string error"); return;}
-	LOG_DEBUG("out_len=%d out_string=%s", out_len, out_string);
+	LOG_DEBUG("out_string_len=%d out_string=%s", out_string_len, out_string);
+
+	auto read_struct = [&]()
+	{
+		LOG_DEBUG("read_struct");
+		// struct
+		char out_byte = '\0';
+		flag = u->ReadByte(out_byte);
+		if (!flag) { LOG_ERROR("read byte error"); return false;}
+		LOG_DEBUG("out_byte=%c", out_byte);
+		
+		bool out_bool = 0;
+		flag = u->ReadBool(out_bool);
+		if (!flag) {LOG_ERROR("read bool error"); return false;}
+		LOG_DEBUG("out_bool=%s", out_bool ? "true" : "false");
+		
+		int out_int = 0;
+		flag = u->ReadInt(out_int);
+		if (!flag) {LOG_ERROR("read int error"); return false;}
+		LOG_DEBUG("out_int=%d", out_int);
+		
+		float out_float = 0;
+		flag = u->ReadFloat(out_float);
+		if (!flag) {LOG_ERROR("read float error"); return false;}
+		LOG_DEBUG("out_float=%f", out_float);
+		
+		short out_short = 0;
+		flag = u->ReadShort(out_short);
+		if (!flag) {LOG_ERROR("read short error"); return false;}
+		LOG_DEBUG("out_short=%d", out_short);
+		
+		int64_t out_int64 = 0;
+		flag = u->ReadInt64(out_int64);
+		if (!flag) {LOG_ERROR("read int64 error"); return false;}
+		LOG_DEBUG("out_int64=%lld", out_int64);
+
+		char out_string[1024];
+		memset(out_string, 0, sizeof(out_string));
+		int out_string_len = 0;
+		flag = u->ReadString(out_string_len, out_string);
+		if (!flag) {LOG_ERROR("read string error"); return false;}
+		LOG_DEBUG("out_string_len=%d out_string=%s", out_string_len, out_string);
+		LOG_DEBUG("");
+		return true;
+	};
+	flag = read_struct();
+	if (!flag) {LOG_ERROR("read struct error"); return;}
+
+	int out_len = 0;
+	flag = u->ReadInt(out_len);
+	if (!flag) {LOG_ERROR("read int len error"); return;}
+	LOG_DEBUG("out_len=%d", out_len);
+	for (int i = 0; i < out_len; i++)
+	{
+		char out_byte = '\0';
+		flag = u->ReadByte(out_byte);
+		if (!flag) { LOG_ERROR("read byte error"); return;}
+		LOG_DEBUG("out_byte=%c", out_byte);
+	}
+	
+	flag = u->ReadInt(out_len);
+	if (!flag) {LOG_ERROR("read int len error"); return;}
+	LOG_DEBUG("out_len=%d", out_len);
+	for (int i = 0; i < out_len; i++)
+	{
+		bool out_bool = 0;
+		flag = u->ReadBool(out_bool);
+		if (!flag) {LOG_ERROR("read bool error"); return;}
+		LOG_DEBUG("out_bool=%s", out_bool ? "true" : "false");
+	}
+	
+	flag = u->ReadInt(out_len);
+	if (!flag) {LOG_ERROR("read int len error"); return;}
+	LOG_DEBUG("out_len=%d", out_len);
+	for (int i = 0; i < out_len; i++)
+	{
+		int out_int = 0;
+		flag = u->ReadInt(out_int);
+		if (!flag) {LOG_ERROR("read int error"); return;}
+		LOG_DEBUG("out_int=%d", out_int);
+	}
+	
+	flag = u->ReadInt(out_len);
+	if (!flag) {LOG_ERROR("read int len error"); return;}
+	LOG_DEBUG("out_len=%d", out_len);
+	for (int i = 0; i < out_len; i++)
+	{
+		float out_float = 0;
+		flag = u->ReadFloat(out_float);
+		if (!flag) {LOG_ERROR("read float error"); return;}
+		LOG_DEBUG("out_float=%f", out_float);
+	}
+	
+	flag = u->ReadInt(out_len);
+	if (!flag) {LOG_ERROR("read int len error"); return;}
+	LOG_DEBUG("out_len=%d", out_len);
+	for (int i = 0; i < out_len; i++)
+	{
+		short out_short = 0;
+		flag = u->ReadShort(out_short);
+		if (!flag) {LOG_ERROR("read short error"); return;}
+		LOG_DEBUG("out_short=%d", out_short);
+	}
+	
+	flag = u->ReadInt(out_len);
+	if (!flag) {LOG_ERROR("read int len error"); return;}
+	LOG_DEBUG("out_len=%d", out_len);
+	for (int i = 0; i < out_len; i++)
+	{
+		int64_t out_int64 = 0;
+		flag = u->ReadInt64(out_int64);
+		if (!flag) {LOG_ERROR("read int64 error"); return;}
+		LOG_DEBUG("out_int64=%lld", out_int64);
+	}
+
+	flag = u->ReadInt(out_len);
+	if (!flag) {LOG_ERROR("read int len error"); return;}
+	LOG_DEBUG("out_len=%d", out_len);
+	for (int i = 0; i < out_len; i++)
+	{
+		char out_string[1024];
+		memset(out_string, 0, sizeof(out_string));
+		int out_string_len = 0;
+		flag = u->ReadString(out_string_len, out_string);
+		if (!flag) {LOG_ERROR("read string error"); return;}
+		LOG_DEBUG("out_string_len=%d out_string=%s", out_string_len, out_string);
+	}
+
+	flag = u->ReadInt(out_len);
+	if (!flag) {LOG_ERROR("read int len error"); return;}
+	LOG_DEBUG("out_len=%d", out_len);
+	for (int i = 0; i < out_len; i++)
+	{
+		flag = read_struct();
+		if (!flag) {LOG_ERROR("read struct error"); return;}
+	}
 
 }
 
