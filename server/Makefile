@@ -1,5 +1,5 @@
 
-TARGET:=ServerRouter
+TARGET:=Server
 
 CC:=gcc
 CXX:=g++
