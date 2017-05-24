@@ -43,6 +43,7 @@ public:
 	int Init(NetServiceType netType, const char *addr, unsigned int port);
 	int Service();
 	int ConnectTo(const char *addr, unsigned int port);
+	bool AddTimer(int ms, bool is_loop, void *arg);
 
 	Mailbox *GetMailbox(int fd);
 	void SetWorld(World *world);
@@ -58,7 +59,7 @@ public:
 	virtual int HandleSocketClosed(evutil_socket_t fd);
 	virtual int HandleSocketError(evutil_socket_t fd);
 
-	virtual int HandleSocketTickEvent();
+	virtual int HandleTickEvent();
 	virtual int HandleRecvPluto();
 	virtual int HandleSendPluto();
 

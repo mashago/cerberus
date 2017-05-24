@@ -24,11 +24,14 @@ extern "C"
 #include "common.h"
 #include "util.h"
 #include "net_service.h"
+#include "timermgr.h"
 
 static void listen_cb(struct evconnlistener *listener, evutil_socket_t fd, struct sockaddr *sa, int socklen, void *user_data);
 static void read_cb(struct bufferevent *bev, void *user_data);
 static void event_cb(struct bufferevent *bev, short event, void *user_data);
+static void tick_cb(evutil_socket_t fd, short event, void *user_data);
 static void timer_cb(evutil_socket_t fd, short event, void *user_data);
+
 
 NetService::NetService() : m_mainEvent(nullptr), m_timerEvent(nullptr), m_evconnlistener(nullptr), m_world(nullptr)
 {
@@ -57,7 +60,7 @@ int NetService::Init(NetServiceType netType, const char *addr, unsigned int port
 	}
 
 	// init timer
-	m_timerEvent = event_new(m_mainEvent, -1, EV_PERSIST, timer_cb, this);
+	m_timerEvent = event_new(m_mainEvent, -1, EV_PERSIST, tick_cb, this);
 	struct timeval tv;
 	tv.tv_sec = 0;
 	// tv.tv_sec = 3;
@@ -67,6 +70,8 @@ int NetService::Init(NetServiceType netType, const char *addr, unsigned int port
 		LOG_ERROR("add timer fail");
 		return -1;
 	}
+
+	TimerMgr::Init(this);
 
 	return 0;
 }
@@ -117,6 +122,25 @@ int NetService::ConnectTo(const char *addr, unsigned int port)
 
 	return 0;
 };
+
+bool NetService::AddTimer(int ms, bool is_loop, void *arg)
+{
+	int flag = 0;
+	if (is_loop)
+	{
+		flag |= EV_PERSIST;
+	}
+	struct event *timer_event = event_new(m_mainEvent, -1, flag, timer_cb, arg);
+	struct timeval tv;
+	tv.tv_sec = ms / 1000;
+	tv.tv_usec = ms % 1000;
+	if (event_add(timer_event, &tv) != 0)
+	{
+		LOG_ERROR("add timer fail");
+		return false;
+	}
+	return true;
+}
 
 bool NetService::Listen(const char *addr, unsigned int port)
 {
@@ -507,7 +531,7 @@ int NetService::HandleSendPluto()
 	return 0;
 }
 
-int NetService::HandleSocketTickEvent()
+int NetService::HandleTickEvent()
 {
 	// 1. handle recv pluto
 	// 2. handle send pluto
@@ -576,11 +600,16 @@ static void event_cb(struct bufferevent *bev, short event, void *user_data)
 
 }
 
+static void tick_cb(evutil_socket_t fd, short event, void *user_data)
+{
+	NetService *server = (NetService *)user_data;
+	server->HandleTickEvent();
+}
+
+// for add timer
 static void timer_cb(evutil_socket_t fd, short event, void *user_data)
 {
-	// LOG_DEBUG("fd=%d", fd);
-	NetService *server = (NetService *)user_data;
-	server->HandleSocketTickEvent();
+	TimerMgr::WakeUp(user_data);
 }
 
 ////////// callback end ]
