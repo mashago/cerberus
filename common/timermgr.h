@@ -13,13 +13,14 @@ class TimerMgr
 {
 public:
 	typedef void (*TIMER_CB)(void *);
-	static void Init(NetService *net);
 	static int64_t AddTimer(int ms, TIMER_CB cb_func, void *arg, bool is_loop);
-	static bool DelTimer();
-	static void WakeUp(void *data);
+	static bool DelTimer(int64_t timer_index);
+	static void OnTimer();
 private:
 	struct Timer
 	{
+		int _ms;
+		int64_t _wake_time; // ms
 		bool _is_loop;
 		void *_arg;
 		TIMER_CB _cb_func;
@@ -27,6 +28,5 @@ private:
 
 	static std::map<int64_t, Timer> m_timerMap;
 	static int64_t m_timerIndex;
-	static NetService *m_net;
 
 };

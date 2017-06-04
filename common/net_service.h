@@ -43,7 +43,6 @@ public:
 	int Init(NetServiceType netType, const char *addr, unsigned int port);
 	int Service();
 	int ConnectTo(const char *addr, unsigned int port);
-	bool AddTimer(int ms, bool is_loop, void *arg);
 
 	Mailbox *GetMailbox(int fd);
 	void SetWorld(World *world);
@@ -72,6 +71,7 @@ private:
 	void CloseFd(int fd);
 
 	struct event_base *m_mainEvent;
+	struct event *m_tickEvent;
 	struct event *m_timerEvent;
 	struct evconnlistener *m_evconnlistener;
 

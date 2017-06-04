@@ -33,7 +33,7 @@ static void tick_cb(evutil_socket_t fd, short event, void *user_data);
 static void timer_cb(evutil_socket_t fd, short event, void *user_data);
 
 
-NetService::NetService() : m_mainEvent(nullptr), m_timerEvent(nullptr), m_evconnlistener(nullptr), m_world(nullptr)
+NetService::NetService() : m_mainEvent(nullptr), m_tickEvent(nullptr), m_timerEvent(nullptr), m_evconnlistener(nullptr), m_world(nullptr)
 {
 }
 
@@ -59,19 +59,38 @@ int NetService::Init(NetServiceType netType, const char *addr, unsigned int port
 		return -1;
 	}
 
-	// init timer
-	m_timerEvent = event_new(m_mainEvent, -1, EV_PERSIST, tick_cb, this);
+	// init tick timer
+	m_tickEvent = event_new(m_mainEvent, -1, EV_PERSIST, tick_cb, this);
 	struct timeval tv;
 	tv.tv_sec = 0;
 	// tv.tv_sec = 3;
 	tv.tv_usec = 50 * 1000;
-	if (event_add(m_timerEvent, &tv) != 0)
+	if (event_add(m_tickEvent, &tv) != 0)
 	{
-		LOG_ERROR("add timer fail");
+		LOG_ERROR("add tick timer fail");
 		return -1;
 	}
 
-	TimerMgr::Init(this);
+	// init timer
+	auto addTimer = [&]()
+	{
+		int wait_sec = 1;
+		int wait_usec = 0;
+		m_timerEvent = event_new(m_mainEvent, -1, EV_PERSIST, timer_cb, this);
+		struct timeval tv;
+		tv.tv_sec = wait_sec;
+		tv.tv_usec = wait_usec;
+		if (event_add(m_timerEvent, &tv) != 0)
+		{
+			LOG_ERROR("add normal timer fail");
+			return false;
+		}
+		return true;
+	};
+	if (!addTimer())
+	{
+		return -1;
+	}
 
 	return 0;
 }
@@ -81,11 +100,11 @@ int NetService::Service()
 
 	event_base_dispatch(m_mainEvent);
 
-	if (m_timerEvent)
+	if (m_tickEvent)
 	{
-		event_del(m_timerEvent);
-		event_free(m_timerEvent);
-		m_timerEvent = NULL;
+		event_del(m_tickEvent);
+		event_free(m_tickEvent);
+		m_tickEvent = NULL;
 	}
 
 	event_base_free(m_mainEvent);
@@ -122,25 +141,6 @@ int NetService::ConnectTo(const char *addr, unsigned int port)
 
 	return 0;
 };
-
-bool NetService::AddTimer(int ms, bool is_loop, void *arg)
-{
-	int flag = 0;
-	if (is_loop)
-	{
-		flag |= EV_PERSIST;
-	}
-	struct event *timer_event = event_new(m_mainEvent, -1, flag, timer_cb, arg);
-	struct timeval tv;
-	tv.tv_sec = ms / 1000;
-	tv.tv_usec = ms % 1000;
-	if (event_add(timer_event, &tv) != 0)
-	{
-		LOG_ERROR("add timer fail");
-		return false;
-	}
-	return true;
-}
 
 bool NetService::Listen(const char *addr, unsigned int port)
 {
@@ -609,7 +609,7 @@ static void tick_cb(evutil_socket_t fd, short event, void *user_data)
 // for add timer
 static void timer_cb(evutil_socket_t fd, short event, void *user_data)
 {
-	TimerMgr::WakeUp(user_data);
+	TimerMgr::OnTimer();
 }
 
 ////////// callback end ]
