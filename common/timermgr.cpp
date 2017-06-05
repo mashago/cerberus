@@ -6,6 +6,11 @@
 std::map<int64_t, TimerMgr::Timer> TimerMgr::m_timerMap;
 int64_t TimerMgr::m_timerIndex = 0;
 
+int64_t TimerMgr::GetCurTimerIndex()
+{
+	return TimerMgr::m_timerIndex;
+}
+
 int64_t TimerMgr::AddTimer(int ms, TIMER_CB cb_func, void *arg, bool is_loop)
 {
 	++m_timerIndex;
@@ -34,6 +39,7 @@ void TimerMgr::OnTimer()
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	int64_t now_time = tv.tv_sec * 1000 + tv.tv_usec / 1000;
+	LOG_DEBUG("now_time=%lld", now_time);
 
 	for (auto iter = m_timerMap.begin(); iter != m_timerMap.end();)
 	{
