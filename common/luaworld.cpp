@@ -105,5 +105,9 @@ void LuaWorld::HandleTimer(void *arg)
 {
 	int64_t timer_index = (int64_t)arg;
 	LOG_DEBUG("timer_index=%ld", timer_index);
+
+	lua_getglobal(Instance()->m_L, "ccall_timer_handler");
+	lua_pushinteger(m_L, timer_index);
+	lua_call(Instance()->m_L, 1, 0);
 }
 
