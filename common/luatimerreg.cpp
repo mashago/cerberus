@@ -7,6 +7,7 @@ extern "C"
 #include "logger.h"
 #include "luatimerreg.h"
 #include "timermgr.h"
+#include "luaworld.h"
 
 int add_timer_c(lua_State *L)
 {
@@ -16,10 +17,11 @@ int add_timer_c(lua_State *L)
 	luaL_checktype(L, 1, LUA_TNUMBER);
 	luaL_checktype(L, 2, LUA_TBOOLEAN);
 
-	int64_t new_index = TimerMgr::GetCurTimerIndex() + 1;
+	int64_t new_timer_index = TimerMgr::GetCurTimerIndex() + 1;
+	int64_t ret_timer_index = TimerMgr::AddTimer(ms, LuaWorld::HandleTimer, (void *)new_timer_index, is_loop);
 
-	lua_pushinteger(L, new_index);
-	lua_pushboolean(L, true); // XXX
+	lua_pushinteger(L, new_timer_index);
+	lua_pushboolean(L, new_timer_index == ret_timer_index);
 
 	return 2;
 }

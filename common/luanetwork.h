@@ -43,10 +43,10 @@ public:
 	void CloseSocket(int mailboxId);
 
 private:
-	void initSendPluto();
-
 	LuaNetwork();
 	~LuaNetwork();
+
+	void initSendPluto();
 
 	Pluto *m_recvPluto;
 	Pluto *m_sendPluto;

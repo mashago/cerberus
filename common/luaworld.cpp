@@ -10,6 +10,12 @@ extern "C"
 #include "luanetworkreg.h"
 #include "luanetwork.h"
 
+LuaWorld* LuaWorld::Instance()
+{
+	static LuaWorld *instance = new LuaWorld();
+	return instance;
+}
+
 LuaWorld::LuaWorld() : m_L(nullptr)
 {
 }
@@ -73,12 +79,12 @@ int LuaWorld::HandlePluto(Pluto &u)
 	int mailboxId = pmb->GetMailboxId();
 	int msgId = u.ReadMsgId();
 
-	handleMsg(mailboxId, msgId, u);
+	HandleMsg(mailboxId, msgId, u);
 
 	return 0;
 }
 
-void LuaWorld::handleMsg(int mailboxId, int msgId, Pluto &u)
+void LuaWorld::HandleMsg(int mailboxId, int msgId, Pluto &u)
 {
 	LuaNetwork::Instance()->SetRecvPluto(&u);
 	lua_getglobal(m_L, "ccall_recv_msg_handler");
@@ -93,5 +99,11 @@ void LuaWorld::HandleDisconnect(Mailbox *pmb)
 
 void LuaWorld::HandleConnectToSuccess(Mailbox *pmb)
 {
+}
+
+void LuaWorld::HandleTimer(void *arg)
+{
+	int64_t timer_index = (int64_t)arg;
+	LOG_DEBUG("timer_index=%ld", timer_index);
 }
 
