@@ -114,6 +114,12 @@ int NetService::Service()
 
 int NetService::ConnectTo(const char *addr, unsigned int port)
 {
+	// 1.
+    // init a sin
+	// init buffer socket
+	// connect
+	// set nonblock
+
     // init a sin
     struct sockaddr_in sin;
     memset(&sin, 0, sizeof(sin));
@@ -137,10 +143,26 @@ int NetService::ConnectTo(const char *addr, unsigned int port)
         LOG_ERROR("bufferevent connect fail");
         bufferevent_free(bev);
         return -1;
-    }	
+    }
+	evutil_socket_t fd = bufferevent_getfd(bev);
 
-	return 0;
-};
+	// new mailbox
+	Mailbox *pmb = NewMailbox(fd, FD_TYPE_SERVER_TRUST);
+	if (!pmb)
+	{
+		LOG_ERROR("mailbox null fd=%d", fd);
+		bufferevent_free(bev);
+		m_fds.erase(fd);
+		return -1;
+	}
+	pmb->m_bev = bev;
+
+	// set nonblock
+	evutil_make_socket_nonblocking(fd);
+	LOG_DEBUG("fd=%d", fd);
+
+	return fd;
+}
 
 bool NetService::Listen(const char *addr, unsigned int port)
 {
@@ -226,22 +248,23 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 
 bool NetService::Accept(int fd, EFDTYPE type)
 {
-	// 1. new mailbox
-	// 2. init buffer socket
+	// 1. init buffer socket
+	// 2. new mailbox
+
+	// init buffer socket
+	struct bufferevent *bev = bufferevent_socket_new(m_mainEvent, fd, BEV_OPT_CLOSE_ON_FREE | BEV_OPT_DEFER_CALLBACKS);
+	bufferevent_setcb(bev, read_cb, NULL, event_cb, (void *)this);
+	bufferevent_enable(bev, EV_READ); // XXX consider set EV_PERSIST ?
 	
 	// new mailbox
 	Mailbox *pmb = NewMailbox(fd, type);
 	if (!pmb)
 	{
 		LOG_ERROR("mailbox null fd=%d", fd);
+		bufferevent_free(bev);
+		m_fds.erase(fd);
 		return false;
 	}
-
-	// init buffer socket
-	struct bufferevent *bev = bufferevent_socket_new(m_mainEvent, fd, BEV_OPT_CLOSE_ON_FREE | BEV_OPT_DEFER_CALLBACKS);
-	bufferevent_setcb(bev, read_cb, NULL, event_cb, (void *)this);
-	bufferevent_enable(bev, EV_READ); // XXX consider set EV_PERSIST ?
-
 	pmb->m_bev = bev;
 
 	return true;
@@ -518,7 +541,7 @@ int NetService::HandleSendPluto()
 		int ret = pmb->SendAll();
 		if (ret != 0)
 		{
-			ls4del.push_back(pmb->m_fd);
+			ls4del.push_back(pmb->GetMailboxId());
 		}
 	}
 

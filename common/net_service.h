@@ -42,6 +42,7 @@ public:
 
 	int Init(NetServiceType netType, const char *addr, unsigned int port);
 	int Service();
+	// return >= 0 as mailboxId, < 0 as error
 	int ConnectTo(const char *addr, unsigned int port);
 
 	Mailbox *GetMailbox(int fd);
