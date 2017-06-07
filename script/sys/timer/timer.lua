@@ -27,7 +27,16 @@ function ccall_timer_handler(timer_index)
 		timer_param[1](timer_param[2])
 	end
 
-	--local status, msg = xpcall(
+	local function error_handler(msg)
+		local msg = debug.traceback(msg, 3)
+		msg = string.format("ccall_timer_handler timer_index=%d\n%s", timer_index, msg)
+		return msg
+	end
+
+	local status, msg = xpcall(on_timer, error_handler)
+	if not status then
+		Log.err(msg)
+	end
 end
 
 return Timer

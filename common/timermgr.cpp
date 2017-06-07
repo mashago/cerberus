@@ -39,7 +39,7 @@ void TimerMgr::OnTimer()
 	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	int64_t now_time = tv.tv_sec * 1000 + tv.tv_usec / 1000;
-	LOG_DEBUG("now_time=%lld", now_time);
+	// LOG_DEBUG("now_time=%lld", now_time);
 
 	for (auto iter = m_timerMap.begin(); iter != m_timerMap.end();)
 	{

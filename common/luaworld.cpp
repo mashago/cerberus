@@ -9,6 +9,7 @@ extern "C"
 #include "mailbox.h"
 #include "luanetworkreg.h"
 #include "luanetwork.h"
+#include "luatimerreg.h"
 
 LuaWorld* LuaWorld::Instance()
 {
@@ -34,6 +35,7 @@ bool LuaWorld::Init(int server_id, int server_type, const char *entry_file)
 		return false;
 	}
 
+	// register lib
 	const luaL_Reg lua_reg_libs[] = 
 	{
 		{ "base", luaopen_base },
@@ -56,6 +58,10 @@ bool LuaWorld::Init(int server_id, int server_type, const char *entry_file)
 		lua_pop(m_L, 1);
 	}
 
+	// register timer function
+	reg_timer_funcs(m_L);
+
+	// set global params
 	lua_pushinteger(m_L, server_id);
 	lua_setglobal(m_L, "g_server_id");
 	lua_pushinteger(m_L, server_type);
@@ -104,10 +110,11 @@ void LuaWorld::HandleConnectToSuccess(Mailbox *pmb)
 void LuaWorld::HandleTimer(void *arg)
 {
 	int64_t timer_index = (int64_t)arg;
-	LOG_DEBUG("timer_index=%ld", timer_index);
+	// LOG_DEBUG("timer_index=%ld", timer_index);
 
-	lua_getglobal(Instance()->m_L, "ccall_timer_handler");
-	lua_pushinteger(m_L, timer_index);
-	lua_call(Instance()->m_L, 1, 0);
+	LuaWorld *pInstance = Instance();
+	lua_getglobal(pInstance->m_L, "ccall_timer_handler");
+	lua_pushinteger(pInstance->m_L, timer_index);
+	lua_call(pInstance->m_L, 1, 0);
 }
 
