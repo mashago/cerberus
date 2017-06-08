@@ -35,3 +35,8 @@ bool World::CheckPluto(Pluto &u)
 
 	return true;
 }
+
+void World::HandleNewConnection(Mailbox *pmb)
+{
+	// default do nothing
+}

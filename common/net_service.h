@@ -66,10 +66,8 @@ public:
 
 private:
 	bool Listen(const char *addr, unsigned int port);
-	bool Accept(int fd, EFDTYPE type);
-	Mailbox * NewMailbox(int fd, EFDTYPE type);
-	void RemoveFd(int fd);
-	void CloseFd(int fd);
+	Mailbox * NewMailbox(int fd, E_CONN_TYPE type);
+	void CloseMailbox(Mailbox *pmb);
 
 	struct event_base *m_mainEvent;
 	struct event *m_tickEvent;

@@ -10,7 +10,7 @@ extern "C"
 #include "util.h"
 #include "mailbox.h"
 
-Mailbox::Mailbox(EFDTYPE type) : m_fdType(type), m_pluto(nullptr), m_bev(nullptr), m_bDeleteFlag(false), m_sendPos(0)
+Mailbox::Mailbox(E_CONN_TYPE type) : m_fdType(type), m_pluto(nullptr), m_bev(nullptr), m_bDeleteFlag(false), m_sendPos(0)
 {
 }
 

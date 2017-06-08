@@ -1,5 +1,6 @@
 
-TARGET:=../lib/libcommon.a
+FILE_PATH:=../lib
+TARGET:=$(FILE_PATH)/libcommon.a
 
 CC:=gcc
 CXX:=g++
@@ -31,6 +32,7 @@ info:
 	$(CC) $(C_FLAGS) $(addprefix -D, $(USER_MACROS)) $(addprefix -I, $(INC)) -c $< -o $@
 
 $(TARGET): $(OBJ)
+	mkdir -p $(FILE_PATH)
 	ar -crus $(TARGET) $(OBJ)
 
 .PHONY: clean

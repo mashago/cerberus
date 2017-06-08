@@ -713,27 +713,24 @@ int luanetwork_get_recv_msg_id(lua_State* L)
 	return 1;
 }
 
-/*
 int luanetwork_connect_to(lua_State* L)
 {
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
 	luaL_argcheck(L, s != NULL, 1, "invalid user data");
 
-	luaL_checktype(L, -1, LUA_TNUMBER);
-	luaL_checktype(L, -2, LUA_TSTRING);
+	luaL_checktype(L, 1, LUA_TSTRING);
+	luaL_checktype(L, 2, LUA_TNUMBER);
 
-	int port = (int)lua_tointeger(L, -1);
-	const char* ip = lua_tostring(L, -2);
+	const char* ip = lua_tostring(L, 1);
+	int port = (int)lua_tointeger(L, 2);
 
-	unsigned out_session_id = INT_MAX;
-	bool ret = (*s)->connect_to(ip, port, out_session_id);
+	int mailboxId = (*s)->ConnectTo(ip, port);
 
-	lua_pushboolean(L, ret);
-	lua_pushinteger(L, out_session_id);
+	lua_pushboolean(L, mailboxId >= 0);
+	lua_pushinteger(L, mailboxId);
 
 	return 2;
 }
-*/
 
 /*
 int luanetwork_close_socket(lua_State* L)
@@ -804,7 +801,7 @@ static const luaL_Reg lua_reg_member_funcs[] =
 	// { "get_recv_addition", luanetwork_get_recv_addition },
 	// { "is_read_all", luanetwork_is_read_all },
 
-	// { "connect_to", luanetwork_connect_to },
+	{ "connect_to", luanetwork_connect_to },
 
 	// { "close_socket", luanetwork_close_socket},
 

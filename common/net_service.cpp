@@ -114,11 +114,11 @@ int NetService::Service()
 
 int NetService::ConnectTo(const char *addr, unsigned int port)
 {
-	// 1.
-    // init a sin
-	// init buffer socket
-	// connect
-	// set nonblock
+    // 1. init a sin
+	// 2. init buffer socket
+	// 3. set nonblock
+	// 4. connect
+	// 5. new mailbox
 
     // init a sin
     struct sockaddr_in sin;
@@ -136,18 +136,22 @@ int NetService::ConnectTo(const char *addr, unsigned int port)
 	bufferevent_setcb(bev, read_cb, NULL, event_cb, (void *)this);
 	bufferevent_enable(bev, EV_READ); // XXX consider set EV_PERSIST ?
 
+	// set nonblock
+	evutil_socket_t fd = bufferevent_getfd(bev);
+	LOG_DEBUG("fd=%d", fd);
+	evutil_make_socket_nonblocking(fd);
+
 	// connect
 	int ret = bufferevent_socket_connect(bev, (struct sockaddr *)&sin, sizeof(sin));
     if (ret < 0)
     {
-        LOG_ERROR("bufferevent connect fail");
+        LOG_ERROR("bufferevent connect fail ret=%d", ret);
         bufferevent_free(bev);
         return -1;
     }
-	evutil_socket_t fd = bufferevent_getfd(bev);
 
 	// new mailbox
-	Mailbox *pmb = NewMailbox(fd, FD_TYPE_SERVER_TRUST);
+	Mailbox *pmb = NewMailbox(fd, E_CONN_TYPE::CONN_TYPE_TRUST);
 	if (!pmb)
 	{
 		LOG_ERROR("mailbox null fd=%d", fd);
@@ -157,11 +161,7 @@ int NetService::ConnectTo(const char *addr, unsigned int port)
 	}
 	pmb->m_bev = bev;
 
-	// set nonblock
-	evutil_make_socket_nonblocking(fd);
-	LOG_DEBUG("fd=%d", fd);
-
-	return fd;
+	return pmb->GetMailboxId();
 }
 
 bool NetService::Listen(const char *addr, unsigned int port)
@@ -232,7 +232,7 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 	// TODO
 
 	// check connection is server or client
-	EFDTYPE type = FD_TYPE_CLIENT_TRUST;
+	E_CONN_TYPE type = E_CONN_TYPE::CONN_TYPE_TRUST; // XXX
 	
 	// check connection is valide
 	// TODO
@@ -241,15 +241,6 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 	evutil_make_socket_nonblocking(fd);
 
 	// accept client
-	Accept(fd, type);
-
-	return 0;
-}
-
-bool NetService::Accept(int fd, EFDTYPE type)
-{
-	// 1. init buffer socket
-	// 2. new mailbox
 
 	// init buffer socket
 	struct bufferevent *bev = bufferevent_socket_new(m_mainEvent, fd, BEV_OPT_CLOSE_ON_FREE | BEV_OPT_DEFER_CALLBACKS);
@@ -263,14 +254,16 @@ bool NetService::Accept(int fd, EFDTYPE type)
 		LOG_ERROR("mailbox null fd=%d", fd);
 		bufferevent_free(bev);
 		m_fds.erase(fd);
-		return false;
+		return -1;
 	}
 	pmb->m_bev = bev;
 
-	return true;
+	m_world->HandleNewConnection(pmb);
+
+	return 0;
 }
 
-Mailbox * NetService::NewMailbox(int fd, EFDTYPE type)
+Mailbox * NetService::NewMailbox(int fd, E_CONN_TYPE type)
 {
 	Mailbox *pmb = new Mailbox(type);
 
@@ -436,6 +429,14 @@ void NetService::AddRecvMsg(Pluto *pu)
 
 int NetService::HandleSocketConnected(evutil_socket_t fd)
 {
+	Mailbox *pmb = GetMailbox(fd);
+	if (pmb == NULL)
+	{
+		LOG_WARN("mailbox null fd=%d", fd);
+		return 0;
+	}
+
+	m_world->HandleConnectToSuccess(pmb);
 	return 0;
 }
 
@@ -447,10 +448,7 @@ int NetService::HandleSocketClosed(evutil_socket_t fd)
 		LOG_WARN("mailbox null fd=%d", fd);
 		return 0;
 	}
-
-	// TODO broadcast to world
-	RemoveFd(fd);
-	pmb->m_bev = nullptr;
+	CloseMailbox(pmb);
 
 	return 0;
 }
@@ -460,40 +458,13 @@ int NetService::HandleSocketError(evutil_socket_t fd)
 	Mailbox *pmb = GetMailbox(fd);
 	if (pmb == nullptr)
 	{
+		LOG_WARN("mailbox null fd=%d", fd);
 		return 0;
 	}
-
-	RemoveFd(fd);
-	pmb->m_bev = nullptr;
+	CloseMailbox(pmb);
 
 	return 0;
 }
-
-void NetService::RemoveFd(int fd)
-{
-	auto iter = m_fds.find(fd);
-	if (iter == m_fds.end())
-	{
-		return;
-	}
-
-	Mailbox *pmb = iter->second;
-	if (pmb->m_fdType == FD_TYPE_CLIENT_UNTRUST or pmb->m_fdType == FD_TYPE_CLIENT_TRUST)
-	{
-		// client
-		// push to list, delete by tick
-		pmb->SetDeleteFlag();
-		m_mb4del.push_back(pmb);
-		m_fds.erase(iter);
-	}
-	else if (pmb->m_fdType == FD_TYPE_SERVER_UNTRUST or pmb->m_fdType == FD_TYPE_SERVER_TRUST)
-	{
-		// server
-		// try reconnect
-		// TODO
-	}
-}
-
 
 int NetService::HandleRecvPluto()
 {
@@ -510,45 +481,41 @@ int NetService::HandleRecvPluto()
 	return 0;
 }
 
-void NetService::CloseFd(int fd)
+void NetService::CloseMailbox(Mailbox *pmb)
 {
-	// TODO broadcast to world
-	
-	Mailbox *pmb = GetMailbox(fd);
-	if (pmb == nullptr)
+	if (pmb->m_bev != nullptr)
 	{
-		return;
+		bufferevent_free(pmb->m_bev);
+		pmb->m_bev = nullptr;
 	}
 
-	if (pmb->m_bev == nullptr)
-	{
-		return;
-	}
-	
-	bufferevent_free(pmb->m_bev);
-	pmb->m_bev = nullptr;
+	// notice to world
+	m_world->HandleDisconnect(pmb);
 
-	RemoveFd(fd);
+	// push to list, delete by tick
+	pmb->SetDeleteFlag();
+	m_mb4del.push_back(pmb);
+	m_fds.erase(pmb->GetFd());
 }
 
 int NetService::HandleSendPluto()
 {
 	// loop add mailbox, do send all
-	std::list<int> ls4del;
+	std::list<Mailbox *> ls4del;
 	for (auto iter = m_fds.begin(); iter != m_fds.end(); iter++)
 	{
 		Mailbox *pmb = iter->second;
 		int ret = pmb->SendAll();
 		if (ret != 0)
 		{
-			ls4del.push_back(pmb->GetMailboxId());
+			ls4del.push_back(pmb);
 		}
 	}
 
 	// close error connect
 	for (auto iter = ls4del.begin(); iter != ls4del.end(); iter++)
 	{
-		CloseFd(*iter);
+		CloseMailbox(*iter);
 	}
 
 	return 0;
@@ -597,7 +564,6 @@ static void event_cb(struct bufferevent *bev, short event, void *user_data)
 	NetService *ns = (NetService *)user_data;
 	evutil_socket_t fd = bufferevent_getfd(bev);
 
-	bool bFinished = false;
 	if (event & BEV_EVENT_CONNECTED)
 	{
 		LOG_DEBUG("event connected %d", fd);
@@ -607,20 +573,12 @@ static void event_cb(struct bufferevent *bev, short event, void *user_data)
 	{
 		LOG_DEBUG("event eof fd=%d", fd);
 		ns->HandleSocketClosed(fd);
-		bFinished = true;
 	}
 	else if (event & BEV_EVENT_ERROR)
 	{
 		LOG_ERROR("event error fd=%d errno=%d", fd, errno);
 		ns->HandleSocketError(fd);
-		bFinished = true;
 	}
-
-	if (bFinished)
-	{
-		bufferevent_free(bev);
-	}
-
 }
 
 static void tick_cb(evutil_socket_t fd, short event, void *user_data)

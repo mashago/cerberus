@@ -1,5 +1,6 @@
 
-TARGET:=Server
+FILE_PATH:=../bin
+TARGET:=$(FILE_PATH)/Server
 
 CC:=gcc
 CXX:=g++
@@ -31,6 +32,7 @@ info:
 	$(CC) $(C_FLAGS) $(addprefix -D, $(USER_MACROS)) $(addprefix -I, $(INC)) -c $< -o $@
 
 $(TARGET): $(OBJ)
+	mkdir -p $(FILE_PATH)
 	$(CXX) $^ -o $@ $(addprefix -L, $(LIB_PATH)) $(addprefix -l, $(LIB))
 
 .PHONY: clean

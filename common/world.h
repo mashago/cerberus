@@ -26,6 +26,7 @@ public:
 	virtual int HandlePluto(Pluto &u) = 0;
 	virtual void HandleDisconnect(Mailbox *pmb) = 0;
 	virtual void HandleConnectToSuccess(Mailbox *pmb) = 0;
+	virtual void HandleNewConnection(Mailbox *pmb);
 protected:
 	NetService *m_net;
 };

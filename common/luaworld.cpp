@@ -101,10 +101,17 @@ void LuaWorld::HandleMsg(int mailboxId, int msgId, Pluto &u)
 
 void LuaWorld::HandleDisconnect(Mailbox *pmb)
 {
+	LOG_DEBUG("mailboxId=%d", pmb->GetMailboxId());
 }
 
 void LuaWorld::HandleConnectToSuccess(Mailbox *pmb)
 {
+	LOG_DEBUG("mailboxId=%d", pmb->GetMailboxId());
+}
+
+void LuaWorld::HandleNewConnection(Mailbox *pmb)
+{
+	LOG_DEBUG("mailboxId=%d", pmb->GetMailboxId());
 }
 
 void LuaWorld::HandleTimer(void *arg)

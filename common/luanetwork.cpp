@@ -9,18 +9,10 @@ LuaNetwork* LuaNetwork::Instance()
 	return instance;
 }
 
-/*
-bool LuaNetwork::connect_to(const char* ip, int port, unsigned& out_session_id)
+int LuaNetwork::ConnectTo(const char* ip, int port)
 {
-	out_session_id = INT_MAX;
-
-	if (Engine::Net* net = NetMgr::get_single_instance()->get_default_net()){
-		return net->connect_to(ip, port, out_session_id);
-	}
-
-	return false;
+	return m_net->ConnectTo(ip, port);
 }
-*/
 
 /*
 LuaNetwork::LuaNetwork()

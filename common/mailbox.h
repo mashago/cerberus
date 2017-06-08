@@ -12,8 +12,18 @@ extern "C"
 class Mailbox
 {
 public:
-	Mailbox(EFDTYPE type);
+	Mailbox(E_CONN_TYPE type);
 	~Mailbox();
+
+	int GetFd()
+	{
+		return m_fd;
+	}
+
+	void SetFd(int fd)
+	{
+		m_fd = fd;
+	}
 
 	int GetMailboxId()
 	{
@@ -39,7 +49,7 @@ public:
 	int SendAll();
 
 // private:
-	EFDTYPE m_fdType;
+	E_CONN_TYPE m_fdType;
 	int m_fd;
 	Pluto *m_pluto;
 	struct bufferevent *m_bev;
