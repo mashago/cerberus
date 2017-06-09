@@ -8,16 +8,23 @@ int main(int argc, char ** argv)
 {
 	LOG_DEBUG("%s", argv[0]);
 
+	// Server type port
+	if (argc < 3) 
+	{
+		LOG_ERROR("arg error");
+		return 0;
+	}
+
+	const char *server_type = argv[1];
+	int port = atoi(argv[2]);
+	
 	NetService *net = new NetService();
-	net->Init(NetService::WITH_LISTENER, "0.0.0.0", 7711);
+	net->Init(NetService::WITH_LISTENER, "0.0.0.0", port);
 
 	World *world = nullptr;
-	if (argc >= 2)
+	if (!strcmp(server_type, "router")) 
 	{
-		if (!strcmp(argv[1], "router")) 
-		{
-			world = new RouterWorld();
-		}
+		world = new RouterWorld();
 	}
 	else
 	{

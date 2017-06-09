@@ -4,6 +4,7 @@
 #include "net_service.h"
 
 std::map<int64_t, TimerMgr::Timer> TimerMgr::m_timerMap;
+std::list<int64_t> TimerMgr::m_timerDelList;
 int64_t TimerMgr::m_timerIndex = 0;
 
 int64_t TimerMgr::GetCurTimerIndex()
@@ -30,7 +31,7 @@ int64_t TimerMgr::AddTimer(int ms, TIMER_CB cb_func, void *arg, bool is_loop)
 
 bool TimerMgr::DelTimer(int64_t timer_index)
 {
-	m_timerMap.erase(timer_index);
+	m_timerDelList.push_back(timer_index);
 	return true;
 }
 
@@ -41,12 +42,13 @@ void TimerMgr::OnTimer()
 	int64_t now_time = tv.tv_sec * 1000 + tv.tv_usec / 1000;
 	// LOG_DEBUG("now_time=%lld", now_time);
 
-	for (auto iter = m_timerMap.begin(); iter != m_timerMap.end();)
+	for (auto iter = m_timerMap.begin(); iter != m_timerMap.end(); ++iter)
 	{
+
+		LOG_DEBUG("start loop timer map");
 		Timer &timer = iter->second;
 		if (timer._wake_time > now_time)
 		{
-			++iter;
 			continue;
 		}
 		
@@ -54,15 +56,19 @@ void TimerMgr::OnTimer()
 		if (timer._is_loop)
 		{
 			timer._wake_time = now_time + timer._ms;
-			++iter;
 			continue;
 		}
 
-		// need del timer
-		auto del_iter = iter++;
-		m_timerMap.erase(del_iter);
+		// one time job timer
+		DelTimer(iter->first);
 	}
 
+	for (auto iter = m_timerDelList.begin(); iter != m_timerDelList.end(); ++iter)
+	{
+		m_timerMap.erase(*iter);
+	}
+	m_timerDelList.clear();
+	
 }
 
 

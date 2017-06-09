@@ -136,11 +136,6 @@ int NetService::ConnectTo(const char *addr, unsigned int port)
 	bufferevent_setcb(bev, read_cb, NULL, event_cb, (void *)this);
 	bufferevent_enable(bev, EV_READ); // XXX consider set EV_PERSIST ?
 
-	// set nonblock
-	evutil_socket_t fd = bufferevent_getfd(bev);
-	LOG_DEBUG("fd=%d", fd);
-	evutil_make_socket_nonblocking(fd);
-
 	// connect
 	int ret = bufferevent_socket_connect(bev, (struct sockaddr *)&sin, sizeof(sin));
     if (ret < 0)
@@ -149,6 +144,11 @@ int NetService::ConnectTo(const char *addr, unsigned int port)
         bufferevent_free(bev);
         return -1;
     }
+
+	// set nonblock
+	evutil_socket_t fd = bufferevent_getfd(bev);
+	LOG_DEBUG("fd=%d", fd);
+	evutil_make_socket_nonblocking(fd);
 
 	// new mailbox
 	Mailbox *pmb = NewMailbox(fd, E_CONN_TYPE::CONN_TYPE_TRUST);

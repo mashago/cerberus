@@ -6,6 +6,7 @@ extern "C"
 #include <stdint.h>
 }
 #include <map>
+#include <list>
 
 class NetService;
 
@@ -28,6 +29,7 @@ private:
 	};
 
 	static std::map<int64_t, Timer> m_timerMap;
+	static std::list<int64_t> m_timerDelList;
 	static int64_t m_timerIndex;
 
 };
