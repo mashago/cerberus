@@ -1,6 +1,6 @@
 
-FILE_PATH:=../bin
-TARGET:=$(FILE_PATH)/Server
+FILE_PATH:=../lib
+TARGET:=$(FILE_PATH)/libtinyxml.a
 
 CC:=gcc
 CXX:=g++
@@ -9,14 +9,14 @@ C_FLAGS:=
 CPP_FLAGS:=-O0 -Wall --std=c++11 -g
 
 OS:=$(shell uname -s)
-SRC:=$(wildcard *.cpp) $(wildcard *.c)
+SRC:=$(wildcard *.cpp *.c)
 OBJ:=$(patsubst %.cpp, %.o, $(patsubst %.c, %.o, $(SRC)))
 
 USER_MACROS:=
 
-INC:=../common ../tinyxml
-LIB_PATH:=../lib
-LIB:=common tinyxml lua event dl m
+INC:=. 
+LIB_PATH:=.
+LIB:=
 
 default: $(TARGET)
 
@@ -33,7 +33,7 @@ info:
 
 $(TARGET): $(OBJ)
 	mkdir -p $(FILE_PATH)
-	$(CXX) $^ -o $@ $(addprefix -L, $(LIB_PATH)) $(addprefix -l, $(LIB))
+	ar -crus $(TARGET) $(OBJ)
 
 .PHONY: clean
 clean:

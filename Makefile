@@ -1,5 +1,5 @@
 
-SUBDIRS:= common server client
+SUBDIRS:= common tinyxml server client
 
 all: $(SUBDIRS)
 	@for dir in $(SUBDIRS); do make -C $$dir || exit"$$?"; done
