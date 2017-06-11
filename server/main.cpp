@@ -8,7 +8,7 @@ int main(int argc, char ** argv)
 {
 	LOG_DEBUG("%s", argv[0]);
 
-	// Server type port
+	// Server [type] [port] [config_file]
 	if (argc < 3) 
 	{
 		LOG_ERROR("arg error");

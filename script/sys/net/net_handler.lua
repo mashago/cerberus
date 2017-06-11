@@ -94,20 +94,7 @@ local function recv_msg_handler(mailbox_id, msg_id)
 	msg_handler(data, mailbox_id, msg_id)
 end
 
-local function error_handler(msg, mailbox_id, msg_id)
-	Log.err("error_handler=%s mailbox_id=%d msg_id=%d", msg, mailbox_id, msg_id)
-end
-
-function ccall_recv_msg_handler(mailbox_id, msg_id)
-	Log.info("mailbox_id=%d msg_id=%d", mailbox_id, msg_id)
-	local msg_name = MID._id_name_map[msg_id]
-	Log.info("msg_name=%s", msg_name)
-	
-	local status = xpcall(recv_msg_handler
-	, function(msg) return error_handler(msg, mailbox_id, msg_id) end
-	, mailbox_id, msg_id)
-
-end
+-------------- write
 
 local write_val_action = 
 {
@@ -193,3 +180,36 @@ function write_data_by_msgdef(data, msgdef, deep)
 	
 end
 
+
+function ccall_recv_msg_handler(mailbox_id, msg_id)
+	Log.info("mailbox_id=%d msg_id=%d", mailbox_id, msg_id)
+	local msg_name = MID._id_name_map[msg_id]
+	Log.info("msg_name=%s", msg_name)
+
+	local function error_handler(msg, mailbox_id, msg_id)
+		Log.err("error_handler=%s mailbox_id=%d msg_id=%d", msg, mailbox_id, msg_id)
+	end
+	
+	local status = xpcall(recv_msg_handler
+	, function(msg) return error_handler(msg, mailbox_id, msg_id) end
+	, mailbox_id, msg_id)
+
+end
+
+function ccall_connect_to_success_handler(mailbox_id)
+	Log.info("ccall_connect_to_success_handler mailbox_id=%d", mailbox_id)
+
+	local function error_handler(msg, mailbox_id)
+		local msg = debug.traceback(msg, 3)
+		msg = string.format("ccall_connect_to_success_handler error : mailbox_id = %d \n%s", mailbox_id, msg)
+		return msg 
+	end
+	
+	local status, msg = xpcall(Services.connect_to_success
+	, function(msg) return error_handler(msg, mailbox_id) end
+	, mailbox_id)
+
+	if not status then
+		Log.err(msg)
+	end
+end
