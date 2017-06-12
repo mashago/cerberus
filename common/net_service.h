@@ -32,15 +32,10 @@ class NetService
 {
 
 public:
-	enum NetServiceType
-	{
-		WITH_LISTENER = 1,
-		NO_LISTENER = 2,
-	};
 	NetService();
 	virtual ~NetService();
 
-	int Init(NetServiceType netType, const char *addr, unsigned int port);
+	int Init(const char *addr, unsigned int port);
 	int Service();
 	// return >= 0 as mailboxId, < 0 as error
 	int ConnectTo(const char *addr, unsigned int port);

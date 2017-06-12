@@ -8,6 +8,12 @@ enum E_CONN_TYPE
 	CONN_TYPE_TRUST 		= 2,
 };
 
+enum E_SERVER_TYPE
+{
+	SERVER_TYPE_ROUTER 		= 1,
+	SERVER_TYPE_GAME 		= 2,
+};
+
 enum MSGID_TYPE
 {
 	CLIENT_TEST = 1,

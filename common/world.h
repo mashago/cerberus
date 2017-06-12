@@ -20,7 +20,7 @@ public:
 	{
 		return m_net;
 	}
-	virtual bool Init(int server_id, int server_type, const char * entry_file_name);
+	virtual bool Init(int server_id, int server_type, const char *conf_file, const char * entry_file);
 
 	virtual bool CheckPluto(Pluto &u);
 	virtual int HandlePluto(Pluto &u) = 0;

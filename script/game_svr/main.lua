@@ -6,8 +6,8 @@ local function main_entry()
 
 	register_msg_handler()
 
-	Services.add_connect_service("127.0.0.1", 7711, "aaa")
-	Services.create_connect_timer(2000)
+	-- Services.add_connect_service("127.0.0.1", 7711, "aaa")
+	-- Services.create_connect_timer(2000)
 
 	--[[
 	local function timer_cb(arg)

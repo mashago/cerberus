@@ -25,7 +25,7 @@ LuaWorld::~LuaWorld()
 {
 }
 
-bool LuaWorld::Init(int server_id, int server_type, const char *entry_file)
+bool LuaWorld::Init(int server_id, int server_type, const char *conf_file, const char *entry_file)
 {
 	LuaNetwork::Instance()->SetNetService(m_net);
 
@@ -66,6 +66,8 @@ bool LuaWorld::Init(int server_id, int server_type, const char *entry_file)
 	lua_setglobal(m_L, "g_server_id");
 	lua_pushinteger(m_L, server_type);
 	lua_setglobal(m_L, "g_server_type");
+	lua_pushstring(m_L, conf_file);
+	lua_setglobal(m_L, "g_conf_file");
 	lua_pushstring(m_L, entry_file);
 	lua_setglobal(m_L, "g_entry_file");
 

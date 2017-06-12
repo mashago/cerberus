@@ -11,7 +11,7 @@ World::~World()
 {
 }
 
-bool World::Init(int server_id, int server_type, const char *entry_file_name)
+bool World::Init(int server_id, int server_type, const char *conf_file, const char *entry_file)
 {
 	return true;
 }

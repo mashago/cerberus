@@ -42,7 +42,7 @@ NetService::~NetService()
 }
 
 
-int NetService::Init(NetServiceType netType, const char *addr, unsigned int port)
+int NetService::Init(const char *addr, unsigned int port)
 {
 	// new event_base
 	m_mainEvent = event_base_new();
@@ -53,7 +53,7 @@ int NetService::Init(NetServiceType netType, const char *addr, unsigned int port
 	}
 
 	// listen
-	if (netType == NetServiceType::WITH_LISTENER && !Listen(addr, port))
+	if (port > 0 && !Listen(addr, port))
 	{
 		LOG_ERROR("listen fail");
 		return -1;
