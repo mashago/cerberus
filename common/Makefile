@@ -14,7 +14,7 @@ OBJ:=$(patsubst %.cpp, %.o, $(patsubst %.c, %.o, $(SRC)))
 
 USER_MACROS:=
 
-INC:=. 
+INC:=. ../tinyxml
 LIB_PATH:=.
 LIB:=
 
