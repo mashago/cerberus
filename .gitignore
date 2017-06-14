@@ -1,2 +1,3 @@
 tags
 *.o
+.DS_Store

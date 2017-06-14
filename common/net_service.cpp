@@ -512,7 +512,7 @@ void NetService::CloseMailbox(Mailbox *pmb)
 
 int NetService::HandleSendPluto()
 {
-	// loop add mailbox, do send all
+	// loop all mailbox, do send all
 	std::list<Mailbox *> ls4del;
 	for (auto iter = m_fds.begin(); iter != m_fds.end(); iter++)
 	{

@@ -1,5 +1,5 @@
 
-require "game_svr.msg_handler"
+require "router_svr.msg_handler"
 
 local function main_entry()
 	Log.info("game_svr main_entry")
@@ -13,7 +13,7 @@ local function main_entry()
 	end
 
 	-- connect to other server
-	g_funcs.connect_to_servers(xml_doc)
+	-- g_funcs.connect_to_servers(xml_doc)
 
 end
 
