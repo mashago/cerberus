@@ -37,6 +37,7 @@ function Services.create_connect_timer()
 	local function timer_cb(arg)
 		Log.debug("Service timer_cb")
 		-- Log.debug("handle_client_test: Services._all_server_list=%s", tableToString(Services._all_server_list))
+		local now_time = os.time()
 		
 		local is_all_connected = true
 		for _, server_info in ipairs(Services._all_server_list) do
@@ -49,11 +50,19 @@ function Services.create_connect_timer()
 					if ret then
 						server_info._mailbox_id = mailbox_id
 						server_info._is_connecting = true
+						server_info._last_connect_time = now_time
 					else
-						Log.warn("connect to fail ip=%s port=%d", server_info._ip, server_info._port)
+						Log.warn("******* connect to fail ip=%s port=%d", server_info._ip, server_info._port)
 					end
 				else
 					Log.debug("connecting mailbox_id=%d ip=%s port=%d", server_info._mailbox_id, server_info._ip, server_info._port)
+					if now_time - server_info._last_connect_time > 5 then
+						-- connect time too long, close this connect
+						Log.warn("******* connecting time too long mailbox_id=%d ip=%s port=%d", server_info._mailbox_id, server_info._ip, server_info._port)
+						g_network:close_mailbox(server_info._mailbox_id) -- will cause luaworld:HandleDisconnect
+						server_info._mailbox_id = -1
+						server_info._is_connecting = false
+					end
 				end
 			end
 		end

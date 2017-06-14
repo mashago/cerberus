@@ -153,8 +153,8 @@ bool LuaNetwork::ReadString(int &out_len, char *out_val)
 	return m_recvPluto->ReadString(out_len, out_val);
 }
 
-void LuaNetwork::CloseSocket(int mailboxId)
+void LuaNetwork::CloseMailbox(int mailboxId)
 {
-	// Engine::SessionMgr::get_single_instance()->close_session(session_id);
+	m_net->CloseMailbox(mailboxId);
 }
 

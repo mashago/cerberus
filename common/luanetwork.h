@@ -40,7 +40,7 @@ public:
 	bool ReadInt64(int64_t &out_val);
 	bool ReadString(int &out_len, char *out_val);
 
-	void CloseSocket(int mailboxId);
+	void CloseMailbox(int mailboxId);
 
 private:
 	LuaNetwork();

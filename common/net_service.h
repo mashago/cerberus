@@ -58,6 +58,7 @@ public:
 	virtual int HandleRecvPluto();
 	virtual int HandleSendPluto();
 
+	void CloseMailbox(int fd);
 
 private:
 	bool Listen(const char *addr, unsigned int port);

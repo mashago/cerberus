@@ -245,6 +245,12 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 
 	// init buffer socket
 	struct bufferevent *bev = bufferevent_socket_new(m_mainEvent, fd, BEV_OPT_CLOSE_ON_FREE | BEV_OPT_DEFER_CALLBACKS);
+	if (!bev)
+	{
+        LOG_ERROR("bufferevent new fail");
+		evutil_closesocket(fd);
+		return -1;
+	}
 	bufferevent_setcb(bev, read_cb, NULL, event_cb, (void *)this);
 	bufferevent_enable(bev, EV_READ); // XXX consider set EV_PERSIST ?
 	
@@ -447,27 +453,13 @@ int NetService::HandleSocketConnected(evutil_socket_t fd)
 
 int NetService::HandleSocketClosed(evutil_socket_t fd)
 {
-	Mailbox *pmb = GetMailbox(fd);
-	if (pmb == NULL)
-	{
-		LOG_WARN("mailbox null fd=%d", fd);
-		return 0;
-	}
-	CloseMailbox(pmb);
-
+	CloseMailbox(fd);
 	return 0;
 }
 
 int NetService::HandleSocketError(evutil_socket_t fd)
 {
-	Mailbox *pmb = GetMailbox(fd);
-	if (pmb == nullptr)
-	{
-		LOG_WARN("mailbox null fd=%d", fd);
-		return 0;
-	}
-	CloseMailbox(pmb);
-
+	CloseMailbox(fd);
 	return 0;
 }
 
@@ -484,6 +476,17 @@ int NetService::HandleRecvPluto()
 		delete pu;
 	}
 	return 0;
+}
+
+void NetService::CloseMailbox(int fd)
+{
+	Mailbox *pmb = GetMailbox(fd);
+	if (pmb == nullptr)
+	{
+		LOG_WARN("mailbox null fd=%d", fd);
+		return;
+	}
+	CloseMailbox(pmb);
 }
 
 void NetService::CloseMailbox(Mailbox *pmb)
@@ -587,6 +590,14 @@ static void event_cb(struct bufferevent *bev, short event, void *user_data)
 	{
 		LOG_ERROR("******* event error fd=%d errno=%d", fd, errno);
 		ns->HandleSocketError(fd);
+	}
+	else if (event & BEV_EVENT_TIMEOUT)
+	{
+		LOG_ERROR("******* event timeout fd=%d event=%d errno=%d", fd, event, errno);
+	}
+	else
+	{
+		LOG_ERROR("******* unknow event fd=%d event=%d errno=%d", fd, event, errno);
 	}
 }
 
