@@ -107,6 +107,10 @@ void LuaWorld::HandleMsg(int mailboxId, int msgId, Pluto &u)
 void LuaWorld::HandleDisconnect(Mailbox *pmb)
 {
 	LOG_DEBUG("mailboxId=%d", pmb->GetMailboxId());
+
+	lua_getglobal(m_L, "ccall_disconnect_handler");
+	lua_pushinteger(m_L, pmb->GetMailboxId());
+	lua_call(m_L, 1, 0);
 }
 
 void LuaWorld::HandleConnectToSuccess(Mailbox *pmb)

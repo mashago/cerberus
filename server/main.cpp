@@ -6,44 +6,43 @@
 #include "luaworld.h"
 #include "tinyxml2.h"
 
-void init_config()
+bool test_load_config()
 {
-	const char *conf_file = "../conf/server_conf7711.xml";
+	const char *conf_file = "../conf/server_conf_test.xml";
 	tinyxml2::XMLDocument doc;
 	if (doc.LoadFile(conf_file) != tinyxml2::XMLError::XML_SUCCESS)
 	{
 		LOG_ERROR("load conf error %s", conf_file);
-		return;
+		return false;
 	}
 
 	tinyxml2::XMLElement* root = doc.FirstChildElement();
-	int svr_id = root->IntAttribute("id");
-	int svr_type = root->IntAttribute("type");
+	int server_id = root->IntAttribute("id");
+	int server_type = root->IntAttribute("type");
 	const char *ip = (char*)root->Attribute("ip");
 	int port = root->IntAttribute("port");
-	const char *file = (char*)root->Attribute("ip");
-	LOG_DEBUG("svr_id=%d svr_type=%d ip=%s port=%d file=%s"
-	, svr_id, svr_type, ip, port, file);
+	const char *entry_file = (char*)root->Attribute("file");
+	LOG_DEBUG("server server_id=%d server_type=%d ip=%s port=%d entry_file=%s"
+	, server_id, server_type, ip, port, entry_file);
 
-	/*
+	if (tinyxml2::XMLElement* connect_to_ele = root->FirstChildElement("connect_to"))
 	{
-		if (tinyxml2::XMLElement* connectsvrs_ele = root->FirstChildElement("connect_to")){
-			tinyxml2::XMLElement* svr_ele = connectsvrs_ele->FirstChildElement("svr");
-			while (svr_ele){
-				int svr_id = svr_ele->IntAttribute("id");
-				int svr_type = svr_ele->IntAttribute("type");
-				char* ip = (char*)svr_ele->Attribute("ip");
-				int port = svr_ele->IntAttribute("port");
-
-				if (svr_id <= 0 || svr_type <= 0 || ip == nullptr || port <= 0){
-					return ;
-				}
-
-				svr_ele = svr_ele->NextSiblingElement();
+		tinyxml2::XMLElement* address_ele = connect_to_ele->FirstChildElement("address");
+		while (address_ele)
+		{
+			char* ip = (char*)address_ele->Attribute("ip");
+			int port = address_ele->IntAttribute("port");
+			if (ip == nullptr || port <= 0)
+			{
+				break;
 			}
+			LOG_DEBUG("address ip=%s port=%d", ip, port);
+
+			address_ele = address_ele->NextSiblingElement();
 		}
 	}
-	*/
+
+	return true;
 }
 
 int main(int argc, char ** argv)
@@ -56,6 +55,8 @@ int main(int argc, char ** argv)
 		LOG_ERROR("arg error");
 		return 0;
 	}
+
+	// test_load_config();
 
 	// load config
 	const char *conf_file = argv[1];

@@ -131,6 +131,7 @@ int NetService::ConnectTo(const char *addr, unsigned int port)
 	struct bufferevent *bev = bufferevent_socket_new(m_mainEvent, -1, BEV_OPT_CLOSE_ON_FREE | BEV_OPT_DEFER_CALLBACKS);
 	if (!bev)
 	{
+        LOG_ERROR("bufferevent new fail");
 		return -1;
 	}
 	bufferevent_setcb(bev, read_cb, NULL, event_cb, (void *)this);
@@ -266,6 +267,10 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 Mailbox * NetService::NewMailbox(int fd, E_CONN_TYPE type)
 {
 	Mailbox *pmb = new Mailbox(type);
+	if (!pmb)
+	{
+		return nullptr;
+	}
 
 	pmb->SetMailboxId(fd);
 
@@ -488,6 +493,10 @@ void NetService::CloseMailbox(Mailbox *pmb)
 		bufferevent_free(pmb->m_bev);
 		pmb->m_bev = nullptr;
 	}
+	else
+	{
+		LOG_WARN("m_bev null %d", pmb->GetMailboxId());
+	}
 
 	// notice to world
 	m_world->HandleDisconnect(pmb);
@@ -566,17 +575,17 @@ static void event_cb(struct bufferevent *bev, short event, void *user_data)
 
 	if (event & BEV_EVENT_CONNECTED)
 	{
-		LOG_DEBUG("event connected %d", fd);
+		LOG_DEBUG("******* event connected %d", fd);
 		ns->HandleSocketConnected(fd);
 	}
 	else if (event & BEV_EVENT_EOF)
 	{
-		LOG_DEBUG("event eof fd=%d", fd);
+		LOG_DEBUG("******* event eof fd=%d", fd);
 		ns->HandleSocketClosed(fd);
 	}
 	else if (event & BEV_EVENT_ERROR)
 	{
-		LOG_ERROR("event error fd=%d errno=%d", fd, errno);
+		LOG_ERROR("******* event error fd=%d errno=%d", fd, errno);
 		ns->HandleSocketError(fd);
 	}
 }

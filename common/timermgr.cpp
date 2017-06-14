@@ -45,7 +45,7 @@ void TimerMgr::OnTimer()
 	for (auto iter = m_timerMap.begin(); iter != m_timerMap.end(); ++iter)
 	{
 
-		LOG_DEBUG("start loop timer map");
+		// LOG_DEBUG("start loop timer map");
 		Timer &timer = iter->second;
 		if (timer._wake_time > now_time)
 		{

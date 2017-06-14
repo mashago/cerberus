@@ -196,6 +196,36 @@ function ccall_recv_msg_handler(mailbox_id, msg_id)
 
 end
 
+function ccall_disconnect_handler(mailbox_id)
+	Log.warn("ccall_disconnect_handler mailbox_id=%d", mailbox_id)
+
+	local function error_handler(msg, mailbox_id)
+		local msg = debug.traceback(msg, 3)
+		msg = string.format("ccall_disconnect_handler error : mailbox_id = %d \n%s", mailbox_id, msg)
+		return msg 
+	end
+
+	local function handle_disconnect(mailbox_id)
+		
+		if Services.is_service(mailbox_id) then
+			-- service disconnect
+			Services.disconnect(mailbox_id)
+			return
+		end
+
+		-- client disconnect
+		-- TODO
+	end
+	
+	local status, msg = xpcall(handle_disconnect
+	, function(msg) return error_handler(msg, mailbox_id) end
+	, mailbox_id)
+
+	if not status then
+		Log.err(msg)
+	end
+end
+
 function ccall_connect_to_success_handler(mailbox_id)
 	Log.info("ccall_connect_to_success_handler mailbox_id=%d", mailbox_id)
 

@@ -26,9 +26,10 @@ local function log(level, format, ...)
 	end
 
 	local status, err_msg = xpcall(
-	function(v1,v2,...) log_handler(v1,v2,...) end
+	-- function(...) log_handler(...) end
+	log_handler
 	, function(msg) return debug.traceback(msg, 3) end
-	, level,format,...)
+	, level, format, ...)
 
 	if not status then
 		Log.err(err_msg)
