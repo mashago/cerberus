@@ -58,7 +58,7 @@ function Services.create_connect_timer()
 					Log.debug("connecting mailbox_id=%d ip=%s port=%d", server_info._mailbox_id, server_info._ip, server_info._port)
 					if now_time - server_info._last_connect_time > 5 then
 						-- connect time too long, close this connect
-						Log.warn("******* connecting time too long mailbox_id=%d ip=%s port=%d", server_info._mailbox_id, server_info._ip, server_info._port)
+						Log.warn("!!!!!!! connecting timeout mailbox_id=%d ip=%s port=%d", server_info._mailbox_id, server_info._ip, server_info._port)
 						g_network:close_mailbox(server_info._mailbox_id) -- will cause luaworld:HandleDisconnect
 						server_info._mailbox_id = -1
 						server_info._is_connecting = false
@@ -78,6 +78,8 @@ function Services.create_connect_timer()
 end
 
 function Services.disconnect(mailbox_id)
+	Log.info("Services.disconnect mailbox_id=%d", mailbox_id)
+
 	for _, server_info in ipairs(Services._all_server_list) do
 		if server_info._mailbox_id == mailbox_id then
 			-- set disconnect
@@ -92,7 +94,7 @@ function Services.disconnect(mailbox_id)
 
 	if Services._is_connect_timer_running then
 		-- do nothing, connect timer will do reconnect
-		Log.debug("connect timer is running")
+		-- Log.debug("connect timer is running")
 		return
 	end
 

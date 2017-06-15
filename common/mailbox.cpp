@@ -40,6 +40,11 @@ int Mailbox::SendAll()
 		return 0;
 	}
 
+	if (m_tobeSend.empty())
+	{
+		return 0;
+	}
+
 	struct evbuffer *output = bufferevent_get_output(m_bev);
 	while (!m_tobeSend.empty())
 	{

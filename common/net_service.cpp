@@ -72,23 +72,12 @@ int NetService::Init(const char *addr, unsigned int port)
 	}
 
 	// init timer
-	auto addTimer = [&]()
+	m_timerEvent = event_new(m_mainEvent, -1, EV_PERSIST, timer_cb, this);
+	tv.tv_sec = 1;
+	tv.tv_usec = 0;
+	if (event_add(m_timerEvent, &tv) != 0)
 	{
-		int wait_sec = 1;
-		int wait_usec = 0;
-		m_timerEvent = event_new(m_mainEvent, -1, EV_PERSIST, timer_cb, this);
-		struct timeval tv;
-		tv.tv_sec = wait_sec;
-		tv.tv_usec = wait_usec;
-		if (event_add(m_timerEvent, &tv) != 0)
-		{
-			LOG_ERROR("add normal timer fail");
-			return false;
-		}
-		return true;
-	};
-	if (!addTimer())
-	{
+		LOG_ERROR("add normal timer fail");
 		return -1;
 	}
 
@@ -128,7 +117,7 @@ int NetService::ConnectTo(const char *addr, unsigned int port)
     sin.sin_port = htons(port);
 
 	// init buffer socket
-	struct bufferevent *bev = bufferevent_socket_new(m_mainEvent, -1, BEV_OPT_CLOSE_ON_FREE | BEV_OPT_DEFER_CALLBACKS);
+	struct bufferevent *bev = bufferevent_socket_new(m_mainEvent, -1, BEV_OPT_CLOSE_ON_FREE); // | BEV_OPT_DEFER_CALLBACKS);
 	if (!bev)
 	{
         LOG_ERROR("bufferevent new fail");
@@ -244,7 +233,7 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 	// accept client
 
 	// init buffer socket
-	struct bufferevent *bev = bufferevent_socket_new(m_mainEvent, fd, BEV_OPT_CLOSE_ON_FREE | BEV_OPT_DEFER_CALLBACKS);
+	struct bufferevent *bev = bufferevent_socket_new(m_mainEvent, fd, BEV_OPT_CLOSE_ON_FREE); // | BEV_OPT_DEFER_CALLBACKS);
 	if (!bev)
 	{
         LOG_ERROR("bufferevent new fail");
@@ -572,32 +561,29 @@ static void read_cb(struct bufferevent *bev, void *user_data)
 
 static void event_cb(struct bufferevent *bev, short event, void *user_data)
 {
+	LOG_ERROR("******* event=%d", event);
 	// handle other event
 	NetService *ns = (NetService *)user_data;
 	evutil_socket_t fd = bufferevent_getfd(bev);
 
-	if (event & BEV_EVENT_CONNECTED)
+	if (event & BEV_EVENT_EOF)
 	{
-		LOG_DEBUG("******* event connected %d", fd);
-		ns->HandleSocketConnected(fd);
-	}
-	else if (event & BEV_EVENT_EOF)
-	{
-		LOG_DEBUG("******* event eof fd=%d", fd);
+		LOG_DEBUG("####### event eof fd=%d", fd);
 		ns->HandleSocketClosed(fd);
 	}
 	else if (event & BEV_EVENT_ERROR)
 	{
-		LOG_ERROR("******* event error fd=%d errno=%d", fd, errno);
+		LOG_ERROR("!!!!!!! event error fd=%d errno=%d", fd, errno);
 		ns->HandleSocketError(fd);
 	}
-	else if (event & BEV_EVENT_TIMEOUT)
+	else if (event & BEV_EVENT_CONNECTED)
 	{
-		LOG_ERROR("******* event timeout fd=%d event=%d errno=%d", fd, event, errno);
+		LOG_DEBUG("@@@@@@@ event connected %d", fd);
+		ns->HandleSocketConnected(fd);
 	}
 	else
 	{
-		LOG_ERROR("******* unknow event fd=%d event=%d errno=%d", fd, event, errno);
+		LOG_ERROR("??????? unknow event fd=%d event=%d errno=%d", fd, event, errno);
 	}
 }
 
