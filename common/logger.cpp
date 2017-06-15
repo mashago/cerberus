@@ -1,4 +1,5 @@
 
+#include <time.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include "logger.h"
@@ -14,6 +15,12 @@ static const char *tags[] =
 
 void _logcore(int type, const char *filename, const char *funcname, int linenum, const char *fmt, ...)
 {
+	time_t now_time = time(NULL);
+	struct tm detail;
+	localtime_r(&now_time, &detail);
+	char time_buffer[50];
+	sprintf(time_buffer, "%02d:%02d:%02d", detail.tm_hour, detail.tm_min, detail.tm_sec);
+
 	enum {MAX_LOG_BUFFER_SIZE = 2048};
 	char buffer[MAX_LOG_BUFFER_SIZE];
 
@@ -22,7 +29,7 @@ void _logcore(int type, const char *filename, const char *funcname, int linenum,
 	vsnprintf(buffer, MAX_LOG_BUFFER_SIZE, fmt, ap);
 	va_end(ap);
 
-	printf("[%s] %s:%s[%d] : %s\n", tags[type], filename, funcname, linenum, buffer);
+	printf("[%s] [%s] %s:%s[%d] : %s\n", tags[type], time_buffer, filename, funcname, linenum, buffer);
 }
 
 /*

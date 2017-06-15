@@ -19,7 +19,9 @@ local function log(level, format, ...)
 	end
 
 	local function log_handler(level, format, ...)
-		print(string.format("%s : %s", log_level2str(level), string.format(format,...)))
+		local now_date = os.date("*t")
+		local time_string = string.format("[%02d:%02d:%02d]", now_date.hour, now_date.min, now_date.sec)
+		print(string.format("%s %s : %s", log_level2str(level), time_string, string.format(format,...)))
 		if level == Log.LEVEL.ERROR then
 			print(debug.traceback())
 		end
