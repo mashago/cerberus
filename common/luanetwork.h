@@ -25,7 +25,7 @@ public:
 	bool WriteInt64(int64_t val);
 	bool WriteString(int len, const char* str);
 
-	bool Send(int mailboxId);
+	bool Send(int64_t mailboxId);
 
 	//当前可写字符的最大长度
 	// int can_write_string_maxlen();
@@ -40,7 +40,7 @@ public:
 	bool ReadInt64(int64_t &out_val);
 	bool ReadString(int &out_len, char *out_val);
 
-	void CloseMailbox(int mailboxId);
+	void CloseMailbox(int64_t mailboxId);
 
 private:
 	LuaNetwork();

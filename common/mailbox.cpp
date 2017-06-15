@@ -10,8 +10,15 @@ extern "C"
 #include "util.h"
 #include "mailbox.h"
 
-Mailbox::Mailbox(E_CONN_TYPE type) : m_fdType(type), m_pluto(nullptr), m_bev(nullptr), m_bDeleteFlag(false), m_sendPos(0)
+static int64_t _get_mailbox_id()
 {
+	static int64_t mailboxId = 1;
+	return mailboxId++;
+}
+
+Mailbox::Mailbox(E_CONN_TYPE type) : m_fdType(type), m_fd(-1), m_mailboxId(-1), m_pluto(nullptr), m_bev(nullptr), m_bDeleteFlag(false), m_sendPos(0)
+{
+	m_mailboxId = _get_mailbox_id();
 }
 
 Mailbox::~Mailbox()

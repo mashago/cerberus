@@ -1,4 +1,7 @@
 
+#include <set>
+#include <string>
+
 #include "common.h"
 #include "logger.h"
 #include "net_service.h"
@@ -67,7 +70,7 @@ int main(int argc, char ** argv)
 		return 0;
 	}
 
-	tinyxml2::XMLElement* root = doc.FirstChildElement();
+	tinyxml2::XMLElement *root = doc.FirstChildElement();
 	int server_id = root->IntAttribute("id");
 	int server_type = root->IntAttribute("type");
 	const char *ip = (char*)root->Attribute("ip");
@@ -75,17 +78,34 @@ int main(int argc, char ** argv)
 	const char *entry_file = (char*)root->Attribute("file");
 	LOG_DEBUG("server_id=%d server_type=%d ip=%s port=%d entry_file=%s"
 	, server_id, server_type, ip, port, entry_file);
+
+	std::set<std::string> trustIpSet;
+	tinyxml2::XMLElement *trust_ip = root->FirstChildElement("trust_ip");
+	if (trust_ip)
+	{
+		tinyxml2::XMLElement *addr = trust_ip->FirstChildElement("address");
+		while (addr)
+		{
+			const char *ip = (char *)addr->Attribute("ip");
+			LOG_DEBUG("trust ip=%s", ip);
+			trustIpSet.insert(ip);
+			addr = addr->NextSiblingElement();
+		}
+	}
+
 	//
 
 	NetService *net = new NetService();
-	net->Init(ip, port);
+	net->Init(ip, port, trustIpSet);
 
 	World *world = nullptr;
+	/*
 	if (server_type == E_SERVER_TYPE::SERVER_TYPE_ROUTER)
 	{
 		world = new RouterWorld();
 	}
 	else
+	*/
 	{
 		world = LuaWorld::Instance();
 	}

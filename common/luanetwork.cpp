@@ -85,12 +85,12 @@ bool LuaNetwork::WriteString(int len, const char* str)
 	return m_sendPluto->WriteString(len, str);
 }
 
-bool LuaNetwork::Send(int mailboxId)
+bool LuaNetwork::Send(int64_t mailboxId)
 {
-	Mailbox *pmb = m_net->GetMailbox(mailboxId);
+	Mailbox *pmb = m_net->GetMailboxByMailboxId(mailboxId);
 	if (!pmb)
 	{
-		LOG_WARN("mail box null %d", mailboxId);
+		LOG_WARN("mail box null %ld", mailboxId);
 		return false;
 	}
 
@@ -153,7 +153,7 @@ bool LuaNetwork::ReadString(int &out_len, char *out_val)
 	return m_recvPluto->ReadString(out_len, out_val);
 }
 
-void LuaNetwork::CloseMailbox(int mailboxId)
+void LuaNetwork::CloseMailbox(int64_t mailboxId)
 {
 	m_net->CloseMailbox(mailboxId);
 }

@@ -22,6 +22,8 @@ extern "C"
 #include <event2/buffer.h>
 }
 
+#include <string>
+#include <set>
 #include <map>
 #include <list>
 #include "mailbox.h"
@@ -35,12 +37,13 @@ public:
 	NetService();
 	virtual ~NetService();
 
-	int Init(const char *addr, unsigned int port);
+	int Init(const char *addr, unsigned int port, std::set<std::string> &trustIpSet);
 	int Service();
 	// return >= 0 as mailboxId, < 0 as error
-	int ConnectTo(const char *addr, unsigned int port);
+	int64_t ConnectTo(const char *addr, unsigned int port);
 
-	Mailbox *GetMailbox(int fd);
+	Mailbox *GetMailboxByFd(int fd);
+	Mailbox *GetMailboxByMailboxId(int64_t mailboxId);
 	void SetWorld(World *world);
 	World *GetWorld();
 
@@ -59,6 +62,7 @@ public:
 	virtual int HandleSendPluto();
 
 	void CloseMailbox(int fd);
+	void CloseMailbox(int64_t mailboxId);
 
 private:
 	bool Listen(const char *addr, unsigned int port);
@@ -71,8 +75,10 @@ private:
 	struct evconnlistener *m_evconnlistener;
 
 	std::map<int, Mailbox *> m_fds;
+	std::map<int64_t, Mailbox *> m_mailboxs;
 	std::list<Mailbox *> m_mb4del;
 	std::list<Pluto *> m_recvMsgs;
+	std::set<std::string> m_trustIpSet;
 	World *m_world;
 };
 

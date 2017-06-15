@@ -55,6 +55,11 @@ local function handle_client_test(data, mailbox_id, msg_id)
 	Net.send_msg(mailbox_id, MID.CLIENT_TEST_RET, table.unpack(data_send))
 end
 
+local function handle_register_server_ret(data, mailbox_id, msg_id)
+	Log.debug("handle_register_server_ret: data=%s", tableToString(data))
+end
+
 function register_msg_handler()
 	Net.add_msg_handler(MID.CLIENT_TEST, handle_client_test)
+	Net.add_msg_handler(MID.REGISTER_SERVER_RET, handle_register_server_ret)
 end

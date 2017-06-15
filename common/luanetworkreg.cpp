@@ -337,7 +337,7 @@ int luanetwork_send(lua_State* L)
 
 	luaL_checktype(L, -1, LUA_TNUMBER);
 
-	bool ret = (*s)->Send((int)lua_tointeger(L,-1));
+	bool ret = (*s)->Send((int64_t)lua_tonumber(L,-1));
 
 	lua_pushboolean(L, ret);
 
@@ -725,10 +725,10 @@ int luanetwork_connect_to(lua_State* L)
 	int port = (int)lua_tointeger(L, -1);
 	LOG_DEBUG("ip=%s port=%d", ip, port);
 
-	int mailboxId = (*s)->ConnectTo(ip, port);
+	int64_t mailboxId = (*s)->ConnectTo(ip, port);
 
 	lua_pushboolean(L, mailboxId >= 0);
-	lua_pushinteger(L, mailboxId);
+	lua_pushnumber(L, mailboxId);
 
 	return 2;
 }
@@ -740,7 +740,7 @@ int luanetwork_close_mailbox(lua_State* L)
 
 	luaL_checktype(L, -1, LUA_TNUMBER);
 
-	int mailboxId = (unsigned)lua_tointeger(L, -1);
+	int64_t mailboxId = (int64_t)lua_tonumber(L, -1);
 
 	(*s)->CloseMailbox(mailboxId);
 

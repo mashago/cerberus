@@ -46,7 +46,7 @@ function Services.create_connect_timer()
 				if not server_info._is_connecting then
 					Log.debug("connect to ip=%s port=%d", server_info._ip, server_info._port)
 					local ret, mailbox_id = g_network:connect_to(server_info._ip, server_info._port)
-					-- Log.debug("ret=%s", ret and "true" or "false")
+					-- Log.debug("ret=%s mailbox_id=%d", ret and "true" or "false", mailbox_id)
 					if ret then
 						server_info._mailbox_id = mailbox_id
 						server_info._is_connecting = true
@@ -108,6 +108,11 @@ function Services.connect_to_success(mailbox_id)
 		if server_info._mailbox_id == mailbox_id then
 			server_info._is_connecting = false
 			server_info._is_connected = true
+
+			-- send register msg
+
+			Net.send_msg(mailbox_id, MID.REGISTER_SERVER_REQ, 1, 1)
+
 			break
 		end
 	end

@@ -87,7 +87,8 @@ bool LuaWorld::Init(int server_id, int server_type, const char *conf_file, const
 int LuaWorld::HandlePluto(Pluto &u)
 {
 	Mailbox *pmb = u.GetMailbox();
-	int mailboxId = pmb->GetMailboxId();
+	LOG_DEBUG("mailboxId=%ld", pmb->GetMailboxId());
+	int64_t mailboxId = pmb->GetMailboxId();
 	int msgId = u.ReadMsgId();
 
 	HandleMsg(mailboxId, msgId, u);
@@ -95,18 +96,18 @@ int LuaWorld::HandlePluto(Pluto &u)
 	return 0;
 }
 
-void LuaWorld::HandleMsg(int mailboxId, int msgId, Pluto &u)
+void LuaWorld::HandleMsg(int64_t mailboxId, int msgId, Pluto &u)
 {
 	LuaNetwork::Instance()->SetRecvPluto(&u);
 	lua_getglobal(m_L, "ccall_recv_msg_handler");
-	lua_pushinteger(m_L, mailboxId);
+	lua_pushnumber(m_L, mailboxId);
 	lua_pushinteger(m_L, msgId);
 	lua_call(m_L, 2, 0);
 }
 
 void LuaWorld::HandleDisconnect(Mailbox *pmb)
 {
-	LOG_DEBUG("mailboxId=%d", pmb->GetMailboxId());
+	LOG_DEBUG("mailboxId=%ld", pmb->GetMailboxId());
 
 	lua_getglobal(m_L, "ccall_disconnect_handler");
 	lua_pushinteger(m_L, pmb->GetMailboxId());
@@ -115,7 +116,7 @@ void LuaWorld::HandleDisconnect(Mailbox *pmb)
 
 void LuaWorld::HandleConnectToSuccess(Mailbox *pmb)
 {
-	LOG_DEBUG("mailboxId=%d", pmb->GetMailboxId());
+	LOG_DEBUG("mailboxId=%ld", pmb->GetMailboxId());
 
 	lua_getglobal(m_L, "ccall_connect_to_success_handler");
 	lua_pushinteger(m_L, pmb->GetMailboxId());
@@ -124,7 +125,7 @@ void LuaWorld::HandleConnectToSuccess(Mailbox *pmb)
 
 void LuaWorld::HandleNewConnection(Mailbox *pmb)
 {
-	LOG_DEBUG("mailboxId=%d", pmb->GetMailboxId());
+	LOG_DEBUG("mailboxId=%ld", pmb->GetMailboxId());
 }
 
 void LuaWorld::HandleTimer(void *arg)

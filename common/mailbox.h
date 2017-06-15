@@ -25,14 +25,9 @@ public:
 		m_fd = fd;
 	}
 
-	int GetMailboxId()
+	int64_t GetMailboxId()
 	{
-		return m_fd;
-	}
-
-	void SetMailboxId(int fd)
-	{
-		m_fd = fd;
+		return m_mailboxId;
 	}
 
 	void SetDeleteFlag()
@@ -51,6 +46,7 @@ public:
 // private:
 	E_CONN_TYPE m_fdType;
 	int m_fd;
+	int64_t m_mailboxId;
 	Pluto *m_pluto;
 	struct bufferevent *m_bev;
 	bool m_bDeleteFlag;

@@ -22,7 +22,7 @@ private:
 	LuaWorld();
 	virtual ~LuaWorld();
 
-	void HandleMsg(int mailboxId, int msgId, Pluto &u);
+	void HandleMsg(int64_t mailboxId, int msgId, Pluto &u);
 	lua_State *m_L;
 };
 

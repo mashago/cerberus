@@ -22,6 +22,9 @@ MID._id_name_map =
 {
 	[1] = "CLIENT_TEST",
 	[2] = "CLIENT_TEST_RET",
+	[3] = "REGISTER_SERVER_REQ",
+	[4] = "REGISTER_SERVER_RET",
+	[5] = "REGISTER_SERVER_FAIL_RET",
 }
 
 local function create_msg_id_array()
@@ -84,4 +87,22 @@ MSG_DEF_MAP =
 		{ "stringarray", _StringArray },
 		{ "structarray", _StructArray, TestStruct },
 	},
+
+	[MID.REGISTER_SERVER_REQ] =
+	{
+		{ "server_type", _Int },
+		{ "scene_id", _Int },
+	},
+
+	[MID.REGISTER_SERVER_RET] =
+	{
+		{ "mailbox_id_in_router", _Int64 },
+		{ "server_type", _Int },
+		{ "scene_id", _Int },
+	},
+
+	[MID.REGISTER_SERVER_FAIL_RET] =
+	{
+	},
+
 }
