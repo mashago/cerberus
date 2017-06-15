@@ -14,9 +14,9 @@ OBJ:=$(patsubst %.cpp, %.o, $(patsubst %.c, %.o, $(SRC)))
 
 USER_MACROS:=
 
-INC:=../common ../tinyxml
+INC:=../core ../tinyxml
 LIB_PATH:=../lib
-LIB:=common tinyxml lua event dl m
+LIB:=core tinyxml lua event dl m
 
 default: $(TARGET)
 

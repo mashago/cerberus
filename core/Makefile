@@ -1,6 +1,6 @@
 
 FILE_PATH:=../lib
-TARGET:=$(FILE_PATH)/libcommon.a
+TARGET:=$(FILE_PATH)/libcore.a
 
 CC:=gcc
 CXX:=g++

@@ -14,9 +14,9 @@ OBJ:=$(patsubst %.cpp, %.o, $(patsubst %.c, %.o, $(SRC)))
 
 USER_MACROS:=
 
-INC:=../common
+INC:=../core
 LIB_PATH:=../lib
-LIB:=common event
+LIB:=core event
 
 default: $(TARGET)
 

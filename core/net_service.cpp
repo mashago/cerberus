@@ -589,7 +589,7 @@ static void read_cb(struct bufferevent *bev, void *user_data)
 
 static void event_cb(struct bufferevent *bev, short event, void *user_data)
 {
-	LOG_ERROR("******* event=%d", event);
+	LOG_DEBUG("******* event=%d", event);
 	// handle other event
 	NetService *ns = (NetService *)user_data;
 	evutil_socket_t fd = bufferevent_getfd(bev);
