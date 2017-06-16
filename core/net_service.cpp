@@ -75,8 +75,8 @@ int NetService::Init(const char *addr, unsigned int port, std::set<std::string> 
 
 	// init timer
 	m_timerEvent = event_new(m_mainEvent, -1, EV_PERSIST, timer_cb, this);
-	tv.tv_sec = 1;
-	tv.tv_usec = 0;
+	tv.tv_sec = 0;
+	tv.tv_usec = 500 * 1000;
 	if (event_add(m_timerEvent, &tv) != 0)
 	{
 		LOG_ERROR("add normal timer fail");

@@ -3,7 +3,9 @@ package.path = package.path .. ";../script/?.lua"
 
 require "util.util"
 require "sys.init"
+require "global.global_def"
 require "global.global_funcs"
+require "global.server_conf"
 
 local function main()
 	Log.info("------------------------------")
