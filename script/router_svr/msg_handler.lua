@@ -21,7 +21,7 @@ local function handle_register_server(data, mailbox_id, msg_id)
 
 	Net.send_msg(mailbox_id, MID.REGISTER_SERVER_RET, ServerErrorCode.SUCCESS)
 
-	Net.send_msg(mailbox_id, MID.REGISTER_SERVER_BROADCAST, mailbox_id, data.server_type, data.single_scene_id, data.from_to_scene_id)
+	Net.send_msg(mailbox_id, MID.REGISTER_SERVER_BROADCAST, data.server_id, data.server_type, data.single_scene_id, data.from_to_scene_id)
 end
 
 function register_msg_handler()

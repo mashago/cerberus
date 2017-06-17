@@ -90,6 +90,7 @@ MSG_DEF_MAP =
 
 	[MID.REGISTER_SERVER_REQ] =
 	{
+		{ "server_id", _Int },
 		{ "server_type", _Int },
 		{ "single_scene_id", _IntArray },
 		{ "from_to_scene_id", _IntArray },
@@ -102,7 +103,7 @@ MSG_DEF_MAP =
 
 	[MID.REGISTER_SERVER_BROADCAST] =
 	{
-		{ "mailbox_id_in_router", _Int64 },
+		{ "server_id", _Int },
 		{ "server_type", _Int },
 		{ "single_scene_id", _IntArray },
 		{ "from_to_scene_id", _IntArray },

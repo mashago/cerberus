@@ -61,6 +61,7 @@ end
 
 local function handle_register_server_broadcast(data, mailbox_id, msg_id)
 	Log.debug("handle_register_server_broadcast: data=%s", tableToString(data))
+	ServiceClient.add_server(mailbox_id, data.server_id, data.server_type, data.single_scene_id, data.from_to_scene_id)
 end
 
 function register_msg_handler()

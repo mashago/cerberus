@@ -18,11 +18,11 @@ function g_funcs.connect_to_servers(xml_doc)
 	while address_ele do
 		local ip = address_ele:string_attribute("ip")
 		local port = address_ele:int_attribute("port")
-		Services.add_connect_service(ip, port, "aaa")
+		ServiceClient.add_connect_service(ip, port, "aaa")
 
 		address_ele = address_ele:next_sibling_element()
 	end
-	Services.create_connect_timer()
+	ServiceClient.create_connect_timer()
 
 	return true
 end

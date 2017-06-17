@@ -207,9 +207,9 @@ function ccall_disconnect_handler(mailbox_id)
 
 	local function handle_disconnect(mailbox_id)
 		
-		if Services.is_service(mailbox_id) then
+		if ServiceClient.is_service(mailbox_id) then
 			-- service disconnect
-			Services.disconnect(mailbox_id)
+			ServiceClient.service_disconnect(mailbox_id)
 			return
 		end
 
@@ -237,7 +237,7 @@ function ccall_connect_to_success_handler(mailbox_id)
 		return msg 
 	end
 	
-	local status, msg = xpcall(Services.connect_to_success
+	local status, msg = xpcall(ServiceClient.connect_to_success
 	, function(msg) return error_handler(msg, mailbox_id) end
 	, mailbox_id)
 
