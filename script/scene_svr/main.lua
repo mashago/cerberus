@@ -1,8 +1,8 @@
 
-require "game_svr.msg_handler"
+require "scene_svr.msg_handler"
 
 local function main_entry()
-	Log.info("game_svr main_entry")
+	Log.info("scene_svr main_entry")
 
 	register_msg_handler()
 

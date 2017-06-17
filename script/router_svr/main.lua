@@ -2,7 +2,7 @@
 require "router_svr.msg_handler"
 
 local function main_entry()
-	Log.info("game_svr main_entry")
+	Log.info("router_svr main_entry")
 
 	register_msg_handler()
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<server id = "2" type = "2" ip = "127.0.0.1" port = "0" file = "game_svr/main"> 
+<server id = "2" type = "2" ip = "127.0.0.1" port = "0" file = "scene_svr/main"> 
 	<scene_list>
 		<scene single = "1"/>
 		<scene single = "2"/>
