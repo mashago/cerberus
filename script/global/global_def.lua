@@ -13,3 +13,23 @@ ServerType =
 	PAY 			= 9,
 	CHAT 			= 10,
 }
+
+ConnType =
+{
+	NULL 	= 0,
+	UNTRUST = 1,
+	TRUST 	= 2,
+}
+
+ServerErrorCode =
+{
+	SUCCESS = 1,
+	REGISTER_FAIL = 2,
+	REGISTER_UNTRUST = 3,
+}
+
+ErrorCode =
+{
+	SUCCESS = 1,
+}
+

@@ -5,28 +5,18 @@
 #include "common.h"
 #include "logger.h"
 #include "net_service.h"
-#include "routerworld.h"
 #include "luaworld.h"
 #include "tinyxml2.h"
 
-int main(int argc, char ** argv)
+bool test_load_config()
 {
-	LOG_DEBUG("%s", argv[0]);
+	const char *conf_file = "../conf/server_conf_demo.xml";
 
-	// Server [config_file]
-	if (argc < 2) 
-	{
-		LOG_ERROR("arg error");
-		return 0;
-	}
-
-	// load config
-	const char *conf_file = argv[1];
 	tinyxml2::XMLDocument doc;
 	if (doc.LoadFile(conf_file) != tinyxml2::XMLError::XML_SUCCESS)
 	{
 		LOG_ERROR("load conf error %s", conf_file);
-		return 0;
+		return false;
 	}
 
 	tinyxml2::XMLElement *root = doc.FirstChildElement();
@@ -51,34 +41,15 @@ int main(int argc, char ** argv)
 			addr = addr->NextSiblingElement();
 		}
 	}
-	//
 
-	NetService *net = new NetService();
-	net->Init(ip, port, trustIpSet);
+	return true;
+}
 
-	World *world = nullptr;
-	/*
-	if (server_type == E_SERVER_TYPE::SERVER_TYPE_ROUTER)
-	{
-		world = new RouterWorld();
-	}
-	else
-	*/
-	{
-		world = LuaWorld::Instance();
-	}
+int main(int argc, char ** argv)
+{
+	LOG_DEBUG("%s", argv[0]);
 
-	if (nullptr == world)
-	{
-		LOG_ERROR("server type error");
-		return 0;
-	}
-
-	net->SetWorld(world);
-	world->SetNetService(net);
-	world->Init(server_id, server_type, conf_file, entry_file);
-
-	net->Service();
+	test_load_config();
 
 	return 0;
 }

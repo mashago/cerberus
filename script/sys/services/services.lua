@@ -106,12 +106,16 @@ end
 function Services.connect_to_success(mailbox_id)
 	for _, server_info in ipairs(Services._all_server_list) do
 		if server_info._mailbox_id == mailbox_id then
+
 			server_info._is_connecting = false
 			server_info._is_connected = true
 
 			-- send register msg
-
-			Net.send_msg(mailbox_id, MID.REGISTER_SERVER_REQ, 1, 1)
+			local msg = {}
+			msg[1] = ServerConfig._server_type
+			msg[2] = ServerConfig._single_scene_id
+			msg[3] = ServerConfig._from_to_scene_id
+			Net.send_msg(mailbox_id, MID.REGISTER_SERVER_REQ, table.unpack(msg))
 
 			break
 		end

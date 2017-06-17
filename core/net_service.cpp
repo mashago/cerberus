@@ -150,7 +150,7 @@ int64_t NetService::ConnectTo(const char *addr, unsigned int port)
 		bufferevent_free(bev);
 		return -1;
 	}
-	pmb->m_bev = bev;
+	pmb->SetBEV(bev);
 
 	return pmb->GetMailboxId();
 }
@@ -267,7 +267,7 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 		bufferevent_free(bev);
 		return -1;
 	}
-	pmb->m_bev = bev;
+	pmb->SetBEV(bev);
 
 	m_world->HandleNewConnection(pmb);
 
@@ -358,7 +358,7 @@ int NetService::HandleSocketReadMessage(struct bufferevent *bev)
 	int nWanted = 0;
 	ev_ssize_t nLen = 0;
 
-	Pluto *pu = pmb->m_pluto;
+	Pluto *pu = pmb->GetRecvPluto();
 	if (pu == nullptr)
 	{
 		// no pluto in mailbox
@@ -390,7 +390,7 @@ int NetService::HandleSocketReadMessage(struct bufferevent *bev)
 
 		// new a pluto
 		pu = new Pluto(msgLen);
-		pmb->m_pluto = pu;
+		pmb->SetRecvPluto(pu);
 
 		// copy msghead to buffer
 		buffer = pu->GetBuffer();
@@ -432,7 +432,7 @@ int NetService::HandleSocketReadMessage(struct bufferevent *bev)
 	AddRecvMsg(pu);
 
 	// clean mailbox pluto
-	pmb->m_pluto = NULL;
+	pmb->SetRecvPluto(nullptr);
 
 	return READ_MSG_FINISH;
 }
@@ -507,10 +507,10 @@ void NetService::CloseMailbox(int64_t mailboxId)
 
 void NetService::CloseMailbox(Mailbox *pmb)
 {
-	if (pmb->m_bev != nullptr)
+	if (pmb->GetBEV() != nullptr)
 	{
-		bufferevent_free(pmb->m_bev);
-		pmb->m_bev = nullptr;
+		bufferevent_free(pmb->GetBEV());
+		pmb->SetBEV(nullptr);
 	}
 	else
 	{

@@ -110,7 +110,7 @@ void LuaWorld::HandleDisconnect(Mailbox *pmb)
 	LOG_DEBUG("mailboxId=%ld", pmb->GetMailboxId());
 
 	lua_getglobal(m_L, "ccall_disconnect_handler");
-	lua_pushinteger(m_L, pmb->GetMailboxId());
+	lua_pushnumber(m_L, pmb->GetMailboxId());
 	lua_call(m_L, 1, 0);
 }
 
@@ -119,13 +119,18 @@ void LuaWorld::HandleConnectToSuccess(Mailbox *pmb)
 	LOG_DEBUG("mailboxId=%ld", pmb->GetMailboxId());
 
 	lua_getglobal(m_L, "ccall_connect_to_success_handler");
-	lua_pushinteger(m_L, pmb->GetMailboxId());
+	lua_pushnumber(m_L, pmb->GetMailboxId());
 	lua_call(m_L, 1, 0);
 }
 
 void LuaWorld::HandleNewConnection(Mailbox *pmb)
 {
 	LOG_DEBUG("mailboxId=%ld", pmb->GetMailboxId());
+
+	lua_getglobal(m_L, "ccall_new_connection");
+	lua_pushnumber(m_L, pmb->GetMailboxId());
+	lua_pushinteger(m_L, pmb->GetConnType());
+	lua_call(m_L, 2, 0);
 }
 
 void LuaWorld::HandleTimer(void *arg)

@@ -16,7 +16,7 @@ static int64_t _get_mailbox_id()
 	return mailboxId++;
 }
 
-Mailbox::Mailbox(E_CONN_TYPE type) : m_fdType(type), m_fd(-1), m_mailboxId(-1), m_pluto(nullptr), m_bev(nullptr), m_bDeleteFlag(false), m_sendPos(0)
+Mailbox::Mailbox(E_CONN_TYPE type) : m_fdType(type), m_fd(-1), m_mailboxId(-1), m_recvPluto(nullptr), m_bev(nullptr), m_bDeleteFlag(false), m_sendPos(0)
 {
 	m_mailboxId = _get_mailbox_id();
 }
@@ -24,9 +24,9 @@ Mailbox::Mailbox(E_CONN_TYPE type) : m_fdType(type), m_fd(-1), m_mailboxId(-1), 
 Mailbox::~Mailbox()
 {
 	// delete recv pluto
-	if (m_pluto)
+	if (m_recvPluto)
 	{
-		delete m_pluto;
+		delete m_recvPluto;
 	}
 
 	// delete send pluto

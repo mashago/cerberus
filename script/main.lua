@@ -15,6 +15,9 @@ local function main()
 	Log.info("g_entry_file=%s", g_entry_file)
 	Log.info("------------------------------")
 
+	ServerConfig._server_id = g_server_id
+	ServerConfig._server_type = g_server_type
+
 	require(g_entry_file)
 end
 

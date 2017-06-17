@@ -59,7 +59,12 @@ local function handle_register_server_ret(data, mailbox_id, msg_id)
 	Log.debug("handle_register_server_ret: data=%s", tableToString(data))
 end
 
+local function handle_register_server_broadcast(data, mailbox_id, msg_id)
+	Log.debug("handle_register_server_broadcast: data=%s", tableToString(data))
+end
+
 function register_msg_handler()
 	Net.add_msg_handler(MID.CLIENT_TEST, handle_client_test)
 	Net.add_msg_handler(MID.REGISTER_SERVER_RET, handle_register_server_ret)
+	Net.add_msg_handler(MID.REGISTER_SERVER_BROADCAST, handle_register_server_broadcast)
 end

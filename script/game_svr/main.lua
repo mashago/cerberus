@@ -12,10 +12,10 @@ local function main_entry()
 		return
 	end
 
+	g_funcs.load_scene(xml_doc)
+
 	-- connect to other server
 	g_funcs.connect_to_servers(xml_doc)
-
-	g_funcs.load_scene(xml_doc)
 
 end
 

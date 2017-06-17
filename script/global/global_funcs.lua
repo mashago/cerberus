@@ -56,7 +56,6 @@ function g_funcs.load_scene(xml_doc)
 
 		scene_ele = scene_ele:next_sibling_element()
 	end
-	Services.create_connect_timer()
 
 	return true
 end

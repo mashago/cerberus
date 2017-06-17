@@ -215,6 +215,8 @@ function ccall_disconnect_handler(mailbox_id)
 
 		-- client disconnect
 		-- TODO
+
+		Net.del_mailbox(mailbox_id)
 	end
 	
 	local status, msg = xpcall(handle_disconnect
@@ -243,3 +245,23 @@ function ccall_connect_to_success_handler(mailbox_id)
 		Log.err(msg)
 	end
 end
+
+function ccall_new_connection(mailbox_id, conn_type)
+	Log.info("ccall_new_connection mailbox_id=%d conn_type=%d", mailbox_id, conn_type)
+
+
+	local function error_handler(msg, mailbox_id)
+		local msg = debug.traceback(msg, 3)
+		msg = string.format("ccall_new_connection error : mailbox_id = %d \n%s", mailbox_id, msg)
+		return msg 
+	end
+	
+	local status, msg = xpcall(Net.add_mailbox
+	, function(msg) return error_handler(msg, mailbox_id) end
+	, mailbox_id, conn_type)
+
+	if not status then
+		Log.err(msg)
+	end
+end
+

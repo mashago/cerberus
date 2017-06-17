@@ -19,7 +19,6 @@ public:
 	{
 		return m_fd;
 	}
-
 	void SetFd(int fd)
 	{
 		m_fd = fd;
@@ -30,24 +29,46 @@ public:
 		return m_mailboxId;
 	}
 
+	Pluto *GetRecvPluto()
+	{
+		return m_recvPluto;
+	}
+	void SetRecvPluto(Pluto *ptr)
+	{
+		m_recvPluto = ptr;
+	}
+
+	struct bufferevent *GetBEV()
+	{
+		return m_bev;
+	}
+	void SetBEV(struct bufferevent *bev)
+	{
+		m_bev = bev;
+	}
+
 	void SetDeleteFlag()
 	{
 		m_bDeleteFlag = true;
 	}
-
 	bool IsDelete()
 	{
 		return m_bDeleteFlag;
 	}
 
+	E_CONN_TYPE GetConnType()
+	{
+		return m_fdType;
+	}
+
 	void PushPluto(Pluto *u);
 	int SendAll();
 
-// private:
+private:
 	E_CONN_TYPE m_fdType;
 	int m_fd;
 	int64_t m_mailboxId;
-	Pluto *m_pluto;
+	Pluto *m_recvPluto;
 	struct bufferevent *m_bev;
 	bool m_bDeleteFlag;
 	std::list<Pluto *> m_tobeSend;
