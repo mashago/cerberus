@@ -207,11 +207,16 @@ function ccall_disconnect_handler(mailbox_id)
 
 	local function handle_disconnect(mailbox_id)
 		
-		if ServiceClient.is_service(mailbox_id) then
+		if ServiceClient.is_service_server(mailbox_id) then
 			-- service disconnect
-			ServiceClient.service_disconnect(mailbox_id)
-			return
+			ServiceClient.service_server_disconnect(mailbox_id)
 		end
+
+		if ServiceServer.is_service_client(mailbox_id) then
+			-- service disconnect
+			ServiceServer.service_client_disconnect(mailbox_id)
+		end
+
 
 		-- client disconnect
 		-- TODO

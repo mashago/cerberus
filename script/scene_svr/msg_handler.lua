@@ -57,11 +57,14 @@ end
 
 local function handle_register_server_ret(data, mailbox_id, msg_id)
 	Log.debug("handle_register_server_ret: data=%s", tableToString(data))
+	if data.result ~= ServerErrorCode.SUCCESS then
+		Log.err("handle_register_server_ret: register fail %d", data.result)
+	end
 end
 
 local function handle_register_server_broadcast(data, mailbox_id, msg_id)
 	Log.debug("handle_register_server_broadcast: data=%s", tableToString(data))
-	ServiceClient.add_server(mailbox_id, data.server_id, data.server_type, data.single_scene_id, data.from_to_scene_id)
+	ServiceClient.add_server(mailbox_id, data.server_id, data.server_type, data.single_scene_list, data.from_to_scene_list)
 end
 
 function register_msg_handler()

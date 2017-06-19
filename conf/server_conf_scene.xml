@@ -3,8 +3,8 @@
 	<scene_list>
 		<scene single = "1"/>
 		<scene single = "2"/>
-		<scene from = "10" to = "19"/>
-		<scene from = "20" to = "29"/>
+		<scene from = "10" to = "11"/>
+		<scene from = "20" to = "21"/>
 	</scene_list>
 
 	<connect_to>

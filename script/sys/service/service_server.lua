@@ -11,17 +11,16 @@ ServiceServer._type_server_map = {}
 -- {scene_id = {server_id, server_id, ...}
 ServiceServer._scene_server_map = {}
 
--- if is server, return server_id, else return nil
-function ServiceServer.is_server(mailbox_id)
-	for server_id, server_info in ipairs(ServiceServer._all_server_map) do
+function ServiceServer.is_service_client(mailbox_id)
+	for server_id, server_info in pairs(ServiceServer._all_server_map) do
 		if server_info._mailbox_id == mailbox_id then
-			return server_id
+			return true
 		end
 	end
-	return nil
+	return false
 end
 
-function ServiceServer.add_server(mailbox_id, server_id, server_type, single_list, from_to_list)
+function ServiceServer.add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
 
 	local server_info = ServiceServer._all_server_map[server_id]
 	if server_info then
@@ -35,18 +34,20 @@ function ServiceServer.add_server(mailbox_id, server_id, server_type, single_lis
 	server_info._server_id = server_id
 	server_info._server_type = server_type
 	server_info._mailbox_id = mailbox_id
+	server_info._single_scene_list = single_scene_list
+	server_info._from_to_scene_list = from_to_scene_list
 	server_info._scene_list = {}
-	for _, scene_id in ipairs(single_list) do
+	for _, scene_id in ipairs(single_scene_list) do
 		table.insert(server_info._scene_list, scene_id)
 	end
-	for i=1, #from_to_list-1, 2 do
-		local from = from_to_list[i]
-		local to = from_to_list[i+1]
+	for i=1, #from_to_scene_list-1, 2 do
+		local from = from_to_scene_list[i]
+		local to = from_to_scene_list[i+1]
 		for scene_id=from, to do
 			table.insert(server_info._scene_list, scene_id)
 		end
 	end
-	Log.debug("server_info._scene_list=%s", tableToString(server_info._scene_list))
+	-- Log.debug("server_info._scene_list=%s", tableToString(server_info._scene_list))
 
 	-- add into all_server_map
 	ServiceServer._all_server_map[server_info._server_id] = server_info
@@ -61,6 +62,7 @@ function ServiceServer.add_server(mailbox_id, server_id, server_type, single_lis
 		table.insert(ServiceServer._scene_server_map[scene_id], server_id)
 	end
 
+	ServiceServer.print()
 end
 
 function ServiceServer.remove_server(server_id)
@@ -79,17 +81,51 @@ function ServiceServer.remove_server(server_id)
 			table.remove(type_server_list, i)
 		end
 	end
+	if #type_server_list == 0 then
+		ServiceServer._type_server_map[server_info._server_type] = nil
+	end
+	
 
 	-- remove this server in scene_server_map
 	for _, scene_id in ipairs(server_info._scene_list) do
 		local scene_server_list = ServiceServer._scene_server_map[scene_id]
 		for i=#scene_server_list, 1, -1 do
-			table.remove(scene_server_list, i)
+			if scene_server_list[i] == server_id then
+				table.remove(scene_server_list, i)
+			end
+		end
+		if #scene_server_list == 0 then
+			ServiceServer._scene_server_map[scene_id] = nil
 		end
 	end
 
 	-- remove this server in all_server_map
 	ServiceServer._all_server_map[server_id] = nil
+end
+
+function ServiceServer.service_client_disconnect(mailbox_id)
+	local disconnect_server_id = 0
+	for server_id, server_info in pairs(ServiceServer._all_server_map) do
+		if server_info._mailbox_id == mailbox_id then
+			disconnect_server_id = server_info._server_id
+			ServiceServer.remove_server(server_info._server_id)
+			break
+		end
+	end
+
+	for _, server_info in pairs(ServiceServer._all_server_map) do
+		Net.send_msg(server_info._mailbox_id, MID.SERVER_DISCONNECT, disconnect_server_id)
+	end
+
+	ServiceServer.print()
+end
+
+function ServiceServer.print()
+	Log.info("---------ServiceServer--------")
+	Log.info("ServiceServer._all_server_map=%s", tableToString(ServiceServer._all_server_map))
+	Log.info("ServiceServer._type_server_map=%s", tableToString(ServiceServer._type_server_map))
+	Log.info("ServiceServer._scene_server_map=%s", tableToString(ServiceServer._scene_server_map))
+	Log.info("------------------------------")
 end
 
 return ServiceServer

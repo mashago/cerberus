@@ -18,8 +18,8 @@ ServiceClient._scene_server_map = {}
 ServiceClient._is_connect_timer_running = false
 ServiceClient._connect_interval_ms = 2000
 
-function ServiceClient.is_service(mailbox_id)
-	for _, service_info in ipairs(ServiceClient._all_service_server) do
+function ServiceClient.is_service_server(mailbox_id)
+	for _, service_info in pairs(ServiceClient._all_service_server) do
 		if service_info._mailbox_id == mailbox_id then
 			return true
 		end
@@ -124,8 +124,8 @@ function ServiceClient.remove_server(mailbox_id, server_id)
 	ServiceClient._all_server_map[server_id] = nil
 end
 
-function ServiceClient.service_disconnect(mailbox_id)
-	Log.info("ServiceClient.service_disconnect mailbox_id=%d", mailbox_id)
+function ServiceClient.service_server_disconnect(mailbox_id)
+	Log.info("ServiceClient.service_server_disconnect mailbox_id=%d", mailbox_id)
 
 	for _, service_info in ipairs(ServiceClient._all_service_server) do
 		if service_info._mailbox_id == mailbox_id then
@@ -152,6 +152,7 @@ function ServiceClient.service_disconnect(mailbox_id)
 	-- connect timer already close, start it
 	ServiceClient.create_connect_timer()
 
+	ServiceClient.print()
 end
 
 function ServiceClient.connect_to_success(mailbox_id)
@@ -165,17 +166,25 @@ function ServiceClient.connect_to_success(mailbox_id)
 			local msg = {}
 			msg[1] = ServerConfig._server_id
 			msg[2] = ServerConfig._server_type
-			msg[3] = ServerConfig._single_scene_id
-			msg[4] = ServerConfig._from_to_scene_id
+			msg[3] = ServerConfig._single_scene_list
+			msg[4] = ServerConfig._from_to_scene_list
 			Net.send_msg(mailbox_id, MID.REGISTER_SERVER_REQ, table.unpack(msg))
 
 			break
 		end
 	end
+	ServiceClient.print()
 end
 
 -- for client
-function ServiceClient.add_server(mailbox_id, server_id, server_type, single_list, from_to_list)
+function ServiceClient.add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
+
+	for _, service_info in ipairs(ServiceClient._all_service_server) do
+		if service_info._mailbox_id == mailbox_id then
+			table.insert(service_info._server_list, server_id)
+			break
+		end
+	end
 
 	local server_info = ServiceClient._all_server_map[server_id]
 	if server_info then
@@ -187,7 +196,6 @@ function ServiceClient.add_server(mailbox_id, server_id, server_type, single_lis
 			end
 		end
 		table.insert(server_info._service_mailbox_list, mailbox_id)
-
 		return
 	end
 
@@ -197,17 +205,17 @@ function ServiceClient.add_server(mailbox_id, server_id, server_type, single_lis
 	server_info._server_type = server_type
 	server_info._service_mailbox_list = {mailbox_id}
 	server_info._scene_list = {}
-	for _, scene_id in ipairs(single_list) do
+	for _, scene_id in ipairs(single_scene_list) do
 		table.insert(server_info._scene_list, scene_id)
 	end
-	for i=1, #from_to_list-1, 2 do
-		local from = from_to_list[i]
-		local to = from_to_list[i+1]
+	for i=1, #from_to_scene_list-1, 2 do
+		local from = from_to_scene_list[i]
+		local to = from_to_scene_list[i+1]
 		for scene_id=from, to do
 			table.insert(server_info._scene_list, scene_id)
 		end
 	end
-	Log.debug("server_info._scene_list=%s", tableToString(server_info._scene_list))
+	-- Log.debug("server_info._scene_list=%s", tableToString(server_info._scene_list))
 
 	-- add into all_server_map
 	ServiceClient._all_server_map[server_info._server_id] = server_info
@@ -222,6 +230,16 @@ function ServiceClient.add_server(mailbox_id, server_id, server_type, single_lis
 		table.insert(ServiceClient._scene_server_map[scene_id], server_id)
 	end
 
+	ServiceClient.print()
+end
+
+function ServiceClient.print()
+	Log.info("*********ServiceClient********")
+	Log.info("ServiceClient._all_service_server=%s", tableToString(ServiceClient._all_service_server))
+	Log.info("ServiceClient._all_server_map=%s", tableToString(ServiceClient._all_server_map))
+	Log.info("ServiceClient._type_server_map=%s", tableToString(ServiceClient._type_server_map))
+	Log.info("ServiceClient._scene_server_map=%s", tableToString(ServiceClient._scene_server_map))
+	Log.info("******************************")
 end
 
 return ServiceClient

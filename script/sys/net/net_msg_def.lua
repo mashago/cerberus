@@ -25,6 +25,7 @@ MID._id_name_map =
 	[3] = "REGISTER_SERVER_REQ",
 	[4] = "REGISTER_SERVER_RET",
 	[5] = "REGISTER_SERVER_BROADCAST",
+	[6] = "SERVER_DISCONNECT",
 }
 
 local function create_msg_id_array()
@@ -92,8 +93,8 @@ MSG_DEF_MAP =
 	{
 		{ "server_id", _Int },
 		{ "server_type", _Int },
-		{ "single_scene_id", _IntArray },
-		{ "from_to_scene_id", _IntArray },
+		{ "single_scene_list", _IntArray },
+		{ "from_to_scene_list", _IntArray },
 	},
 
 	[MID.REGISTER_SERVER_RET] =
@@ -105,8 +106,13 @@ MSG_DEF_MAP =
 	{
 		{ "server_id", _Int },
 		{ "server_type", _Int },
-		{ "single_scene_id", _IntArray },
-		{ "from_to_scene_id", _IntArray },
+		{ "single_scene_list", _IntArray },
+		{ "from_to_scene_list", _IntArray },
+	},
+
+	[MID.SERVER_DISCONNECT] =
+	{
+		{ "server_id", _Int },
 	},
 
 }

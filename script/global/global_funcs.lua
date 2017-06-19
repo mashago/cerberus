@@ -48,10 +48,10 @@ function g_funcs.load_scene(xml_doc)
 		Log.debug("single=%d from=%d to=%d", single, from, to)
 
 		if single > 0 then
-			ServerConfig.add_single_scene_id(single)
+			ServerConfig.add_single_scene(single)
 		end
 		if to > from then
-			ServerConfig.add_from_to_scene_id(from, to)
+			ServerConfig.add_from_to_scene(from, to)
 		end
 
 		scene_ele = scene_ele:next_sibling_element()

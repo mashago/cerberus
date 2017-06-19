@@ -39,7 +39,7 @@ function Net.get_msg_handler(msg_id)
 end
 
 function Net.add_mailbox(mailbox_id, conn_type)
-	table.insert(Net._all_mailbox, {mailbox_id=mailbox_id, conn_type=conn_type})
+	Net._all_mailbox[mailbox_id] = {mailbox_id=mailbox_id, conn_type=conn_type}
 end
 
 function Net.get_mailbox(mailbox_id)
