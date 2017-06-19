@@ -67,8 +67,15 @@ local function handle_register_server_broadcast(data, mailbox_id, msg_id)
 	ServiceClient.add_server(mailbox_id, data.server_id, data.server_type, data.single_scene_list, data.from_to_scene_list)
 end
 
+local function handle_server_disconnect(data, mailbox_id, msg_id)
+	Log.debug("handle_server_disconnect: data=%s", tableToString(data))
+	ServiceClient.remove_server2(mailbox_id, data.server_id)
+	ServiceClient.print()
+end
+
 function register_msg_handler()
 	Net.add_msg_handler(MID.CLIENT_TEST, handle_client_test)
 	Net.add_msg_handler(MID.REGISTER_SERVER_RET, handle_register_server_ret)
 	Net.add_msg_handler(MID.REGISTER_SERVER_BROADCAST, handle_register_server_broadcast)
+	Net.add_msg_handler(MID.SERVER_DISCONNECT, handle_server_disconnect)
 end
