@@ -99,24 +99,13 @@ function ServiceClient.get_service(mailbox_id)
 	return nil
 end
 
-function ServiceClient.remove_server2(mailbox_id, server_id)
-	-- 1. service_info remove server_id in server_list
-	-- 2. server_info remove service mailbox
-	-- 3. remove from type_server_map
-	-- 4. remove from scene_server_map
+function ServiceClient._remove_server_core(mailbox_id, server_id)
 
-	local service_info = ServiceClient.get_service(mailbox_id)
-	if not service_info then
-		Log.err("ServiceClient.remove_server2 service nil mailbox_id=%d", mailbox_id)
-		return
-	end
-	
-	for i=1, #service_info._server_list do
-		if service_info._server_list[i] == server_id then
-			table.remove(service_info._server_list, i)
-		end
-	end
+	-- 1. server_info remove service mailbox
+	-- 2. remove from type_server_map
+	-- 3. remove from scene_server_map
 
+	-- 1. server_info remove service mailbox
 	local server_info = ServiceClient._all_server_map[server_id]
 	for i=#server_info._service_mailbox_list, 1, -1 do
 		if server_info._service_mailbox_list[i] == mailbox_id then
@@ -129,6 +118,7 @@ function ServiceClient.remove_server2(mailbox_id, server_id)
 		return
 	end
 
+	-- 2. remove from type_server_map
 	-- no more service connect to this server
 	-- remove this server in type_server_map
 	local type_server_list = ServiceClient._type_server_map[server_info._server_type] or {}
@@ -142,6 +132,7 @@ function ServiceClient.remove_server2(mailbox_id, server_id)
 		ServiceClient._type_server_map[server_info._server_type] = nil
 	end
 
+	-- 3. remove from scene_server_map
 	-- remove this server in scene_server_map
 	for _, scene_id in ipairs(server_info._scene_list) do
 		local scene_server_list = ServiceClient._scene_server_map[scene_id]
@@ -159,37 +150,27 @@ function ServiceClient.remove_server2(mailbox_id, server_id)
 end
 
 function ServiceClient.remove_server(mailbox_id, server_id)
-	local server_info = ServiceClient._all_server_map[server_id]
-	for i=#server_info._service_mailbox_list, 1, -1 do
-		if server_info._service_mailbox_list[i] == mailbox_id then
-			table.remove(server_info._service_mailbox_list, i)
-		end
-	end
-	
-	if #server_info._service_mailbox_list > 0 then
-		-- still has service connect to this server, do nothing
+
+	-- 1. service_info remove server_id in server_list
+	-- 2. remove server core
+
+	local service_info = ServiceClient.get_service(mailbox_id)
+	if not service_info then
+		Log.err("ServiceClient.remove_server2 service nil mailbox_id=%d", mailbox_id)
 		return
 	end
-
-	-- no more service connect to this server
-	-- remove this server in type_server_map
-	local type_server_list = ServiceClient._type_server_map[server_info._server_type] or {}
-	for i=#type_server_list, 1, -1 do
-		if type_server_list[i] == server_id then
-			table.remove(type_server_list, i)
+	
+	-- 1. service_info remove server_id in server_list
+	for i=1, #service_info._server_list do
+		if service_info._server_list[i] == server_id then
+			table.remove(service_info._server_list, i)
 		end
 	end
 
-	-- remove this server in scene_server_map
-	for _, scene_id in ipairs(server_info._scene_list) do
-		local scene_server_list = ServiceClient._scene_server_map[scene_id]
-		for i=#scene_server_list, 1, -1 do
-			table.remove(scene_server_list, i)
-		end
-	end
+	-- 2. remove server core
+	ServiceClient._remove_server_core(mailbox_id, server_id)
 
-	-- remove this server in all_server_map
-	ServiceClient._all_server_map[server_id] = nil
+	ServiceClient.print()
 end
 
 function ServiceClient.service_server_disconnect(mailbox_id)
@@ -203,7 +184,7 @@ function ServiceClient.service_server_disconnect(mailbox_id)
 			service_info._is_connected = false
 
 			for _, server_id in ipairs(service_info._server_list) do
-				ServiceClient.remove_server(mailbox_id, server_id)
+				ServiceClient._remove_server_core(mailbox_id, server_id)
 			end
 			service_info._server_list = {}
 

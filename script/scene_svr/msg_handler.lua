@@ -69,8 +69,7 @@ end
 
 local function handle_server_disconnect(data, mailbox_id, msg_id)
 	Log.debug("handle_server_disconnect: data=%s", tableToString(data))
-	ServiceClient.remove_server2(mailbox_id, data.server_id)
-	ServiceClient.print()
+	ServiceClient.remove_server(mailbox_id, data.server_id)
 end
 
 function register_msg_handler()
