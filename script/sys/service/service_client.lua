@@ -90,6 +90,8 @@ function ServiceClient.create_connect_timer()
 	ServiceClient._connect_timer_index = Timer.add_timer(ServiceClient._connect_interval_ms, timer_cb, 0, true)
 end
 
+--------------------------------------------------
+
 function ServiceClient.get_service(mailbox_id)
 	for _, service_info in ipairs(ServiceClient._all_service_server) do
 		if service_info._mailbox_id == mailbox_id then
@@ -97,6 +99,63 @@ function ServiceClient.get_service(mailbox_id)
 		end
 	end
 	return nil
+end
+
+function ServiceClient.add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
+
+	for _, service_info in ipairs(ServiceClient._all_service_server) do
+		if service_info._mailbox_id == mailbox_id then
+			table.insert(service_info._server_list, server_id)
+			break
+		end
+	end
+
+	local server_info = ServiceClient._all_server_map[server_id]
+	if server_info then
+		-- if exists in all_server_map, means add by other router, just update service_mailbox_list
+		for k, v in ipairs(server_info._service_mailbox_list) do
+			if v == mailbox_id then
+				Log.err("ServiceClient.service_add_connect_server add duplicate mailbox_id=%d server_id=%d", mailbox_id, server_id)
+				return
+			end
+		end
+		table.insert(server_info._service_mailbox_list, mailbox_id)
+		ServiceClient.print()
+		return
+	end
+
+	-- init server_info
+	server_info = {}
+	server_info._server_id = server_id
+	server_info._server_type = server_type
+	server_info._service_mailbox_list = {mailbox_id}
+	server_info._scene_list = {}
+	for _, scene_id in ipairs(single_scene_list) do
+		table.insert(server_info._scene_list, scene_id)
+	end
+	for i=1, #from_to_scene_list-1, 2 do
+		local from = from_to_scene_list[i]
+		local to = from_to_scene_list[i+1]
+		for scene_id=from, to do
+			table.insert(server_info._scene_list, scene_id)
+		end
+	end
+	-- Log.debug("server_info._scene_list=%s", tableToString(server_info._scene_list))
+
+	-- add into all_server_map
+	ServiceClient._all_server_map[server_info._server_id] = server_info
+	
+	-- add into type_server_map
+	ServiceClient._type_server_map[server_type] = ServiceClient._type_server_map[server_type] or {}
+	table.insert(ServiceClient._type_server_map[server_type], server_id)
+
+	-- add into scene_server_map
+	for _, scene_id in ipairs(server_info._scene_list) do
+		ServiceClient._scene_server_map[scene_id] = ServiceClient._scene_server_map[scene_id] or {}
+		table.insert(ServiceClient._scene_server_map[scene_id], server_id)
+	end
+
+	ServiceClient.print()
 end
 
 function ServiceClient._remove_server_core(mailbox_id, server_id)
@@ -224,64 +283,6 @@ function ServiceClient.connect_to_success(mailbox_id)
 	ServiceClient.print()
 end
 
--- for client
-function ServiceClient.add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
-
-	for _, service_info in ipairs(ServiceClient._all_service_server) do
-		if service_info._mailbox_id == mailbox_id then
-			table.insert(service_info._server_list, server_id)
-			break
-		end
-	end
-
-	local server_info = ServiceClient._all_server_map[server_id]
-	if server_info then
-		-- if exists in all_server_map, means add by other router, just update service_mailbox_list
-		for k, v in ipairs(server_info._service_mailbox_list) do
-			if v == mailbox_id then
-				Log.err("ServiceClient.service_add_connect_server add duplicate mailbox_id=%d server_id=%d", mailbox_id, server_id)
-				return
-			end
-		end
-		table.insert(server_info._service_mailbox_list, mailbox_id)
-		ServiceClient.print()
-		return
-	end
-
-	-- init server_info
-	server_info = {}
-	server_info._server_id = server_id
-	server_info._server_type = server_type
-	server_info._service_mailbox_list = {mailbox_id}
-	server_info._scene_list = {}
-	for _, scene_id in ipairs(single_scene_list) do
-		table.insert(server_info._scene_list, scene_id)
-	end
-	for i=1, #from_to_scene_list-1, 2 do
-		local from = from_to_scene_list[i]
-		local to = from_to_scene_list[i+1]
-		for scene_id=from, to do
-			table.insert(server_info._scene_list, scene_id)
-		end
-	end
-	-- Log.debug("server_info._scene_list=%s", tableToString(server_info._scene_list))
-
-	-- add into all_server_map
-	ServiceClient._all_server_map[server_info._server_id] = server_info
-	
-	-- add into type_server_map
-	ServiceClient._type_server_map[server_type] = ServiceClient._type_server_map[server_type] or {}
-	table.insert(ServiceClient._type_server_map[server_type], server_id)
-
-	-- add into scene_server_map
-	for _, scene_id in ipairs(server_info._scene_list) do
-		ServiceClient._scene_server_map[scene_id] = ServiceClient._scene_server_map[scene_id] or {}
-		table.insert(ServiceClient._scene_server_map[scene_id], server_id)
-	end
-
-	ServiceClient.print()
-end
-
 function ServiceClient.register_success(mailbox_id, server_id, server_type)
 	local service_info = ServiceClient.get_service(mailbox_id)
 	if not service_info then
@@ -292,6 +293,7 @@ function ServiceClient.register_success(mailbox_id, server_id, server_type)
 	service_info._server_id = server_id
 	service_info._server_type = server_type
 
+	ServiceClient.print()
 end
 
 function ServiceClient.print()

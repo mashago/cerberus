@@ -26,6 +26,9 @@ MID._id_name_map =
 	[4] = "REGISTER_SERVER_RET",
 	[5] = "REGISTER_SERVER_BROADCAST",
 	[6] = "SERVER_DISCONNECT",
+
+	[7] = "USER_LOGIN",
+	[8] = "USER_LOGIN_RET",
 }
 
 local function create_msg_id_array()
