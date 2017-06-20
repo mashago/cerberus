@@ -48,7 +48,7 @@ function tableToString(tb)
         return ret
     end
 
-    local ret = " = {\n"
+    local ret = " {\n"
     local table_list = {}
     table_list[tb] = "root table"
     ret = ret .. _list_table(tb, table_list, 1)

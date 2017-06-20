@@ -30,12 +30,12 @@ end
 function ServiceClient.add_connect_service(ip, port, desc)
 	local service_info = 
 	{
-		-- _server_id = 0, 
-		-- _server_type = 0, 
+		_server_id = 0, 
+		_server_type = 0, 
 		_ip = ip, 
 		_port = port, 
 		-- _desc = desc, 
-		_mailbox_id = -1,
+		_mailbox_id = 0,
 		-- _is_registed = false,
 		_is_connecting = false,
 		_is_connected = false,
@@ -73,7 +73,7 @@ function ServiceClient.create_connect_timer()
 						-- connect time too long, close this connect
 						Log.warn("!!!!!!! connecting timeout mailbox_id=%d ip=%s port=%d", service_info._mailbox_id, service_info._ip, service_info._port)
 						g_network:close_mailbox(service_info._mailbox_id) -- will cause luaworld:HandleDisconnect
-						service_info._mailbox_id = -1
+						service_info._mailbox_id = 0 
 						service_info._is_connecting = false
 					end
 				end
@@ -205,23 +205,22 @@ function ServiceClient.service_server_disconnect(mailbox_id)
 end
 
 function ServiceClient.connect_to_success(mailbox_id)
-	for _, service_info in ipairs(ServiceClient._all_service_server) do
-		if service_info._mailbox_id == mailbox_id then
-
-			service_info._is_connecting = false
-			service_info._is_connected = true
-
-			-- send register msg
-			local msg = {}
-			msg[1] = ServerConfig._server_id
-			msg[2] = ServerConfig._server_type
-			msg[3] = ServerConfig._single_scene_list
-			msg[4] = ServerConfig._from_to_scene_list
-			Net.send_msg(mailbox_id, MID.REGISTER_SERVER_REQ, table.unpack(msg))
-
-			break
-		end
+	local service_info = ServiceClient.get_service(mailbox_id)
+	if not service_info then
+		Log.err("ServiceClient.connect_to_success service nil %d", mailbox_id)
+		return
 	end
+
+	service_info._is_connecting = false
+	service_info._is_connected = true
+
+	-- send register msg
+	local msg = {}
+	msg[1] = ServerConfig._server_id
+	msg[2] = ServerConfig._server_type
+	msg[3] = ServerConfig._single_scene_list
+	msg[4] = ServerConfig._from_to_scene_list
+	Net.send_msg(mailbox_id, MID.REGISTER_SERVER_REQ, table.unpack(msg))
 	ServiceClient.print()
 end
 
@@ -245,6 +244,7 @@ function ServiceClient.add_server(mailbox_id, server_id, server_type, single_sce
 			end
 		end
 		table.insert(server_info._service_mailbox_list, mailbox_id)
+		ServiceClient.print()
 		return
 	end
 
@@ -280,6 +280,18 @@ function ServiceClient.add_server(mailbox_id, server_id, server_type, single_sce
 	end
 
 	ServiceClient.print()
+end
+
+function ServiceClient.register_success(mailbox_id, server_id, server_type)
+	local service_info = ServiceClient.get_service(mailbox_id)
+	if not service_info then
+		Log.err("ServiceClient.register_success service nil %d %d %d", server_id, server_type)
+		return
+	end
+
+	service_info._server_id = server_id
+	service_info._server_type = server_type
+
 end
 
 function ServiceClient.print()

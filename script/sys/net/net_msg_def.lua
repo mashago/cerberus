@@ -100,6 +100,8 @@ MSG_DEF_MAP =
 	[MID.REGISTER_SERVER_RET] =
 	{
 		{ "result", _Int },
+		{ "server_id", _Int },
+		{ "server_type", _Int },
 	},
 
 	[MID.REGISTER_SERVER_BROADCAST] =
