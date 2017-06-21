@@ -62,7 +62,7 @@ bool LuaClient::Init(int server_id, int server_type, const char *conf_file, cons
 	}
 
 	// register timer function
-	reg_timer_funcs(m_L);
+	reg_timer_funcs(m_L, this);
 
 	// set global params
 	lua_pushinteger(m_L, server_id);
@@ -141,7 +141,6 @@ void LuaClient::HandleStdin(const char *buffer, int len)
 
 void LuaClient::HandleTimer(void *arg)
 {
-	/*
 	int64_t timer_index = (int64_t)arg;
 	// LOG_DEBUG("timer_index=%ld", timer_index);
 
@@ -149,6 +148,5 @@ void LuaClient::HandleTimer(void *arg)
 	lua_getglobal(pInstance->m_L, "ccall_timer_handler");
 	lua_pushinteger(pInstance->m_L, timer_index);
 	lua_call(pInstance->m_L, 1, 0);
-	*/
 }
 

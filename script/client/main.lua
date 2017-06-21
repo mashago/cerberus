@@ -12,6 +12,8 @@ local function main_entry()
 		return
 	end
 
+	g_funcs.connect_to_servers(xml_doc)
+
 end
 
 main_entry()

@@ -1,5 +1,5 @@
 
-SUBDIRS:= core tinyxml server client test
+SUBDIRS:= core tinyxml server client luaclient test
 
 all: $(SUBDIRS)
 	@for dir in $(SUBDIRS); do make -C $$dir || exit"$$?"; done

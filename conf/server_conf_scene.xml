@@ -8,7 +8,7 @@
 	</scene_list>
 
 	<connect_to>
-		<address ip = "127.0.0.1" port = "7711"/>
+		<address ip = "127.0.0.1" port = "7711" register = "1"/>
 		<!-- <address ip = "127.0.0.1" port = "7712"/> -->
 	</connect_to>
 </server>

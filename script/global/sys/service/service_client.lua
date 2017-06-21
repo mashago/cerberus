@@ -27,16 +27,16 @@ function ServiceClient.is_service_server(mailbox_id)
 	return false
 end
 
-function ServiceClient.add_connect_service(ip, port, desc)
+function ServiceClient.add_connect_service(ip, port, server_id, server_type, register)
 	local service_info = 
 	{
-		_server_id = 0, 
-		_server_type = 0, 
+		_server_id = server_id or 0, 
+		_server_type = server_type or 0, 
 		_ip = ip, 
 		_port = port, 
 		-- _desc = desc, 
 		_mailbox_id = 0,
-		-- _is_registed = false,
+		_register = register,
 		_is_connecting = false,
 		_is_connected = false,
 		_last_connect_time = 0,
@@ -273,14 +273,16 @@ function ServiceClient.connect_to_success(mailbox_id)
 	service_info._is_connecting = false
 	service_info._is_connected = true
 
-	-- send register msg
-	local msg = {}
-	msg[1] = ServerConfig._server_id
-	msg[2] = ServerConfig._server_type
-	msg[3] = ServerConfig._single_scene_list
-	msg[4] = ServerConfig._from_to_scene_list
-	Net.send_msg(mailbox_id, MID.REGISTER_SERVER_REQ, table.unpack(msg))
-	ServiceClient.print()
+	if service_info._register == 1 then
+		-- need register, send register msg
+		local msg = {}
+		msg[1] = ServerConfig._server_id
+		msg[2] = ServerConfig._server_type
+		msg[3] = ServerConfig._single_scene_list
+		msg[4] = ServerConfig._from_to_scene_list
+		Net.send_msg(mailbox_id, MID.REGISTER_SERVER_REQ, table.unpack(msg))
+		ServiceClient.print()
+	end
 end
 
 function ServiceClient.register_success(mailbox_id, server_id, server_type)

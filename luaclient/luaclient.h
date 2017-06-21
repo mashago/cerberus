@@ -2,10 +2,10 @@
 #pragma once
 
 #include <lua.hpp>
-#include "world.h"
+#include "luaworld.h"
 #include "pluto.h"
 
-class LuaClient : public World
+class LuaClient : public LuaWorld
 {
 public:
 	static LuaClient *Instance();
@@ -16,9 +16,9 @@ public:
 	virtual void HandleDisconnect(Mailbox *pmb) override;
 	virtual void HandleConnectToSuccess(Mailbox *pmb) override;
 	virtual void HandleNewConnection(Mailbox *pmb) override;
-	virtual void HandleStdin(const char *buffer, int len);
+	virtual void HandleStdin(const char *buffer, int len) override;
 
-	static void HandleTimer(void *arg);
+	virtual void HandleTimer(void *arg) override;
 private:
 	LuaClient();
 	virtual ~LuaClient();

@@ -62,7 +62,7 @@ bool LuaWorld::Init(int server_id, int server_type, const char *conf_file, const
 	}
 
 	// register timer function
-	reg_timer_funcs(m_L);
+	reg_timer_funcs(m_L, this);
 
 	// set global params
 	lua_pushinteger(m_L, server_id);
