@@ -72,6 +72,7 @@ private:
 	struct event_base *m_mainEvent;
 	struct event *m_tickEvent;
 	struct event *m_timerEvent;
+	struct event *m_stdinEvent;
 	struct evconnlistener *m_evconnlistener;
 
 	std::map<int, Mailbox *> m_fds;

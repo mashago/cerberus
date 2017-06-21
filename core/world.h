@@ -27,6 +27,7 @@ public:
 	virtual void HandleDisconnect(Mailbox *pmb) = 0;
 	virtual void HandleConnectToSuccess(Mailbox *pmb) = 0;
 	virtual void HandleNewConnection(Mailbox *pmb);
+	virtual void HandleStdin(const char *buffer, int len);
 protected:
 	NetService *m_net;
 };

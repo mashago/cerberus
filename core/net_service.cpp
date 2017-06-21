@@ -3,6 +3,7 @@ extern "C"
 {
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <string.h>
 #include <strings.h>
 #include <sys/socket.h>
@@ -31,6 +32,7 @@ static void read_cb(struct bufferevent *bev, void *user_data);
 static void event_cb(struct bufferevent *bev, short event, void *user_data);
 static void tick_cb(evutil_socket_t fd, short event, void *user_data);
 static void timer_cb(evutil_socket_t fd, short event, void *user_data);
+static void stdin_cb(evutil_socket_t fd, short event, void *user_data);
 
 
 NetService::NetService() : m_mainEvent(nullptr), m_tickEvent(nullptr), m_timerEvent(nullptr), m_evconnlistener(nullptr), m_world(nullptr)
@@ -80,6 +82,14 @@ int NetService::Init(const char *addr, unsigned int port, std::set<std::string> 
 	if (event_add(m_timerEvent, &tv) != 0)
 	{
 		LOG_ERROR("add normal timer fail");
+		return -1;
+	}
+
+	// init stdin event
+	m_stdinEvent = event_new(m_mainEvent, STDIN_FILENO, EV_READ | EV_PERSIST, stdin_cb, this);
+	if (event_add(m_stdinEvent, NULL) != 0)
+	{
+		LOG_ERROR("add stdin event fail");
 		return -1;
 	}
 
@@ -625,6 +635,33 @@ static void tick_cb(evutil_socket_t fd, short event, void *user_data)
 static void timer_cb(evutil_socket_t fd, short event, void *user_data)
 {
 	TimerMgr::OnTimer();
+}
+
+static void stdin_cb(evutil_socket_t fd, short event, void *user_data)
+{
+	const int MAX_BUFFER = 1024;
+	char buffer[MAX_BUFFER+1] = {0};
+	int len = read(fd, buffer, MAX_BUFFER+1);
+	if (len == 0)
+	{
+		// EOF
+		return;
+	}
+
+	if (len > MAX_BUFFER)
+	{
+		LOG_WARN("stdin buffer too big");
+		return;
+	}
+
+	if (len < 0)
+	{
+		LOG_ERROR("read stdin fail");
+		return;
+	}
+
+	NetService *server = (NetService *)user_data;
+	server->GetWorld()->HandleStdin(buffer, len);
 }
 
 ////////// callback end ]

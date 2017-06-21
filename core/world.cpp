@@ -40,3 +40,8 @@ void World::HandleNewConnection(Mailbox *pmb)
 {
 	// default do nothing
 }
+
+void World::HandleStdin(const char *buffer, int len)
+{
+	// default do nothing
+}
