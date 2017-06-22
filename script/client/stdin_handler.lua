@@ -3,6 +3,8 @@ function handle_cmd(buffer)
 	Log.debug("buffer=%s", buffer)
 	local params = Util.SplitString(buffer, " ")
 	Log.debug("params=%s", Util.TableToString(params))
+
+	send_to_login(MID.USER_LOGIN_REQ, "masha", "pwd")
 end
 
 function ccall_stdin_handler(buffer)

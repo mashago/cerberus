@@ -282,6 +282,8 @@ function ServiceClient.connect_to_success(mailbox_id)
 		msg[4] = ServerConfig._from_to_scene_list
 		Net.send_msg(mailbox_id, MID.REGISTER_SERVER_REQ, table.unpack(msg))
 		ServiceClient.print()
+	else
+		ServiceClient.add_server(mailbox_id, service_info._server_id, service_info._server_type, {}, {})
 	end
 end
 
