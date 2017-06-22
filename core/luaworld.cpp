@@ -136,7 +136,7 @@ void LuaWorld::HandleNewConnection(Mailbox *pmb)
 void LuaWorld::HandleTimer(void *arg)
 {
 	int64_t timer_index = (int64_t)arg;
-	LOG_DEBUG("timer_index=%ld", timer_index);
+	// LOG_DEBUG("timer_index=%ld", timer_index);
 
 	lua_getglobal(m_L, "ccall_timer_handler");
 	lua_pushinteger(m_L, timer_index);

@@ -33,7 +33,7 @@ info:
 
 $(TARGET): $(OBJ)
 	mkdir -p $(FILE_PATH)
-	$(CXX) $^ -o $@ $(addprefix -L, $(LIB_PATH)) $(addprefix -l, $(LIB))
+	$(CXX) $(CPP_FLAGS) $^ -o $@ $(addprefix -L, $(LIB_PATH)) $(addprefix -l, $(LIB))
 
 .PHONY: clean
 clean:

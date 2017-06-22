@@ -18,7 +18,7 @@ function Timer.del_timer(timer_index)
 end
 
 function ccall_timer_handler(timer_index)
-	Log.debug("timer_index=%d", timer_index)
+	-- Log.debug("timer_index=%d", timer_index)
 	local timer_param = Timer._timer_mgr[timer_index]
 	if not timer_param then
 		return

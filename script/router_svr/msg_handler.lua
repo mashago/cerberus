@@ -1,7 +1,7 @@
 
 
 local function handle_register_server(data, mailbox_id, msg_id)
-	Log.debug("handle_register_server: data=%s", tableToString(data))
+	Log.debug("handle_register_server: data=%s", Util.TableToString(data))
 
 	-- check mailbox is trust
 	-- add into server list

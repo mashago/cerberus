@@ -2,7 +2,7 @@
 
 local function handle_client_test(data, mailbox_id, msg_id)
 	-- Log.debug("client_time=%d client_data=%s", data.client_time, data.client_data)	
-	Log.debug("handle_client_test: data=%s", tableToString(data))
+	Log.debug("handle_client_test: data=%s", Util.TableToString(data))
 
 	local data_send =
 	{
@@ -56,7 +56,7 @@ local function handle_client_test(data, mailbox_id, msg_id)
 end
 
 local function handle_register_server_ret(data, mailbox_id, msg_id)
-	Log.debug("handle_register_server_ret: data=%s", tableToString(data))
+	Log.debug("handle_register_server_ret: data=%s", Util.TableToString(data))
 	if data.result ~= ServerErrorCode.SUCCESS then
 		Log.err("handle_register_server_ret: register fail %d", data.result)
 	end
@@ -64,12 +64,12 @@ local function handle_register_server_ret(data, mailbox_id, msg_id)
 end
 
 local function handle_register_server_broadcast(data, mailbox_id, msg_id)
-	Log.debug("handle_register_server_broadcast: data=%s", tableToString(data))
+	Log.debug("handle_register_server_broadcast: data=%s", Util.TableToString(data))
 	ServiceClient.add_server(mailbox_id, data.server_id, data.server_type, data.single_scene_list, data.from_to_scene_list)
 end
 
 local function handle_server_disconnect(data, mailbox_id, msg_id)
-	Log.debug("handle_server_disconnect: data=%s", tableToString(data))
+	Log.debug("handle_server_disconnect: data=%s", Util.TableToString(data))
 	ServiceClient.remove_server(mailbox_id, data.server_id)
 end
 

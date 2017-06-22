@@ -49,7 +49,7 @@ function ServiceClient.create_connect_timer()
 
 	local function timer_cb(arg)
 		Log.debug("ServiceClient timer_cb")
-		-- Log.debug("handle_client_test: ServiceClient._all_service_server=%s", tableToString(ServiceClient._all_service_server))
+		-- Log.debug("handle_client_test: ServiceClient._all_service_server=%s", Util.TableToString(ServiceClient._all_service_server))
 		local now_time = os.time()
 		
 		local is_all_connected = true
@@ -140,7 +140,7 @@ function ServiceClient.add_server(mailbox_id, server_id, server_type, single_sce
 			table.insert(server_info._scene_list, scene_id)
 		end
 	end
-	-- Log.debug("server_info._scene_list=%s", tableToString(server_info._scene_list))
+	-- Log.debug("server_info._scene_list=%s", Util.TableToString(server_info._scene_list))
 
 	-- add into all_server_map
 	ServiceClient._all_server_map[server_info._server_id] = server_info
@@ -300,10 +300,10 @@ end
 
 function ServiceClient.print()
 	Log.info("*********ServiceClient********")
-	Log.info("ServiceClient._all_service_server=%s", tableToString(ServiceClient._all_service_server))
-	Log.info("ServiceClient._all_server_map=%s", tableToString(ServiceClient._all_server_map))
-	Log.info("ServiceClient._type_server_map=%s", tableToString(ServiceClient._type_server_map))
-	Log.info("ServiceClient._scene_server_map=%s", tableToString(ServiceClient._scene_server_map))
+	Log.info("ServiceClient._all_service_server=%s", Util.TableToString(ServiceClient._all_service_server))
+	Log.info("ServiceClient._all_server_map=%s", Util.TableToString(ServiceClient._all_server_map))
+	Log.info("ServiceClient._type_server_map=%s", Util.TableToString(ServiceClient._type_server_map))
+	Log.info("ServiceClient._scene_server_map=%s", Util.TableToString(ServiceClient._scene_server_map))
 	Log.info("******************************")
 end
 

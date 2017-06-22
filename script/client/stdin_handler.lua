@@ -1,8 +1,8 @@
 
 function handle_cmd(buffer)
 	Log.debug("buffer=%s", buffer)
-	local params = SplitString(buffer, " ")
-	Log.debug("params=%s", tableToString(params))
+	local params = Util.SplitString(buffer, " ")
+	Log.debug("params=%s", Util.TableToString(params))
 end
 
 function ccall_stdin_handler(buffer)

@@ -47,7 +47,7 @@ function ServiceServer.add_server(mailbox_id, server_id, server_type, single_sce
 			table.insert(server_info._scene_list, scene_id)
 		end
 	end
-	-- Log.debug("server_info._scene_list=%s", tableToString(server_info._scene_list))
+	-- Log.debug("server_info._scene_list=%s", Util.TableToString(server_info._scene_list))
 
 	-- add into all_server_map
 	ServiceServer._all_server_map[server_info._server_id] = server_info
@@ -122,9 +122,9 @@ end
 
 function ServiceServer.print()
 	Log.info("---------ServiceServer--------")
-	Log.info("ServiceServer._all_server_map=%s", tableToString(ServiceServer._all_server_map))
-	Log.info("ServiceServer._type_server_map=%s", tableToString(ServiceServer._type_server_map))
-	Log.info("ServiceServer._scene_server_map=%s", tableToString(ServiceServer._scene_server_map))
+	Log.info("ServiceServer._all_server_map=%s", Util.TableToString(ServiceServer._all_server_map))
+	Log.info("ServiceServer._type_server_map=%s", Util.TableToString(ServiceServer._type_server_map))
+	Log.info("ServiceServer._scene_server_map=%s", Util.TableToString(ServiceServer._scene_server_map))
 	Log.info("------------------------------")
 end
 

@@ -1,5 +1,7 @@
 
-function tableToString(tb)
+Util = {}
+
+function Util.TableToString(tb)
     if type(tb) ~= "table" then
         error("Sorry, it's not table, it is " .. type(tb) .. ".")
     end
@@ -56,7 +58,7 @@ function tableToString(tb)
     return ret
 end
 
-function SplitString(str, sep)
+function Util.SplitString(str, sep)
 	local head = 1
 	local ret = {}
 	while true do
@@ -76,3 +78,5 @@ function SplitString(str, sep)
 	end
 	return ret 
 end
+
+return Util
