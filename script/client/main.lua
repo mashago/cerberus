@@ -1,5 +1,6 @@
 
 require "client.msg_handler"
+require "client.stdin_handler"
 
 local function main_entry()
 	Log.info("client main_entry")

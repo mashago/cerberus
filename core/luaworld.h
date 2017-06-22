@@ -17,7 +17,7 @@ public:
 	virtual void HandleConnectToSuccess(Mailbox *pmb) override;
 	virtual void HandleNewConnection(Mailbox *pmb) override;
 
-	virtual void HandleTimer(void *arg);
+	void HandleTimer(void *arg);
 protected:
 	LuaWorld();
 	virtual ~LuaWorld();

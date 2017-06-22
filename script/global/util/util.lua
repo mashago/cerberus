@@ -55,3 +55,24 @@ function tableToString(tb)
     ret = ret .. "}"
     return ret
 end
+
+function SplitString(str, sep)
+	local head = 1
+	local ret = {}
+	while true do
+		local tail = string.find(str, sep, head)
+		if not tail then
+			local s = string.sub(str, head, string.len(str))
+			if #s > 0 then
+				table.insert(ret, s)
+			end
+			break
+		end
+		local s = string.sub(str, head, tail - 1)
+		if #s > 0 then
+			table.insert(ret, s)
+		end
+		head = tail + string.len(sep)
+	end
+	return ret 
+end

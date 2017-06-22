@@ -27,7 +27,7 @@ MID._id_name_map =
 	[5] = "REGISTER_SERVER_BROADCAST",
 	[6] = "SERVER_DISCONNECT",
 
-	[7] = "USER_LOGIN",
+	[7] = "USER_LOGIN_REQ",
 	[8] = "USER_LOGIN_RET",
 }
 
@@ -118,6 +118,17 @@ MSG_DEF_MAP =
 	[MID.SERVER_DISCONNECT] =
 	{
 		{ "server_id", _Int },
+	},
+
+	[MID.USER_LOGIN_REQ] =
+	{
+		{ "username", _String },
+		{ "password", _String },
+	},
+
+	[MID.USER_LOGIN_RET] =
+	{
+		{ "result", _Int },
 	},
 
 }

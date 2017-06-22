@@ -18,7 +18,7 @@ LuaClient* LuaClient::Instance()
 	return instance;
 }
 
-LuaClient::LuaClient() : m_L(nullptr)
+LuaClient::LuaClient()
 {
 }
 
@@ -84,6 +84,7 @@ bool LuaClient::Init(int server_id, int server_type, const char *conf_file, cons
 	return true;
 }
 
+/*
 int LuaClient::HandlePluto(Pluto &u)
 {
 	Mailbox *pmb = u.GetMailbox();
@@ -95,17 +96,18 @@ int LuaClient::HandlePluto(Pluto &u)
 
 	return 0;
 }
+*/
 
+/*
 void LuaClient::HandleMsg(int64_t mailboxId, int msgId, Pluto &u)
 {
-	/*
 	LuaNetwork::Instance()->SetRecvPluto(&u);
 	lua_getglobal(m_L, "ccall_recv_msg_handler");
 	lua_pushnumber(m_L, mailboxId);
 	lua_pushinteger(m_L, msgId);
 	lua_call(m_L, 2, 0);
-	*/
 }
+*/
 
 void LuaClient::HandleDisconnect(Mailbox *pmb)
 {
@@ -118,6 +120,7 @@ void LuaClient::HandleDisconnect(Mailbox *pmb)
 	*/
 }
 
+/*
 void LuaClient::HandleConnectToSuccess(Mailbox *pmb)
 {
 	LOG_DEBUG("mailboxId=%ld", pmb->GetMailboxId());
@@ -126,6 +129,7 @@ void LuaClient::HandleConnectToSuccess(Mailbox *pmb)
 	lua_pushnumber(m_L, pmb->GetMailboxId());
 	lua_call(m_L, 1, 0);
 }
+*/
 
 void LuaClient::HandleNewConnection(Mailbox *pmb)
 {
@@ -139,6 +143,7 @@ void LuaClient::HandleStdin(const char *buffer, int len)
 	lua_call(m_L, 1, 0);
 }
 
+/*
 void LuaClient::HandleTimer(void *arg)
 {
 	int64_t timer_index = (int64_t)arg;
@@ -149,4 +154,5 @@ void LuaClient::HandleTimer(void *arg)
 	lua_pushinteger(pInstance->m_L, timer_index);
 	lua_call(pInstance->m_L, 1, 0);
 }
+*/
 

@@ -15,6 +15,7 @@ void handler_timer(void *arg)
 {
 	if (s_luaworld)
 	{
+		// LOG_DEBUG("arg=%ld", (int64_t)arg);
 		s_luaworld->HandleTimer(arg);
 	}
 }

@@ -660,6 +660,18 @@ static void stdin_cb(evutil_socket_t fd, short event, void *user_data)
 		return;
 	}
 
+	// trim /n
+	while (len >= 1 && buffer[len-1] == '\n')
+	{
+		buffer[len-1] = '\0';
+		len -= 1;
+	}
+
+	if (len == 0)
+	{
+		return;
+	}
+
 	NetService *server = (NetService *)user_data;
 	server->GetWorld()->HandleStdin(buffer, len);
 }
