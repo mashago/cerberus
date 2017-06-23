@@ -1,10 +1,25 @@
 
-function handle_cmd(buffer)
+local cmd_handler = {}
+
+function cmd_handler.execute(buffer)
 	Log.debug("buffer=%s", buffer)
 	local params = Util.SplitString(buffer, " ")
 	Log.debug("params=%s", Util.TableToString(params))
 
-	send_to_login(MID.USER_LOGIN_REQ, "masha", "pwd")
+	if params[1] == "login" then
+		cmd_handler.do_login(params)
+	end
+
+end
+
+function cmd_handler.do_login(params)
+	-- login [username] [password]
+	if #params ~= 3 then
+		Log.warn("cmd_handler.do_login params not enough")
+		return
+	end
+
+	send_to_login(MID.USER_LOGIN_REQ, params[2], params[3])
 end
 
 function ccall_stdin_handler(buffer)
@@ -16,7 +31,7 @@ function ccall_stdin_handler(buffer)
 		return msg 
 	end
 	
-	local status, msg = xpcall(handle_cmd
+	local status, msg = xpcall(cmd_handler.execute
 	, function(msg) return error_handler(msg) end
 	, buffer)
 
@@ -24,3 +39,5 @@ function ccall_stdin_handler(buffer)
 		Log.err(msg)
 	end
 end
+
+return cmd_handler
