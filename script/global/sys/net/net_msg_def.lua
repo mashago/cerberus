@@ -26,9 +26,11 @@ MID._id_name_map =
 	[4] = "REGISTER_SERVER_RET",
 	[5] = "REGISTER_SERVER_BROADCAST",
 	[6] = "SERVER_DISCONNECT",
+	[7] = "REMOTE_CALL_REQ",
+	[8] = "REMOTE_CALL_RET",
 
-	[7] = "USER_LOGIN_REQ",
-	[8] = "USER_LOGIN_RET",
+	[9] = "USER_LOGIN_REQ",
+	[10] = "USER_LOGIN_RET",
 }
 
 local function create_msg_id_array()
@@ -119,6 +121,24 @@ MSG_DEF_MAP =
 	{
 		{ "server_id", _Int },
 	},
+
+
+	[MID.REMOTE_CALL_REQ] =
+	{
+		{ "session_id", _Int64 },
+		{ "func_name", _String },
+		{ "param", _String },
+	},
+
+	[MID.REMOTE_CALL_RET] =
+	{
+		{ "result", _Bool },
+		{ "session_id", _Int64 },
+		{ "param", _String },
+	},
+
+
+	----------------------------------------
 
 	[MID.USER_LOGIN_REQ] =
 	{

@@ -18,6 +18,8 @@ local function main()
 	ServerConfig._server_id = g_server_id
 	ServerConfig._server_type = g_server_type
 
+	math.randomseed(os.time())
+
 	require(g_entry_file)
 end
 

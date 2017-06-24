@@ -21,13 +21,17 @@ function send_to_server(server_type, msg_id, ...)
 end
 
 function send_to_login(msg_id, ...)
-	send_to_server(ServerType.LOGIN, msg_id, ...)
+	ServiceClient.send_to_type_server(ServerType.LOGIN, msg_id, ...)
 end
 
 function send_to_router(msg_id, ...)
-	send_to_server(ServerType.ROUTER, msg_id, ...)
+	ServiceClient.send_to_type_server(ServerType.ROUTER, msg_id, ...)
+end
+
+local function handle_user_login(data, mailbox_id, msg_id)
+	Log.debug("handle_user_login: data=%s", Util.TableToString(data))
 end
 
 function register_msg_handler()
-	-- Net.add_msg_handler(MID.REGISTER_SERVER_REQ, handle_register_server)
+	Net.add_msg_handler(MID.USER_LOGIN_RET, handle_user_login)
 end
