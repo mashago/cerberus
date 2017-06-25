@@ -5,11 +5,12 @@ ServerType =
 	ROUTER 			= 1,
 	SCENE 			= 2,
 	DB 				= 3,
-	PUBLIC 			= 4,
+	BRIDGE 			= 4,
 	LOGIN 			= 5,
-	CROSS 			= 6,
-	PAY 			= 7,
-	CHAT 			= 8,
+	PUBLIC 			= 6,
+	CROSS 			= 7,
+	PAY 			= 8,
+	CHAT 			= 9,
 }
 
 ConnType =
@@ -24,10 +25,12 @@ ServerErrorCode =
 	SUCCESS = 1,
 	REGISTER_FAIL = 2,
 	REGISTER_UNTRUST = 3,
+	RPC_FAIL = 4,
 }
 
 ErrorCode =
 {
 	SUCCESS = 1,
+	CREATE_ROLE_FAIL = 2,
 }
 

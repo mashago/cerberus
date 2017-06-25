@@ -1,9 +1,9 @@
 
-require "router_svr.msg_handler"
-require "router_svr.rpc_handler"
+require "bridge_svr.msg_handler"
+require "bridge_svr.rpc_handler"
 
 local function main_entry()
-	Log.info("router_svr main_entry")
+	Log.info("bridge_svr main_entry")
 
 	register_msg_handler()
 	register_rpc_handler()
@@ -14,8 +14,10 @@ local function main_entry()
 		return
 	end
 
+	g_funcs.load_scene(xml_doc)
+
 	-- connect to other server
-	-- g_funcs.connect_to_servers(xml_doc)
+	g_funcs.connect_to_servers(xml_doc)
 
 end
 

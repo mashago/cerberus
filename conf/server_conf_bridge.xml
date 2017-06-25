@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server id = "41" type = "4" ip = "127.0.0.1" port = "7741" file = "bridge_svr/main"> 
+	<scene_list>
+		<scene single = "400001"/>
+	</scene_list>
+
+	<connect_to>
+		<!-- login_svr -->
+		<address ip = "127.0.0.1" port = "7751" register = "1"/>
+		<!-- router_svr -->
+		<address ip = "127.0.0.1" port = "7711" register = "1"/>
+	</connect_to>
+</server>
