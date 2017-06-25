@@ -9,23 +9,19 @@ local function handle_user_login(data, mailbox_id, msg_id)
 			return
 		end
 
-		local result, ret = RpcMgr.call(db_server_id, "user_login", {username=username, password=password})
-		if not result then
+		local status, ret = RpcMgr.call(db_server_id, "db_user_login", {username=username, password=password})
+		if not status then
 			Log.err("handle_user_login rpc call fail")
 			Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, 0)
 			return
 		end
 
 		Log.debug("handle_user_login: callback ret=%s", Util.TableToString(ret))
+
 		-- TODO check mailbox_id is still legal, after rpc
 		Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, 1)
 	end
 	RpcMgr.run(func, mailbox_id, data.username, data.password)
-
-	-- for test
-	-- local session_id = RpcMgr.run(func)
-	-- fake callback from db server
-	-- RpcMgr.callback(session_id, {result=1, user_id=1001})
 
 end
 

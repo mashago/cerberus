@@ -1,20 +1,21 @@
 
 RpcMgr = {}
 RpcMgr._cur_session_id = 0
-RpcMgr._all_session_map = {}
-RpcMgr._all_call_func = {}
+RpcMgr._all_session_map = {} -- {[session_id] = coroutine}
+RpcMgr._all_call_func = {} -- { function(data){return {}} }
+RpcMgr._original_session_map = {} -- {[new_session_id] = {session_id=x, mailbox_id=y}}
 
+-- rpc warpper
 function RpcMgr.run(func, ...)
-	
 	local cor = coroutine.create(func)
-	local ret, session_id = coroutine.resume(cor, ...)
-	if ret and session_id then
+	local status, session_id = coroutine.resume(cor, ...)
+	if status and session_id then
+		-- return session_id if has rpc inside
 		RpcMgr._all_session_map[session_id] = cor	
 	end
-
-	return session_id
 end
 
+-- rpc call function
 function RpcMgr.call(server_id, func_name, data)
 	local data_str = Util.serialize(data)
 	RpcMgr._cur_session_id = RpcMgr._cur_session_id + 1
@@ -24,34 +25,38 @@ function RpcMgr.call(server_id, func_name, data)
 	return coroutine.yield(RpcMgr._cur_session_id)
 end
 
-function RpcMgr.call_nocb(server_id, func_name, data)
-	-- just send a msg, no yield
-	-- TODO send msg to mailbox with msg_id is REMOTE_CALL_REQ
-end
-
 function RpcMgr.callback(session_id, result, data)
 
 	local cor = RpcMgr._all_session_map[session_id]
 	if not cor then
 		Log.warn("RpcMgr.callback cor nil session_id=%d", session_id)
-		return nil
+		return
 	end
 	RpcMgr._all_session_map[session_id] = nil	
 
-	local ret, session_id = coroutine.resume(cor, result, data)
-	if ret and session_id then
-		RpcMgr._all_session_map[session_id] = cor	
-	end
-
-	return session_id
-end
-
-function RpcMgr.register_call_func(func_name, func)
-	if not RpcMgr._all_call_func[func_name] then
-		Log.err("RpcMgr.register_call_func func_name duplicate %s", func_name)
+	local status, result = coroutine.resume(cor, result, data)
+	if not status then
+		Log.err("RpcMgr.callback cor resume fail")
 		return
 	end
-	RpcMgr._all_call_func[func_name] = func
+
+	if type(result) == "number" then
+		-- another rpc inside
+		local new_session_id = result
+		RpcMgr._all_session_map[new_session_id] = cor	
+		return
+	end
+
+	-- rpc finish
+	-- check if this func is a rpc from otherwhere
+	local origin = RpcMgr._original_session_map[session_id]
+	if not origin then
+		return
+	end
+
+	RpcMgr._original_session_map[session_id] = nil
+	Net.send_msg(origin.mailbox_id, MID.REMOTE_CALL_RET, true, origin.session_id, Util.serialize(result))
+
 end
 
 function RpcMgr.handle_call(data, mailbox_id, msg_id)
@@ -60,16 +65,40 @@ function RpcMgr.handle_call(data, mailbox_id, msg_id)
 	local param = Util.unserialize(data.param)
 	local func = RpcMgr._all_call_func[func_name]
 	if not func then
-		-- TODO send back
 		Log.err("RpcMgr.handle_call func not exists %s", func_name)
 		Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, false, session_id, "")
 		return
 	end
 	
-	-- TODO consider rpc inside
-	local ret = func(param)
-	Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, true, session_id, Util.serialize(data))
+	-- local ret = func(param)
+	-- Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, true, session_id, Util.serialize(ret))
 
+	-- consider rpc in call function
+	-- so use a coroutine wrap this function
+	local cor = coroutine.create(func)
+	local status, result = coroutine.resume(cor, param)
+	if not status or not result then
+		Log.err("RpcMgr.handle_call resume error func_name=%s", func_name)
+		Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, false, session_id, "")
+		return
+	end
+
+	if type(result) == "number" then
+		-- has rpc inside, result is a session_id
+		-- mark down this coroutine and session_id
+		local new_session_id = result
+		RpcMgr._all_session_map[new_session_id] = cor	
+
+		-- mark down the way back to caller
+		local origin = {}
+		t.session_id = session_id
+		t.mailbox_id = mailbox_id
+		RpcMgr._original_session_map[new_session_id] = origin
+
+	else
+		-- result is a table, no rpc inside, just send back result
+		Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, true, session_id, Util.serialize(result))
+	end
 end
 
 function RpcMgr.handle_callback(data, mailbox_id, msg_id)
@@ -77,7 +106,7 @@ function RpcMgr.handle_callback(data, mailbox_id, msg_id)
 	local session_id = data.session_id
 	local param = Util.unserialize(data.param)
 
-	RpcMgr.callback(session_id, result, {result=1, user_id=1001})
+	RpcMgr.callback(session_id, result, param)
 
 end
 
