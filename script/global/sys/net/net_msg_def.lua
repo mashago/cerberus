@@ -31,6 +31,8 @@ MID._id_name_map =
 
 	[9] = "USER_LOGIN_REQ",
 	[10] = "USER_LOGIN_RET",
+	[11] = "CREATE_ROLE_REQ",
+	[12] = "CREATE_ROLE_RET",
 }
 
 local function create_msg_id_array()
@@ -145,10 +147,19 @@ MSG_DEF_MAP =
 		{ "username", _String },
 		{ "password", _String },
 	},
-
 	[MID.USER_LOGIN_RET] =
 	{
 		{ "result", _Int },
+	},
+
+	[MID.CREATE_ROLE_REQ] =
+	{
+		{ "role_name", _String },
+	},
+	[MID.CREATE_ROLE_RET] =
+	{
+		{ "result", _Int },
+		{ "role_id", _Int64 },
 	},
 
 }

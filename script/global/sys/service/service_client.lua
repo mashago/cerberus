@@ -297,45 +297,49 @@ function ServiceClient.register_success(mailbox_id, server_id, server_type)
 	service_info._server_id = server_id
 	service_info._server_type = server_type
 
-	ServiceClient.print()
+	-- add service as a server too
+	ServiceClient.add_server(mailbox_id, server_id, server_type, {}, {})
+
+	-- ServiceClient.print()
 end
 
-function ServiceClient.get_server_id_by_type(server_type)
+function ServiceClient.get_server_by_type(server_type)
+	
+	local id_list = {}
 	local id_list = ServiceClient._type_server_map[server_type] or {}
 	if #id_list == 0 then
 		return nil
 	end
 
 	local r = math.random(#id_list)
-	return id_list[r]
-end
+	local server_id = id_list[r]
 
-function ServiceClient.send_msg(server_id, msg_id, ...)
     local server_info = ServiceClient._all_server_map[server_id]
     if not server_info then
-        return false
+        return nil
     end
 
 	if #server_info._service_mailbox_list == 0 then
-		return false
+		return nil
 	end
 
 	local r = math.random(#server_info._service_mailbox_list)
     local mailbox_id = server_info._service_mailbox_list[r]
     if mailbox_id == 0 then
-        return false
+        return nil
     end
 
-    Net.send_msg(mailbox_id, msg_id, ...)
-	return true
+	return {mailbox_id=mailbox_id, server_id=server_id}
 end
 
+-- luaclient use this now
 function ServiceClient.send_to_type_server(server_type, msg_id, ...)
-	local server_id = ServiceClient.get_server_id_by_type(server_type)
-	if not server_id then
+	local server = ServiceClient.get_server_by_type(server_type)
+	if not server then
 		return false
 	end
-	return ServiceClient.send_msg(server_id, msg_id, ...)
+
+    Net.send_msg(server.mailbox_id, msg_id, ...)
 end
 
 function ServiceClient.print()

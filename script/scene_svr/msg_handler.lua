@@ -59,6 +59,7 @@ local function handle_register_server_ret(data, mailbox_id, msg_id)
 	Log.debug("handle_register_server_ret: data=%s", Util.TableToString(data))
 	if data.result ~= ServerErrorCode.SUCCESS then
 		Log.err("handle_register_server_ret: register fail %d", data.result)
+		return
 	end
 	ServiceClient.register_success(mailbox_id, data.server_id, data.server_type)
 end

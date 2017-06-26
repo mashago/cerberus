@@ -8,13 +8,13 @@ function register_rpc_handler()
 		
 		Log.debug("bridge_create_role: data=%s", Util.TableToString(data))
 
-		local router_server_id = ServiceClient.get_server_id_by_type(ServerType.ROUTER)
-		if not router_server_id then
+		local server = ServiceClient.get_server_by_type(ServerType.ROUTER)
+		if not server then
 			Log.err("bridge_create_role no router server")
 			return {result = ServerErrorCode.RPC_FAIL}
 		end
 
-		local status, result = RpcMgr.call(router_server_id, "router_create_role", data)
+		local status, result = RpcMgr.call(server, "router_create_role", data)
 		if not status then
 			Log.err("bridge_create_role rpc call fail")
 			return {result = ServerErrorCode.RPC_FAIL}

@@ -120,6 +120,30 @@ function ServiceServer.service_client_disconnect(mailbox_id)
 	ServiceServer.print()
 end
 
+function ServiceServer.get_server_by_scene(scene_id)
+	
+	local id_list = {}
+	local id_list = ServiceServer._scene_server_map[scene_id] or {}
+	if #id_list == 0 then
+		return nil
+	end
+
+	local r = math.random(#id_list)
+	local server_id = id_list[r]
+
+    local server_info = ServiceServer._all_server_map[server_id]
+    if not server_info then
+        return nil
+    end
+
+    local mailbox_id = server_info._mailbox_id
+    if mailbox_id == 0 then
+        return nil
+    end
+
+	return {mailbox_id=mailbox_id, server_id=server_id}
+end
+
 function ServiceServer.print()
 	Log.info("---------ServiceServer--------")
 	Log.info("ServiceServer._all_server_map=%s", Util.TableToString(ServiceServer._all_server_map))

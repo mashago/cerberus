@@ -16,10 +16,10 @@ function RpcMgr.run(func, ...)
 end
 
 -- rpc call function
-function RpcMgr.call(server_id, func_name, data)
+function RpcMgr.call(server, func_name, data)
 	local data_str = Util.serialize(data)
 	RpcMgr._cur_session_id = RpcMgr._cur_session_id + 1
-	if not ServiceClient.send_msg(server_id, MID.REMOTE_CALL_REQ, RpcMgr._cur_session_id, func_name, Util.serialize(data)) then
+	if not Net.send_msg(server.mailbox_id, MID.REMOTE_CALL_REQ, RpcMgr._cur_session_id, func_name, Util.serialize(data)) then
 		return false
 	end
 	return coroutine.yield(RpcMgr._cur_session_id)
@@ -91,8 +91,8 @@ function RpcMgr.handle_call(data, mailbox_id, msg_id)
 
 		-- mark down the way back to caller
 		local origin = {}
-		t.session_id = session_id
-		t.mailbox_id = mailbox_id
+		origin.session_id = session_id
+		origin.mailbox_id = mailbox_id
 		RpcMgr._original_session_map[new_session_id] = origin
 
 	else
