@@ -127,6 +127,8 @@ MSG_DEF_MAP =
 
 	[MID.REMOTE_CALL_REQ] =
 	{
+		{ "from_server_id", _Int },
+		{ "to_server_id", _Int },
 		{ "session_id", _Int64 },
 		{ "func_name", _String },
 		{ "param", _String },
@@ -135,6 +137,8 @@ MSG_DEF_MAP =
 	[MID.REMOTE_CALL_RET] =
 	{
 		{ "result", _Bool },
+		{ "from_server_id", _Int },
+		{ "to_server_id", _Int },
 		{ "session_id", _Int64 },
 		{ "param", _String },
 	},

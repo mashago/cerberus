@@ -303,17 +303,8 @@ function ServiceClient.register_success(mailbox_id, server_id, server_type)
 	-- ServiceClient.print()
 end
 
-function ServiceClient.get_server_by_type(server_type)
+function ServiceClient.get_server_by_id(server_id)
 	
-	local id_list = {}
-	local id_list = ServiceClient._type_server_map[server_type] or {}
-	if #id_list == 0 then
-		return nil
-	end
-
-	local r = math.random(#id_list)
-	local server_id = id_list[r]
-
     local server_info = ServiceClient._all_server_map[server_id]
     if not server_info then
         return nil
@@ -330,6 +321,20 @@ function ServiceClient.get_server_by_type(server_type)
     end
 
 	return {mailbox_id=mailbox_id, server_id=server_id}
+end
+
+function ServiceClient.get_server_by_type(server_type)
+	
+	local id_list = {}
+	local id_list = ServiceClient._type_server_map[server_type] or {}
+	if #id_list == 0 then
+		return nil
+	end
+
+	local r = math.random(#id_list)
+	local server_id = id_list[r]
+
+	return ServiceClient.get_server_by_id(server_id)
 end
 
 -- luaclient use this now
