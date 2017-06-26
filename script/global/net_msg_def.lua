@@ -22,17 +22,21 @@ MID._id_name_map =
 {
 	[1] = "CLIENT_TEST",
 	[2] = "CLIENT_TEST_RET",
-	[3] = "REGISTER_SERVER_REQ",
-	[4] = "REGISTER_SERVER_RET",
-	[5] = "REGISTER_SERVER_BROADCAST",
-	[6] = "SERVER_DISCONNECT",
-	[7] = "REMOTE_CALL_REQ",
-	[8] = "REMOTE_CALL_RET",
+	[3] = "RPC_TEST_REQ",
+	[4] = "RPC_TEST_RET",
 
-	[9] = "USER_LOGIN_REQ",
-	[10] = "USER_LOGIN_RET",
-	[11] = "CREATE_ROLE_REQ",
-	[12] = "CREATE_ROLE_RET",
+	[5] = "USER_LOGIN_REQ",
+	[6] = "USER_LOGIN_RET",
+	[7] = "CREATE_ROLE_REQ",
+	[8] = "CREATE_ROLE_RET",
+
+	[60001] = "REGISTER_SERVER_REQ",
+	[60002] = "REGISTER_SERVER_RET",
+	[60003] = "REGISTER_SERVER_BROADCAST",
+	[60004] = "SERVER_DISCONNECT",
+	[60005] = "REMOTE_CALL_REQ",
+	[60006] = "REMOTE_CALL_RET",
+
 }
 
 local function create_msg_id_array()
@@ -96,6 +100,40 @@ MSG_DEF_MAP =
 		{ "structarray", _StructArray, TestStruct },
 	},
 
+	[MID.RPC_TEST_REQ] =
+	{
+		{ "buff", _String },
+	},
+	[MID.RPC_TEST_RET] =
+	{
+		{ "result", _Int },
+		{ "buff", _String },
+		{ "sum", _Int },
+	},
+
+	[MID.USER_LOGIN_REQ] =
+	{
+		{ "username", _String },
+		{ "password", _String },
+	},
+	[MID.USER_LOGIN_RET] =
+	{
+		{ "result", _Int },
+	},
+
+	[MID.CREATE_ROLE_REQ] =
+	{
+		{ "role_name", _String },
+	},
+	[MID.CREATE_ROLE_RET] =
+	{
+		{ "result", _Int },
+		{ "role_id", _Int64 },
+	},
+
+
+	----------------------------------------
+
 	[MID.REGISTER_SERVER_REQ] =
 	{
 		{ "server_id", _Int },
@@ -143,27 +181,5 @@ MSG_DEF_MAP =
 		{ "param", _String },
 	},
 
-
-	----------------------------------------
-
-	[MID.USER_LOGIN_REQ] =
-	{
-		{ "username", _String },
-		{ "password", _String },
-	},
-	[MID.USER_LOGIN_RET] =
-	{
-		{ "result", _Int },
-	},
-
-	[MID.CREATE_ROLE_REQ] =
-	{
-		{ "role_name", _String },
-	},
-	[MID.CREATE_ROLE_RET] =
-	{
-		{ "result", _Int },
-		{ "role_id", _Int64 },
-	},
 
 }

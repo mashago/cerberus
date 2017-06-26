@@ -85,7 +85,7 @@ function RpcMgr.handle_call(data, mailbox_id, msg_id)
 			Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, false, from_server_id, to_server_id, session_id, "")
 			return
 		end
-		Net.send_msg(server.mailbox_id, MID.REMOTE_CALL_REQ, from_server_id, to_server_id, session_id, data.param)
+		Net.send_msg(server.mailbox_id, MID.REMOTE_CALL_REQ, from_server_id, to_server_id, session_id, func_name, data.param)
 		return
 	end
 
@@ -147,7 +147,7 @@ function RpcMgr.handle_callback(data, mailbox_id, msg_id)
 			Log.warn("RpcMgr.handle_callback cannot go back from_server_id=%d", from_server_id)
 			return
 		end
-		Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, true, from_server_id, to_server_id, session_id, data.param)
+		Net.send_msg(server.mailbox_id, MID.REMOTE_CALL_RET, true, from_server_id, to_server_id, session_id, data.param)
 		return
 	end
 

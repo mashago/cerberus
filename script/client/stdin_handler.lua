@@ -10,6 +10,8 @@ function cmd_handler.execute(buffer)
 		cmd_handler.do_login(params)
 	elseif params[1] == "create" then
 		cmd_handler.do_create_role(params)
+	elseif params[1] == "rpc" then
+		cmd_handler.do_rpc_test(params)
 	end
 
 end
@@ -32,6 +34,16 @@ function cmd_handler.do_create_role(params)
 	end
 
 	send_to_login(MID.CREATE_ROLE_REQ, params[2])
+end
+
+function cmd_handler.do_rpc_test(params)
+	-- rpc [buff]
+	if #params ~= 2 then
+		Log.warn("cmd_handler.do_rpc_test params not enough")
+		return
+	end
+
+	send_to_login(MID.RPC_TEST_REQ, params[2])
 end
 
 
