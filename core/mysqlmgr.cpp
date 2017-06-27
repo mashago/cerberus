@@ -4,8 +4,8 @@
 #include "mysqlmgr.h"
 
 MysqlMgr::MysqlMgr() 
-: host(""), port(0), username(""), password(""), db_name(""), charset("")
-, conn(NULL), result(NULL), err(0)
+: m_host(""), m_port(0), m_username(""), m_password(""), m_db_name(""), m_charset("")
+, conn(NULL), m_result(NULL), m_err(0)
 {
 }
 
@@ -26,13 +26,13 @@ MYSQL * MysqlMgr::CoreConnect()
 		return NULL;
 	}
 
-	mysql_options(new_conn, MYSQL_SET_CHARSET_NAME, charset.c_str());
+	mysql_options(new_conn, MYSQL_SET_CHARSET_NAME, m_charset.c_str());
 
 	MYSQL *ret_conn;
-	ret_conn = mysql_real_connect(new_conn, host.c_str(), username.c_str(), password.c_str(), db_name.c_str(), port, NULL, 0);
+	ret_conn = mysql_real_connect(new_conn, m_host.c_str(), m_username.c_str(), m_password.c_str(), m_db_name.c_str(), m_port, NULL, 0);
 	if (ret_conn == NULL)
 	{
-		err = mysql_errno(new_conn);
+		m_err = mysql_errno(new_conn);
 		mysql_close(new_conn);
 		return NULL;
 	}
@@ -42,12 +42,12 @@ MYSQL * MysqlMgr::CoreConnect()
 
 int MysqlMgr::Connect(std::string host, int port, std::string username, std::string password, std::string db_name, std::string charset)
 {
-	this->host = host;
-	this->port = port;
-	this->username = username;
-	this->password = password;
-	this->db_name = db_name;
-	this->charset = charset;
+	m_host = host;
+	m_port = port;
+	m_username = username;
+	m_password = password;
+	m_db_name = db_name;
+	m_charset = charset;
 
 	if (conn != NULL)
 	{
@@ -61,7 +61,7 @@ int MysqlMgr::Connect(std::string host, int port, std::string username, std::str
 	return 0;
 }
 
-int MysqlMgr::Close()
+void MysqlMgr::Close()
 {
 	if (conn != NULL)
 	{
@@ -69,7 +69,6 @@ int MysqlMgr::Close()
 		mysql_close(conn);
 		conn = NULL;
 	}
-	return 0;
 }
 
 int MysqlMgr::Reconnect()
@@ -93,7 +92,7 @@ int MysqlMgr::EscapeString(char *out_buffer, const char *in_buffer, int len)
 int MysqlMgr::Query(const char *sql, int len)
 {
 	// 1.do mysql_real_query
-	// 2.clean mysql result
+	// 2.clean mysql m_result
 	// 3.do mysql_store_result, event sql is not a select
 	// 4.if error is disconnect, Reconnect and try again
 	
@@ -107,23 +106,23 @@ int MysqlMgr::Query(const char *sql, int len)
 			if (ret == 0)
 			{
 				CleanResult();
-				result = mysql_store_result(conn); // when exec is NOT select, this call is ok
+				m_result = mysql_store_result(conn); // when exec is NOT select, this call is ok
 				return ret;
 			}
 		}
 
 		ret = -1;
 
-		err = 8888; // 8888 for connect null
+		m_err = 8888; // 8888 for connect null
 
 		if (conn != NULL)
 		{
-			err = mysql_errno(conn);
+			m_err = mysql_errno(conn);
 		}
 
-		if (err == 2013 || err == 2006 || err == 8888)
+		if (m_err == 2013 || m_err == 2006 || m_err == 8888)
 		{
-			printf("Query:disconnect errno=%d\n", err);
+			printf("Query:disconnect errno=%d\n", m_err);
 			sleep(1);
 			Reconnect();
 			reconn_count++;
@@ -156,12 +155,12 @@ int MysqlMgr::NumRows()
 		return -1;
 	}
 
-	if (result == NULL)
+	if (m_result == NULL)
 	{
 		return -1;
 	}
 
-	return mysql_num_rows(result);
+	return mysql_num_rows(m_result);
 }
 
 int MysqlMgr::AffectedRows()
@@ -182,37 +181,37 @@ MYSQL_ROW MysqlMgr::FetchRow()
 		return row;
 	}
 
-	if (result == NULL)
+	if (m_result == NULL)
 	{
 		return row;
 	}
 
-	row = mysql_fetch_row(result);
+	row = mysql_fetch_row(m_result);
 
 	return row;
 }
 
 void MysqlMgr::CleanResult()
 {
-	err = 0;
+	m_err = 0;
 
-	if (result != NULL)
+	if (m_result != NULL)
 	{
-		mysql_free_result(result);
-		result = NULL;
+		mysql_free_result(m_result);
+		m_result = NULL;
 	}
 
 	while(!mysql_next_result(conn))
 	{
-		result = mysql_store_result(conn);
-		mysql_free_result(result);
+		m_result = mysql_store_result(conn);
+		mysql_free_result(m_result);
 	} 
 
-	result = NULL;
+	m_result = NULL;
 }
 
 int MysqlMgr::GetErr()
 {
-	return err;
+	return m_err;
 }
 
