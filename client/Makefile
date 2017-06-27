@@ -16,7 +16,19 @@ USER_MACROS:=
 
 INC:=../core
 LIB_PATH:=../lib
-LIB:=core event
+LIB:=core event mysqlclient
+
+ifeq "$(OS)" "Linux"
+LIB_PATH+=/usr/lib64/mysql/
+endif
+
+ifeq "$(OS)" "Darwin"
+LIB_PATH+=/usr/local/mysql/lib
+endif
+
+ifeq "$(OS)" "CYGWIN_NT-6.1"
+LIB_PATH+=/usr/lib
+endif
 
 default: $(TARGET)
 

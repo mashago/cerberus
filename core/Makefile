@@ -14,7 +14,7 @@ OBJ:=$(patsubst %.cpp, %.o, $(patsubst %.c, %.o, $(SRC)))
 
 USER_MACROS:=
 
-INC:=. ../tinyxml
+INC:=. ../tinyxml /usr/local/include/mysql /usr/include/mysql
 LIB_PATH:=.
 LIB:=
 

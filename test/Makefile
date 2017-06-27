@@ -1,5 +1,5 @@
 
-FILE_PATH:=.
+FILE_PATH:=../bin
 TARGET:=$(FILE_PATH)/test
 
 CC:=gcc
@@ -16,7 +16,19 @@ USER_MACROS:=
 
 INC:=../core ../tinyxml
 LIB_PATH:=../lib
-LIB:=core tinyxml lua event dl m
+LIB:=core tinyxml lua event mysqlclient dl m
+
+ifeq "$(OS)" "Linux"
+LIB_PATH+=/usr/lib64/mysql/
+endif
+
+ifeq "$(OS)" "Darwin"
+LIB_PATH+=/usr/local/mysql/lib
+endif
+
+ifeq "$(OS)" "CYGWIN_NT-6.1"
+LIB_PATH+=/usr/lib
+endif
 
 default: $(TARGET)
 
