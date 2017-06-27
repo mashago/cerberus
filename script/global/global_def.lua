@@ -31,7 +31,8 @@ ServerErrorCode =
 ErrorCode =
 {
 	SUCCESS = 1,
-	USER_LOGIN_FAIL = 2,
-	CREATE_ROLE_FAIL = 3,
+	SYS_ERROR = 2,
+	USER_LOGIN_FAIL = 3,
+	CREATE_ROLE_FAIL = 4,
 }
 

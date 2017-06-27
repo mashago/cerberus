@@ -57,9 +57,65 @@ local function handle_create_role(data, mailbox_id, msg_id)
 
 end
 
+local function handle_rpc_test(data, mailbox_id, msg_id)
+	Log.debug("handle_rpc_test: data=%s", Util.TableToString(data))
+
+	local func = function(mailbox_id, buff)
+
+		-- 1. rpc to db
+		-- 2. rpc to bridge
+		-- 3. bridge rpc to router
+		-- 4. router rpc to scene
+		-- 5. bridge rpc to scene
+
+		local channel_id = 400001
+		local sum = 0
+
+		-- 1. rpc to db
+		local server = ServiceClient.get_server_by_type(ServerType.DB)
+		if not server then
+			Log.err("handle_user_login no db server")
+			Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, ErrorCode.USER_LOGIN_FAIL)
+			return
+		end
+
+		local status, result = RpcMgr.call(server, "db_rpc_test", {buff=buff, sum=sum})
+		if not status then
+			Log.err("handle_user_login rpc call fail")
+			Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, ErrorCode.USER_LOGIN_FAIL)
+			return
+		end
+		Log.debug("handle_rpc_test: callback result=%s", Util.TableToString(result))
+		buff = result.buff
+		sum = result.sum
+
+		-- 2. rpc to bridge
+		local server = ServiceServer.get_server_by_scene(channel_id)
+		if not server then
+			Log.err("handle_rpc_test no bridge server")
+			Net.send_msg(mailbox_id, MID.RPC_TEST_RET, ErrorCode.SYS_ERROR, buff, sum)
+			return
+		end
+		local status, result = RpcMgr.call(server, "bridge_rpc_test", {buff=buff, sum=sum})
+		if not status then
+			Log.err("handle_rpc_test rpc call fail")
+			Net.send_msg(mailbox_id, MID.RPC_TEST_RET, ErrorCode.SYS_ERROR, buff, sum)
+			return
+		end
+		Log.debug("handle_rpc_test: callback result=%s", Util.TableToString(result))
+		buff = result.buff
+		sum = result.sum
+
+		Net.send_msg(mailbox_id, MID.RPC_TEST_RET, result.result, result.buff, result.sum)
+	end
+	RpcMgr.run(func, mailbox_id, data.buff)
+
+end
+
 function register_msg_handler()
 	Net.add_msg_handler(MID.REGISTER_SERVER_REQ, g_handle_register_server)
 
 	Net.add_msg_handler(MID.USER_LOGIN_REQ, handle_user_login)
 	Net.add_msg_handler(MID.CREATE_ROLE_REQ, handle_create_role)
+	Net.add_msg_handler(MID.RPC_TEST_REQ, handle_rpc_test)
 end

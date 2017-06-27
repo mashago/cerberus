@@ -12,6 +12,21 @@ function register_rpc_handler()
 
 		-- must return a table
 		local user_id = math.random(10000)
-		return {result = 1, user_id = user_id}
+		return {result = ErrorCode.SUCCESS, user_id = user_id}
 	end
+
+	call_func_map.db_rpc_test = function(data)
+		
+		Log.debug("db_rpc_test: data=%s", Util.TableToString(data))
+
+		local buff = data.buff
+		local sum = data.sum
+
+		buff = buff .. "1"
+		sum = sum + 1
+
+		return {result = ErrorCode.SUCCESS, buff=buff, sum=sum}
+	end
+
+
 end
