@@ -8,8 +8,16 @@ function register_rpc_handler()
 		
 		Log.debug("db_user_login: data=%s", Util.TableToString(data))
 
-		-- TODO db logic
+		-- 1. select account
+		-- 2. if not exists, insert account
 
+		local ret = DBMgr.select("login_db", "user_info", {}, {user_name=data.username, user_password=data.password})
+		if not ret then
+			return {result = ErrorCode.SYS_ERROR, user_id = user_id}
+		end
+
+		Log.debug("db_user_login: ret=%s", Util.TableToString(ret))
+	
 		-- must return a table
 		local user_id = math.random(10000)
 		return {result = ErrorCode.SUCCESS, user_id = user_id}

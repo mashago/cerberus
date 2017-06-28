@@ -15,4 +15,9 @@ function DBMgr.connect_to_mysql(ip, port, username, password, db_name)
 	return true
 end
 
+function DBMgr.select(db_name, table_name, fields, keys)
+	
+	return {}
+end
+
 return DBMgr
