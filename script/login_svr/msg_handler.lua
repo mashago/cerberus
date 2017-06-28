@@ -113,7 +113,7 @@ local function handle_rpc_test(data, mailbox_id, msg_id)
 end
 
 function register_msg_handler()
-	Net.add_msg_handler(MID.REGISTER_SERVER_REQ, g_handle_register_server)
+	Net.add_msg_handler(MID.REGISTER_SERVER_REQ, g_funcs.handle_register_server)
 
 	Net.add_msg_handler(MID.USER_LOGIN_REQ, handle_user_login)
 	Net.add_msg_handler(MID.CREATE_ROLE_REQ, handle_create_role)

@@ -64,7 +64,38 @@ function g_funcs.load_scene(xml_doc)
 	return true
 end
 
-function g_handle_register_server(data, mailbox_id, msg_id)
+function g_funcs.connect_to_mysql(xml_doc)
+	local root_ele = xml_doc:first_child_element()
+	if not root_ele then
+		Log.err("tinyxml root_ele nil %s", g_conf_file)
+		return false
+	end
+
+	local mysql_ele = root_ele:first_child_element("mysql")
+	if not mysql_ele then
+		Log.err("tinyxml mysql_ele nil %s", g_conf_file)
+		return false
+	end
+
+	local info_ele = mysql_ele:first_child_element("info")
+	while info_ele do
+		local ip = info_ele:string_attribute("ip")
+		local port = info_ele:int_attribute("port")
+		local username = info_ele:string_attribute("username")
+		local password = info_ele:string_attribute("password")
+		local db_name = info_ele:string_attribute("db_name")
+		Log.info("ip=%s port=%d username=%s password=%s db_name=%s", ip, port, username, password, db_name)
+
+		DBMgr.connect_to_mysql(ip, port, username, password, db_name)
+
+		info_ele = info_ele:next_sibling_element()
+	end
+	ServiceClient.create_connect_timer()
+
+	return true
+end
+
+function g_funcs.handle_register_server(data, mailbox_id, msg_id)
 	Log.debug("handle_register_server: data=%s", Util.TableToString(data))
 
 	-- check mailbox is trust

@@ -10,6 +10,7 @@ extern "C"
 #include "luanetworkreg.h"
 #include "luanetwork.h"
 #include "luatinyxmlreg.h"
+#include "luamysqlmgrreg.h"
 #include "luatimerreg.h"
 
 LuaWorld* LuaWorld::Instance()
@@ -52,6 +53,7 @@ bool LuaWorld::Init(int server_id, int server_type, const char *conf_file, const
 		{ "LuaNetwork", luaopen_luanetwork },
 		{ "LuaTinyXMLDoc", luaopen_luatinyxmldoc },
 		{ "LuaTinyXMLEle", luaopen_luatinyxmlele },
+		{ "LuaMysqlMgr", luaopen_luamysqlmgr },
 		{ NULL, NULL },
 	};
 

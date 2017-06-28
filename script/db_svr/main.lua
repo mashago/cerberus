@@ -14,8 +14,7 @@ local function main_entry()
 		return
 	end
 
-	-- connect to other server
-	-- g_funcs.connect_to_servers(xml_doc)
+	g_funcs.connect_to_mysql(xml_doc)
 
 end
 
