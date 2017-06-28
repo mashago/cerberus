@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <unistd.h>
+#include "logger.h"
 #include "mysqlmgr.h"
 
 MysqlMgr::MysqlMgr() 
@@ -89,12 +90,14 @@ int MysqlMgr::EscapeString(char *out_buffer, const char *in_buffer, int len)
 	return mysql_real_escape_string(conn, out_buffer, in_buffer, len);
 }
 
-int MysqlMgr::Query(const char *sql, int len)
+int MysqlMgr::CoreQuery(const char *sql, int len, bool is_select)
 {
-	// 1.do mysql_real_query
-	// 2.clean mysql m_result
+	// 1.clean mysql m_result
+	// 2.do mysql_real_query
 	// 3.do mysql_store_result, event sql is not a select
 	// 4.if error is disconnect, Reconnect and try again
+	
+	CleanResult();
 	
 	int ret = 0;
 	int reconn_count = 0;
@@ -105,8 +108,15 @@ int MysqlMgr::Query(const char *sql, int len)
 			ret = mysql_real_query(conn, sql, len);
 			if (ret == 0)
 			{
-				CleanResult();
-				m_result = mysql_store_result(conn); // when exec is NOT select, this call is ok
+				if (is_select)
+				{
+					m_result = mysql_store_result(conn); 
+				}
+				else
+				{
+					// select query will return -1, so have to split select and change
+					ret = mysql_affected_rows(conn);
+				}
 				return ret;
 			}
 		}
@@ -122,7 +132,7 @@ int MysqlMgr::Query(const char *sql, int len)
 
 		if (m_err == 2013 || m_err == 2006 || m_err == 8888)
 		{
-			printf("Query:disconnect errno=%d\n", m_err);
+			LOG_ERROR("CoreQuery:disconnect errno=%d", m_err);
 			sleep(1);
 			Reconnect();
 			reconn_count++;
@@ -136,6 +146,16 @@ int MysqlMgr::Query(const char *sql, int len)
 	while (reconn_count < 3);
 
 	return ret;
+}
+
+int MysqlMgr::Select(const char *sql, int len)
+{
+	return CoreQuery(sql, len, true);
+}
+
+int MysqlMgr::Change(const char *sql, int len)
+{
+	return CoreQuery(sql, len, false);
 }
 
 int MysqlMgr::FieldCount()
@@ -163,6 +183,7 @@ int MysqlMgr::NumRows()
 	return mysql_num_rows(m_result);
 }
 
+/*
 int MysqlMgr::AffectedRows()
 {
 	if (conn == NULL)
@@ -171,6 +192,22 @@ int MysqlMgr::AffectedRows()
 	}
 
 	return mysql_affected_rows(conn);
+}
+*/
+
+MYSQL_FIELD * MysqlMgr::FetchField()
+{
+	if (conn == NULL)
+	{
+		return NULL;
+	}
+
+	if (m_result == NULL)
+	{
+		return NULL;
+	}
+
+	return mysql_fetch_fields(m_result);
 }
 
 MYSQL_ROW MysqlMgr::FetchRow()
@@ -210,8 +247,14 @@ void MysqlMgr::CleanResult()
 	m_result = NULL;
 }
 
-int MysqlMgr::GetErr()
+int MysqlMgr::GetErrno()
 {
 	return m_err;
+}
+
+const char * MysqlMgr::GetError()
+{
+	if (!conn) return NULL;
+	return mysql_error(conn);
 }
 

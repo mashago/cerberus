@@ -10,23 +10,27 @@ public:
 	MysqlMgr();
 	~MysqlMgr();
 
+	// 0 for success
 	int Connect(std::string host, int port, std::string username, std::string password, std::string db_name, std::string charset = "utf8");
 	void Close();
 
 	// out_buffer size should be 2 * in_buffer size + 1
 	int EscapeString(char *out_buffer, const char *in_buffer, int len);
 
-	// query will clean last query result
-	int Query(const char *sql, int len);
+	// 0 as success, else as error
+	int Select(const char *sql, int len);
+	// return affect row, -1 as error
+	int Change(const char *sql, int len);
 
 	int FieldCount();
 	int NumRows();
-	int AffectedRows();
-
+	// int AffectedRows();
+	
+	MYSQL_FIELD * FetchField();
 	MYSQL_ROW FetchRow();
-	void CleanResult();
 
-	int GetErr();
+	int GetErrno();
+	const char * GetError();
 
 private:
 	std::string m_host;
@@ -42,5 +46,7 @@ private:
 
 	int Reconnect();
 	MYSQL * CoreConnect();
+	int CoreQuery(const char *sql, int len, bool is_select);
+	void CleanResult();
 };
 

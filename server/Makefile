@@ -27,6 +27,7 @@ LIB_PATH+=/usr/local/mysql/lib
 endif
 
 ifeq "$(OS)" "CYGWIN_NT-6.1"
+INC+=/usr/include/mysql
 LIB_PATH+=/usr/lib
 endif
 

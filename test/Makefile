@@ -1,6 +1,6 @@
 
 FILE_PATH:=../bin
-TARGET:=$(FILE_PATH)/test
+TARGET:=$(FILE_PATH)/Test
 
 CC:=gcc
 CXX:=g++
@@ -14,7 +14,7 @@ OBJ:=$(patsubst %.cpp, %.o, $(patsubst %.c, %.o, $(SRC)))
 
 USER_MACROS:=
 
-INC:=../core ../tinyxml
+INC:=../core ../tinyxml /usr/local/include/mysql /usr/include/mysql
 LIB_PATH:=../lib
 LIB:=core tinyxml lua event mysqlclient dl m
 
