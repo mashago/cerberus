@@ -480,7 +480,8 @@ int NetService::HandleSocketError(evutil_socket_t fd)
 
 int NetService::HandleRecvPluto()
 {
-	while (!m_recvMsgs.empty())
+	int num = 0;
+	while (!m_recvMsgs.empty() && num < 50)
 	{
 		Pluto *pu = m_recvMsgs.front();
 		m_recvMsgs.pop_front();
@@ -489,6 +490,7 @@ int NetService::HandleRecvPluto()
 		m_world->HandlePluto(*pu);
 
 		delete pu;
+		++num;
 	}
 	return 0;
 }

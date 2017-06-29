@@ -9,6 +9,13 @@ end
 
 local function handle_user_login(data, mailbox_id, msg_id)
 	Log.debug("handle_user_login: data=%s", Util.TableToString(data))
+
+	if g_loginx_num > 0 then
+		g_loginx_num = g_loginx_num - 1
+	end
+	if g_loginx_num == 0 then
+		Log.debug("******* loginx time use time=%d", os.time() - g_loginx_start_time)
+	end
 end
 
 local function handle_create_role(data, mailbox_id, msg_id)

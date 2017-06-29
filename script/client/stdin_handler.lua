@@ -8,6 +8,8 @@ function cmd_handler.execute(buffer)
 
 	if params[1] == "login" then
 		cmd_handler.do_login(params)
+	elseif params[1] == "loginx" then
+		cmd_handler.do_loginx(params)
 	elseif params[1] == "create" then
 		cmd_handler.do_create_role(params)
 	elseif params[1] == "rpc" then
@@ -24,6 +26,28 @@ function cmd_handler.do_login(params)
 	end
 
 	send_to_login(MID.USER_LOGIN_REQ, params[2], params[3])
+end
+
+g_loginx_num = 0
+g_loginx_start_time = 0
+function cmd_handler.do_loginx(params)
+	-- loginx [num]
+	if #params ~= 2 then
+		Log.warn("cmd_handler.do_loginx params not enough")
+		return
+	end
+
+	local num = tonumber(params[2])
+
+	for i=1, num do
+		local x = math.random(1000000)
+		local username = "test" .. tostring(x)
+		send_to_login(MID.USER_LOGIN_REQ, username, "qwerty")
+	end
+
+	g_loginx_num = num
+	g_loginx_start_time = os.time()
+
 end
 
 function cmd_handler.do_create_role(params)
