@@ -25,6 +25,7 @@ public:
 	int FieldCount();
 	int NumRows();
 	// int AffectedRows();
+	int64_t GetInsertId();
 	
 	MYSQL_FIELD * FetchField();
 	MYSQL_ROW FetchRow();

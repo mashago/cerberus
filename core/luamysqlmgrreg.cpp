@@ -3,6 +3,7 @@ extern "C"
 {
 #include <lauxlib.h>
 #include <lualib.h>
+#include <string.h>
 }
 #include "logger.h"
 #include "pluto.h"
@@ -71,6 +72,84 @@ int luamysqlmgr_get_error(lua_State* L)
 	return 1;
 }
 
+int luamysqlmgr_select(lua_State* L)
+{
+	MysqlMgr** s = (MysqlMgr**)luaL_checkudata(L, 1, "LuaMysqlMgr");
+	luaL_argcheck(L, s != NULL, 1, "invalid user data");
+
+	luaL_checktype(L, 2, LUA_TSTRING);
+	const char* sql = lua_tostring(L, 2);
+
+	int ret = (*s)->Select(sql, strlen(sql));
+	if (ret != 0)
+	{
+		int no = (*s)->GetErrno();
+		const char * error = (*s)->GetError();
+		LOG_ERROR("no=%d error=%s", no, error);
+		lua_pushboolean(L, false);
+		return 1;
+	}
+
+	lua_pushboolean(L, true);
+	lua_newtable(L);
+
+	int fieldCount = (*s)->FieldCount();
+	int numRows = (*s)->NumRows();
+	LOG_DEBUG("fieldCount=%d numRows=%d", fieldCount, numRows);
+
+	MYSQL_FIELD *pField = (*s)->FetchField();
+	MYSQL_ROW row;
+	int index = 0;
+	while ((row = (*s)->FetchRow()) != NULL)
+	{
+		++index;
+		lua_newtable(L);
+		std::string buffer = "";
+		for (int j = 0; j < fieldCount; j++)
+		{
+			buffer += std::string(pField[j].name) + std::string("=") + std::string(row[j]) + std::string(" ");
+			lua_pushstring(L, row[j]);
+			lua_setfield(L, -2, pField[j].name);
+		}
+		LOG_DEBUG("%s", buffer.c_str());
+		lua_rawseti(L, -2, index);
+	}
+
+	return 2;
+}
+
+int luamysqlmgr_change(lua_State* L)
+{
+	MysqlMgr** s = (MysqlMgr**)luaL_checkudata(L, 1, "LuaMysqlMgr");
+	luaL_argcheck(L, s != NULL, 1, "invalid user data");
+
+	luaL_checktype(L, 2, LUA_TSTRING);
+	const char* sql = lua_tostring(L, 2);
+
+	int ret = (*s)->Change(sql, strlen(sql));
+	if (ret < 0)
+	{
+		int no = (*s)->GetErrno();
+		const char * error = (*s)->GetError();
+		LOG_ERROR("no=%d error=%s", no, error);
+	}
+
+	lua_pushinteger(L, ret);
+	return 1;
+}
+
+int luamysqlmgr_get_insert_id(lua_State* L)
+{
+	MysqlMgr** s = (MysqlMgr**)luaL_checkudata(L, 1, "LuaMysqlMgr");
+	luaL_argcheck(L, s != NULL, 1, "invalid user data");
+
+	int64_t insert_id = (*s)->GetInsertId();
+
+	lua_pushnumber(L, insert_id);
+
+	return 1;
+}
+
 int luamysqlmgr_gc(lua_State *L)
 {
 	LOG_DEBUG("do gc");
@@ -101,6 +180,9 @@ static const luaL_Reg lua_reg_member_funcs[] =
 	{ "connect", luamysqlmgr_connect },
 	{ "get_errno", luamysqlmgr_get_errno },
 	{ "get_error", luamysqlmgr_get_error },
+	{ "select", luamysqlmgr_select },
+	{ "change", luamysqlmgr_change },
+	{ "get_insert_id", luamysqlmgr_get_insert_id },
 	{ "__gc", luamysqlmgr_gc },
 	{ NULL, NULL },
 };

@@ -66,7 +66,7 @@ int test1()
 	const char *sql = "CREATE TABLE IF NOT EXISTS `user_info` (\
 		`user_id` bigint(20) NOT NULL AUTO_INCREMENT,\
 		`channel_no` int(11) NOT NULL DEFAULT '0',\
-		`user_name` varchar(45) NOT NULL DEFAULT '',\
+		`user_name` varchar(45) NOT NULL UNIQUE,\
 		`user_password` varchar(45) NOT NULL DEFAULT '',\
 		`create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\
 		PRIMARY KEY (`user_id`),\
@@ -127,7 +127,7 @@ int test1()
 
 	// duplicate insert, test error
 	LOG_DEBUG("******* insert user_info duplicate");
-	sql = "INSERT INTO user_info (user_id, channel_no, user_name, user_password) VALUES (,1000, 1, 'm1', '123456')";
+	sql = "INSERT INTO user_info (channel_no, user_name, user_password) VALUES (1, 'm1', '123456')";
 	ret = mgr.Change(sql, strlen(sql));
 	if (ret != -1)
 	{
@@ -199,7 +199,7 @@ int test1()
 	// update
 	{
 	LOG_DEBUG("******* update user_info");
-	sql = "UPDATE `user_info` SET user_password='qwerty' WHERE user_id = 1000";
+	sql = "UPDATE `user_info` SET user_password='qwerty' WHERE user_name = 'm1'";
 	ret = mgr.Change(sql, strlen(sql));
 	if (ret != 1)
 	{
@@ -209,8 +209,18 @@ int test1()
 	}
 	}
 
-	// if (1) return 0;
+	// delete
+	sql = "DELETE FROM `user_info` where user_name IN ('m1', 'm2', 'm3')";
+	ret = mgr.Change(sql, strlen(sql));
+	if (ret < 0)
+	{
+		LOG_ERROR("delete user_info fail %d", ret);
+		LOG_ERROR("errno=%d error=[%s]", mgr.GetErrno(), mgr.GetError());
+		return -1;
+	}
 
+
+	/*
 	// drop
 	sql = "DROP TABLE IF EXISTS `user_info`";
 	ret = mgr.Change(sql, strlen(sql));
@@ -229,6 +239,7 @@ int test1()
 		LOG_ERROR("errno=%d error=[%s]", mgr.GetErrno(), mgr.GetError());
 		return -1;
 	}
+	*/
 
 	mgr.Close();
 

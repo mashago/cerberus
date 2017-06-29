@@ -195,6 +195,16 @@ int MysqlMgr::AffectedRows()
 }
 */
 
+int64_t MysqlMgr::GetInsertId()
+{
+	if (conn == NULL)
+	{
+		return -1;
+	}
+	return mysql_insert_id(conn);
+
+}
+
 MYSQL_FIELD * MysqlMgr::FetchField()
 {
 	if (conn == NULL)

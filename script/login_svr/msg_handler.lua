@@ -13,14 +13,23 @@ local function handle_user_login(data, mailbox_id, msg_id)
 		local status, result = RpcMgr.call(server, "db_user_login", {username=username, password=password})
 		if not status then
 			Log.err("handle_user_login rpc call fail")
-			Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, ErrorCode.USER_LOGIN_FAIL)
+			Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, ErrorCode.SYS_ERROR)
 			return
 		end
 
 		Log.debug("handle_user_login: callback result=%s", Util.TableToString(result))
 
 		-- TODO check client mailbox_id is still legal, after rpc
+
 		Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, result.result)
+		if result.result ~= ErrorCode.SUCCESS then
+			return
+		end
+
+		-- TODO create a user in memory with user_id
+		local user_id = result.user_id
+		Log.debug("handle_user_login: user_id=%d", user_id)
+
 	end
 	RpcMgr.run(func, mailbox_id, data.username, data.password)
 
