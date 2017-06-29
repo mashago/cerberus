@@ -323,7 +323,8 @@ function ServiceClient.get_server_by_id(server_id)
 	return {mailbox_id=mailbox_id, server_id=server_id}
 end
 
-function ServiceClient.get_server_by_type(server_type)
+-- same opt_key(number) will get same server, or just do random to get
+function ServiceClient.get_server_by_type(server_type, opt_key)
 	
 	local id_list = {}
 	local id_list = ServiceClient._type_server_map[server_type] or {}
@@ -331,8 +332,14 @@ function ServiceClient.get_server_by_type(server_type)
 		return nil
 	end
 
-	local r = math.random(#id_list)
-	local server_id = id_list[r]
+	local server_id = 0
+	if not opt_key then
+		local r = math.random(#id_list)
+		server_id = id_list[r]
+	else
+		local r = opt_key % #id_list + 1
+		server_id = id_list[r]
+	end
 
 	return ServiceClient.get_server_by_id(server_id)
 end
