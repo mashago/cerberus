@@ -20,6 +20,7 @@ _StructArray 	= 18
 MID = {}
 MID._id_name_map = 
 {
+	-- msg for client
 	[1] = "CLIENT_TEST",
 	[2] = "CLIENT_TEST_RET",
 	[3] = "RPC_TEST_REQ",
@@ -32,6 +33,7 @@ MID._id_name_map =
 	[9] = "CREATE_ROLE_REQ",
 	[10] = "CREATE_ROLE_RET",
 
+	-- msg for server
 	[60001] = "REGISTER_SERVER_REQ",
 	[60002] = "REGISTER_SERVER_RET",
 	[60003] = "REGISTER_SERVER_BROADCAST",
@@ -214,6 +216,7 @@ MSG_DEF_MAP =
 
 }
 
+-- do msg handler function directly
 RAW_MID = 
 {
 	[MID.CLIENT_TEST] = true,
@@ -229,4 +232,19 @@ RAW_MID =
 	[MID.REGISTER_AREA_REQ] = true,
 	[MID.REGISTER_AREA_RET] = true,
 }
+
+--[[
+-- handle these msg which only from trust mailbox
+TRUST_MID =
+{
+	[MID.REGISTER_SERVER_REQ] = true,
+	[MID.REGISTER_SERVER_RET] = true,
+	[MID.REGISTER_SERVER_BROADCAST] = true,
+	[MID.SERVER_DISCONNECT] = true,
+	[MID.REMOTE_CALL_REQ] = true,
+	[MID.REMOTE_CALL_RET] = true,
+	[MID.REGISTER_AREA_REQ] = true,
+	[MID.REGISTER_AREA_RET] = true,
+}
+--]]
 

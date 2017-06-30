@@ -126,21 +126,9 @@ end
 function g_funcs.handle_register_server(data, mailbox_id, msg_id)
 	Log.debug("handle_register_server: data=%s", Util.TableToString(data))
 
-	-- check mailbox is trust
 	-- add into server list
 	-- send other server list to server
 	-- broadcast to other server
-	
-	local mailbox = Net.get_mailbox(mailbox_id)
-	if not mailbox then
-		Net.send_msg(mailbox_id, MID.REGISTER_SERVER_RET, ErrorCode.REGISTER_SERVER_FAIL, 0, 0)
-		return
-	end
-
-	if mailbox.conn_type ~= ConnType.TRUST then
-		Net.send_msg(mailbox_id, MID.REGISTER_SERVER_RET, ErrorCode.REGISTER_SERVER_UNTRUST, 0, 0)
-		return
-	end
 
 	-- add server
 	ServiceServer.add_server(mailbox_id, data.server_id, data.server_type, data.single_scene_list, data.from_to_scene_list)

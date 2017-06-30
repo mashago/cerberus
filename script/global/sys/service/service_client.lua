@@ -269,6 +269,8 @@ function ServiceClient.connect_to_success(mailbox_id)
 		Log.err("ServiceClient.connect_to_success service nil %d", mailbox_id)
 		return
 	end
+	-- of course is trust
+	Net.add_mailbox(mailbox_id, ConnType.TRUST)
 
 	service_info._is_connecting = false
 	service_info._is_connected = true

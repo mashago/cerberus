@@ -22,6 +22,13 @@ local function handle_user_login(data, mailbox_id, msg_id)
 	Log.debug("handle_user_login: data=%s", Util.TableToString(data))
 
 	local func = function(mailbox_id, data)
+		local user = UserMgr.get_user_by_mailbox(mailbox_id)
+		if user then
+			Log.warn("handle_user_login duplicate login [%s]", username)
+			Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, ErrorCode.USER_LOGIN_DUPLICATE_LOGIN)
+			return
+		end
+
 		local server = ServiceClient.get_server_by_type(ServerType.DB)
 		if not server then
 			Log.err("handle_user_login no db server")
@@ -61,7 +68,7 @@ local function handle_user_login(data, mailbox_id, msg_id)
 
 		local user = User:new(mailbox_id, user_id, username, channel_id)
 		if not UserMgr.add_user(user) then
-			Log.warn("handle_user_login duplicate login [%s]", username)
+			Log.warn("handle_user_login duplicate login2 [%s]", username)
 			Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, ErrorCode.USER_LOGIN_DUPLICATE_LOGIN)
 			return
 		end

@@ -77,6 +77,18 @@ local function recv_msg(msg_id)
 	return flag, data
 end
 
+local function is_trust_msg(msg_id)
+	--[[
+	if TRUST_MID[msg_id] then
+		return true
+	end
+	--]]
+	if msg_id >= 60001 then
+		return true
+	end
+	return false
+end
+
 local function recv_msg_handler(mailbox_id, msg_id)
 
 	local flag, data = recv_msg(msg_id)	
@@ -89,6 +101,19 @@ local function recv_msg_handler(mailbox_id, msg_id)
 	if not msg_handler then
 		Log.warn("recv_msg_handler handler not exists msg_id=%d", msg_id)
 		return
+	end
+
+	if is_trust_msg(msg_id) then
+		local mailbox = Net.get_mailbox(mailbox_id)
+		if not mailbox then
+			Log.warn("recv_msg_handler mailbox nil mailbox_id=%d msg_id=%d", mailbox_id, msg_id)
+			return
+		end
+
+		if mailbox.conn_type ~= ConnType.TRUST then
+			Log.warn("recv_msg_handler mailbox untrust mailbox_id=%d msg_id=%d", mailbox_id, msg_id)
+			return
+		end
 	end
 
 	if not RAW_MID[msg_id] and g_net_event_client_msg then
@@ -256,7 +281,6 @@ end
 
 function ccall_new_connection(mailbox_id, conn_type)
 	Log.info("ccall_new_connection mailbox_id=%d conn_type=%d", mailbox_id, conn_type)
-
 
 	local function error_handler(msg, mailbox_id)
 		local msg = debug.traceback(msg, 3)
