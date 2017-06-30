@@ -27,8 +27,10 @@ MID._id_name_map =
 
 	[5] = "USER_LOGIN_REQ",
 	[6] = "USER_LOGIN_RET",
-	[7] = "CREATE_ROLE_REQ",
-	[8] = "CREATE_ROLE_RET",
+	[7] = "AREA_LIST_REQ",
+	[8] = "AREA_LIST_RET",
+	[9] = "CREATE_ROLE_REQ",
+	[10] = "CREATE_ROLE_RET",
 
 	[60001] = "REGISTER_SERVER_REQ",
 	[60002] = "REGISTER_SERVER_RET",
@@ -36,6 +38,8 @@ MID._id_name_map =
 	[60004] = "SERVER_DISCONNECT",
 	[60005] = "REMOTE_CALL_REQ",
 	[60006] = "REMOTE_CALL_RET",
+	[60007] = "REGISTER_AREA_REQ",
+	[60008] = "REGISTER_AREA_RET",
 
 }
 
@@ -56,6 +60,14 @@ TestStruct =
 	{ "int64", _Int64 },
 	{ "string", _String },
 }
+
+
+AreaListStruct = 
+{
+	{ "area_id", _Int },
+	{ "area_name", _String },
+}
+
 
 MSG_DEF_MAP = {}
 MSG_DEF_MAP =
@@ -115,10 +127,19 @@ MSG_DEF_MAP =
 	{
 		{ "username", _String },
 		{ "password", _String },
+		{ "channel_id", _Int },
 	},
 	[MID.USER_LOGIN_RET] =
 	{
 		{ "result", _Int },
+	},
+
+	[MID.AREA_LIST_REQ] =
+	{
+	},
+	[MID.AREA_LIST_RET] =
+	{
+		{ "area_list", _StructArray, AreaListStruct },
 	},
 
 	[MID.CREATE_ROLE_REQ] =
@@ -181,5 +202,31 @@ MSG_DEF_MAP =
 		{ "param", _String },
 	},
 
+	[MID.REGISTER_AREA_REQ] =
+	{
+		{ "area_list", _IntArray },
+	},
+
+	[MID.REGISTER_AREA_RET] =
+	{
+		{ "result", _Int },
+	},
 
 }
+
+RAW_MID = 
+{
+	[MID.CLIENT_TEST] = true,
+	[MID.RPC_TEST_REQ] = true,
+	[MID.USER_LOGIN_REQ] = true,
+
+	[MID.REGISTER_SERVER_REQ] = true,
+	[MID.REGISTER_SERVER_RET] = true,
+	[MID.REGISTER_SERVER_BROADCAST] = true,
+	[MID.SERVER_DISCONNECT] = true,
+	[MID.REMOTE_CALL_REQ] = true,
+	[MID.REMOTE_CALL_RET] = true,
+	[MID.REGISTER_AREA_REQ] = true,
+	[MID.REGISTER_AREA_RET] = true,
+}
+

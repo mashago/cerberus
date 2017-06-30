@@ -232,8 +232,8 @@ function ServiceClient.remove_server(mailbox_id, server_id)
 	ServiceClient.print()
 end
 
-function ServiceClient.service_server_disconnect(mailbox_id)
-	Log.info("ServiceClient.service_server_disconnect mailbox_id=%d", mailbox_id)
+function ServiceClient.handle_disconnect(mailbox_id)
+	Log.info("ServiceClient.handle_disconnect mailbox_id=%d", mailbox_id)
 
 	for _, service_info in ipairs(ServiceClient._all_service_server) do
 		if service_info._mailbox_id == mailbox_id then

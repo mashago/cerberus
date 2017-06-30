@@ -91,7 +91,11 @@ local function recv_msg_handler(mailbox_id, msg_id)
 		return
 	end
 
-	msg_handler(data, mailbox_id, msg_id)
+	if not RAW_MID[msg_id] and g_net_event_client_msg then
+		g_net_event_client_msg(msg_handler, data, mailbox_id, msg_id)
+	else
+		msg_handler(data, mailbox_id, msg_id)
+	end
 end
 
 -------------- write
@@ -209,17 +213,16 @@ function ccall_disconnect_handler(mailbox_id)
 		
 		if ServiceClient.is_service_server(mailbox_id) then
 			-- service disconnect
-			ServiceClient.service_server_disconnect(mailbox_id)
-		end
-
-		if ServiceServer.is_service_client(mailbox_id) then
+			ServiceClient.handle_disconnect(mailbox_id)
+		elseif ServiceServer.is_service_client(mailbox_id) then
 			-- service disconnect
-			ServiceServer.service_client_disconnect(mailbox_id)
+			ServiceServer.handle_disconnect(mailbox_id)
+		else
+			-- client disconnect
+			if g_net_event_client_disconnect then
+				g_net_event_client_disconnect(mailbox_id)
+			end
 		end
-
-
-		-- client disconnect
-		-- TODO
 
 		Net.del_mailbox(mailbox_id)
 	end

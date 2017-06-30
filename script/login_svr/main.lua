@@ -1,5 +1,8 @@
 
+require "login_svr.area_mgr"
+require "login_svr.user_mgr"
 require "login_svr.msg_handler"
+require "login_svr.net_event_handler"
 
 local function main_entry()
 	Log.info("login_svr main_entry")

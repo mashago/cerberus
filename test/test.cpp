@@ -65,12 +65,12 @@ int test1()
 	LOG_DEBUG("******* create user_info");
 	const char *sql = "CREATE TABLE IF NOT EXISTS `user_info` (\
 		`user_id` bigint(20) NOT NULL AUTO_INCREMENT,\
-		`channel_no` int(11) NOT NULL DEFAULT '0',\
-		`user_name` varchar(45) NOT NULL UNIQUE,\
-		`user_password` varchar(45) NOT NULL DEFAULT '',\
+		`channel_id` int(11) NOT NULL DEFAULT '0',\
+		`username` varchar(45) NOT NULL UNIQUE,\
+		`password` varchar(45) NOT NULL DEFAULT '',\
 		`create_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,\
 		PRIMARY KEY (`user_id`),\
-		KEY `channel_no` (`channel_no`)\
+		KEY `channel_id` (`channel_id`)\
 	) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8";
 	ret = mgr.Change(sql, strlen(sql));
 	if (ret != 0)
@@ -101,7 +101,7 @@ int test1()
 	
 	// insert 1 user
 	LOG_DEBUG("******* insert user_info");
-	sql = "INSERT INTO user_info (channel_no, user_name, user_password) VALUES (1, 'm1', '123456')";
+	sql = "INSERT INTO user_info (channel_id, username, password) VALUES (1, 'm1', '123456')";
 	ret = mgr.Change(sql, strlen(sql));
 	if (ret != 1)
 	{
@@ -114,7 +114,7 @@ int test1()
 
 	// insert 2 user
 	LOG_DEBUG("******* insert user_info 2");
-	sql = "INSERT INTO user_info (channel_no, user_name, user_password) VALUES (1, 'm2', '123456'), (1, 'm3', '123456')";
+	sql = "INSERT INTO user_info (channel_id, username, password) VALUES (1, 'm2', '123456'), (1, 'm3', '123456')";
 	ret = mgr.Change(sql, strlen(sql));
 	if (ret != 2)
 	{
@@ -127,7 +127,7 @@ int test1()
 
 	// duplicate insert, test error
 	LOG_DEBUG("******* insert user_info duplicate");
-	sql = "INSERT INTO user_info (channel_no, user_name, user_password) VALUES (1, 'm1', '123456')";
+	sql = "INSERT INTO user_info (channel_id, username, password) VALUES (1, 'm1', '123456')";
 	ret = mgr.Change(sql, strlen(sql));
 	if (ret != -1)
 	{
@@ -170,7 +170,7 @@ int test1()
 	// select multi-user
 	{
 	LOG_DEBUG("******* select user_info 2");
-	sql = "SELECT user_id, channel_no, user_name, user_password FROM user_info WHERE channel_no = 1";
+	sql = "SELECT user_id, channel_id, username, password FROM user_info WHERE channel_id = 1";
 	ret = mgr.Select(sql, strlen(sql));
 	if (ret != 0)
 	{
@@ -199,7 +199,7 @@ int test1()
 	// update
 	{
 	LOG_DEBUG("******* update user_info");
-	sql = "UPDATE `user_info` SET user_password='qwerty' WHERE user_name = 'm1'";
+	sql = "UPDATE `user_info` SET password='qwerty' WHERE username = 'm1'";
 	ret = mgr.Change(sql, strlen(sql));
 	if (ret != 1)
 	{
@@ -209,8 +209,9 @@ int test1()
 	}
 	}
 
+	/*
 	// delete
-	sql = "DELETE FROM `user_info` where user_name IN ('m1', 'm2', 'm3')";
+	sql = "DELETE FROM `user_info` where username IN ('m1', 'm2', 'm3')";
 	ret = mgr.Change(sql, strlen(sql));
 	if (ret < 0)
 	{
@@ -218,9 +219,8 @@ int test1()
 		LOG_ERROR("errno=%d error=[%s]", mgr.GetErrno(), mgr.GetError());
 		return -1;
 	}
+	*/
 
-
-	/*
 	// drop
 	sql = "DROP TABLE IF EXISTS `user_info`";
 	ret = mgr.Change(sql, strlen(sql));
@@ -239,7 +239,6 @@ int test1()
 		LOG_ERROR("errno=%d error=[%s]", mgr.GetErrno(), mgr.GetError());
 		return -1;
 	}
-	*/
 
 	mgr.Close();
 

@@ -5,6 +5,7 @@ ServerConfig._server_type = ServerType.NULL
 ServerConfig._all_scene_list = {}
 ServerConfig._single_scene_list = {}
 ServerConfig._from_to_scene_list = {}
+ServerConfig._area_list = {}
 
 function ServerConfig.add_single_scene(scene_id)
 	if ServerConfig._all_scene_list[scene_id] then
@@ -25,6 +26,16 @@ function ServerConfig.add_from_to_scene(from, to)
 	for v=from, to do
 		ServerConfig._all_scene_list[v] = v
 	end
+end
+
+function ServerConfig.add_area(area_id)
+	for _, v in ipairs(ServerConfig._area_list) do
+		if v == area_id then
+			Log.warn("ServerConfig.add_area duplicate area_id=%d", area_id)
+			return
+		end
+	end
+	table.insert(ServerConfig._area_list, area_id)
 end
 
 return ServerConfig

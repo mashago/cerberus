@@ -15,6 +15,7 @@ local function main_entry()
 	end
 
 	g_funcs.load_scene(xml_doc)
+	g_funcs.load_area(xml_doc)
 
 	-- connect to other server
 	g_funcs.connect_to_servers(xml_doc)

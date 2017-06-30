@@ -40,8 +40,9 @@ function g_funcs.load_scene(xml_doc)
 
 	local scene_list_ele = root_ele:first_child_element("scene_list")
 	if not scene_list_ele then
-		Log.err("tinyxml scene_list_ele nil %s", g_conf_file)
-		return false
+		-- no secen is ok
+		-- Log.err("tinyxml scene_list_ele nil %s", g_conf_file)
+		return true
 	end
 
 	local scene_ele = scene_list_ele:first_child_element("scene")
@@ -59,6 +60,33 @@ function g_funcs.load_scene(xml_doc)
 		end
 
 		scene_ele = scene_ele:next_sibling_element()
+	end
+
+	return true
+end
+
+function g_funcs.load_area(xml_doc)
+	local root_ele = xml_doc:first_child_element()
+	if not root_ele then
+		Log.err("tinyxml root_ele nil %s", g_conf_file)
+		return false
+	end
+
+	local area_list_ele = root_ele:first_child_element("area_list")
+	if not area_list_ele then
+		Log.err("tinyxml area_list_ele nil %s", g_conf_file)
+		return false
+	end
+
+	local area_ele = area_list_ele:first_child_element("area")
+	while area_ele do
+		local id = area_ele:int_attribute("id")
+		Log.debug("id=%d", id)
+
+		if id > 0 then
+			ServerConfig.add_area(id)
+		end
+		area_ele = area_ele:next_sibling_element()
 	end
 
 	return true
@@ -105,19 +133,19 @@ function g_funcs.handle_register_server(data, mailbox_id, msg_id)
 	
 	local mailbox = Net.get_mailbox(mailbox_id)
 	if not mailbox then
-		Net.send_msg(mailbox_id, MID.REGISTER_SERVER_RET, ServerErrorCode.REGISTER_FAIL, 0, 0)
+		Net.send_msg(mailbox_id, MID.REGISTER_SERVER_RET, ErrorCode.REGISTER_SERVER_FAIL, 0, 0)
 		return
 	end
 
 	if mailbox.conn_type ~= ConnType.TRUST then
-		Net.send_msg(mailbox_id, MID.REGISTER_SERVER_RET, ServerErrorCode.REGISTER_UNTRUST, 0, 0)
+		Net.send_msg(mailbox_id, MID.REGISTER_SERVER_RET, ErrorCode.REGISTER_SERVER_UNTRUST, 0, 0)
 		return
 	end
 
 	-- add server
 	ServiceServer.add_server(mailbox_id, data.server_id, data.server_type, data.single_scene_list, data.from_to_scene_list)
 
-	Net.send_msg(mailbox_id, MID.REGISTER_SERVER_RET, ServerErrorCode.SUCCESS, ServerConfig._server_id, ServerConfig._server_type)
+	Net.send_msg(mailbox_id, MID.REGISTER_SERVER_RET, ErrorCode.SUCCESS, ServerConfig._server_id, ServerConfig._server_type)
 
 	-- broadcast
 	for server_id, server_info in pairs(ServiceServer._all_server_map) do

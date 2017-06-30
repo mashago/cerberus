@@ -103,7 +103,7 @@ function ServiceServer.remove_server(server_id)
 	ServiceServer._all_server_map[server_id] = nil
 end
 
-function ServiceServer.service_client_disconnect(mailbox_id)
+function ServiceServer.handle_disconnect(mailbox_id)
 	local disconnect_server_id = 0
 	for server_id, server_info in pairs(ServiceServer._all_server_map) do
 		if server_info._mailbox_id == mailbox_id then
@@ -147,6 +147,16 @@ function ServiceServer.get_server_by_scene(scene_id)
 	local server_id = id_list[r]
 
 	return ServiceServer.get_server_by_id(server_id)
+end
+
+function ServiceServer.get_server_by_mailbox(mailbox_id)
+	for server_id, server_info in pairs(ServiceServer._all_server_map) do
+		if server_info._mailbox_id == mailbox_id then
+			return {mailbox_id=mailbox_id, server_id=server_info._server_id}
+		end
+	end
+
+	return nil
 end
 
 function ServiceServer.print()

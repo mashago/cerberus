@@ -10,6 +10,8 @@ function cmd_handler.execute(buffer)
 		cmd_handler.do_login(params)
 	elseif params[1] == "loginx" then
 		cmd_handler.do_loginx(params)
+	elseif params[1] == "arealist" then
+		cmd_handler.do_area_list_req(params)
 	elseif params[1] == "create" then
 		cmd_handler.do_create_role(params)
 	elseif params[1] == "rpc" then
@@ -19,13 +21,15 @@ function cmd_handler.execute(buffer)
 end
 
 function cmd_handler.do_login(params)
-	-- login [username] [password]
-	if #params ~= 3 then
+	-- login [username] [password] [channel_id]
+	if #params < 3 then
 		Log.warn("cmd_handler.do_login params not enough")
 		return
 	end
 
-	send_to_login(MID.USER_LOGIN_REQ, params[2], params[3])
+	local channel_id = tonumber(params[4] or 0)
+
+	send_to_login(MID.USER_LOGIN_REQ, params[2], params[3], channel_id)
 end
 
 g_loginx_num = 0
@@ -42,12 +46,17 @@ function cmd_handler.do_loginx(params)
 	for i=1, num do
 		local x = math.random(1000000)
 		local username = "test" .. tostring(x)
-		send_to_login(MID.USER_LOGIN_REQ, username, "qwerty")
+		send_to_login(MID.USER_LOGIN_REQ, username, "qwerty", 0)
 	end
 
 	g_loginx_num = num
 	g_loginx_start_time = os.time()
 
+end
+
+function cmd_handler.do_area_list_req(params)
+	-- arealist
+	send_to_login(MID.AREA_LIST_REQ)
 end
 
 function cmd_handler.do_create_role(params)

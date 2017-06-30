@@ -11,7 +11,11 @@ function register_rpc_handler()
 		-- 1. insert account, if success, means register, return insert user_id
 		-- 2. select account, if not success, means password mismatch
 
-		local ret = DBMgr.do_insert("login_db", "user_info", {"user_name", "user_password"}, {{data.username, data.password}})
+		local username = data.username
+		local password = data.password
+		local channel_id = data.channel_id
+
+		local ret = DBMgr.do_insert("login_db", "user_info", {"username", "password", "channel_id"}, {{username, password, channel_id}})
 		if ret > 0 then
 			-- insert success
 			local user_id = DBMgr.get_insert_id("login_db")
@@ -19,10 +23,10 @@ function register_rpc_handler()
 		end
 
 		local ret = DBMgr.do_select("login_db", "user_info", {}
-		, {user_name=data.username, user_password=data.password})
+		, {username=username, password=password, channel_id=channel_id})
 		if not ret then
-			Log.warn("select user fail username=%s password=%s", data.username, data.password)
-			return {result = ErrorCode.SYS_ERROR, user_id = user_id}
+			Log.warn("select user fail username=%s password=%s", username, password)
+			return {result = ErrorCode.SYS_ERROR, user_id = 0}
 		end
 
 		Log.debug("db_user_login: ret=%s", Util.TableToString(ret))
@@ -48,6 +52,5 @@ function register_rpc_handler()
 
 		return {result = ErrorCode.SUCCESS, buff=buff, sum=sum}
 	end
-
 
 end

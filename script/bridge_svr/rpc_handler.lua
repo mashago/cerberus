@@ -11,13 +11,13 @@ function register_rpc_handler()
 		local server = ServiceClient.get_server_by_type(ServerType.ROUTER)
 		if not server then
 			Log.err("bridge_create_role no router server")
-			return {result = ServerErrorCode.RPC_FAIL}
+			return {result = ErrorCode.RPC_FAIL}
 		end
 
 		local status, result = RpcMgr.call(server, "router_create_role", data)
 		if not status then
 			Log.err("bridge_create_role rpc call fail")
-			return {result = ServerErrorCode.RPC_FAIL}
+			return {result = ErrorCode.RPC_FAIL}
 		end
 
 		Log.debug("bridge_create_role: callback result=%s", Util.TableToString(result))
@@ -39,12 +39,12 @@ function register_rpc_handler()
 		local server = ServiceClient.get_server_by_type(ServerType.ROUTER)
 		if not server then
 			Log.err("bridge_rpc_test no router server")
-			return {result = ServerErrorCode.RPC_FAIL, buff=buff, sum=sum}
+			return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
 		end
 		local status, result = RpcMgr.call(server, "router_rpc_test", {buff=buff, sum=sum})
 		if not status then
 			Log.err("bridge_rpc_test rpc call fail")
-			return {result = ServerErrorCode.RPC_FAIL, buff=buff, sum=sum}
+			return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
 		end
 		Log.debug("bridge_rpc_test: callback result=%s", Util.TableToString(result))
 		buff = result.buff
@@ -54,12 +54,12 @@ function register_rpc_handler()
 		local server = ServiceClient.get_server_by_type(ServerType.SCENE)
 		if not server then
 			Log.err("bridge_rpc_test no scene server")
-			return {result = ServerErrorCode.RPC_FAIL, buff=buff, sum=sum}
+			return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
 		end
 		local status, result = RpcMgr.call(server, "scene_rpc_test", {buff=buff, sum=sum})
 		if not status then
 			Log.err("bridge_rpc_test rpc call fail")
-			return {result = ServerErrorCode.RPC_FAIL, buff=buff, sum=sum}
+			return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
 		end
 		Log.debug("bridge_rpc_test: callback result=%s", Util.TableToString(result))
 		buff = result.buff
