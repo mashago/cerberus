@@ -133,7 +133,7 @@ local function handle_rpc_test(data, mailbox_id, msg_id)
 		-- 4. router rpc to scene
 		-- 5. bridge rpc to scene
 
-		local channel_id = 400001
+		local area_id = 1
 		local sum = 0
 
 		-- 1. rpc to db
@@ -155,7 +155,8 @@ local function handle_rpc_test(data, mailbox_id, msg_id)
 		sum = result.sum
 
 		-- 2. rpc to bridge
-		local server = ServiceServer.get_server_by_scene(channel_id)
+		local server_id = AreaMgr.get_server_id(area_id)
+		local server = ServiceServer.get_server_by_id(server_id)
 		if not server then
 			Log.err("handle_rpc_test no bridge server")
 			Net.send_msg(mailbox_id, MID.RPC_TEST_RET, ErrorCode.SYS_ERROR, buff, sum)

@@ -17,4 +17,16 @@ function AreaMgr.register_area(server_id, area_list)
 	return true
 end
 
+function AreaMgr.get_server_id(area_id)
+	return AreaMgr._area_map[area_id]
+end
+
+function AreaMgr.remove_by_server_id(server_id)
+	for area_id, s in pairs(AreaMgr._area_map) do
+		if s == server_id then
+			AreaMgr._area_map[area_id] = nil
+		end
+	end
+end
+
 return AreaMgr

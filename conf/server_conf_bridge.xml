@@ -16,7 +16,7 @@
 		<address ip = "127.0.0.1" port = "7751" register = "1"/>
 		<!-- router_svr -->
 		<!--
-		<address ip = "127.0.0.1" port = "7711" register = "1"/>
 		-->
+		<address ip = "127.0.0.1" port = "7711" register = "1"/>
 	</connect_to>
 </server>
