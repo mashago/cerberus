@@ -16,10 +16,10 @@ function RpcMgr.run(func, ...)
 end
 
 -- rpc call function
-function RpcMgr.call(server, func_name, data)
+function RpcMgr.call(server_info, func_name, data)
 	local data_str = Util.serialize(data)
 	RpcMgr._cur_session_id = RpcMgr._cur_session_id + 1
-	if not Net.send_msg(server.mailbox_id, MID.REMOTE_CALL_REQ, ServerConfig._server_id, server.server_id, RpcMgr._cur_session_id, func_name, Util.serialize(data)) then
+	if not server_info:send_msg(MID.REMOTE_CALL_REQ, ServerConfig._server_id, server_info._server_id, RpcMgr._cur_session_id, func_name, Util.serialize(data)) then
 		return false
 	end
 	return coroutine.yield(RpcMgr._cur_session_id)
@@ -61,13 +61,13 @@ function RpcMgr.callback(session_id, result, data)
 	end
 	RpcMgr._origin_map[session_id] = nil
 
-	local server = RpcMgr.get_target_server(origin.from_server_id)
-	if not server then
+	local server_info = RpcMgr.get_target_server(origin.from_server_id)
+	if not server_info then
 		Log.warn("RpcMgr.callback cannot go back from_server_id=%d", origin.from_server_id)
 		return
 	end
 
-	Net.send_msg(server.mailbox_id, MID.REMOTE_CALL_RET, true, origin.from_server_id, origin.to_server_id, origin.session_id, Util.serialize(result))
+	server_info:send_msg(MID.REMOTE_CALL_RET, true, origin.from_server_id, origin.to_server_id, origin.session_id, Util.serialize(result))
 
 end
 
@@ -79,13 +79,13 @@ function RpcMgr.handle_call(data, mailbox_id, msg_id)
 
 	-- transfer rpc req to to server
 	if to_server_id ~= ServerConfig._server_id then
-		local server = RpcMgr.get_target_server(to_server_id)
-		if not server then
+		local server_info = RpcMgr.get_target_server(to_server_id)
+		if not server_info then
 			Log.warn("RpcMgr.handle_call cannot go to to_server_id=%d", to_server_id)
 			Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, false, from_server_id, to_server_id, session_id, "")
 			return
 		end
-		Net.send_msg(server.mailbox_id, MID.REMOTE_CALL_REQ, from_server_id, to_server_id, session_id, func_name, data.param)
+		server_info:send_msg(MID.REMOTE_CALL_REQ, from_server_id, to_server_id, session_id, func_name, data.param)
 		return
 	end
 
@@ -127,11 +127,11 @@ function RpcMgr.handle_call(data, mailbox_id, msg_id)
 end
 
 function RpcMgr.get_target_server(server_id)
-	local server = ServiceServer.get_server_by_id(server_id)
-	if not server then
-		server = ServiceClient.get_server_by_id(server_id)
+	local server_info = ServiceServer.get_server_by_id(server_id)
+	if not server_info then
+		server_info = ServiceClient.get_server_by_id(server_id)
 	end
-	return server
+	return server_info
 end
 
 function RpcMgr.handle_callback(data, mailbox_id, msg_id)
@@ -142,12 +142,12 @@ function RpcMgr.handle_callback(data, mailbox_id, msg_id)
 
 	-- transfer rpc ret to from server
 	if from_server_id ~= ServerConfig._server_id then
-		local server = RpcMgr.get_target_server(from_server_id)
-		if not server then
+		local server_info = RpcMgr.get_target_server(from_server_id)
+		if not server_info then
 			Log.warn("RpcMgr.handle_callback cannot go back from_server_id=%d", from_server_id)
 			return
 		end
-		Net.send_msg(server.mailbox_id, MID.REMOTE_CALL_RET, true, from_server_id, to_server_id, session_id, data.param)
+		server_info:send_msg(MID.REMOTE_CALL_RET, true, from_server_id, to_server_id, session_id, data.param)
 		return
 	end
 

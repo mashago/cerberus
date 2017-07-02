@@ -24,9 +24,9 @@ function ServiceServer.add_server(mailbox_id, server_id, server_type, single_sce
 
 	local server_info = ServiceServer._all_server_map[server_id]
 	if server_info then
-		-- if exists in all_server_map, means add by other router, just update service_mailbox_list
-		Log.warn("ServiceServer.add_server already add mailbox_id=%d server_id=%d", mailbox_id, server_id)
-		return
+		-- if exists in all_server_map, duplicate add
+		Log.err("ServiceServer.add_server already add mailbox_id=%d server_id=%d", mailbox_id, server_id)
+		return nil
 	end
 
 	-- init server_info
@@ -48,21 +48,16 @@ function ServiceServer.add_server(mailbox_id, server_id, server_type, single_sce
 	end
 
 	ServiceServer.print()
+
+	return server_info
 end
 
-function ServiceServer.remove_server(server_id)
+function ServiceServer.remove_server(server_info)
 
-	local server_info = ServiceServer._all_server_map[server_id]
-	if not server_info then
-		Log.warn("ServiceServer.remove_server server nil server_id=%d", server_id)
-		return
-	end
-
-	-- no more service connect to this server
 	-- remove this server in type_server_map
 	local type_server_list = ServiceServer._type_server_map[server_info._server_type] or {}
 	for i=#type_server_list, 1, -1 do
-		if type_server_list[i] == server_id then
+		if type_server_list[i] == server_info._server_id then
 			table.remove(type_server_list, i)
 		end
 	end
@@ -75,7 +70,7 @@ function ServiceServer.remove_server(server_id)
 	for _, scene_id in ipairs(server_info._scene_list) do
 		local scene_server_list = ServiceServer._scene_server_map[scene_id]
 		for i=#scene_server_list, 1, -1 do
-			if scene_server_list[i] == server_id then
+			if scene_server_list[i] == server_info._server_id then
 				table.remove(scene_server_list, i)
 			end
 		end
@@ -85,39 +80,28 @@ function ServiceServer.remove_server(server_id)
 	end
 
 	-- remove this server in all_server_map
-	ServiceServer._all_server_map[server_id] = nil
+	ServiceServer._all_server_map[server_info._server_id] = nil
 end
 
 function ServiceServer.handle_disconnect(mailbox_id)
-	local disconnect_server_id = 0
-	for server_id, server_info in pairs(ServiceServer._all_server_map) do
-		if server_info._mailbox_id == mailbox_id then
-			disconnect_server_id = server_info._server_id
-			ServiceServer.remove_server(server_info._server_id)
-			break
-		end
+
+	local server_info = ServiceServer.get_server_by_mailbox(mailbox_id)
+	if not server_info then
+		return
 	end
 
+	local disconnect_server_id = server_info._server_id
+	ServiceServer.remove_server(server_info)
+
 	for _, server_info in pairs(ServiceServer._all_server_map) do
-		Net.send_msg(server_info._mailbox_id, MID.SERVER_DISCONNECT, disconnect_server_id)
+		server_info:send_msg(MID.SERVER_DISCONNECT, disconnect_server_id)
 	end
 
 	ServiceServer.print()
 end
 
 function ServiceServer.get_server_by_id(server_id)
-	
-    local server_info = ServiceServer._all_server_map[server_id]
-    if not server_info then
-        return nil
-    end
-
-    local mailbox_id = server_info._mailbox_id
-    if not mailbox_id or mailbox_id == 0 then
-        return nil
-    end
-
-	return {mailbox_id=mailbox_id, server_id=server_id}
+	return ServiceServer._all_server_map[server_id]
 end
 
 function ServiceServer.get_server_by_scene(scene_id)
@@ -137,7 +121,7 @@ end
 function ServiceServer.get_server_by_mailbox(mailbox_id)
 	for server_id, server_info in pairs(ServiceServer._all_server_map) do
 		if server_info._mailbox_id == mailbox_id then
-			return {mailbox_id=mailbox_id, server_id=server_info._server_id}
+			return server_info
 		end
 	end
 
@@ -146,7 +130,10 @@ end
 
 function ServiceServer.print()
 	Log.info("---------ServiceServer--------")
-	Log.info("ServiceServer._all_server_map=%s", Util.TableToString(ServiceServer._all_server_map))
+	Log.info("ServiceServer._all_server_map=")
+	for k, server_info in pairs(ServiceServer._all_server_map) do
+		server_info:print()
+	end
 	Log.info("ServiceServer._type_server_map=%s", Util.TableToString(ServiceServer._type_server_map))
 	Log.info("ServiceServer._scene_server_map=%s", Util.TableToString(ServiceServer._scene_server_map))
 	Log.info("------------------------------")

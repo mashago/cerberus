@@ -8,13 +8,13 @@ function register_rpc_handler()
 		
 		Log.debug("bridge_create_role: data=%s", Util.TableToString(data))
 
-		local server = ServiceClient.get_server_by_type(ServerType.ROUTER)
-		if not server then
-			Log.err("bridge_create_role no router server")
+		local server_info = ServiceClient.get_server_by_type(ServerType.ROUTER)
+		if not server_info then
+			Log.err("bridge_create_role no router server_info")
 			return {result = ErrorCode.RPC_FAIL}
 		end
 
-		local status, result = RpcMgr.call(server, "router_create_role", data)
+		local status, result = RpcMgr.call(server_info, "router_create_role", data)
 		if not status then
 			Log.err("bridge_create_role rpc call fail")
 			return {result = ErrorCode.RPC_FAIL}
@@ -36,12 +36,12 @@ function register_rpc_handler()
 		sum = sum + 1
 
 		-- rpc to router
-		local server = ServiceClient.get_server_by_type(ServerType.ROUTER)
-		if not server then
-			Log.err("bridge_rpc_test no router server")
+		local server_info = ServiceClient.get_server_by_type(ServerType.ROUTER)
+		if not server_info then
+			Log.err("bridge_rpc_test no router server_info")
 			return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
 		end
-		local status, result = RpcMgr.call(server, "router_rpc_test", {buff=buff, sum=sum})
+		local status, result = RpcMgr.call(server_info, "router_rpc_test", {buff=buff, sum=sum})
 		if not status then
 			Log.err("bridge_rpc_test rpc call fail")
 			return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
@@ -51,12 +51,12 @@ function register_rpc_handler()
 		sum = result.sum
 
 		-- rpc to scene
-		local server = ServiceClient.get_server_by_type(ServerType.SCENE)
-		if not server then
-			Log.err("bridge_rpc_test no scene server")
+		local server_info = ServiceClient.get_server_by_type(ServerType.SCENE)
+		if not server_info then
+			Log.err("bridge_rpc_test no scene server_info")
 			return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
 		end
-		local status, result = RpcMgr.call(server, "scene_rpc_test", {buff=buff, sum=sum})
+		local status, result = RpcMgr.call(server_info, "scene_rpc_test", {buff=buff, sum=sum})
 		if not status then
 			Log.err("bridge_rpc_test rpc call fail")
 			return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}

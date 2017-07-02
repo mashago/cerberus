@@ -154,6 +154,48 @@ function ServiceClient.add_server(mailbox_id, server_id, server_type, single_sce
 	ServiceClient.print()
 end
 
+function ServiceClient.connect_to_success(mailbox_id)
+	local service_info = ServiceClient.get_service(mailbox_id)
+	if not service_info then
+		Log.err("ServiceClient.connect_to_success service nil %d", mailbox_id)
+		return
+	end
+	-- of course is trust
+	Net.add_mailbox(mailbox_id, ConnType.TRUST)
+
+	service_info._is_connecting = false
+	service_info._is_connected = true
+
+	if service_info._register == 1 then
+		-- need register, send register msg
+		local msg = {}
+		msg[1] = ServerConfig._server_id
+		msg[2] = ServerConfig._server_type
+		msg[3] = ServerConfig._single_scene_list
+		msg[4] = ServerConfig._from_to_scene_list
+		Net.send_msg(mailbox_id, MID.REGISTER_SERVER_REQ, table.unpack(msg))
+		ServiceClient.print()
+	else
+		ServiceClient.add_server(mailbox_id, service_info._server_id, service_info._server_type, {}, {})
+	end
+end
+
+function ServiceClient.register_success(mailbox_id, server_id, server_type)
+	local service_info = ServiceClient.get_service(mailbox_id)
+	if not service_info then
+		Log.err("ServiceClient.register_success service nil %d %d %d", server_id, server_type)
+		return
+	end
+
+	service_info._server_id = server_id
+	service_info._server_type = server_type
+
+	-- add service as a server too
+	ServiceClient.add_server(mailbox_id, server_id, server_type, {}, {})
+
+	-- ServiceClient.print()
+end
+
 function ServiceClient._remove_server_core(mailbox_id, server_id)
 
 	-- 1. server_info remove service mailbox
@@ -270,70 +312,8 @@ function ServiceClient.handle_disconnect(mailbox_id)
 	ServiceClient.print()
 end
 
-function ServiceClient.connect_to_success(mailbox_id)
-	local service_info = ServiceClient.get_service(mailbox_id)
-	if not service_info then
-		Log.err("ServiceClient.connect_to_success service nil %d", mailbox_id)
-		return
-	end
-	-- of course is trust
-	Net.add_mailbox(mailbox_id, ConnType.TRUST)
-
-	service_info._is_connecting = false
-	service_info._is_connected = true
-
-	if service_info._register == 1 then
-		-- need register, send register msg
-		local msg = {}
-		msg[1] = ServerConfig._server_id
-		msg[2] = ServerConfig._server_type
-		msg[3] = ServerConfig._single_scene_list
-		msg[4] = ServerConfig._from_to_scene_list
-		Net.send_msg(mailbox_id, MID.REGISTER_SERVER_REQ, table.unpack(msg))
-		ServiceClient.print()
-	else
-		ServiceClient.add_server(mailbox_id, service_info._server_id, service_info._server_type, {}, {})
-	end
-end
-
-function ServiceClient.register_success(mailbox_id, server_id, server_type)
-	local service_info = ServiceClient.get_service(mailbox_id)
-	if not service_info then
-		Log.err("ServiceClient.register_success service nil %d %d %d", server_id, server_type)
-		return
-	end
-
-	service_info._server_id = server_id
-	service_info._server_type = server_type
-
-	-- add service as a server too
-	ServiceClient.add_server(mailbox_id, server_id, server_type, {}, {})
-
-	-- ServiceClient.print()
-end
-
 function ServiceClient.get_server_by_id(server_id)
-	
-    local server_info = ServiceClient._all_server_map[server_id]
-    if not server_info then
-        return nil
-    end
-
-	if server_info._mailbox_id ~= -1 then
-		return {mailbox_id=server_info._mailbox_id, server_id=server_id}
-	end
-
-	if #server_info._secondhand_mailbox_id == 0 then
-		return nil
-	end
-
-	local r = math.random(#server_info._secondhand_mailbox_id)
-    local mailbox_id = server_info._secondhand_mailbox_id[r]
-    if mailbox_id == 0 then
-        return nil
-    end
-
-	return {mailbox_id=mailbox_id, server_id=server_id}
+	return ServiceClient._all_server_map[server_id]
 end
 
 -- same opt_key(number) will get same server, or just do random to get
@@ -359,18 +339,21 @@ end
 
 -- luaclient use this now
 function ServiceClient.send_to_type_server(server_type, msg_id, ...)
-	local server = ServiceClient.get_server_by_type(server_type)
-	if not server then
+	local server_info = ServiceClient.get_server_by_type(server_type)
+	if not server_info then
 		return false
 	end
 
-    Net.send_msg(server.mailbox_id, msg_id, ...)
+    return server_info:send_msg(msg_id, ...)
 end
 
 function ServiceClient.print()
 	Log.info("*********ServiceClient********")
 	Log.info("ServiceClient._all_service_server=%s", Util.TableToString(ServiceClient._all_service_server))
-	Log.info("ServiceClient._all_server_map=%s", Util.TableToString(ServiceClient._all_server_map))
+	Log.info("ServiceClient._all_server_map=")
+	for k, server_info in pairs(ServiceClient._all_server_map) do
+		server_info:print()
+	end
 	Log.info("ServiceClient._type_server_map=%s", Util.TableToString(ServiceClient._type_server_map))
 	Log.info("ServiceClient._scene_server_map=%s", Util.TableToString(ServiceClient._scene_server_map))
 	Log.info("******************************")

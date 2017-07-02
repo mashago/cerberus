@@ -10,7 +10,7 @@ function ServerInfo:new(server_id, server_type, mailbox_id, single_scene_list, f
 	obj._server_type = server_type
 
 	obj._mailbox_id = -1 -- default -1
-	obj._secondhand_mailbox_id = {}
+	obj._secondhand_mailbox_id = {} -- indirect mailbox id
 
 	if not is_secondhand then
 		obj._mailbox_id = mailbox_id
@@ -36,4 +36,43 @@ function ServerInfo:new(server_id, server_type, mailbox_id, single_scene_list, f
 	return obj
 end
 
+-- get a mailbox to send msg
+-- use _mailbox_id first, it is direct connect
+-- if _mailbox_id not exists, random one from _secondhand_mailbox_id
+function ServerInfo:get_mailbox_id()
+	if self._mailbox_id ~= -1 then
+		return self._mailbox_id
+	end
+
+	local len = #self._secondhand_mailbox_id
+	if len == 0 then
+		return -1
+	end
+
+	local r = math.random(len)
+    local mailbox_id = self._secondhand_mailbox_id[r]
+	
+	return mailbox_id
+end
+
+function ServerInfo:send_msg(msg_id, ...)
+	local mailbox_id = self:get_mailbox_id()
+	if mailbox_id == -1 then
+		Log.warn("ServerInfo:send_msg mailbox nil msg_id=%d", msg_id)
+		return false
+	end
+	return Net.send_msg(mailbox_id, msg_id, ...)
+end
+
+function ServerInfo:print()
+	Log.info("ServerInfo:print _server_id=%d _server_type=%d _mailbox_id=%d \n_secondhand_mailbox_id=%s \n_single_scene_list=%s \n_from_to_scene_list=%s", self._server_id,
+	self._server_type,
+	self._mailbox_id,
+	Util.TableToString(self._secondhand_mailbox_id),
+	Util.TableToString(self._single_scene_list),
+	Util.TableToString(self._from_to_scene_list)
+	)
+end
+
 return ServerInfo
+

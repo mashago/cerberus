@@ -7,15 +7,15 @@ local function handle_register_area(data, mailbox_id, msg_id)
 	if not server_info then
 		Log.warn("handle_register_area: unknow server mailbox_id=%d", mailbox_id)
 	end
-	Log.debug("server_info=%s", Util.TableToString(server_info))
+	server_info:print()
 
-	if not AreaMgr.register_area(server_info.server_id, data.area_list) then
-		Log.warn("handle_register_area: register_area duplicate %s %s", server_info.server_id, Util.TableToString(data.area_list))
-		Net.send_msg(mailbox_id, MID.REGISTER_AREA_RET, ErrorCode.REGISTER_AREA_DUPLICATE)
+	if not AreaMgr.register_area(server_info._server_id, data.area_list) then
+		Log.warn("handle_register_area: register_area duplicate %s %s", server_info._server_id, Util.TableToString(data.area_list))
+		server_info:send_msg(MID.REGISTER_AREA_RET, ErrorCode.REGISTER_AREA_DUPLICATE)
 		return
 	end
 
-	Net.send_msg(mailbox_id, MID.REGISTER_AREA_RET, ErrorCode.SUCCESS)
+	server_info:send_msg(MID.REGISTER_AREA_RET, ErrorCode.SUCCESS)
 end
 
 local function handle_user_login(data, mailbox_id, msg_id)
@@ -24,14 +24,14 @@ local function handle_user_login(data, mailbox_id, msg_id)
 	local func = function(mailbox_id, data)
 		local user = UserMgr.get_user_by_mailbox(mailbox_id)
 		if user then
-			Log.warn("handle_user_login duplicate login [%s]", username)
+			Log.warn("handle_user_login duplicate login [%s]", data.username)
 			Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, ErrorCode.USER_LOGIN_DUPLICATE_LOGIN)
 			return
 		end
 
-		local server = ServiceClient.get_server_by_type(ServerType.DB)
-		if not server then
-			Log.err("handle_user_login no db server")
+		local server_info = ServiceClient.get_server_by_type(ServerType.DB)
+		if not server_info then
+			Log.err("handle_user_login no db server_info")
 			Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, ErrorCode.USER_LOGIN_FAIL)
 			return
 		end
@@ -41,7 +41,7 @@ local function handle_user_login(data, mailbox_id, msg_id)
 		local channel_id = data.channel_id
 		local rpc_data = {username=username, password=password, channel_id=channel_id}
 
-		local status, result = RpcMgr.call(server, "db_user_login", rpc_data)
+		local status, result = RpcMgr.call(server_info, "db_user_login", rpc_data)
 		if not status then
 			Log.err("handle_user_login rpc call fail")
 			Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, ErrorCode.SYS_ERROR)
@@ -99,14 +99,14 @@ local function handle_create_role(data, mailbox_id, msg_id)
 		local area_id = 400001 -- TODO read from client
 		local role_id = math.random(10000)
 
-		local server = ServiceServer.get_server_by_scene(area_id)
-		if not server then
-			Log.err("handle_create_role no bridge server")
+		local server_info = ServiceServer.get_server_by_scene(area_id)
+		if not server_info then
+			Log.err("handle_create_role no bridge server_info")
 			Net.send_msg(mailbox_id, MID.CREATE_ROLE_RET, ErrorCode.CREATE_ROLE_FAIL)
 			return
 		end
 
-		local status, result = RpcMgr.call(server, "bridge_create_role", {role_id=role_id, role_name=role_name})
+		local status, result = RpcMgr.call(server_info, "bridge_create_role", {role_id=role_id, role_name=role_name})
 		if not status then
 			Log.err("handle_create_role rpc call fail")
 			Net.send_msg(mailbox_id, MID.CREATE_ROLE_RET, ErrorCode.CREATE_ROLE_FAIL)
@@ -137,14 +137,14 @@ local function handle_rpc_test(data, mailbox_id, msg_id)
 		local sum = 0
 
 		-- 1. rpc to db
-		local server = ServiceClient.get_server_by_type(ServerType.DB)
-		if not server then
-			Log.err("handle_user_login no db server")
+		local server_info = ServiceClient.get_server_by_type(ServerType.DB)
+		if not server_info then
+			Log.err("handle_user_login no db server_info")
 			Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, ErrorCode.USER_LOGIN_FAIL)
 			return
 		end
 
-		local status, result = RpcMgr.call(server, "db_rpc_test", {buff=buff, sum=sum})
+		local status, result = RpcMgr.call(server_info, "db_rpc_test", {buff=buff, sum=sum})
 		if not status then
 			Log.err("handle_user_login rpc call fail")
 			Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, ErrorCode.USER_LOGIN_FAIL)
@@ -156,13 +156,13 @@ local function handle_rpc_test(data, mailbox_id, msg_id)
 
 		-- 2. rpc to bridge
 		local server_id = AreaMgr.get_server_id(area_id)
-		local server = ServiceServer.get_server_by_id(server_id)
-		if not server then
-			Log.err("handle_rpc_test no bridge server")
+		local server_info = ServiceServer.get_server_by_id(server_id)
+		if not server_info then
+			Log.err("handle_rpc_test no bridge server_info")
 			Net.send_msg(mailbox_id, MID.RPC_TEST_RET, ErrorCode.SYS_ERROR, buff, sum)
 			return
 		end
-		local status, result = RpcMgr.call(server, "bridge_rpc_test", {buff=buff, sum=sum})
+		local status, result = RpcMgr.call(server_info, "bridge_rpc_test", {buff=buff, sum=sum})
 		if not status then
 			Log.err("handle_rpc_test rpc call fail")
 			Net.send_msg(mailbox_id, MID.RPC_TEST_RET, ErrorCode.SYS_ERROR, buff, sum)
