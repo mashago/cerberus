@@ -84,6 +84,7 @@ std::string TestCommand::Pack()
 
 
 	u.WriteMsgId(MSGID_TYPE::CLIENT_TEST);
+	u.WriteExt(0);
 	u.SetMsgLen();
 	
 	std::string msg(u.GetBuffer(), u.GetMsgLen());

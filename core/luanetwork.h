@@ -17,6 +17,7 @@ public:
 
 	int ConnectTo(const char* ip, int port); // return mailboxId or negative
 	void WriteMsgId(int msg_id);
+	void WriteExt(int ext);
 	bool WriteByte(char val);
 	bool WriteInt(int val);
 	bool WriteFloat(float val);
@@ -32,6 +33,7 @@ public:
 
 	void SetRecvPluto(Pluto *pu);
 	int  ReadMsgId();
+	int  ReadExt();
 	bool ReadByte(char &out_val);
 	bool ReadInt(int &out_val);
 	bool ReadFloat(float &out_val);

@@ -30,6 +30,7 @@ void TestPluto()
 	// set head
 	pu->SetMsgLen();
 	pu->WriteMsgId(1);
+	pu->WriteExt(0);
 
 	// check string
 	memset(tmp, 0, sizeof(tmp));
@@ -70,6 +71,7 @@ void ClientTestPluto(Pluto &u)
 	// set head
 	out->SetMsgLen();
 	out->WriteMsgId(MSGID_TYPE::CLIENT_TEST);
+	out->WriteExt(0);
 	out->SetMailbox(pmb);
 
 	// push

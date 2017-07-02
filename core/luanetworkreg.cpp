@@ -35,6 +35,18 @@ int luanetwork_write_msg_id(lua_State* L)
 	return 0;
 }
 
+int luanetwork_write_ext(lua_State* L)
+{
+	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
+	luaL_argcheck(L, s != NULL, 1, "invalid user data");
+
+	luaL_checktype(L, -1, LUA_TNUMBER);
+
+	(*s)->WriteExt(lua_tointeger(L, -1));
+
+	return 0;
+}
+
 int luanetwork_write_byte(lua_State* L)
 {
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
@@ -702,13 +714,24 @@ int luanetwork_read_string_array(lua_State* L)
 	return 2;
 }
 
-int luanetwork_get_recv_msg_id(lua_State* L)
+int luanetwork_read_msg_id(lua_State* L)
 {
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
 	luaL_argcheck(L, s != NULL, 1, "invalid user data");
 
 	int msg_id = (*s)->ReadMsgId();
 	lua_pushinteger(L, msg_id);
+
+	return 1;
+}
+
+int luanetwork_read_ext(lua_State* L)
+{
+	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
+	luaL_argcheck(L, s != NULL, 1, "invalid user data");
+
+	int ext = (*s)->ReadExt();
+	lua_pushinteger(L, ext);
 
 	return 1;
 }
@@ -762,6 +785,7 @@ static const luaL_Reg lua_reg_construct_funcs[] =
 static const luaL_Reg lua_reg_member_funcs[] = 
 {
 	{ "write_msg_id", luanetwork_write_msg_id },
+	{ "write_ext", luanetwork_write_ext },
 	{ "write_byte", luanetwork_write_byte },
 	{ "write_int", luanetwork_write_int },
 	{ "write_float", luanetwork_write_float },
@@ -780,6 +804,8 @@ static const luaL_Reg lua_reg_member_funcs[] =
 
 	{ "send", luanetwork_send },
 
+	{ "read_msg_id", luanetwork_read_msg_id },
+	{ "read_ext", luanetwork_read_ext },
 	{ "read_byte", luanetwork_read_byte },
 	{ "read_int", luanetwork_read_int },
 	{ "read_float", luanetwork_read_float },
@@ -796,8 +822,6 @@ static const luaL_Reg lua_reg_member_funcs[] =
 	{ "read_short_array", luanetwork_read_short_array },
 	{ "read_string_array", luanetwork_read_string_array },
 
-	{ "get_recv_msg_id", luanetwork_get_recv_msg_id },
-	// { "get_recv_addition", luanetwork_get_recv_addition },
 	// { "is_read_all", luanetwork_is_read_all },
 
 	{ "connect_to", luanetwork_connect_to },

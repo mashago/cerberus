@@ -7,19 +7,20 @@ enum
 {
 	MSGLEN_HEAD 	= 4,
 	MSGLEN_MSGID 	= 4, 
+	MSGLEN_EXT 		= 4, 
+
 	MSGLEN_MAX 		= 65000,
-	MSGLEN_TEXT_POS = MSGLEN_HEAD + MSGLEN_MSGID,
+	MSGLEN_TEXT_POS = MSGLEN_HEAD + MSGLEN_MSGID + MSGLEN_EXT,
 	
 	PLUTO_MSGLEN_HEAD 	= MSGLEN_HEAD,
-	PLUTO_FILED_BEGIN_POS 	= MSGLEN_HEAD + MSGLEN_MSGID,
 };
 
 class Mailbox;
 
 /*
  * msg:
- * [msgLen:4] [msgId:4] [content] 
- * msgLen is total msg len, msgLen size + msgId size + content size
+ * [msgLen:4] [msgId:4] [ext:4] [content] 
+ * msgLen is total msg len, msgLen size + msgId size + ext size + content size
  *
  */
 
@@ -61,6 +62,7 @@ public:
 
 
 	void WriteMsgId(int msgId);
+	void WriteExt(int ext);
 	bool WriteByte(char val);
 	bool WriteInt(int val);
 	bool WriteFloat(float val);
@@ -70,6 +72,7 @@ public:
 	bool WriteString(int len, const char* str);
 
 	int  ReadMsgId();
+	int  ReadExt();
 	bool ReadByte(char &out_val);
 	bool ReadInt(int &out_val);
 	bool ReadFloat(float &out_val);

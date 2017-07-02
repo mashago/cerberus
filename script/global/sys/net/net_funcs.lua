@@ -3,7 +3,7 @@ Net = {}
 Net._msg_handler_map = {}
 Net._all_mailbox = {} -- {mailbox_id=x, conn_type=y}
 
-function Net.send_msg(mailbox_id, msg_id, ...)
+function Net.send_msg_ext(mailbox_id, msg_id, ext, ...)
 	local msgdef = MSG_DEF_MAP[msg_id]
 	if not msgdef then
 		Log.err("Net.send_msg msgdef not exists msg_id=%d", msg_id)
@@ -23,7 +23,12 @@ function Net.send_msg(mailbox_id, msg_id, ...)
 	end
 
 	g_network:write_msg_id(msg_id)
+	g_network:write_ext(ext)
 	return g_network:send(mailbox_id)
+end
+
+function Net.send_msg(mailbox_id, msg_id, ...)
+	return Net.send_msg_ext(mailbox_id, msg_id, 0, ...)
 end
 
 function Net.add_msg_handler(msg_id, func)

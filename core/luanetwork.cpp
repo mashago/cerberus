@@ -50,6 +50,11 @@ void LuaNetwork::WriteMsgId(int msgId)
 	m_sendPluto->WriteMsgId(msgId);
 }
 
+void LuaNetwork::WriteExt(int ext)
+{
+	m_sendPluto->WriteExt(ext);
+}
+
 bool LuaNetwork::WriteByte(char val)
 {
 	return m_sendPluto->WriteByte(val);
@@ -116,6 +121,11 @@ void LuaNetwork::SetRecvPluto(Pluto *pu)
 int LuaNetwork::ReadMsgId()
 {
 	return m_recvPluto->ReadMsgId();
+}
+
+int LuaNetwork::ReadExt()
+{
+	return m_recvPluto->ReadExt();
 }
 
 bool LuaNetwork::ReadByte(char &out_val)

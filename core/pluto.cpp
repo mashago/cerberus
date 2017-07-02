@@ -9,7 +9,7 @@
 Pluto::Pluto(int bufferSize) : m_buffer(nullptr), m_cursor(nullptr), m_bufferSize(bufferSize), m_recvLen(0)
 {
 	m_buffer = new char[m_bufferSize];
-	m_cursor = m_buffer + PLUTO_FILED_BEGIN_POS;
+	m_cursor = m_buffer + MSGLEN_TEXT_POS;
 }
 
 Pluto::~Pluto()
@@ -41,24 +41,29 @@ char * Pluto::GetBuffer()
 
 char * Pluto::GetContent()
 {
-	return m_buffer + PLUTO_FILED_BEGIN_POS;
+	return m_buffer + MSGLEN_TEXT_POS;
 }
 
 int Pluto::GetContentLen()
 {
-	return GetMsgLen() - PLUTO_FILED_BEGIN_POS;
+	return GetMsgLen() - MSGLEN_TEXT_POS;
 }
 
 void Pluto::ResetCursor()
 {
-	m_cursor = m_buffer + PLUTO_FILED_BEGIN_POS;
+	m_cursor = m_buffer + MSGLEN_TEXT_POS;
 }
 
 //////////////////////////////////////////////
 
 void Pluto::WriteMsgId(int msgId)
 {
-	*(uint32_t *)(m_buffer+PLUTO_MSGLEN_HEAD) = htonl(msgId);
+	*(uint32_t *)(m_buffer+MSGLEN_HEAD) = htonl(msgId);
+}
+
+void Pluto::WriteExt(int ext)
+{
+	*(uint32_t *)(m_buffer+MSGLEN_HEAD+MSGLEN_MSGID) = htonl(ext);
 }
 
 #define write_val(val) \
@@ -126,7 +131,12 @@ bool Pluto::WriteString(int len, const char* str)
 
 int Pluto::ReadMsgId()
 {
-	return (int)ntohl(*(uint32_t *)(m_buffer + PLUTO_MSGLEN_HEAD));
+	return (int)ntohl(*(uint32_t *)(m_buffer + MSGLEN_HEAD));
+}
+
+int Pluto::ReadExt()
+{
+	return (int)ntohl(*(uint32_t *)(m_buffer + MSGLEN_HEAD + MSGLEN_MSGID));
 }
 
 template<typename T>

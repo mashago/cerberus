@@ -90,6 +90,8 @@ local function is_trust_msg(msg_id)
 end
 
 local function recv_msg_handler(mailbox_id, msg_id)
+	local ext = g_network:read_ext()
+	Log.debug("recv_msg_handler ext=%d", ext)
 
 	local flag, data = recv_msg(msg_id)	
 	if not flag then
