@@ -1,7 +1,0 @@
-require "global.sys.log.logger"
-require "global.sys.net.init"
-require "global.sys.timer.timer"
-require "global.sys.service.service_client"
-require "global.sys.service.service_server"
-require "global.sys.rpc.rpc_mgr"
-require "global.sys.db.db_mgr"

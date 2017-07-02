@@ -134,7 +134,7 @@ function ServiceClient.add_server(mailbox_id, server_id, server_type, single_sce
 	end
 
 	-- init server_info
-	local ServerInfo = require "global.sys.service.server_info"
+	local ServerInfo = require "global.service.server_info"
 	local server_info = ServerInfo:new(server_id, server_type, mailbox_id, single_scene_list, from_to_scene_list, is_secondhand)
 	-- Log.debug("server_info._scene_list=%s", Util.TableToString(server_info._scene_list))
 
