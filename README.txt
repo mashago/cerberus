@@ -20,7 +20,7 @@ Login           Router(n)
                       \        /
                        \      /
 					    v    v
-						  DB(n)
+                         DB(n)
 
 Global Public Server:
 1 * Login
