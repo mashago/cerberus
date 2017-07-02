@@ -19,7 +19,7 @@ Login           Router(n)
  DB(n) Bridge      Scene1  Scene2(n) ....
                       \        /
                        \      /
-					    v    v
+                        v    v
                          DB(n)
 
 Global Public Server:
