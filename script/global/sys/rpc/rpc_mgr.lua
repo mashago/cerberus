@@ -19,7 +19,15 @@ end
 function RpcMgr.call(server_info, func_name, data)
 	local data_str = Util.serialize(data)
 	RpcMgr._cur_session_id = RpcMgr._cur_session_id + 1
-	if not server_info:send_msg(MID.REMOTE_CALL_REQ, ServerConfig._server_id, server_info._server_id, RpcMgr._cur_session_id, func_name, Util.serialize(data)) then
+	local msg = 
+	{
+		from_server_id = ServerConfig._server_id, 
+		to_server_id = server_info._server_id, 
+		session_id = RpcMgr._cur_session_id, 
+		func_name = func_name, 
+		param = Util.serialize(data),
+	}
+	if not server_info:send_msg(MID.REMOTE_CALL_REQ, msg) then
 		return false
 	end
 	return coroutine.yield(RpcMgr._cur_session_id)
@@ -67,7 +75,15 @@ function RpcMgr.callback(session_id, result, data)
 		return
 	end
 
-	server_info:send_msg(MID.REMOTE_CALL_RET, true, origin.from_server_id, origin.to_server_id, origin.session_id, Util.serialize(result))
+	local msg =
+	{
+		result = true, 
+		from_server_id = origin.from_server_id, 
+		to_server_id = origin.to_server_id, 
+		session_id = origin.session_id, 
+		param = Util.serialize(result)
+	}
+	server_info:send_msg(MID.REMOTE_CALL_RET, msg)
 
 end
 
@@ -82,10 +98,19 @@ function RpcMgr.handle_call(data, mailbox_id, msg_id)
 		local server_info = RpcMgr.get_target_server(to_server_id)
 		if not server_info then
 			Log.warn("RpcMgr.handle_call cannot go to to_server_id=%d", to_server_id)
-			Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, false, from_server_id, to_server_id, session_id, "")
+			local msg =
+			{
+				result = false, 
+				from_server_id = from_server_id, 
+				to_server_id = to_server_id, 
+				session_id = session_id, 
+				param = ""
+			}
+			Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, msg)
 			return
 		end
-		server_info:send_msg(MID.REMOTE_CALL_REQ, from_server_id, to_server_id, session_id, func_name, data.param)
+
+		server_info:send_msg(MID.REMOTE_CALL_REQ, data)
 		return
 	end
 
@@ -93,7 +118,15 @@ function RpcMgr.handle_call(data, mailbox_id, msg_id)
 	local func = RpcMgr._all_call_func[func_name]
 	if not func then
 		Log.err("RpcMgr.handle_call func not exists %s", func_name)
-		Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, false, from_server_id, to_server_id, session_id, "")
+		local msg =
+		{
+			result = false, 
+			from_server_id = from_server_id, 
+			to_server_id = to_server_id, 
+			session_id = session_id, 
+			param = ""
+		}
+		Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, msg)
 		return
 	end
 
@@ -103,7 +136,15 @@ function RpcMgr.handle_call(data, mailbox_id, msg_id)
 	local status, result = coroutine.resume(cor, param)
 	if not status or not result then
 		Log.err("RpcMgr.handle_call resume error func_name=%s", func_name)
-		Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, false, from_server_id, to_server_id, session_id, "")
+		local msg =
+		{
+			result = false, 
+			from_server_id = from_server_id, 
+			to_server_id = to_server_id, 
+			session_id = session_id, 
+			param = ""
+		}
+		Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, msg)
 		return
 	end
 
@@ -122,7 +163,15 @@ function RpcMgr.handle_call(data, mailbox_id, msg_id)
 
 	else
 		-- result is a table, no rpc inside, just send back result
-		Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, true, from_server_id, to_server_id, session_id, Util.serialize(result))
+		local msg =
+		{
+			result = true, 
+			from_server_id = from_server_id, 
+			to_server_id = to_server_id, 
+			session_id = session_id, 
+			param = Util.serialize(result)
+		}
+		Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, msg)
 	end
 end
 
@@ -147,7 +196,16 @@ function RpcMgr.handle_callback(data, mailbox_id, msg_id)
 			Log.warn("RpcMgr.handle_callback cannot go back from_server_id=%d", from_server_id)
 			return
 		end
-		server_info:send_msg(MID.REMOTE_CALL_RET, true, from_server_id, to_server_id, session_id, data.param)
+
+		local msg =
+		{
+			result = true, 
+			from_server_id = from_server_id, 
+			to_server_id = to_server_id, 
+			session_id = session_id, 
+			param = data.param
+		}
+		server_info:send_msg(MID.REMOTE_CALL_RET, msg)
 		return
 	end
 

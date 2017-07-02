@@ -168,12 +168,14 @@ function ServiceClient.connect_to_success(mailbox_id)
 
 	if service_info._register == 1 then
 		-- need register, send register msg
-		local msg = {}
-		msg[1] = ServerConfig._server_id
-		msg[2] = ServerConfig._server_type
-		msg[3] = ServerConfig._single_scene_list
-		msg[4] = ServerConfig._from_to_scene_list
-		Net.send_msg(mailbox_id, MID.REGISTER_SERVER_REQ, table.unpack(msg))
+		local msg = 
+		{
+			server_id = ServerConfig._server_id,
+			server_type = ServerConfig._server_type,
+			single_scene_list = ServerConfig._single_scene_list,
+			from_to_scene_list = ServerConfig._from_to_scene_list,
+		}
+		Net.send_msg(mailbox_id, MID.REGISTER_SERVER_REQ, msg)
 		ServiceClient.print()
 	else
 		ServiceClient.add_server(mailbox_id, service_info._server_id, service_info._server_type, {}, {})
@@ -338,13 +340,13 @@ function ServiceClient.get_server_by_type(server_type, opt_key)
 end
 
 -- luaclient use this now
-function ServiceClient.send_to_type_server(server_type, msg_id, ...)
+function ServiceClient.send_to_type_server(server_type, msg_id, msg)
 	local server_info = ServiceClient.get_server_by_type(server_type)
 	if not server_info then
 		return false
 	end
 
-    return server_info:send_msg(msg_id, ...)
+    return server_info:send_msg(msg_id, msg)
 end
 
 function ServiceClient.print()

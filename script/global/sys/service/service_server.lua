@@ -94,7 +94,11 @@ function ServiceServer.handle_disconnect(mailbox_id)
 	ServiceServer.remove_server(server_info)
 
 	for _, server_info in pairs(ServiceServer._all_server_map) do
-		server_info:send_msg(MID.SERVER_DISCONNECT, disconnect_server_id)
+		local msg =
+		{
+			server_id = disconnect_server_id
+		}
+		server_info:send_msg(MID.SERVER_DISCONNECT, msg)
 	end
 
 	ServiceServer.print()

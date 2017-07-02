@@ -173,7 +173,7 @@ function write_data_by_msgdef(data, msgdef, deep)
 		local val_name = v[1]
 		local val_type = v[2]
 
-		local value = data[idx]
+		local value = data[val_name]
 		if value == nil then
 			Log.warn("write_data_by_msgdef value[%s] nil", val_name)
 			return false

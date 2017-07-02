@@ -55,13 +55,13 @@ function ServerInfo:get_mailbox_id()
 	return mailbox_id
 end
 
-function ServerInfo:send_msg(msg_id, ...)
+function ServerInfo:send_msg(msg_id, msg)
 	local mailbox_id = self:get_mailbox_id()
 	if mailbox_id == -1 then
 		Log.warn("ServerInfo:send_msg mailbox nil msg_id=%d", msg_id)
 		return false
 	end
-	return Net.send_msg(mailbox_id, msg_id, ...)
+	return Net.send_msg(mailbox_id, msg_id, msg)
 end
 
 function ServerInfo:print()

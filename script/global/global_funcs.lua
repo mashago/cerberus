@@ -130,20 +130,43 @@ function g_funcs.handle_register_server(data, mailbox_id, msg_id)
 	-- send other server list to server
 	-- broadcast to other server
 
+	local msg = 
+	{
+		result = ErrorCode.SUCCESS,
+		server_id = ServerConfig._server_id,
+		server_type = ServerConfig._server_type,
+	}
+
 	-- add server
 	local new_server_info = ServiceServer.add_server(mailbox_id, data.server_id, data.server_type, data.single_scene_list, data.from_to_scene_list)
 	if not new_server_info then
-		Net.send_msg(mailbox_id, MID.REGISTER_SERVER_RET, ErrorCode.REGISTER_SERVER_FAIL, ServerConfig._server_id, ServerConfig._server_type)
+		msg.result = ErrorCode.REGISTER_SERVER_FAIL
+		Net.send_msg(mailbox_id, MID.REGISTER_SERVER_RET, msg)
 		return
 	end
 
-	new_server_info:send_msg(MID.REGISTER_SERVER_RET, ErrorCode.SUCCESS, ServerConfig._server_id, ServerConfig._server_type)
+	new_server_info:send_msg(MID.REGISTER_SERVER_RET, msg)
 
 	-- broadcast
 	for server_id, server_info in pairs(ServiceServer._all_server_map) do
 		if server_id ~= data.server_id then
-			server_info:send_msg(MID.REGISTER_SERVER_BROADCAST, data.server_id, data.server_type, data.single_scene_list, data.from_to_scene_list)
-			new_server_info:send_msg(MID.REGISTER_SERVER_BROADCAST, server_info._server_id, server_info._server_type, server_info._single_scene_list, server_info._from_to_scene_list)
+			local msg = 
+			{
+				server_id = data.server_id,
+				server_type = data.server_type,
+				single_scene_list = data.single_scene_list,
+				from_to_scene_list = data.from_to_scene_list,
+			}
+			server_info:send_msg(MID.REGISTER_SERVER_BROADCAST, msg)
+
+			local msg = 
+			{
+				server_id = server_info._server_id,
+				server_type = server_info._server_type,
+				single_scene_list = server_info._single_scene_list,
+				from_to_scene_list = server_info._from_to_scene_list,
+			}
+			new_server_info:send_msg(MID.REGISTER_SERVER_BROADCAST, msg)
 		end
 	end
 

@@ -1,21 +1,32 @@
 
-function send_to_login(msg_id, ...)
-	ServiceClient.send_to_type_server(ServerType.LOGIN, msg_id, ...)
+function send_to_login(msg_id, msg)
+	ServiceClient.send_to_type_server(ServerType.LOGIN, msg_id, msg)
 end
 
-function send_to_router(msg_id, ...)
-	ServiceClient.send_to_type_server(ServerType.ROUTER, msg_id, ...)
+function send_to_router(msg_id, msg)
+	ServiceClient.send_to_type_server(ServerType.ROUTER, msg_id, msg)
+end
+
+
+g_x_test_num = -1 -- x test end
+g_x_test_start_time = 0
+function x_test_start(num)
+	g_x_test_num = num
+	g_x_test_start_time = os.time()
+end
+function x_test_end()
+	if g_x_test_num > 0 then
+		g_x_test_num = g_x_test_num - 1
+	end
+	if g_x_test_num == 0 then
+		Log.debug("******* x test time use time=%d", os.time() - g_x_test_start_time)
+		g_x_test_num = -1  -- x test end
+	end
 end
 
 local function handle_user_login(data, mailbox_id, msg_id)
 	Log.debug("handle_user_login: data=%s", Util.TableToString(data))
-
-	if g_loginx_num > 0 then
-		g_loginx_num = g_loginx_num - 1
-	end
-	if g_loginx_num == 0 then
-		Log.debug("******* loginx time use time=%d", os.time() - g_loginx_start_time)
-	end
+	x_test_end()
 end
 
 local function handle_area_list_ret(data, mailbox_id, msg_id)
@@ -28,6 +39,7 @@ end
 
 local function handle_rpc_test(data, mailbox_id, msg_id)
 	Log.debug("handle_rpc_test: data=%s", Util.TableToString(data))
+	x_test_end()
 end
 
 function register_msg_handler()

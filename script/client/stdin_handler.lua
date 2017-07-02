@@ -16,6 +16,8 @@ function cmd_handler.execute(buffer)
 		cmd_handler.do_create_role(params)
 	elseif params[1] == "rpc" then
 		cmd_handler.do_rpc_test(params)
+	elseif params[1] == "rpcx" then
+		cmd_handler.do_rpc_testx(params)
 	end
 
 end
@@ -28,12 +30,17 @@ function cmd_handler.do_login(params)
 	end
 
 	local channel_id = tonumber(params[4] or 0)
+	local msg =
+	{
+		username = params[2],
+		password = params[3],
+		channel_id = channel_id,
+	}
+	send_to_login(MID.USER_LOGIN_REQ, msg)
 
-	send_to_login(MID.USER_LOGIN_REQ, params[2], params[3], channel_id)
+	x_test_start(1)
 end
 
-g_loginx_num = 0
-g_loginx_start_time = 0
 function cmd_handler.do_loginx(params)
 	-- loginx [num]
 	if #params ~= 2 then
@@ -46,11 +53,17 @@ function cmd_handler.do_loginx(params)
 	for i=1, num do
 		local x = math.random(1000000)
 		local username = "test" .. tostring(x)
-		send_to_login(MID.USER_LOGIN_REQ, username, "qwerty", 0)
+
+		local msg =
+		{
+			username = username,
+			password = "qwerty",
+			channel_id = 0,
+		}
+		send_to_login(MID.USER_LOGIN_REQ, msg)
 	end
 
-	g_loginx_num = num
-	g_loginx_start_time = os.time()
+	x_test_start(num)
 
 end
 
@@ -66,7 +79,12 @@ function cmd_handler.do_create_role(params)
 		return
 	end
 
-	send_to_login(MID.CREATE_ROLE_REQ, params[2])
+	local msg =
+	{
+		role_name = params[2],
+	}
+
+	send_to_login(MID.CREATE_ROLE_REQ, msg)
 end
 
 function cmd_handler.do_rpc_test(params)
@@ -76,7 +94,33 @@ function cmd_handler.do_rpc_test(params)
 		return
 	end
 
-	send_to_login(MID.RPC_TEST_REQ, params[2])
+	local msg =
+	{
+		buff = params[2],
+	}
+
+	send_to_login(MID.RPC_TEST_REQ, msg)
+end
+
+function cmd_handler.do_rpc_testx(params)
+
+	-- rpcx [num]
+	if #params ~= 2 then
+		Log.warn("cmd_handler.do_rpc_testx params not enough")
+		return
+	end
+
+	local num = tonumber(params[2])
+
+	local msg =
+	{
+		buff = "aaa"
+	}
+	for i=1, num do
+		send_to_login(MID.RPC_TEST_REQ, msg)
+	end
+
+	x_test_start(num)
 end
 
 

@@ -12,7 +12,12 @@ local function handle_register_server_ret(data, mailbox_id, msg_id)
 
 	if server_type == ServerType.LOGIN and ServerConfig._server_type == ServerType.BRIDGE then
 		-- register area
-		Net.send_msg(mailbox_id, MID.REGISTER_AREA_REQ, ServerConfig._area_list)
+		local msg = 
+		{
+			area_list = ServerConfig._area_list,
+		}
+
+		Net.send_msg(mailbox_id, MID.REGISTER_AREA_REQ, msg)
 	end
 end
 

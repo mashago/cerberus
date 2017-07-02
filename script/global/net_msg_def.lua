@@ -84,6 +84,7 @@ MSG_DEF_MAP =
 		{ "int64", _Int64 },
 		{ "string", _String },
 		{ "struct", _Struct, TestStruct },
+
 		{ "bytearray", _ByteArray },
 		{ "boolarray", _BoolArray },
 		{ "intarray", _IntArray },
@@ -104,6 +105,7 @@ MSG_DEF_MAP =
 		{ "int64", _Int64 },
 		{ "string", _String },
 		{ "struct", _Struct, TestStruct },
+
 		{ "bytearray", _ByteArray },
 		{ "boolarray", _BoolArray },
 		{ "intarray", _IntArray },

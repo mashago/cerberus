@@ -4,55 +4,57 @@ local function handle_client_test(data, mailbox_id, msg_id)
 	-- Log.debug("client_time=%d client_data=%s", data.client_time, data.client_data)	
 	Log.debug("handle_client_test: data=%s", Util.TableToString(data))
 
-	local data_send =
+	local msg =
 	{
-		65,
-		true,
-		123,
-		3.14,
-		56,
-		11111111111,
-		"hello world 1",
+		byte = 65,
+		bool = true,
+		int = 123,
+		float = 3.14,
+		short = 56,
+		int64 = 11111111111,
+		string = "hello world 1",
+		struct = 
 		{
-			66,
-			false,
-			456,
-			5.16,
-			78,
-			22222222222,
-			"hello world 2",
+			byte = 66,
+			bool = false,
+			int = 456,
+			float = 5.16,
+			short = 78,
+			int64 = 22222222222,
+			string = "hello world 2",
 		},
 
-		{67, 68, 69},
-		{true, false},
-		{111111, 222222},
-		{1.1, 2.2},
-		{444, 555},
-		{33333333333, 44444444444},
-		{"hello world 3", "hello world 4"},
+		bytearray = {67, 68, 69},
+		boolarray = {true, false},
+		intarray = {111111, 222222},
+		floatarray = {1.1, 2.2},
+		shortarray = {444, 555},
+		int64array = {33333333333, 44444444444},
+		stringarray = {"hello world 3", "hello world 4"},
+		structarray = 
 		{
 			{
-				70,
-				false,
-				456,
-				5.16,
-				78,
-				55555555555,
-				"hello world 5",
+				byte = 70,
+				bool = false,
+				int = 456,
+				float = 5.16,
+				short = 78,
+				int64 = 55555555555,
+				string = "hello world 5",
 			},
 			{
-				71,
-				false,
-				456,
-				5.16,
-				78,
-				66666666666,
-				"hello world 6",
+				byte = 71,
+				bool = false,
+				int = 456,
+				float = 5.16,
+				short = 78,
+				int64 = 66666666666,
+				string = "hello world 6",
 			},
 		},
 
 	}
-	Net.send_msg(mailbox_id, MID.CLIENT_TEST_RET, table.unpack(data_send))
+	Net.send_msg(mailbox_id, MID.CLIENT_TEST_RET, msg)
 end
 
 local function handle_register_server_ret(data, mailbox_id, msg_id)
