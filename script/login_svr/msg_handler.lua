@@ -154,6 +154,7 @@ local function handle_user_login(data, mailbox_id, msg_id)
 			return
 		end
 
+		-- ok now
 		-- create a user in memory with user_id
 		local user_id = result.user_id
 		Log.debug("handle_user_login: user_id=%d", user_id)
@@ -187,6 +188,75 @@ local function handler_area_list_req(user, data, mailbox_id, msg_id)
 	}
 
 	user:send_msg(MID.AREA_LIST_RET, msg)
+end
+
+local function handle_role_list_req(user, data, mailbox_id, msg_id)
+	Log.debug("handle_role_list_req: data=%s", Util.TableToString(data))
+
+	local msg =
+	{
+		result = ErrorCode.SUCCESS,
+		area_id = data.area_id,
+		role_list = {},
+	}
+
+	-- already get role list
+	if user._role_map[data.area_id] then
+		for k, v in ipairs(user._role_map[data.area_id]) do
+			table.insert(msg.role_list, v)
+		end
+
+		user:send_msg(MID.ROLE_LIST_RET, msg)
+		return
+	end
+
+	-- first time get role list
+	local func = function(user, data)
+
+		local area_id = data.area_id
+		local msg =
+		{
+			result = ErrorCode.SUCCESS,
+			area_id = area_id,
+			role_list = {},
+		}
+
+		local server_info = ServiceMgr.get_server_by_type(ServerType.DB)
+		if not server_info then
+			Log.err("handle_role_list_req no db server_info")
+			msg.result = ErrorCode.SYS_ERROR
+			user:send_msg(MID.ROLE_LIST_RET, msg)
+			return
+		end
+
+		local rpc_data = 
+		{
+			user_id=user._user_id, 
+			area_id=area_id, 
+		}
+		local status, result = RpcMgr.call(server_info, "db_role_list", rpc_data)
+		if not status then
+			Log.err("handle_role_list_req rpc call fail")
+			msg.result = ErrorCode.SYS_ERROR
+			user:send_msg(MID.ROLE_LIST_RET, msg)
+			return
+		end
+		Log.debug("handle_role_list_req: callback result=%s", Util.TableToString(result))
+
+		if result.result ~= ErrorCode.SUCCESS then
+			msg.result = result.result
+			user:send_msg(MID.ROLE_LIST_RET, msg)
+			return
+		end
+
+		-- ok now
+		-- save role_list into user
+		user._role_map[area_id] = result.role_list
+		msg.role_list = result.role_list
+
+		user:send_msg(MID.ROLE_LIST_RET, msg)
+	end
+	RpcMgr.run(func, user, data)
 end
 
 local function handle_create_role(user, data, mailbox_id, msg_id)
@@ -275,8 +345,9 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 			user:send_msg(MID.CREATE_ROLE_RET, msg)
 			return
 		end
-
 		Log.debug("handle_create_role: callback result2=%s", Util.TableToString(result))
+
+		-- ok now
 
 		user:send_msg(MID.CREATE_ROLE_RET, msg)
 	end
@@ -290,6 +361,7 @@ function register_msg_handler()
 
 	Net.add_msg_handler(MID.USER_LOGIN_REQ, handle_user_login)
 	Net.add_msg_handler(MID.AREA_LIST_REQ, handler_area_list_req)
+	Net.add_msg_handler(MID.ROLE_LIST_REQ, handle_role_list_req)
 	Net.add_msg_handler(MID.CREATE_ROLE_REQ, handle_create_role)
 
 	Net.add_msg_handler(MID.RPC_TEST_REQ, handle_rpc_test)

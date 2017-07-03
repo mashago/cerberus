@@ -12,6 +12,8 @@ function cmd_handler.execute(buffer)
 		cmd_handler.do_loginx(params)
 	elseif params[1] == "arealist" then
 		cmd_handler.do_area_list_req(params)
+	elseif params[1] == "rolelist" then
+		cmd_handler.do_role_list_req(params)
 	elseif params[1] == "create" then
 		cmd_handler.do_create_role(params)
 
@@ -71,6 +73,21 @@ end
 function cmd_handler.do_area_list_req(params)
 	-- arealist
 	send_to_login(MID.AREA_LIST_REQ)
+end
+
+function cmd_handler.do_role_list_req(params)
+	-- rolelist [area_id]
+	if #params ~= 2 then
+		Log.warn("cmd_handler.do_role_list_req params not enough")
+		return
+	end
+
+	local msg =
+	{
+		area_id = tonumber(params[2]),
+	}
+
+	send_to_login(MID.ROLE_LIST_REQ, msg)
 end
 
 function cmd_handler.do_create_role(params)

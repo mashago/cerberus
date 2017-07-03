@@ -30,8 +30,10 @@ MID._id_name_map =
 	[6] = "USER_LOGIN_RET",
 	[7] = "AREA_LIST_REQ",
 	[8] = "AREA_LIST_RET",
-	[9] = "CREATE_ROLE_REQ",
-	[10] = "CREATE_ROLE_RET",
+	[9] = "ROLE_LIST_REQ",
+	[10] = "ROLE_LIST_RET",
+	[11] = "CREATE_ROLE_REQ",
+	[12] = "CREATE_ROLE_RET",
 
 	-- msg for server
 	[60001] = "REGISTER_SERVER_REQ",
@@ -63,11 +65,16 @@ TestStruct =
 	{ "string", _String },
 }
 
-
 AreaListStruct = 
 {
 	{ "area_id", _Int },
 	{ "area_name", _String },
+}
+
+RoleListStruct = 
+{
+	{ "role_id", _Int64 },
+	{ "role_name", _String },
 }
 
 
@@ -144,6 +151,17 @@ MSG_DEF_MAP =
 	[MID.AREA_LIST_RET] =
 	{
 		{ "area_list", _StructArray, AreaListStruct },
+	},
+
+	[MID.ROLE_LIST_REQ] =
+	{
+		{ "area_id", _Int },
+	},
+	[MID.ROLE_LIST_RET] =
+	{
+		{ "result", _Int },
+		{ "area_id", _Int },
+		{ "role_list", _StructArray, RoleListStruct },
 	},
 
 	[MID.CREATE_ROLE_REQ] =

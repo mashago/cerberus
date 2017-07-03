@@ -33,6 +33,10 @@ local function handle_area_list_ret(data, mailbox_id, msg_id)
 	Log.debug("handle_area_list_ret: data=%s", Util.TableToString(data))
 end
 
+local function handle_role_list_ret(data, mailbox_id, msg_id)
+	Log.debug("handle_role_list_ret: data=%s", Util.TableToString(data))
+end
+
 local function handle_create_role(data, mailbox_id, msg_id)
 	Log.debug("handle_create_role: data=%s", Util.TableToString(data))
 end
@@ -45,6 +49,7 @@ end
 function register_msg_handler()
 	Net.add_msg_handler(MID.USER_LOGIN_RET, handle_user_login)
 	Net.add_msg_handler(MID.AREA_LIST_RET, handle_area_list_ret)
+	Net.add_msg_handler(MID.ROLE_LIST_RET, handle_role_list_ret)
 	Net.add_msg_handler(MID.CREATE_ROLE_RET, handle_create_role)
 	Net.add_msg_handler(MID.RPC_TEST_RET, handle_rpc_test)
 end

@@ -55,6 +55,33 @@ function register_rpc_handler()
 		return {result = ErrorCode.SUCCESS, user_id = user_id}
 	end
 
+	call_func_map.db_role_list = function(data)
+		
+		Log.debug("db_role_list: data=%s", Util.TableToString(data))
+
+		--[[
+		local area_id = data.area_id
+		local user_id = data.user_id
+
+		local ret = DBMgr.do_select("login_db", "user_role", {"role_id", "role_name"}
+		, {user_id=user_id, area_id=area_id})
+		if not ret then
+			Log.warn("select role_list fail username=%s password=%s", username, password)
+			return {result = ErrorCode.SYS_ERROR, user_id = 0}
+		end
+
+		Log.debug("db_role_list: ret=%s", Util.TableToString(ret))
+		--]]
+
+		-- TODO
+		local ret = {}
+		-- table.insert(ret, {role_id=111, role_name="masha1"})
+		-- table.insert(ret, {role_id=222, role_name="masha2"})
+	
+		-- must return a table
+		return {result = ErrorCode.SUCCESS, role_list = ret}
+	end
+
 	call_func_map.db_create_role = function(data)
 		
 		Log.debug("db_create_role: data=%s", Util.TableToString(data))
