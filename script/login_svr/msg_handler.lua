@@ -1,5 +1,82 @@
 local User = require "login_svr.user"
 
+local function handle_rpc_test(data, mailbox_id, msg_id)
+	Log.debug("handle_rpc_test: data=%s", Util.TableToString(data))
+
+	local func = function(mailbox_id, buff)
+
+		-- 1. rpc to db
+		-- 2. rpc to bridge
+		-- 3. bridge rpc to router
+		-- 4. router rpc to scene
+		-- 5. bridge rpc to scene
+
+		local area_id = 1
+		local sum = 0
+
+		local msg =
+		{
+			result = ErrorCode.SUCCESS,
+			buff = "",
+			sum = 0,
+		}
+
+		-- 1. rpc to db
+		local server_info = ServiceMgr.get_server_by_type(ServerType.DB)
+		if not server_info then
+			Log.err("handle_user_login no db server_info")
+			msg.result = ErrorCode.SYS_ERROR
+			Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
+			return
+		end
+
+		local status, result = RpcMgr.call(server_info, "db_rpc_test", {buff=buff, sum=sum})
+		if not status then
+			Log.err("handle_user_login rpc call fail")
+			msg.result = ErrorCode.SYS_ERROR
+			Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
+			return
+		end
+		Log.debug("handle_rpc_test: callback result=%s", Util.TableToString(result))
+
+		buff = result.buff
+		sum = result.sum
+		msg.buff = buff
+		msg.sum = sum
+
+		-- 2. get bridge
+		local server_id = AreaMgr.get_server_id(area_id)
+		local server_info = ServiceMgr.get_server_by_id(server_id)
+		if not server_info then
+			Log.err("handle_rpc_test no bridge server_info")
+			msg.result = ErrorCode.SYS_ERROR
+			Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
+			return
+		end
+
+		-- 3. rpc to bridge
+		local status, result = RpcMgr.call(server_info, "bridge_rpc_test", {buff=buff, sum=sum})
+		if not status then
+			Log.err("handle_rpc_test rpc call fail")
+			msg.result = ErrorCode.SYS_ERROR
+			Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
+			return
+		end
+		Log.debug("handle_rpc_test: callback result=%s", Util.TableToString(result))
+
+		buff = result.buff
+		sum = result.sum
+		msg.result = result.result
+		msg.buff = buff
+		msg.sum = sum
+
+		Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
+	end
+	RpcMgr.run(func, mailbox_id, data.buff)
+end
+
+------------------------------------------------------------------
+
 local function handle_register_area(data, mailbox_id, msg_id)
 	Log.debug("handle_register_area: data=%s", Util.TableToString(data))
 
@@ -112,13 +189,13 @@ local function handler_area_list_req(user, data, mailbox_id, msg_id)
 	user:send_msg(MID.AREA_LIST_RET, msg)
 end
 
-local function handle_create_role(data, mailbox_id, msg_id)
+local function handle_create_role(user, data, mailbox_id, msg_id)
 	Log.debug("handle_create_role: data=%s", Util.TableToString(data))
 
-	local func = function(mailbox_id, role_name)
+	local func = function(user, data)
 
-		local area_id = 400001 -- TODO read from client
-		local role_id = math.random(10000)
+		local area_id = data.area_id
+		local role_name = data.role_name
 
 		local msg =
 		{
@@ -126,107 +203,84 @@ local function handle_create_role(data, mailbox_id, msg_id)
 			role_id = 0,
 		}
 
+		-- 1. rpc to db create role
+		-- 2. rpc to area bridge
+
 		local server_id = AreaMgr.get_server_id(area_id)
-		local server_info = ServiceMgr.get_server_by_id(server_id)
-		if not server_info then
-			Log.err("handle_create_role no bridge server_info")
+		if server_id < 0 then
+			Log.warn("handle_create_role no such area %d", area_id)
 			msg.result = ErrorCode.CREATE_ROLE_FAIL
-			Net.send_msg(mailbox_id, MID.CREATE_ROLE_RET, msg)
+			user:send_msg(MID.CREATE_ROLE_RET, msg)
 			return
 		end
 
-		local status, result = RpcMgr.call(server_info, "bridge_create_role", {role_id=role_id, role_name=role_name})
+		local server_info = ServiceMgr.get_server_by_type(ServerType.DB)
+		if not server_info then
+			Log.err("handle_create_role no db server_info")
+			msg.result = ErrorCode.CREATE_ROLE_FAIL
+			user:send_msg(MID.CREATE_ROLE_RET, msg)
+			return
+		end
+
+		-- 1. rpc to db create role
+		local username = data.username
+		local password = data.password
+		local channel_id = data.channel_id
+		local rpc_data = 
+		{
+			user_id=user._user_id, 
+			area_id=area_id, 
+			role_name=role_name
+		}
+		local status, result = RpcMgr.call(server_info, "db_create_role", rpc_data)
+		if not status then
+			Log.err("handle_create_role rpc call fail")
+			msg.result = ErrorCode.SYS_ERROR
+			user:send_msg(MID.CREATE_ROLE_RET, msg)
+			return
+		end
+		Log.debug("handle_create_role: callback result=%s", Util.TableToString(result))
+
+		if result.result ~= ErrorCode.SUCCESS then
+			msg.result = result.result
+			user:send_msg(MID.CREATE_ROLE_RET, msg)
+			return
+		end
+
+		local role_id = result.role_id
+		msg.role_id = role_id
+
+		-- 2. rpc to area bridge
+		local server_id = AreaMgr.get_server_id(area_id)
+		local server_info = ServiceMgr.get_server_by_id(server_id)
+		if not server_info then
+			-- area not exists, TODO should delete role in db
+			Log.err("handle_create_role no bridge server_info2 %d", area_id)
+			msg.result = ErrorCode.SYS_ERROR
+			user:send_msg(MID.CREATE_ROLE_RET, msg)
+			return
+		end
+
+		local rpc_data = 
+		{
+			user_id=user._user_id, 
+			area_id=area_id, 
+			role_id=role_id,
+			role_name=role_name,
+		}
+		local status, result = RpcMgr.call(server_info, "bridge_create_role", rpc_data)
 		if not status then
 			Log.err("handle_create_role rpc call fail")
 			msg.result = ErrorCode.CREATE_ROLE_FAIL
-			Net.send_msg(mailbox_id, MID.CREATE_ROLE_RET, msg)
+			user:send_msg(MID.CREATE_ROLE_RET, msg)
 			return
 		end
 
-		Log.debug("handle_create_role: callback result=%s", Util.TableToString(result))
+		Log.debug("handle_create_role: callback result2=%s", Util.TableToString(result))
 
-		-- TODO check mailbox_id is still legal, after rpc
-		msg.result = result.result
-		msg.role_id = result.role_id or 0
-		Net.send_msg(mailbox_id, MID.CREATE_ROLE_RET, msg)
+		user:send_msg(MID.CREATE_ROLE_RET, msg)
 	end
-	RpcMgr.run(func, mailbox_id, data.role_name)
-
-end
-
-local function handle_rpc_test(data, mailbox_id, msg_id)
-	Log.debug("handle_rpc_test: data=%s", Util.TableToString(data))
-
-	local func = function(mailbox_id, buff)
-
-		-- 1. rpc to db
-		-- 2. rpc to bridge
-		-- 3. bridge rpc to router
-		-- 4. router rpc to scene
-		-- 5. bridge rpc to scene
-
-		local area_id = 1
-		local sum = 0
-
-		local msg =
-		{
-			result = ErrorCode.SUCCESS,
-			buff = "",
-			sum = 0,
-		}
-
-		-- 1. rpc to db
-		local server_info = ServiceMgr.get_server_by_type(ServerType.DB)
-		if not server_info then
-			Log.err("handle_user_login no db server_info")
-			msg.result = ErrorCode.SYS_ERROR
-			Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
-			return
-		end
-
-		local status, result = RpcMgr.call(server_info, "db_rpc_test", {buff=buff, sum=sum})
-		if not status then
-			Log.err("handle_user_login rpc call fail")
-			msg.result = ErrorCode.SYS_ERROR
-			Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
-			return
-		end
-		Log.debug("handle_rpc_test: callback result=%s", Util.TableToString(result))
-
-		buff = result.buff
-		sum = result.sum
-		msg.buff = buff
-		msg.sum = sum
-
-		-- 2. get bridge
-		local server_id = AreaMgr.get_server_id(area_id)
-		local server_info = ServiceMgr.get_server_by_id(server_id)
-		if not server_info then
-			Log.err("handle_rpc_test no bridge server_info")
-			msg.result = ErrorCode.SYS_ERROR
-			Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
-			return
-		end
-
-		-- 3. rpc to bridge
-		local status, result = RpcMgr.call(server_info, "bridge_rpc_test", {buff=buff, sum=sum})
-		if not status then
-			Log.err("handle_rpc_test rpc call fail")
-			msg.result = ErrorCode.SYS_ERROR
-			Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
-			return
-		end
-		Log.debug("handle_rpc_test: callback result=%s", Util.TableToString(result))
-
-		buff = result.buff
-		sum = result.sum
-		msg.result = result.result
-		msg.buff = buff
-		msg.sum = sum
-
-		Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
-	end
-	RpcMgr.run(func, mailbox_id, data.buff)
+	RpcMgr.run(func, user, data)
 
 end
 
@@ -236,7 +290,7 @@ function register_msg_handler()
 
 	Net.add_msg_handler(MID.USER_LOGIN_REQ, handle_user_login)
 	Net.add_msg_handler(MID.AREA_LIST_REQ, handler_area_list_req)
-
 	Net.add_msg_handler(MID.CREATE_ROLE_REQ, handle_create_role)
+
 	Net.add_msg_handler(MID.RPC_TEST_REQ, handle_rpc_test)
 end

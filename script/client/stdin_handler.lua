@@ -14,6 +14,7 @@ function cmd_handler.execute(buffer)
 		cmd_handler.do_area_list_req(params)
 	elseif params[1] == "create" then
 		cmd_handler.do_create_role(params)
+
 	elseif params[1] == "rpc" then
 		cmd_handler.do_rpc_test(params)
 	elseif params[1] == "rpcx" then
@@ -73,15 +74,16 @@ function cmd_handler.do_area_list_req(params)
 end
 
 function cmd_handler.do_create_role(params)
-	-- create [role_name]
-	if #params ~= 2 then
+	-- create [area_id] [role_name]
+	if #params ~= 3 then
 		Log.warn("cmd_handler.do_create_role params not enough")
 		return
 	end
 
 	local msg =
 	{
-		role_name = params[2],
+		area_id = tonumber(params[2]),
+		role_name = params[3],
 	}
 
 	send_to_login(MID.CREATE_ROLE_REQ, msg)

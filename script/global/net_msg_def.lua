@@ -148,6 +148,7 @@ MSG_DEF_MAP =
 
 	[MID.CREATE_ROLE_REQ] =
 	{
+		{ "area_id", _Int },
 		{ "role_name", _String },
 	},
 	[MID.CREATE_ROLE_RET] =

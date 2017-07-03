@@ -28,6 +28,7 @@ end
 function UserMgr.del_user(user)
 	UserMgr._all_user_map[user._user_id] = nil
 	UserMgr._mailbox_user_map[user._mailbox_id] = nil
+	user._is_online = false
 end
 
 return UserMgr

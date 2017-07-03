@@ -18,7 +18,7 @@ function AreaMgr.register_area(server_id, area_list)
 end
 
 function AreaMgr.get_server_id(area_id)
-	return AreaMgr._area_map[area_id]
+	return AreaMgr._area_map[area_id] or -1
 end
 
 function AreaMgr.remove_by_server_id(server_id)

@@ -4,27 +4,6 @@ function register_rpc_handler()
 
 	local call_func_map = RpcMgr._all_call_func
 
-	call_func_map.bridge_create_role = function(data)
-		
-		Log.debug("bridge_create_role: data=%s", Util.TableToString(data))
-
-		local server_info = ServiceMgr.get_server_by_type(ServerType.ROUTER)
-		if not server_info then
-			Log.err("bridge_create_role no router server_info")
-			return {result = ErrorCode.RPC_FAIL}
-		end
-
-		local status, result = RpcMgr.call(server_info, "router_create_role", data)
-		if not status then
-			Log.err("bridge_create_role rpc call fail")
-			return {result = ErrorCode.RPC_FAIL}
-		end
-
-		Log.debug("bridge_create_role: callback result=%s", Util.TableToString(result))
-
-		return result
-	end
-
 	call_func_map.bridge_rpc_test = function(data)
 		
 		Log.debug("bridge_rpc_test: data=%s", Util.TableToString(data))
@@ -66,6 +45,31 @@ function register_rpc_handler()
 		sum = result.sum
 
 		return {result = ErrorCode.SUCCESS, buff=buff, sum=sum}
+	end
+
+	-----------------------------------------------------------
+
+	call_func_map.bridge_create_role = function(data)
+		
+		Log.debug("bridge_create_role: data=%s", Util.TableToString(data))
+
+		--[[
+		local server_info = ServiceMgr.get_server_by_type(ServerType.ROUTER)
+		if not server_info then
+			Log.err("bridge_create_role no router server_info")
+			return {result = ErrorCode.RPC_FAIL}
+		end
+
+		local status, result = RpcMgr.call(server_info, "router_create_role", data)
+		if not status then
+			Log.err("bridge_create_role rpc call fail")
+			return {result = ErrorCode.RPC_FAIL}
+		end
+
+		Log.debug("bridge_create_role: callback result=%s", Util.TableToString(result))
+		--]]
+
+		return {result = ErrorCode.SUCCESS}
 	end
 
 end
