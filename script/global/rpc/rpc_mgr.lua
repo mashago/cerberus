@@ -69,7 +69,7 @@ function RpcMgr.callback(session_id, result, data)
 	end
 	RpcMgr._origin_map[session_id] = nil
 
-	local server_info = RpcMgr.get_target_server(origin.from_server_id)
+	local server_info = ServiceMgr.get_server_by_id(origin.from_server_id)
 	if not server_info then
 		Log.warn("RpcMgr.callback cannot go back from_server_id=%d", origin.from_server_id)
 		return
@@ -95,7 +95,7 @@ function RpcMgr.handle_call(data, mailbox_id, msg_id)
 
 	-- transfer rpc req to to server
 	if to_server_id ~= ServerConfig._server_id then
-		local server_info = RpcMgr.get_target_server(to_server_id)
+		local server_info = ServiceMgr.get_server_by_id(to_server_id)
 		if not server_info then
 			Log.warn("RpcMgr.handle_call cannot go to to_server_id=%d", to_server_id)
 			local msg =
@@ -175,14 +175,6 @@ function RpcMgr.handle_call(data, mailbox_id, msg_id)
 	end
 end
 
-function RpcMgr.get_target_server(server_id)
-	local server_info = ServiceServer.get_server_by_id(server_id)
-	if not server_info then
-		server_info = ServiceClient.get_server_by_id(server_id)
-	end
-	return server_info
-end
-
 function RpcMgr.handle_callback(data, mailbox_id, msg_id)
 	local result = data.result
 	local session_id = data.session_id
@@ -191,7 +183,7 @@ function RpcMgr.handle_callback(data, mailbox_id, msg_id)
 
 	-- transfer rpc ret to from server
 	if from_server_id ~= ServerConfig._server_id then
-		local server_info = RpcMgr.get_target_server(from_server_id)
+		local server_info = ServiceMgr.get_server_by_id(from_server_id)
 		if not server_info then
 			Log.warn("RpcMgr.handle_callback cannot go back from_server_id=%d", from_server_id)
 			return

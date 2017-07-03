@@ -123,6 +123,7 @@ function g_funcs.connect_to_mysql(xml_doc)
 	return true
 end
 
+-- a common handle for MID.REGISTER_SERVER_REQ
 function g_funcs.handle_register_server(data, mailbox_id, msg_id)
 	Log.debug("handle_register_server: data=%s", Util.TableToString(data))
 
@@ -170,6 +171,40 @@ function g_funcs.handle_register_server(data, mailbox_id, msg_id)
 		end
 	end
 
+end
+
+-- a common handle for MID.REGISTER_SERVER_RET
+function g_funcs.handle_register_server_ret(data, mailbox_id, msg_id)
+	Log.debug("handle_register_server_ret: data=%s", Util.TableToString(data))
+	if data.result ~= ErrorCode.SUCCESS then
+		Log.err("handle_register_server_ret: register fail %d", data.result)
+		return
+	end
+	local server_id = data.server_id
+	local server_type = data.server_type
+	ServiceClient.register_success(mailbox_id, server_id, server_type)
+
+	if server_type == ServerType.LOGIN and ServerConfig._server_type == ServerType.BRIDGE then
+		-- register area
+		local msg = 
+		{
+			area_list = ServerConfig._area_list,
+		}
+
+		Net.send_msg(mailbox_id, MID.REGISTER_AREA_REQ, msg)
+	end
+end
+
+-- a common handle for MID.REGISTER_SERVER_BROADCAST
+function g_funcs.handle_register_server_broadcast(data, mailbox_id, msg_id)
+	Log.debug("handle_register_server_broadcast: data=%s", Util.TableToString(data))
+	ServiceClient.add_server(mailbox_id, data.server_id, data.server_type, data.single_scene_list, data.from_to_scene_list)
+end
+
+-- a common handle for MID.SERVER_DISCONNECT
+function g_funcs.handle_server_disconnect(data, mailbox_id, msg_id)
+	Log.debug("handle_server_disconnect: data=%s", Util.TableToString(data))
+	ServiceClient.remove_server(mailbox_id, data.server_id)
 end
 
 return g_funcs

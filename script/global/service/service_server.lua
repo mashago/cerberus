@@ -122,6 +122,27 @@ function ServiceServer.get_server_by_scene(scene_id)
 	return ServiceServer.get_server_by_id(server_id)
 end
 
+-- same opt_key(number) will get same server, or just do random to get
+function ServiceServer.get_server_by_type(server_type, opt_key)
+	
+	local id_list = {}
+	local id_list = ServiceServer._type_server_map[server_type] or {}
+	if #id_list == 0 then
+		return nil
+	end
+
+	local server_id = 0
+	if not opt_key then
+		local r = math.random(#id_list)
+		server_id = id_list[r]
+	else
+		local r = opt_key % #id_list + 1
+		server_id = id_list[r]
+	end
+
+	return ServiceServer.get_server_by_id(server_id)
+end
+
 function ServiceServer.get_server_by_mailbox(mailbox_id)
 	for server_id, server_info in pairs(ServiceServer._all_server_map) do
 		if server_info._mailbox_id == mailbox_id then

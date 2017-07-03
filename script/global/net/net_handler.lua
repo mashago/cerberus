@@ -169,6 +169,7 @@ end
 
 function write_data_by_msgdef(data, msgdef, deep)
 
+	local flag = true
 	for idx, v in ipairs(msgdef) do
 		local val_name = v[1]
 		local val_type = v[2]

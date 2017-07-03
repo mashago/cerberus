@@ -8,7 +8,7 @@ function register_rpc_handler()
 		
 		Log.debug("bridge_create_role: data=%s", Util.TableToString(data))
 
-		local server_info = ServiceClient.get_server_by_type(ServerType.ROUTER)
+		local server_info = ServiceMgr.get_server_by_type(ServerType.ROUTER)
 		if not server_info then
 			Log.err("bridge_create_role no router server_info")
 			return {result = ErrorCode.RPC_FAIL}
@@ -36,7 +36,7 @@ function register_rpc_handler()
 		sum = sum + 1
 
 		-- rpc to router
-		local server_info = ServiceClient.get_server_by_type(ServerType.ROUTER)
+		local server_info = ServiceMgr.get_server_by_type(ServerType.ROUTER)
 		if not server_info then
 			Log.err("bridge_rpc_test no router server_info")
 			return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
@@ -51,7 +51,7 @@ function register_rpc_handler()
 		sum = result.sum
 
 		-- rpc to scene
-		local server_info = ServiceClient.get_server_by_type(ServerType.SCENE)
+		local server_info = ServiceMgr.get_server_by_type(ServerType.SCENE)
 		if not server_info then
 			Log.err("bridge_rpc_test no scene server_info")
 			return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}

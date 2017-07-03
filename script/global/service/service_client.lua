@@ -318,6 +318,30 @@ function ServiceClient.get_server_by_id(server_id)
 	return ServiceClient._all_server_map[server_id]
 end
 
+function ServiceClient.get_server_by_scene(scene_id)
+	
+	local id_list = {}
+	local id_list = ServiceClient._scene_server_map[scene_id] or {}
+	if #id_list == 0 then
+		return nil
+	end
+
+	local r = math.random(#id_list)
+	local server_id = id_list[r]
+
+	return ServiceClient.get_server_by_id(server_id)
+end
+
+function ServiceClient.get_server_by_mailbox(mailbox_id)
+	for server_id, server_info in pairs(ServiceClient._all_server_map) do
+		if server_info._mailbox_id == mailbox_id then
+			return server_info
+		end
+	end
+
+	return nil
+end
+
 -- same opt_key(number) will get same server, or just do random to get
 function ServiceClient.get_server_by_type(server_type, opt_key)
 	

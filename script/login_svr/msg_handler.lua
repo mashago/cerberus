@@ -3,7 +3,7 @@ local User = require "login_svr.user"
 local function handle_register_area(data, mailbox_id, msg_id)
 	Log.debug("handle_register_area: data=%s", Util.TableToString(data))
 
-	local server_info = ServiceServer.get_server_by_mailbox(mailbox_id)
+	local server_info = ServiceMgr.get_server_by_mailbox(mailbox_id)
 	if not server_info then
 		Log.warn("handle_register_area: unknow server mailbox_id=%d", mailbox_id)
 	end
@@ -40,7 +40,7 @@ local function handle_user_login(data, mailbox_id, msg_id)
 			return
 		end
 
-		local server_info = ServiceClient.get_server_by_type(ServerType.DB)
+		local server_info = ServiceMgr.get_server_by_type(ServerType.DB)
 		if not server_info then
 			Log.err("handle_user_login no db server_info")
 			msg.result = ErrorCode.USER_LOGIN_FAIL
@@ -102,7 +102,7 @@ local function handler_area_list_req(user, data, mailbox_id, msg_id)
 	local area_map = AreaMgr._area_map
 	local area_list = {}
 	for k, v in pairs(area_map) do
-		table.insert(area_list, {k, "qwerty"})
+		table.insert(area_list, {area_id=k, area_name="qwerty"})
 	end
 	local msg =
 	{
@@ -126,7 +126,8 @@ local function handle_create_role(data, mailbox_id, msg_id)
 			role_id = 0,
 		}
 
-		local server_info = ServiceServer.get_server_by_scene(area_id)
+		local server_id = AreaMgr.get_server_id(area_id)
+		local server_info = ServiceMgr.get_server_by_id(server_id)
 		if not server_info then
 			Log.err("handle_create_role no bridge server_info")
 			msg.result = ErrorCode.CREATE_ROLE_FAIL
@@ -175,7 +176,7 @@ local function handle_rpc_test(data, mailbox_id, msg_id)
 		}
 
 		-- 1. rpc to db
-		local server_info = ServiceClient.get_server_by_type(ServerType.DB)
+		local server_info = ServiceMgr.get_server_by_type(ServerType.DB)
 		if not server_info then
 			Log.err("handle_user_login no db server_info")
 			msg.result = ErrorCode.SYS_ERROR
@@ -199,7 +200,7 @@ local function handle_rpc_test(data, mailbox_id, msg_id)
 
 		-- 2. get bridge
 		local server_id = AreaMgr.get_server_id(area_id)
-		local server_info = ServiceServer.get_server_by_id(server_id)
+		local server_info = ServiceMgr.get_server_by_id(server_id)
 		if not server_info then
 			Log.err("handle_rpc_test no bridge server_info")
 			msg.result = ErrorCode.SYS_ERROR
