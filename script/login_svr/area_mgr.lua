@@ -17,6 +17,13 @@ function AreaMgr.register_area(server_id, area_list)
 	return true
 end
 
+function AreaMgr.is_open(area_id)
+	if not AreaMgr._area_map[area_id] then
+		return false
+	end
+	return true
+end
+
 function AreaMgr.get_server_id(area_id)
 	return AreaMgr._area_map[area_id] or -1
 end

@@ -16,6 +16,13 @@ function User:new(mailbox_id, user_id, username, channel_id)
 	return obj
 end
 
+function User:is_ok()
+	if not self._is_online then
+		return false
+	end
+	return true
+end
+
 function User:send_msg(msg_id, msg)
 	if not self._is_online then
 		return false

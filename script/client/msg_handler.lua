@@ -24,8 +24,19 @@ function x_test_end()
 	end
 end
 
+local function handle_rpc_test(data, mailbox_id, msg_id)
+	Log.debug("handle_rpc_test: data=%s", Util.TableToString(data))
+	if data.result ~= ErrorCode.SUCCESS then
+		Log.warn("handle_rpc_test: result=%s", ErrorCodeText[data.result])
+	end
+	x_test_end()
+end
+
 local function handle_user_login(data, mailbox_id, msg_id)
 	Log.debug("handle_user_login: data=%s", Util.TableToString(data))
+	if data.result ~= ErrorCode.SUCCESS then
+		Log.warn("handle_user_login: result=%s", ErrorCodeText[data.result])
+	end
 	x_test_end()
 end
 
@@ -35,21 +46,23 @@ end
 
 local function handle_role_list_ret(data, mailbox_id, msg_id)
 	Log.debug("handle_role_list_ret: data=%s", Util.TableToString(data))
+	if data.result ~= ErrorCode.SUCCESS then
+		Log.warn("handle_role_list_ret: result=%s", ErrorCodeText[data.result])
+	end
 end
 
 local function handle_create_role(data, mailbox_id, msg_id)
 	Log.debug("handle_create_role: data=%s", Util.TableToString(data))
-end
-
-local function handle_rpc_test(data, mailbox_id, msg_id)
-	Log.debug("handle_rpc_test: data=%s", Util.TableToString(data))
-	x_test_end()
+	if data.result ~= ErrorCode.SUCCESS then
+		Log.warn("handle_create_role: result=%s", ErrorCodeText[data.result])
+	end
 end
 
 function register_msg_handler()
+	Net.add_msg_handler(MID.RPC_TEST_RET, handle_rpc_test)
+
 	Net.add_msg_handler(MID.USER_LOGIN_RET, handle_user_login)
 	Net.add_msg_handler(MID.AREA_LIST_RET, handle_area_list_ret)
 	Net.add_msg_handler(MID.ROLE_LIST_RET, handle_role_list_ret)
 	Net.add_msg_handler(MID.CREATE_ROLE_RET, handle_create_role)
-	Net.add_msg_handler(MID.RPC_TEST_RET, handle_rpc_test)
 end

@@ -87,20 +87,33 @@ function register_rpc_handler()
 		
 		Log.debug("db_create_role: data=%s", Util.TableToString(data))
 
+		-- each user only can has 4 role
+		local MAX_ROLE = 4
 
 		local user_id = data.user_id
 		local area_id = data.area_id
 		local role_name = data.role_name
 
-		-- TODO call a procedure
+		-- call a procedure
+		local sql = string.format("CALL create_user_role(%d,%d,'%s',%d)", user_id, area_id, role_name, MAX_ROLE)
 
-		local ret = DBMgr.do_insert("login_db", "user_role", {"user_id", "area_id", "role_name"}, {{user_id, area_id, role_name}})
-		if ret < 0 then
-			-- insert fail, should be duplicate role_name
-			return {result = ErrorCode.CREATE_ROLE_DUPLICATE_NAME, role_id = 0}
+		local ret = DBMgr.do_execute("login_db", sql, true)
+		if not ret then
+			Log.err("db_create_role fail user_id=%d area_id=%d role_name=%s", user_id, area_id, role_name)
+			return {result = ErrorCode.SUCCESS, role_id = 0}
 		end
 
-		local role_id = DBMgr.get_insert_id("login_db")
+		Log.debug("db_create_role: ret=%s", Util.TableToString(ret))
+		local role_id = tonumber(ret[1].role_id)
+		if role_id == -1 then
+			return {result = ErrorCode.CREATE_ROLE_NUM_MAX, role_id = 0}
+		elseif role_id == -2 then
+			return {result = ErrorCode.CREATE_ROLE_DUPLICATE_NAME, role_id = 0}
+		elseif role_id < 0 then
+			Log.warn("db_create_role something go wrong role_id=%d user_id=%d area_id=%d role_name=%s", role_id, user_id, area_id, role_name)
+			return {result = ErrorCode.CREATE_ROLE_FAIL, role_id = 0}
+		end
+
 		return {result = ErrorCode.SUCCESS, role_id = role_id}
 	end
 

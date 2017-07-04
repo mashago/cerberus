@@ -15,6 +15,8 @@ function DBMgr.connect_to_mysql(ip, port, username, password, db_name)
 	return true
 end
 
+
+-- local ret = DBMgr.do_select("login_db", "user_info", {}, {username=username, password=password, channel_id=channel_id})
 -- db_name = "login_db"
 -- table_name = "user_info"
 -- fields = {} or {"user_id", "user_name"}
@@ -72,6 +74,25 @@ function DBMgr.do_select(db_name, table_name, fields, conditions)
 	return data
 end
 
+function DBMgr.do_execute(db_name, sql, is_select)
+
+	local mysqlmgr = DBMgr._mysql_map[db_name] 
+	if not mysqlmgr then
+		return nil
+	end
+	if is_select then
+		local ret, data = mysqlmgr:select(sql);
+		if not ret then
+			return nil;
+		end
+		return data
+	end
+
+	local ret = mysqlmgr:change(sql);
+	return ret
+end
+
+-- local ret = DBMgr.do_insert("login_db", "user_info", {"username", "password", "channel_id"}, {{username, password, channel_id}})
 -- db_name = "login_db"
 -- table_name = "user_info"
 -- fields = {"user_name", "user_password"}

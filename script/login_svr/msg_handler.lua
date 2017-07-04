@@ -130,7 +130,6 @@ local function handle_user_login(data, mailbox_id, msg_id)
 		local password = data.password
 		local channel_id = data.channel_id
 		local rpc_data = {username=username, password=password, channel_id=channel_id}
-
 		local status, result = RpcMgr.call(server_info, "db_user_login", rpc_data)
 		if not status then
 			Log.err("handle_user_login rpc call fail")
@@ -168,7 +167,7 @@ local function handle_user_login(data, mailbox_id, msg_id)
 		end
 
 		msg.result = ErrorCode.SUCCESS
-		Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, msg)
+		user:send_msg(MID.USER_LOGIN_RET, msg)
 	end
 	RpcMgr.run(func, mailbox_id, data)
 
@@ -200,12 +199,21 @@ local function handle_role_list_req(user, data, mailbox_id, msg_id)
 		role_list = {},
 	}
 
+	if not AreaMgr.is_open(data.area_id) then
+		msg.result = ErrorCode.AREA_NOT_OPEN
+		user:send_msg(MID.ROLE_LIST_RET, msg)
+		return
+	end
+
+	-- 1. check area is online
+	-- 2. get role list from user if exists
+	-- 3. rpc db to get role list, and save into user
+
 	-- already get role list
 	if user._role_map[data.area_id] then
 		for k, v in ipairs(user._role_map[data.area_id]) do
 			table.insert(msg.role_list, v)
 		end
-
 		user:send_msg(MID.ROLE_LIST_RET, msg)
 		return
 	end
@@ -273,32 +281,37 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 			role_id = 0,
 		}
 
-		-- 1. rpc to db create role
-		-- 2. rpc to area bridge
-		-- 3. add role into user
+		if not AreaMgr.is_open(area_id) then
+			msg.result = ErrorCode.AREA_NOT_OPEN
+			user:send_msg(MID.CREATE_ROLE_RET, msg)
+			return
+		end
 
-		local server_id = AreaMgr.get_server_id(area_id)
-		if server_id < 0 then
-			Log.warn("handle_create_role no such area %d", area_id)
+		-- 1. check already get role_list
+		-- 2. rpc to db create role
+		-- 3. rpc to area bridge
+		-- 4. add role into user
+
+		-- 1. check already get role_list
+		if not user._role_map[data.area_id] then
 			msg.result = ErrorCode.CREATE_ROLE_FAIL
 			user:send_msg(MID.CREATE_ROLE_RET, msg)
 			return
 		end
 
-		local server_info = ServiceMgr.get_server_by_type(ServerType.DB)
+		-- 2. rpc to db create role
+		local server_info = ServiceMgr.get_server_by_type(ServerType.DB, user._user_id)
 		if not server_info then
 			Log.err("handle_create_role no db server_info")
 			msg.result = ErrorCode.CREATE_ROLE_FAIL
 			user:send_msg(MID.CREATE_ROLE_RET, msg)
 			return
 		end
-
-		-- 1. rpc to db create role
 		local rpc_data = 
 		{
 			user_id=user._user_id, 
 			area_id=area_id, 
-			role_name=role_name
+			role_name=role_name,
 		}
 		local status, result = RpcMgr.call(server_info, "db_create_role", rpc_data)
 		if not status then
@@ -315,10 +328,12 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 			return
 		end
 
+		-- get new role id
 		local role_id = result.role_id
 		msg.role_id = role_id
+		Log.debug("handle_create_role role_id=%d", role_id)
 
-		-- 2. rpc to area bridge
+		-- 3. rpc to area bridge to create role data
 		local server_id = AreaMgr.get_server_id(area_id)
 		local server_info = ServiceMgr.get_server_by_id(server_id)
 		if not server_info then
@@ -345,9 +360,13 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 		end
 		Log.debug("handle_create_role: callback result2=%s", Util.TableToString(result))
 
-		-- ok now
+		-- 4. add role into user
+		if not user:is_ok() then
+			-- user may offline, do nothing
+			return
+		end
+
 		user:add_role(area_id, role_id, role_name)
-			
 		user:send_msg(MID.CREATE_ROLE_RET, msg)
 	end
 	RpcMgr.run(func, user, data)

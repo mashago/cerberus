@@ -24,13 +24,15 @@ ErrorCode =
 {
 	SUCCESS 						= 1,
 	SYS_ERROR 						= 2,
+	AREA_NOT_OPEN 					= 3,
 
-	USER_LOGIN_FAIL 				= 3,
-	USER_LOGIN_PASSWORD_MISMATCH 	= 4,
-	USER_LOGIN_DUPLICATE_LOGIN 		= 5,
+	USER_LOGIN_FAIL 				= 1003,
+	USER_LOGIN_PASSWORD_MISMATCH 	= 1004,
+	USER_LOGIN_DUPLICATE_LOGIN 		= 1005,
 
-	CREATE_ROLE_FAIL 				= 6,
-	CREATE_ROLE_DUPLICATE_NAME 		= 7,
+	CREATE_ROLE_FAIL 				= 1106,
+	CREATE_ROLE_NUM_MAX 			= 1107,
+	CREATE_ROLE_DUPLICATE_NAME 		= 1108,
 
 
 	REGISTER_SERVER_FAIL 			= 600001,
@@ -39,3 +41,10 @@ ErrorCode =
 	REGISTER_AREA_DUPLICATE			= 600004,
 }
 
+ErrorCodeText = {}
+local function create_error_code_text()
+	for k, v in pairs(ErrorCode) do
+		ErrorCodeText[v] = k
+	end
+end
+create_error_code_text()
