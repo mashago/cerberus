@@ -80,11 +80,11 @@ int test1()
 		return -1;
 	}
 
-	LOG_DEBUG("******* create role_summary");
-	sql = "CREATE TABLE IF NOT EXISTS `role_summary` (\
+	LOG_DEBUG("******* create user_role");
+	sql = "CREATE TABLE IF NOT EXISTS `user_role` (\
 		`role_id` bigint(20) NOT NULL AUTO_INCREMENT,\
 		`user_id` bigint(20) NOT NULL,\
-		`area_no` int(11) NOT NULL,\
+		`area_id` int(11) NOT NULL,\
 		`role_name` varchar(45) NOT NULL,\
 		PRIMARY KEY (`role_id`),\
 		KEY `user_id` (`user_id`)\
@@ -92,7 +92,7 @@ int test1()
 	ret = mgr.Change(sql, strlen(sql));
 	if (ret != 0)
 	{
-		LOG_ERROR("create table role_summary fail %d", ret);
+		LOG_ERROR("create table user_role fail %d", ret);
 		LOG_ERROR("errno=%d error=[%s]", mgr.GetErrno(), mgr.GetError());
 		return -1;
 	}
@@ -231,11 +231,11 @@ int test1()
 		return -1;
 	}
 	
-	sql = "DROP TABLE IF EXISTS `role_summary`";
+	sql = "DROP TABLE IF EXISTS `user_role`";
 	ret = mgr.Change(sql, strlen(sql));
 	if (ret != 0)
 	{
-		LOG_ERROR("drop table role_summary fail %d", ret);
+		LOG_ERROR("drop table user_role fail %d", ret);
 		LOG_ERROR("errno=%d error=[%s]", mgr.GetErrno(), mgr.GetError());
 		return -1;
 	}

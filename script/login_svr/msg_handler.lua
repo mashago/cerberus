@@ -221,7 +221,7 @@ local function handle_role_list_req(user, data, mailbox_id, msg_id)
 			role_list = {},
 		}
 
-		local server_info = ServiceMgr.get_server_by_type(ServerType.DB)
+		local server_info = ServiceMgr.get_server_by_type(ServerType.DB, user._user_id)
 		if not server_info then
 			Log.err("handle_role_list_req no db server_info")
 			msg.result = ErrorCode.SYS_ERROR
@@ -275,6 +275,7 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 
 		-- 1. rpc to db create role
 		-- 2. rpc to area bridge
+		-- 3. add role into user
 
 		local server_id = AreaMgr.get_server_id(area_id)
 		if server_id < 0 then
@@ -293,9 +294,6 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 		end
 
 		-- 1. rpc to db create role
-		local username = data.username
-		local password = data.password
-		local channel_id = data.channel_id
 		local rpc_data = 
 		{
 			user_id=user._user_id, 
@@ -348,7 +346,8 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 		Log.debug("handle_create_role: callback result2=%s", Util.TableToString(result))
 
 		-- ok now
-
+		user:add_role(area_id, role_id, role_name)
+			
 		user:send_msg(MID.CREATE_ROLE_RET, msg)
 	end
 	RpcMgr.run(func, user, data)

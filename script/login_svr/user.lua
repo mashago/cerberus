@@ -23,4 +23,10 @@ function User:send_msg(msg_id, msg)
 	return Net.send_msg(self._mailbox_id, msg_id, msg)
 end
 
+function User:add_role(area_id, role_id, role_name)
+	self._role_map[area_id] = self._role_map[area_id] or {}
+	local role = {role_id=role_id, role_name=role_name}
+	table.insert(self._role_map[area_id], role)
+end
+
 return User

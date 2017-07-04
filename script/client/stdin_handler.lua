@@ -76,31 +76,28 @@ function cmd_handler.do_area_list_req(params)
 end
 
 function cmd_handler.do_role_list_req(params)
-	-- rolelist [area_id]
-	if #params ~= 2 then
-		Log.warn("cmd_handler.do_role_list_req params not enough")
-		return
-	end
+	-- rolelist [opt area_id]
+	local area_id = tonumber(params[2] or "1")
 
 	local msg =
 	{
-		area_id = tonumber(params[2]),
+		area_id = area_id
 	}
 
 	send_to_login(MID.ROLE_LIST_REQ, msg)
 end
 
 function cmd_handler.do_create_role(params)
-	-- create [area_id] [role_name]
-	if #params ~= 3 then
+	-- create [role_name] [opt area_id]
+	if #params < 2 then
 		Log.warn("cmd_handler.do_create_role params not enough")
 		return
 	end
 
 	local msg =
 	{
-		area_id = tonumber(params[2]),
-		role_name = params[3],
+		area_id = tonumber(params[3] or "1"),
+		role_name = params[2],
 	}
 
 	send_to_login(MID.CREATE_ROLE_REQ, msg)

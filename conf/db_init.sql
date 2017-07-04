@@ -18,3 +18,13 @@ CREATE TABLE IF NOT EXISTS `user_info` (
 	PRIMARY KEY (`user_id`),
 	KEY `channel_id` (`channel_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8;
+
+DROP TABLE IF EXISTS `user_role`;
+CREATE TABLE IF NOT EXISTS `user_role` (
+	`role_id` bigint(20) NOT NULL AUTO_INCREMENT,
+	`user_id` bigint(20) NOT NULL,
+	`area_id` int(11) NOT NULL,
+	`role_name` varchar(45) NOT NULL,
+	PRIMARY KEY (`role_id`),
+	KEY `user_id` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8;

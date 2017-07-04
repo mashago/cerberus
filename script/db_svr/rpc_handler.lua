@@ -51,7 +51,7 @@ function register_rpc_handler()
 		end
 	
 		-- must return a table
-		local user_id = ret[1].user_id
+		local user_id = tonumber(ret[1].user_id)
 		return {result = ErrorCode.SUCCESS, user_id = user_id}
 	end
 
@@ -59,7 +59,6 @@ function register_rpc_handler()
 		
 		Log.debug("db_role_list: data=%s", Util.TableToString(data))
 
-		--[[
 		local area_id = data.area_id
 		local user_id = data.user_id
 
@@ -67,19 +66,21 @@ function register_rpc_handler()
 		, {user_id=user_id, area_id=area_id})
 		if not ret then
 			Log.warn("select role_list fail username=%s password=%s", username, password)
-			return {result = ErrorCode.SYS_ERROR, user_id = 0}
+			return {result = ErrorCode.SYS_ERROR, role_list = {}}
 		end
 
 		Log.debug("db_role_list: ret=%s", Util.TableToString(ret))
-		--]]
 
-		-- TODO
-		local ret = {}
-		-- table.insert(ret, {role_id=111, role_name="masha1"})
-		-- table.insert(ret, {role_id=222, role_name="masha2"})
+		local role_list = {}
+		for _, r in ipairs(ret) do
+			local role_info = {}
+			role_info.role_id = tonumber(r.role_id)
+			role_info.role_name = r.role_name
+			table.insert(role_list, role_info)
+		end
 	
 		-- must return a table
-		return {result = ErrorCode.SUCCESS, role_list = ret}
+		return {result = ErrorCode.SUCCESS, role_list = role_list}
 	end
 
 	call_func_map.db_create_role = function(data)
@@ -93,30 +94,13 @@ function register_rpc_handler()
 
 		-- TODO call a procedure
 
-		--[[
-		local ret = DBMgr.do_insert("login_db", "user_info", {"username", "password", "channel_id"}, {{username, password, channel_id}})
-		if ret > 0 then
-			-- insert success
-			local user_id = DBMgr.get_insert_id("login_db")
-			return {result = ErrorCode.SUCCESS, user_id = user_id}
+		local ret = DBMgr.do_insert("login_db", "user_role", {"user_id", "area_id", "role_name"}, {{user_id, area_id, role_name}})
+		if ret < 0 then
+			-- insert fail, should be duplicate role_name
+			return {result = ErrorCode.CREATE_ROLE_DUPLICATE_NAME, role_id = 0}
 		end
 
-		local ret = DBMgr.do_select("login_db", "user_info", {}
-		, {username=username, password=password, channel_id=channel_id})
-		if not ret then
-			Log.warn("select user fail username=%s password=%s", username, password)
-			return {result = ErrorCode.SYS_ERROR, user_id = 0}
-		end
-
-		Log.debug("db_create_role: ret=%s", Util.TableToString(ret))
-		if #ret == 0 then
-			-- empty record, password mismatch
-			return {result = ErrorCode.USER_LOGIN_PASSWORD_MISMATCH, user_id = 0}
-		end
-		--]]
-	
-		-- must return a table
-		local role_id = math.random(100000)
+		local role_id = DBMgr.get_insert_id("login_db")
 		return {result = ErrorCode.SUCCESS, role_id = role_id}
 	end
 
