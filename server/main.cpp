@@ -35,8 +35,10 @@ int main(int argc, char ** argv)
 	const char *ip = (char*)root->Attribute("ip");
 	int port = root->IntAttribute("port");
 	const char *entry_file = (char*)root->Attribute("file");
-	LOG_DEBUG("server_id=%d server_type=%d ip=%s port=%d entry_file=%s"
-	, server_id, server_type, ip, port, entry_file);
+	int auto_shutdown = root->IntAttribute("auto_shutdown");
+
+	LOG_DEBUG("server_id=%d server_type=%d ip=%s port=%d entry_file=%s auto_shutdown=%d"
+	, server_id, server_type, ip, port, entry_file, auto_shutdown);
 
 	std::set<std::string> trustIpSet;
 	tinyxml2::XMLElement *trust_ip = root->FirstChildElement("trust_ip");
@@ -77,6 +79,12 @@ int main(int argc, char ** argv)
 	net->SetWorld(world);
 	world->SetNetService(net);
 	world->Init(server_id, server_type, conf_file, entry_file);
+
+	if (auto_shutdown)
+	{
+		printf("******* %s auto shutdown *******\n", conf_file);
+		return 0;
+	}
 
 	net->Service();
 
