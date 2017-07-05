@@ -1,4 +1,5 @@
 
+local do_db_sync = nil
 
 local function main_entry()
 	Log.info("sync_db main_entry")
@@ -11,8 +12,13 @@ local function main_entry()
 
 	g_funcs.connect_to_mysql(xml_doc)
 
-	-- TODO sync db
+	-- sync db
+	do_db_sync()
+	
+end
 
+do_db_sync = function()
+	Log.debug("do_db_sync")
 end
 
 main_entry()
