@@ -1,6 +1,8 @@
 
 -- TODO should create by xls or csv
-local role_info = 
+
+DataStructDef = {}
+DataStructDef.role_info = 
 {
 	role_id = { type=_Int64, save=1,},
 	role_name = { type=_String, save=1,},
@@ -11,5 +13,4 @@ local role_info =
 	-- pos_y = { type=_Int32, save=1,},
 }
 
-
-return role_info
+return DataStructDef

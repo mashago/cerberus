@@ -104,14 +104,16 @@ int luamysqlmgr_select(lua_State* L)
 	{
 		++index;
 		lua_newtable(L);
-		std::string buffer = "";
+		std::string print_buffer = "";
 		for (int j = 0; j < fieldCount; j++)
 		{
-			buffer += std::string(pField[j].name) + std::string("=") + std::string(row[j]) + std::string(" ");
-			lua_pushstring(L, row[j]);
+			const char *row_value = "";
+			if (row[j]) row_value = row[j];
+			print_buffer += std::string(pField[j].name) + std::string("=") + std::string(row_value) + std::string(" ");
+			lua_pushstring(L, row_value);
 			lua_setfield(L, -2, pField[j].name);
 		}
-		LOG_DEBUG("%s", buffer.c_str());
+		LOG_DEBUG("line=%s", print_buffer.c_str());
 		lua_rawseti(L, -2, index);
 	}
 

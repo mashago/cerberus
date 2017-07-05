@@ -6,6 +6,7 @@ require "global.init"
 require "global.global_def"
 require "global.global_funcs"
 require "global.server_conf"
+require "global.data_struct_def"
 
 local function main()
 	Log.info("------------------------------")
