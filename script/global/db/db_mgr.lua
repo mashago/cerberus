@@ -74,24 +74,6 @@ function DBMgr.do_select(db_name, table_name, fields, conditions)
 	return data
 end
 
-function DBMgr.do_execute(db_name, sql, is_select)
-
-	local mysqlmgr = DBMgr._mysql_map[db_name] 
-	if not mysqlmgr then
-		return nil
-	end
-	if is_select then
-		local ret, data = mysqlmgr:select(sql);
-		if not ret then
-			return nil;
-		end
-		return data
-	end
-
-	local ret = mysqlmgr:change(sql);
-	return ret
-end
-
 -- local ret = DBMgr.do_insert("login_db", "user_info", {"username", "password", "channel_id"}, {{username, password, channel_id}})
 -- db_name = "login_db"
 -- table_name = "user_info"
@@ -162,6 +144,25 @@ function DBMgr.get_insert_id(db_name)
 
 	local insert_id = math.floor(mysqlmgr:get_insert_id())
 	return insert_id
+end
+
+-- for execute raw sql
+function DBMgr.do_execute(db_name, sql, has_ret)
+
+	local mysqlmgr = DBMgr._mysql_map[db_name] 
+	if not mysqlmgr then
+		return nil
+	end
+	if has_ret then
+		local ret, data = mysqlmgr:select(sql);
+		if not ret then
+			return nil;
+		end
+		return data
+	end
+
+	local ret = mysqlmgr:change(sql);
+	return ret
 end
 
 return DBMgr

@@ -1,4 +1,5 @@
 
+_Null 			= 0
 _Byte 			= 1
 _Bool 			= 2
 _Int 			= 3
