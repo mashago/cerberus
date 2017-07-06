@@ -1,5 +1,5 @@
 
-local do_db_sync = nil
+local sync_db = nil
 
 local function main_entry()
 	Log.info("sync_db main_entry")
@@ -13,12 +13,12 @@ local function main_entry()
 	g_funcs.connect_to_mysql(xml_doc)
 
 	-- sync db
-	do_db_sync()
+	sync_db()
 	
 end
 
-do_db_sync = function()
-	Log.debug("do_db_sync")
+sync_db = function()
+	Log.debug("sync_db")
 
 	local type_str_map = 
 	{

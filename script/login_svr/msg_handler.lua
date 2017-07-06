@@ -288,8 +288,8 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 		end
 
 		-- 1. check already get role_list
-		-- 2. rpc to db create role
-		-- 3. rpc to area bridge
+		-- 2. rpc to db create role in user_role
+		-- 3. rpc to area bridge to create role_info
 		-- 4. add role into user
 
 		-- 1. check already get role_list
@@ -337,7 +337,7 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 		local server_id = AreaMgr.get_server_id(area_id)
 		local server_info = ServiceMgr.get_server_by_id(server_id)
 		if not server_info then
-			-- area not exists, TODO should delete role in db
+			-- TODO if area not exists, should delete role in db user_role
 			Log.err("handle_create_role no bridge server_info2 %d", area_id)
 			msg.result = ErrorCode.SYS_ERROR
 			user:send_msg(MID.CREATE_ROLE_RET, msg)
@@ -346,10 +346,11 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 
 		local rpc_data = 
 		{
-			user_id=user._user_id, 
-			area_id=area_id, 
 			role_id=role_id,
 			role_name=role_name,
+			user_id=user._user_id, 
+			channel_id=user._channel_id, 
+			area_id=area_id, 
 		}
 		local status, result = RpcMgr.call(server_info, "bridge_create_role", rpc_data)
 		if not status then

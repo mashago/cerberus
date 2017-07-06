@@ -55,7 +55,9 @@ function register_rpc_handler()
 		return {result = ErrorCode.SUCCESS, user_id = user_id}
 	end
 
+	-- TODO change to a common db_select()
 	call_func_map.db_role_list = function(data)
+
 		
 		Log.debug("db_role_list: data=%s", Util.TableToString(data))
 
@@ -115,6 +117,15 @@ function register_rpc_handler()
 		end
 
 		return {result = ErrorCode.SUCCESS, role_id = role_id}
+	end
+
+	call_func_map.db_insert = function(data)
+		
+		Log.debug("db_insert: data=%s", Util.TableToString(data))
+
+		-- TODO
+
+		return {result = ErrorCode.SUCCESS}
 	end
 
 end

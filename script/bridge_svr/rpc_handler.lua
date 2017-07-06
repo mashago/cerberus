@@ -53,23 +53,42 @@ function register_rpc_handler()
 		
 		Log.debug("bridge_create_role: data=%s", Util.TableToString(data))
 
-		--[[
-		local server_info = ServiceMgr.get_server_by_type(ServerType.ROUTER)
-		if not server_info then
-			Log.err("bridge_create_role no router server_info")
-			return {result = ErrorCode.RPC_FAIL}
+		-- rpc to db to insert role_info
+		local role_data = {}
+
+		-- set default value by config
+		for k, v in pairs(DataStructDef.role_info) do
+			repeat
+			if not v.save or v.save == 0 then
+				break
+			end
+			local default = Util.convert_value_by_type(v.default, v.type)
+			table.insert(role_data, default)
+			until true
 		end
 
-		local status, result = RpcMgr.call(server_info, "router_create_role", data)
+		-- set other value
+		for k, v in pairs(data) do
+			table.insert(k, v)
+		end
+
+		Log.debug("bridge_create_role role_data=%s", Util.TableToString(role_data))
+
+		local server_info = ServiceMgr.get_server_by_type(ServerType.DB, data.role_id)
+		if not server_info then
+			Log.err("bridge_create_role no db server_info")
+			return {result = ErrorCode.SYS_ERROR}
+		end
+
+		local status, result = RpcMgr.call(server_info, "db_insert", role_data)
 		if not status then
 			Log.err("bridge_create_role rpc call fail")
-			return {result = ErrorCode.RPC_FAIL}
+			return {result = ErrorCode.SYS_ERROR}
 		end
+		Log.debug("bridge_create_role callback result=%s", Util.TableToString(result))
 
-		Log.debug("bridge_create_role: callback result=%s", Util.TableToString(result))
-		--]]
+		return {result = result.result}
 
-		return {result = ErrorCode.SUCCESS}
 	end
 
 end
