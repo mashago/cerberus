@@ -4,7 +4,27 @@
 
 DataStructDef = {}
 
-DataStructDef.role_info = 
+DataStructDef.login_db = {}
+DataStructDef.login_db.user_info = 
+{
+	user_id = { type=_Int64, save=1, default='_Null', key='PRI', ai=1000},
+	channel_id = { type=_Int, save=1, default='0', key='MUL'},
+	username = { type=_String, save=1, default='_Null', key='UNI'},
+	password = { type=_String, save=1, default='_Null'},
+	create_date = { type=_Int64, save=1, default='0'},
+}
+
+DataStructDef.login_db.user_role = 
+{
+	role_id = { type=_Int64, save=1, default='_Null', key='PRI', ai=10000},
+	user_id = { type=_Int64, save=1, default='_Null', key='MUL'},
+	area_id = { type=_Int, save=1, default='_Null', key='MUL'},
+	role_name = { type=_String, save=1, default='_Null', key='UNI'},
+}
+
+
+DataStructDef.game_db = {}
+DataStructDef.game_db.role_info = 
 {
 	role_id = { type=_Int64, save=1, default='_Null'},
 	role_name = { type=_String, save=1, default='_Null'},
