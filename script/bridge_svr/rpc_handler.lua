@@ -63,13 +63,14 @@ function register_rpc_handler()
 				break
 			end
 			local default = Util.convert_value_by_type(v.default, v.type)
-			table.insert(role_data, default)
+			role_data[k]=default
 			until true
 		end
+		Log.debug("bridge_create_role: data=%s", Util.TableToString(data))
 
 		-- set other value
 		for k, v in pairs(data) do
-			table.insert(k, v)
+			role_data[k] = v
 		end
 
 		Log.debug("bridge_create_role role_data=%s", Util.TableToString(role_data))

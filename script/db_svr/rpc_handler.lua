@@ -55,7 +55,7 @@ function register_rpc_handler()
 		return {result = ErrorCode.SUCCESS, user_id = user_id}
 	end
 
-	-- TODO change to a common db_select()
+	--[[
 	call_func_map.db_role_list = function(data)
 
 		
@@ -84,6 +84,7 @@ function register_rpc_handler()
 		-- must return a table
 		return {result = ErrorCode.SUCCESS, role_list = role_list}
 	end
+	--]]
 
 	call_func_map.db_create_role = function(data)
 		
@@ -119,11 +120,41 @@ function register_rpc_handler()
 		return {result = ErrorCode.SUCCESS, role_id = role_id}
 	end
 
-	call_func_map.db_insert = function(data)
+
+	call_func_map.db_select = function(data)
 		
 		Log.debug("db_insert: data=%s", Util.TableToString(data))
 
-		-- TODO
+		local db_name = data.db_name
+		local table_name = data.table_name
+		local fields = data.fields
+		local conditions = data.conditions
+
+		local ret = DBMgr.do_select(db_name, table_name, fields, conditions)
+		if not ret then
+			Log.err("db_select err db_name=%s table_name=%s fields=%s conditions=%s", db_name, table_name, Util.TableToString(fields), Util.TableToString(conditions))
+			return {result = ErrorCode.SYS_ERROR, data = {}}
+		end
+
+		Log.debug("db_select: ret=%s", Util.TableToString(ret))
+	
+		-- must return a table
+		return {result = ErrorCode.SUCCESS, data = ret}
+	end
+
+
+	call_func_map.db_insert = function(data)
+		
+		--[[
+		Log.debug("db_insert: data=%s", Util.TableToString(data))
+
+		local ret = DBMgr.do_insert("login_db", "user_info", {"username", "password", "channel_id"}, {{username, password, channel_id}})
+		if ret > 0 then
+			-- insert success
+			local user_id = DBMgr.get_insert_id("login_db")
+			return {result = ErrorCode.SUCCESS, user_id = user_id}
+		end
+		--]]
 
 		return {result = ErrorCode.SUCCESS}
 	end
