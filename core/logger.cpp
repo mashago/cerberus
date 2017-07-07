@@ -29,7 +29,37 @@ void _logcore(int type, const char *filename, const char *funcname, int linenum,
 	vsnprintf(buffer, MAX_LOG_BUFFER_SIZE, fmt, ap);
 	va_end(ap);
 
-	printf("[%s] [%s] %s:%s[%d] : %s\n", tags[type], time_buffer, filename, funcname, linenum, buffer);
+	switch (type)
+	{
+		case LOG_TYPE_DEBUG:
+		{
+			printf("\033[0;32;32m");
+			break;
+		}
+		case LOG_TYPE_INFO:
+		{
+			break;
+		}
+		case LOG_TYPE_WARN:
+		{
+			printf("\033[1;33m");
+			break;
+		}
+		case LOG_TYPE_ERROR:
+		{
+			printf("\033[0;32;31m");
+			break;
+		}
+	}
+	if (linenum != 0)
+	{
+		printf("[%s] [%s] %s:%s[%d] : %s", tags[type], time_buffer, filename, funcname, linenum, buffer);
+	}
+	else
+	{
+		printf("[%s] [%s] : %s", tags[type], time_buffer, buffer);
+	}
+	printf("\033[m\n");
 }
 
 /*

@@ -27,6 +27,45 @@ LuaWorld::~LuaWorld()
 {
 }
 
+static int logger_c(lua_State *L)
+{
+	luaL_checktype(L, 1, LUA_TNUMBER);
+	luaL_checktype(L, 2, LUA_TSTRING);
+
+	int type = lua_tointeger(L, 1);
+	const char * str =  lua_tostring(L, 2);
+
+	switch (type)
+	{
+		case LOG_TYPE_DEBUG:
+		{
+			// LOG_DEBUG("%s", str);
+			_logcore(LOG_TYPE_DEBUG, __FILE__, __FUNCTION__, 0, "%s", str);
+			break;
+		}
+		case LOG_TYPE_INFO:
+		{
+			// LOG_INFO("%s", str);
+			_logcore(LOG_TYPE_INFO, __FILE__, __FUNCTION__, 0, "%s", str);
+			break;
+		}
+		case LOG_TYPE_WARN:
+		{
+			// LOG_WARN("%s", str);
+			_logcore(LOG_TYPE_WARN, __FILE__, __FUNCTION__, 0, "%s", str);
+			break;
+		}
+		case LOG_TYPE_ERROR:
+		{
+			// LOG_ERROR("%s", str);
+			_logcore(LOG_TYPE_ERROR, __FILE__, __FUNCTION__, 0, "%s", str);
+			break;
+		}
+	};
+	
+	return 0;
+}
+
 bool LuaWorld::Init(int server_id, int server_type, const char *conf_file, const char *entry_file)
 {
 	LuaNetwork::Instance()->SetNetService(m_net);
@@ -65,6 +104,10 @@ bool LuaWorld::Init(int server_id, int server_type, const char *conf_file, const
 
 	// register timer function
 	reg_timer_funcs(m_L, this);
+
+	// register logger for lua
+	lua_register(m_L, "logger_c", logger_c);
+	
 
 	// set global params
 	lua_pushinteger(m_L, server_id);
