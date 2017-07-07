@@ -72,6 +72,7 @@ local function handle_rpc_test(data, mailbox_id, msg_id)
 
 		Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
 	end
+	-- rpc warpper
 	RpcMgr.run(func, mailbox_id, data.buff)
 end
 
@@ -188,86 +189,6 @@ local function handler_area_list_req(user, data, mailbox_id, msg_id)
 
 	user:send_msg(MID.AREA_LIST_RET, msg)
 end
-
---[[
-local function handle_role_list_req(user, data, mailbox_id, msg_id)
-	Log.debug("handle_role_list_req: data=%s", Util.TableToString(data))
-
-	local msg =
-	{
-		result = ErrorCode.SUCCESS,
-		area_id = data.area_id,
-		role_list = {},
-	}
-
-	if not AreaMgr.is_open(data.area_id) then
-		msg.result = ErrorCode.AREA_NOT_OPEN
-		user:send_msg(MID.ROLE_LIST_RET, msg)
-		return
-	end
-
-	-- 1. check area is online
-	-- 2. get role list from user if exists
-	-- 3. rpc db to get role list, and save into user
-
-	-- already get role list
-	if user._role_map[data.area_id] then
-		for k, v in ipairs(user._role_map[data.area_id]) do
-			table.insert(msg.role_list, v)
-		end
-		user:send_msg(MID.ROLE_LIST_RET, msg)
-		return
-	end
-
-	-- first time get role list
-	local func = function(user, data)
-
-		local area_id = data.area_id
-		local msg =
-		{
-			result = ErrorCode.SUCCESS,
-			area_id = area_id,
-			role_list = {},
-		}
-
-		local server_info = ServiceMgr.get_server_by_type(ServerType.DB, user._user_id)
-		if not server_info then
-			Log.err("handle_role_list_req no db server_info")
-			msg.result = ErrorCode.SYS_ERROR
-			user:send_msg(MID.ROLE_LIST_RET, msg)
-			return
-		end
-
-		local rpc_data = 
-		{
-			user_id=user._user_id, 
-			area_id=area_id, 
-		}
-		local status, result = RpcMgr.call(server_info, "db_role_list", rpc_data)
-		if not status then
-			Log.err("handle_role_list_req rpc call fail")
-			msg.result = ErrorCode.SYS_ERROR
-			user:send_msg(MID.ROLE_LIST_RET, msg)
-			return
-		end
-		Log.debug("handle_role_list_req: callback result=%s", Util.TableToString(result))
-
-		if result.result ~= ErrorCode.SUCCESS then
-			msg.result = result.result
-			user:send_msg(MID.ROLE_LIST_RET, msg)
-			return
-		end
-
-		-- ok now
-		-- save role_list into user
-		user._role_map[area_id] = result.role_list
-		msg.role_list = result.role_list
-
-		user:send_msg(MID.ROLE_LIST_RET, msg)
-	end
-	RpcMgr.run(func, user, data)
-end
---]]
 
 local function handle_role_list_req(user, data, mailbox_id, msg_id)
 	Log.debug("handle_role_list_req: data=%s", Util.TableToString(data))

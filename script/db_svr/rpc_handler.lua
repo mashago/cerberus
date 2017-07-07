@@ -2,9 +2,7 @@
 
 function register_rpc_handler()
 
-	local call_func_map = RpcMgr._all_call_func
-
-	call_func_map.db_rpc_test = function(data)
+	local function db_rpc_test(data)
 		
 		Log.debug("db_rpc_test: data=%s", Util.TableToString(data))
 
@@ -19,7 +17,7 @@ function register_rpc_handler()
 
 	--------------------------------------------------------
 
-	call_func_map.db_user_login = function(data)
+	local function db_user_login(data)
 		
 		Log.debug("db_user_login: data=%s", Util.TableToString(data))
 
@@ -55,38 +53,7 @@ function register_rpc_handler()
 		return {result = ErrorCode.SUCCESS, user_id = user_id}
 	end
 
-	--[[
-	call_func_map.db_role_list = function(data)
-
-		
-		Log.debug("db_role_list: data=%s", Util.TableToString(data))
-
-		local area_id = data.area_id
-		local user_id = data.user_id
-
-		local ret = DBMgr.do_select("login_db", "user_role", {"role_id", "role_name"}
-		, {user_id=user_id, area_id=area_id})
-		if not ret then
-			Log.warn("select role_list fail username=%s password=%s", username, password)
-			return {result = ErrorCode.SYS_ERROR, role_list = {}}
-		end
-
-		Log.debug("db_role_list: ret=%s", Util.TableToString(ret))
-
-		local role_list = {}
-		for _, r in ipairs(ret) do
-			local role_info = {}
-			role_info.role_id = tonumber(r.role_id)
-			role_info.role_name = r.role_name
-			table.insert(role_list, role_info)
-		end
-	
-		-- must return a table
-		return {result = ErrorCode.SUCCESS, role_list = role_list}
-	end
-	--]]
-
-	call_func_map.db_create_role = function(data)
+	local function db_create_role(data)
 		
 		Log.debug("db_create_role: data=%s", Util.TableToString(data))
 
@@ -121,7 +88,7 @@ function register_rpc_handler()
 	end
 
 
-	call_func_map.db_select = function(data)
+	local function db_select(data)
 		
 		Log.debug("db_insert: data=%s", Util.TableToString(data))
 
@@ -143,20 +110,48 @@ function register_rpc_handler()
 	end
 
 
-	call_func_map.db_insert = function(data)
+	local function db_insert_one(data)
 		
-		--[[
 		Log.debug("db_insert: data=%s", Util.TableToString(data))
 
-		local ret = DBMgr.do_insert("login_db", "user_info", {"username", "password", "channel_id"}, {{username, password, channel_id}})
-		if ret > 0 then
-			-- insert success
-			local user_id = DBMgr.get_insert_id("login_db")
-			return {result = ErrorCode.SUCCESS, user_id = user_id}
-		end
-		--]]
+		local db_name = data.db_name
+		local table_name = data.table_name
+		local kvs = data.kvs
+		local get_id = data.get_id
 
-		return {result = ErrorCode.SUCCESS}
+		-- split kvs to {ks}, {{vs}}
+		local fields = {}
+		local values = {}
+		for k, v in pairs(kvs) do
+			table.insert(fields, k)
+			table.insert(values, v)
+		end
+		local values_list = {values}
+
+		local ret_data =
+		{
+			result = ErrorCode.SUCCESS,
+		}
+
+		local ret = DBMgr.do_insert(db_name, table_name, fields, values_list)
+		if ret < 0 then
+			ret_data.result = ErrorCode.SYS_ERROR
+			return ret_data
+		end
+
+		if get_id then
+			local insert_id = DBMgr.get_insert_id("db_name")
+			result.insert_id = insert_id
+		end
+
+		return ret_data
 	end
 
+
+	RpcMgr._all_call_func.db_rpc_test = db_rpc_test
+
+	RpcMgr._all_call_func.db_user_login = db_user_login
+	RpcMgr._all_call_func.db_create_role = db_create_role
+	RpcMgr._all_call_func.db_select = db_select
+	RpcMgr._all_call_func.db_insert_one = db_insert_one
 end

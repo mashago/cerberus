@@ -2,9 +2,7 @@
 
 function register_rpc_handler()
 
-	local call_func_map = RpcMgr._all_call_func
-
-	call_func_map.bridge_rpc_test = function(data)
+	local function bridge_rpc_test(data)
 		
 		Log.debug("bridge_rpc_test: data=%s", Util.TableToString(data))
 
@@ -49,7 +47,7 @@ function register_rpc_handler()
 
 	-----------------------------------------------------------
 
-	call_func_map.bridge_create_role = function(data)
+	local function bridge_create_role(data)
 		
 		Log.debug("bridge_create_role: data=%s", Util.TableToString(data))
 
@@ -73,7 +71,14 @@ function register_rpc_handler()
 			role_data[k] = v
 		end
 
-		Log.debug("bridge_create_role role_data=%s", Util.TableToString(role_data))
+		local rpc_data =
+		{
+			db_name = "game_db",
+			table_name = "role_info",
+			kvs = role_data,
+		}
+
+		Log.debug("bridge_create_role rpc_data=%s", Util.TableToString(rpc_data))
 
 		local server_info = ServiceMgr.get_server_by_type(ServerType.DB, data.role_id)
 		if not server_info then
@@ -81,7 +86,7 @@ function register_rpc_handler()
 			return {result = ErrorCode.SYS_ERROR}
 		end
 
-		local status, result = RpcMgr.call(server_info, "db_insert", role_data)
+		local status, result = RpcMgr.call(server_info, "db_insert_one", rpc_data)
 		if not status then
 			Log.err("bridge_create_role rpc call fail")
 			return {result = ErrorCode.SYS_ERROR}
@@ -91,5 +96,8 @@ function register_rpc_handler()
 		return {result = result.result}
 
 	end
+
+	RpcMgr._all_call_func.bridge_rpc_test = bridge_rpc_test
+	RpcMgr._all_call_func.bridge_create_role = bridge_create_role
 
 end
