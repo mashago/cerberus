@@ -35,7 +35,7 @@ sync_db = function()
 	for db_name, table_def in pairs(DataStructDef) do
 		for table_name, table_struct in pairs(table_def) do
 			repeat
-			-- Log.debug("table_name=%s table_struct=%s", table_name, Util.TableToString(table_struct))
+			-- Log.debug("table_name=%s table_struct=%s", table_name, Util.table_to_string(table_struct))
 
 			-- 1. create table
 			-- 2. desc table
@@ -107,7 +107,7 @@ sync_db = function()
 				Log.err("desc table fail %s ", table_name)
 				return false
 			end
-			-- Log.debug("desc=%s", Util.TableToString(desc))
+			-- Log.debug("desc=%s", Util.table_to_string(desc))
 
 			-------------------------------------------------------------
 
@@ -174,7 +174,7 @@ sync_db = function()
 				until true
 			end
 
-			-- Log.debug("change_list=%s", Util.TableToString(change_list))
+			-- Log.debug("change_list=%s", Util.table_to_string(change_list))
 			if #change_list > 0 then
 				local sql = string.format("ALTER TABLE %s ", table_name)
 				for i, value in ipairs(change_list) do
@@ -201,7 +201,7 @@ sync_db = function()
 				Log.err("desc table fail %s ", table_name)
 				return false
 			end
-			-- Log.debug("desc=%s", Util.TableToString(desc))
+			-- Log.debug("desc=%s", Util.table_to_string(desc))
 
 			-------------------------------------------------------------
 
@@ -236,7 +236,7 @@ sync_db = function()
 				until true
 			end
 
-			-- Log.debug("change_list=%s", Util.TableToString(change_list))
+			-- Log.debug("change_list=%s", Util.table_to_string(change_list))
 			if #change_list > 0 then
 				local sql = string.format("ALTER TABLE %s ", table_name)
 				for i, value in ipairs(change_list) do

@@ -1,7 +1,7 @@
 local User = require "login_svr.user"
 
 local function handle_rpc_test(data, mailbox_id, msg_id)
-	Log.debug("handle_rpc_test: data=%s", Util.TableToString(data))
+	Log.debug("handle_rpc_test: data=%s", Util.table_to_string(data))
 
 	local func = function(mailbox_id, buff)
 
@@ -37,7 +37,7 @@ local function handle_rpc_test(data, mailbox_id, msg_id)
 			Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
 			return
 		end
-		Log.debug("handle_rpc_test: callback result=%s", Util.TableToString(result))
+		Log.debug("handle_rpc_test: callback result=%s", Util.table_to_string(result))
 
 		buff = result.buff
 		sum = result.sum
@@ -62,7 +62,7 @@ local function handle_rpc_test(data, mailbox_id, msg_id)
 			Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
 			return
 		end
-		Log.debug("handle_rpc_test: callback result=%s", Util.TableToString(result))
+		Log.debug("handle_rpc_test: callback result=%s", Util.table_to_string(result))
 
 		buff = result.buff
 		sum = result.sum
@@ -79,7 +79,7 @@ end
 ------------------------------------------------------------------
 
 local function handle_register_area(data, mailbox_id, msg_id)
-	Log.debug("handle_register_area: data=%s", Util.TableToString(data))
+	Log.debug("handle_register_area: data=%s", Util.table_to_string(data))
 
 	local server_info = ServiceMgr.get_server_by_mailbox(mailbox_id)
 	if not server_info then
@@ -92,7 +92,7 @@ local function handle_register_area(data, mailbox_id, msg_id)
 		result = ErrorCode.SUCCESS
 	}
 	if not AreaMgr.register_area(server_info._server_id, data.area_list) then
-		Log.warn("handle_register_area: register_area duplicate %s %s", server_info._server_id, Util.TableToString(data.area_list))
+		Log.warn("handle_register_area: register_area duplicate %s %s", server_info._server_id, Util.table_to_string(data.area_list))
 		msg.result = ErrorCode.REGISTER_AREA_DUPLICATE
 		server_info:send_msg(MID.REGISTER_AREA_RET, msg)
 		return
@@ -102,7 +102,7 @@ local function handle_register_area(data, mailbox_id, msg_id)
 end
 
 local function handle_user_login(data, mailbox_id, msg_id)
-	Log.debug("handle_user_login: data=%s", Util.TableToString(data))
+	Log.debug("handle_user_login: data=%s", Util.table_to_string(data))
 
 	local func = function(mailbox_id, data)
 		local msg =
@@ -139,7 +139,7 @@ local function handle_user_login(data, mailbox_id, msg_id)
 			return
 		end
 
-		Log.debug("handle_user_login: callback result=%s", Util.TableToString(result))
+		Log.debug("handle_user_login: callback result=%s", Util.table_to_string(result))
 
 		-- check client mailbox_id is still legal, after rpc
 		local mailbox = Net.get_mailbox(mailbox_id)
@@ -175,7 +175,7 @@ local function handle_user_login(data, mailbox_id, msg_id)
 end
 
 local function handler_area_list_req(user, data, mailbox_id, msg_id)
-	Log.debug("handler_area_list_req: data=%s", Util.TableToString(data))
+	Log.debug("handler_area_list_req: data=%s", Util.table_to_string(data))
 
 	local area_map = AreaMgr._area_map
 	local area_list = {}
@@ -191,7 +191,7 @@ local function handler_area_list_req(user, data, mailbox_id, msg_id)
 end
 
 local function handle_role_list_req(user, data, mailbox_id, msg_id)
-	Log.debug("handle_role_list_req: data=%s", Util.TableToString(data))
+	Log.debug("handle_role_list_req: data=%s", Util.table_to_string(data))
 
 	local msg =
 	{
@@ -252,7 +252,7 @@ local function handle_role_list_req(user, data, mailbox_id, msg_id)
 			user:send_msg(MID.ROLE_LIST_RET, msg)
 			return
 		end
-		Log.debug("handle_role_list_req: callback result=%s", Util.TableToString(result))
+		Log.debug("handle_role_list_req: callback result=%s", Util.table_to_string(result))
 
 		if result.result ~= ErrorCode.SUCCESS then
 			msg.result = result.result
@@ -280,7 +280,7 @@ local function handle_role_list_req(user, data, mailbox_id, msg_id)
 end
 
 local function handle_create_role(user, data, mailbox_id, msg_id)
-	Log.debug("handle_create_role: data=%s", Util.TableToString(data))
+	Log.debug("handle_create_role: data=%s", Util.table_to_string(data))
 
 	local func = function(user, data)
 
@@ -332,7 +332,7 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 			user:send_msg(MID.CREATE_ROLE_RET, msg)
 			return
 		end
-		Log.debug("handle_create_role: callback result=%s", Util.TableToString(result))
+		Log.debug("handle_create_role: callback result=%s", Util.table_to_string(result))
 
 		if result.result ~= ErrorCode.SUCCESS then
 			msg.result = result.result
@@ -371,7 +371,7 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 			user:send_msg(MID.CREATE_ROLE_RET, msg)
 			return
 		end
-		Log.debug("handle_create_role: callback result2=%s", Util.TableToString(result))
+		Log.debug("handle_create_role: callback result2=%s", Util.table_to_string(result))
 
 		-- 4. add role into user
 		if not user:is_ok() then

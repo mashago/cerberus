@@ -4,7 +4,7 @@ function register_rpc_handler()
 
 	local function router_rpc_test(data)
 		
-		Log.debug("router_rpc_test: data=%s", Util.TableToString(data))
+		Log.debug("router_rpc_test: data=%s", Util.table_to_string(data))
 
 		local buff = data.buff
 		local sum = data.sum

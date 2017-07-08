@@ -125,7 +125,7 @@ end
 
 -- a common handle for MID.REGISTER_SERVER_REQ
 function g_funcs.handle_register_server(data, mailbox_id, msg_id)
-	Log.debug("handle_register_server: data=%s", Util.TableToString(data))
+	Log.debug("handle_register_server: data=%s", Util.table_to_string(data))
 
 	-- add into server list
 	-- send other server list to server
@@ -175,7 +175,7 @@ end
 
 -- a common handle for MID.REGISTER_SERVER_RET
 function g_funcs.handle_register_server_ret(data, mailbox_id, msg_id)
-	Log.debug("handle_register_server_ret: data=%s", Util.TableToString(data))
+	Log.debug("handle_register_server_ret: data=%s", Util.table_to_string(data))
 	if data.result ~= ErrorCode.SUCCESS then
 		Log.err("handle_register_server_ret: register fail %d", data.result)
 		return
@@ -197,13 +197,13 @@ end
 
 -- a common handle for MID.REGISTER_SERVER_BROADCAST
 function g_funcs.handle_register_server_broadcast(data, mailbox_id, msg_id)
-	Log.debug("handle_register_server_broadcast: data=%s", Util.TableToString(data))
+	Log.debug("handle_register_server_broadcast: data=%s", Util.table_to_string(data))
 	ServiceClient.add_server(mailbox_id, data.server_id, data.server_type, data.single_scene_list, data.from_to_scene_list)
 end
 
 -- a common handle for MID.SERVER_DISCONNECT
 function g_funcs.handle_server_disconnect(data, mailbox_id, msg_id)
-	Log.debug("handle_server_disconnect: data=%s", Util.TableToString(data))
+	Log.debug("handle_server_disconnect: data=%s", Util.table_to_string(data))
 	ServiceClient.remove_server(mailbox_id, data.server_id)
 end
 

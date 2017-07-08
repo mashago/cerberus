@@ -25,7 +25,7 @@ function x_test_end()
 end
 
 local function handle_rpc_test(data, mailbox_id, msg_id)
-	Log.debug("handle_rpc_test: data=%s", Util.TableToString(data))
+	Log.debug("handle_rpc_test: data=%s", Util.table_to_string(data))
 	if data.result ~= ErrorCode.SUCCESS then
 		Log.warn("handle_rpc_test: result=%s", ErrorCodeText[data.result])
 	end
@@ -33,7 +33,7 @@ local function handle_rpc_test(data, mailbox_id, msg_id)
 end
 
 local function handle_user_login(data, mailbox_id, msg_id)
-	Log.debug("handle_user_login: data=%s", Util.TableToString(data))
+	Log.debug("handle_user_login: data=%s", Util.table_to_string(data))
 	if data.result ~= ErrorCode.SUCCESS then
 		Log.warn("handle_user_login: result=%s", ErrorCodeText[data.result])
 	end
@@ -41,18 +41,18 @@ local function handle_user_login(data, mailbox_id, msg_id)
 end
 
 local function handle_area_list_ret(data, mailbox_id, msg_id)
-	Log.debug("handle_area_list_ret: data=%s", Util.TableToString(data))
+	Log.debug("handle_area_list_ret: data=%s", Util.table_to_string(data))
 end
 
 local function handle_role_list_ret(data, mailbox_id, msg_id)
-	Log.debug("handle_role_list_ret: data=%s", Util.TableToString(data))
+	Log.debug("handle_role_list_ret: data=%s", Util.table_to_string(data))
 	if data.result ~= ErrorCode.SUCCESS then
 		Log.warn("handle_role_list_ret: result=%s", ErrorCodeText[data.result])
 	end
 end
 
 local function handle_create_role(data, mailbox_id, msg_id)
-	Log.debug("handle_create_role: data=%s", Util.TableToString(data))
+	Log.debug("handle_create_role: data=%s", Util.table_to_string(data))
 	if data.result ~= ErrorCode.SUCCESS then
 		Log.warn("handle_create_role: result=%s", ErrorCodeText[data.result])
 	end

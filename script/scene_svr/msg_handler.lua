@@ -2,7 +2,7 @@
 
 local function handle_client_test(data, mailbox_id, msg_id)
 	-- Log.debug("client_time=%d client_data=%s", data.client_time, data.client_data)	
-	Log.debug("handle_client_test: data=%s", Util.TableToString(data))
+	Log.debug("handle_client_test: data=%s", Util.table_to_string(data))
 
 	local msg =
 	{

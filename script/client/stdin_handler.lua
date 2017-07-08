@@ -3,8 +3,8 @@ local cmd_handler = {}
 
 function cmd_handler.execute(buffer)
 	Log.debug("buffer=%s", buffer)
-	local params = Util.SplitString(buffer, " ")
-	Log.debug("params=%s", Util.TableToString(params))
+	local params = Util.split_string(buffer, " ")
+	Log.debug("params=%s", Util.table_to_string(params))
 
 	if params[1] == "login" then
 		cmd_handler.do_login(params)

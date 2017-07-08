@@ -2,7 +2,7 @@
 
 --[[
 local function handle_user_login(data, mailbox_id, msg_id)
-	Log.debug("handle_user_login: data=%s", Util.TableToString(data))
+	Log.debug("handle_user_login: data=%s", Util.table_to_string(data))
 
 	-- send msg to db server
 

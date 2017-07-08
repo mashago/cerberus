@@ -68,9 +68,9 @@ function ServerInfo:print()
 	Log.info("ServerInfo:print _server_id=%d _server_type=%d _mailbox_id=%d \n_secondhand_mailbox_id=%s \n_single_scene_list=%s \n_from_to_scene_list=%s", self._server_id,
 	self._server_type,
 	self._mailbox_id,
-	Util.TableToString(self._secondhand_mailbox_id),
-	Util.TableToString(self._single_scene_list),
-	Util.TableToString(self._from_to_scene_list)
+	Util.table_to_string(self._secondhand_mailbox_id),
+	Util.table_to_string(self._single_scene_list),
+	Util.table_to_string(self._from_to_scene_list)
 	)
 end
 

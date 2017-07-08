@@ -4,7 +4,7 @@ function register_rpc_handler()
 
 	local function bridge_rpc_test(data)
 		
-		Log.debug("bridge_rpc_test: data=%s", Util.TableToString(data))
+		Log.debug("bridge_rpc_test: data=%s", Util.table_to_string(data))
 
 		local buff = data.buff
 		local sum = data.sum
@@ -23,7 +23,7 @@ function register_rpc_handler()
 			Log.err("bridge_rpc_test rpc call fail")
 			return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
 		end
-		Log.debug("bridge_rpc_test: callback result=%s", Util.TableToString(result))
+		Log.debug("bridge_rpc_test: callback result=%s", Util.table_to_string(result))
 		buff = result.buff
 		sum = result.sum
 
@@ -38,7 +38,7 @@ function register_rpc_handler()
 			Log.err("bridge_rpc_test rpc call fail")
 			return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
 		end
-		Log.debug("bridge_rpc_test: callback result=%s", Util.TableToString(result))
+		Log.debug("bridge_rpc_test: callback result=%s", Util.table_to_string(result))
 		buff = result.buff
 		sum = result.sum
 
@@ -49,7 +49,7 @@ function register_rpc_handler()
 
 	local function bridge_create_role(data)
 		
-		Log.debug("bridge_create_role: data=%s", Util.TableToString(data))
+		Log.debug("bridge_create_role: data=%s", Util.table_to_string(data))
 
 		-- rpc to db to insert role_info
 		local role_data = {}
@@ -64,7 +64,7 @@ function register_rpc_handler()
 			role_data[k]=default
 			until true
 		end
-		Log.debug("bridge_create_role: data=%s", Util.TableToString(data))
+		Log.debug("bridge_create_role: data=%s", Util.table_to_string(data))
 
 		-- set other value
 		for k, v in pairs(data) do
@@ -78,7 +78,7 @@ function register_rpc_handler()
 			kvs = role_data,
 		}
 
-		Log.debug("bridge_create_role rpc_data=%s", Util.TableToString(rpc_data))
+		Log.debug("bridge_create_role rpc_data=%s", Util.table_to_string(rpc_data))
 
 		local server_info = ServiceMgr.get_server_by_type(ServerType.DB, data.role_id)
 		if not server_info then
@@ -91,7 +91,7 @@ function register_rpc_handler()
 			Log.err("bridge_create_role rpc call fail")
 			return {result = ErrorCode.SYS_ERROR}
 		end
-		Log.debug("bridge_create_role callback result=%s", Util.TableToString(result))
+		Log.debug("bridge_create_role callback result=%s", Util.table_to_string(result))
 
 		return {result = result.result}
 

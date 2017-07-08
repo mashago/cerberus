@@ -32,7 +32,7 @@ function ServiceServer.add_server(mailbox_id, server_id, server_type, single_sce
 	-- init server_info
 	local ServerInfo = require "global.service.server_info"
 	local server_info = ServerInfo:new(server_id, server_type, mailbox_id, single_scene_list, from_to_scene_list)
-	-- Log.debug("server_info._scene_list=%s", Util.TableToString(server_info._scene_list))
+	-- Log.debug("server_info._scene_list=%s", Util.table_to_string(server_info._scene_list))
 
 	-- add into all_server_map
 	ServiceServer._all_server_map[server_info._server_id] = server_info
@@ -159,8 +159,8 @@ function ServiceServer.print()
 	for k, server_info in pairs(ServiceServer._all_server_map) do
 		server_info:print()
 	end
-	Log.info("ServiceServer._type_server_map=%s", Util.TableToString(ServiceServer._type_server_map))
-	Log.info("ServiceServer._scene_server_map=%s", Util.TableToString(ServiceServer._scene_server_map))
+	Log.info("ServiceServer._type_server_map=%s", Util.table_to_string(ServiceServer._type_server_map))
+	Log.info("ServiceServer._scene_server_map=%s", Util.table_to_string(ServiceServer._scene_server_map))
 	Log.info("------------------------------")
 end
 

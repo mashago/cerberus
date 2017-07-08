@@ -25,8 +25,8 @@ end
 function DBMgr.do_select(db_name, table_name, fields, conditions)
 	Log.debug("db_name=%s", db_name)
 	Log.debug("table_name=%s", table_name)
-	Log.debug("fields=%s", Util.TableToString(fields))
-	Log.debug("conditions=%s", Util.TableToString(conditions))
+	Log.debug("fields=%s", Util.table_to_string(fields))
+	Log.debug("conditions=%s", Util.table_to_string(conditions))
 
 	local mysqlmgr = DBMgr._mysql_map[db_name] 
 	if not mysqlmgr then
@@ -83,8 +83,8 @@ end
 function DBMgr.do_insert(db_name, table_name, fields, values)
 	Log.debug("db_name=%s", db_name)
 	Log.debug("table_name=%s", table_name)
-	Log.debug("fields=%s", Util.TableToString(fields))
-	Log.debug("values=%s", Util.TableToString(values))
+	Log.debug("fields=%s", Util.table_to_string(fields))
+	Log.debug("values=%s", Util.table_to_string(values))
 
 	local mysqlmgr = DBMgr._mysql_map[db_name] 
 	if not mysqlmgr then

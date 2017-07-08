@@ -6,7 +6,7 @@ function register_rpc_handler()
 
 	call_func_map.scene_rpc_test = function(data)
 		
-		Log.debug("scene_rpc_test: data=%s", Util.TableToString(data))
+		Log.debug("scene_rpc_test: data=%s", Util.table_to_string(data))
 
 		local buff = data.buff
 		local sum = data.sum

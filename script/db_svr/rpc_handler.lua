@@ -4,7 +4,7 @@ function register_rpc_handler()
 
 	local function db_rpc_test(data)
 		
-		Log.debug("db_rpc_test: data=%s", Util.TableToString(data))
+		Log.debug("db_rpc_test: data=%s", Util.table_to_string(data))
 
 		local buff = data.buff
 		local sum = data.sum
@@ -19,7 +19,7 @@ function register_rpc_handler()
 
 	local function db_user_login(data)
 		
-		Log.debug("db_user_login: data=%s", Util.TableToString(data))
+		Log.debug("db_user_login: data=%s", Util.table_to_string(data))
 
 		-- 1. insert account, if success, means register, return insert user_id
 		-- 2. select account, if not success, means password mismatch
@@ -42,7 +42,7 @@ function register_rpc_handler()
 			return {result = ErrorCode.SYS_ERROR, user_id = 0}
 		end
 
-		Log.debug("db_user_login: ret=%s", Util.TableToString(ret))
+		Log.debug("db_user_login: ret=%s", Util.table_to_string(ret))
 		if #ret == 0 then
 			-- empty record, password mismatch
 			return {result = ErrorCode.USER_LOGIN_PASSWORD_MISMATCH, user_id = 0}
@@ -55,7 +55,7 @@ function register_rpc_handler()
 
 	local function db_create_role(data)
 		
-		Log.debug("db_create_role: data=%s", Util.TableToString(data))
+		Log.debug("db_create_role: data=%s", Util.table_to_string(data))
 
 		-- each user only can has 4 role
 		local MAX_ROLE = 4
@@ -73,7 +73,7 @@ function register_rpc_handler()
 			return {result = ErrorCode.SUCCESS, role_id = 0}
 		end
 
-		Log.debug("db_create_role: ret=%s", Util.TableToString(ret))
+		Log.debug("db_create_role: ret=%s", Util.table_to_string(ret))
 		local role_id = tonumber(ret[1].role_id)
 		if role_id == -1 then
 			return {result = ErrorCode.CREATE_ROLE_NUM_MAX, role_id = 0}
@@ -90,7 +90,7 @@ function register_rpc_handler()
 
 	local function db_select(data)
 		
-		Log.debug("db_insert: data=%s", Util.TableToString(data))
+		Log.debug("db_insert: data=%s", Util.table_to_string(data))
 
 		local db_name = data.db_name
 		local table_name = data.table_name
@@ -99,11 +99,11 @@ function register_rpc_handler()
 
 		local ret = DBMgr.do_select(db_name, table_name, fields, conditions)
 		if not ret then
-			Log.err("db_select err db_name=%s table_name=%s fields=%s conditions=%s", db_name, table_name, Util.TableToString(fields), Util.TableToString(conditions))
+			Log.err("db_select err db_name=%s table_name=%s fields=%s conditions=%s", db_name, table_name, Util.table_to_string(fields), Util.table_to_string(conditions))
 			return {result = ErrorCode.SYS_ERROR, data = {}}
 		end
 
-		Log.debug("db_select: ret=%s", Util.TableToString(ret))
+		Log.debug("db_select: ret=%s", Util.table_to_string(ret))
 	
 		-- must return a table
 		return {result = ErrorCode.SUCCESS, data = ret}
@@ -112,7 +112,7 @@ function register_rpc_handler()
 
 	local function db_insert_one(data)
 		
-		Log.debug("db_insert: data=%s", Util.TableToString(data))
+		Log.debug("db_insert: data=%s", Util.table_to_string(data))
 
 		local db_name = data.db_name
 		local table_name = data.table_name

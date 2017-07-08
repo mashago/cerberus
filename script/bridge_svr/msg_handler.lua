@@ -1,7 +1,7 @@
 
 
 local function handle_register_area_ret(data, mailbox_id, msg_id)
-	Log.debug("handle_register_area_ret: data=%s", Util.TableToString(data))
+	Log.debug("handle_register_area_ret: data=%s", Util.table_to_string(data))
 	if data.result ~= ErrorCode.SUCCESS then
 		Log.err("handle_register_area_ret: register fail %d", data.result)
 		return

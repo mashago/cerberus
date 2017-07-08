@@ -1,7 +1,7 @@
 
 Util = {}
 
-function Util.TableToString(tb)
+function Util.table_to_string(tb)
     if type(tb) ~= "table" then
         error("Sorry, it's not table, it is " .. type(tb) .. ".")
     end
@@ -58,7 +58,7 @@ function Util.TableToString(tb)
     return ret
 end
 
-function Util.SplitString(str, sep)
+function Util.split_string(str, sep)
 	local head = 1
 	local ret = {}
 	while true do
