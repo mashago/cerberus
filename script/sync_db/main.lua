@@ -33,14 +33,9 @@ sync_db = function()
 	}
 
 	for db_name, table_def in pairs(DataStructDef) do
-		-- XXX ignore login_db for now
-		if db_name == 'login_db' then
-			Log.warn("TODO handle login_db")
-			table_def = {}
-		end
 		for table_name, table_struct in pairs(table_def) do
 			repeat
-			Log.debug("table_name=%s table_struct=%s", table_name, Util.TableToString(table_struct))
+			-- Log.debug("table_name=%s table_struct=%s", table_name, Util.TableToString(table_struct))
 
 			-- 1. create table
 			-- 2. desc table
@@ -48,18 +43,21 @@ sync_db = function()
 			-- 3.1 drop row
 			-- 3.2 modify row
 			-- 3.3 add row
+			-- 4. desc table again, for update key
+			-- 5. update key
 
 			-- 1. create table
 			local sql = string.format("CREATE TABLE IF NOT EXISTS %s (", table_name)
-			local index = 0
+			local i = 0
+			local key_map = {}
 			for field_name, field_cfg in pairs(table_struct) do
 				repeat
 				if not field_cfg.save or field_cfg.save == 0 then
 					break
 				end
 				local line = ""
-				index = index + 1
-				if index ~= 1 then
+				i = i + 1
+				if i ~= 1 then
 					line = line .. ","
 				end
 
@@ -70,12 +68,24 @@ sync_db = function()
 				else
 					line = line .. string.format("%s %s", field_name, field_type_str)
 				end
+
+				-- mark key field
+				if field_cfg.key and field_cfg.key == 1 then
+					key_map[field_name] = true
+				end
+
 				sql = sql .. line
 				until true
 			end
 
-			if index == 0 then
+			if i == 0 then
 				break
+			end
+
+			-- point key field
+			for field_name, __ in pairs(key_map) do
+				local line = string.format(",KEY `%s` (`%s`)", field_name, field_name)
+				sql = sql .. line
 			end
 
 			sql = sql .. ") ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE utf8_bin"
@@ -97,7 +107,7 @@ sync_db = function()
 				Log.err("desc table fail %s ", table_name)
 				return false
 			end
-			Log.debug("desc=%s", Util.TableToString(desc))
+			-- Log.debug("desc=%s", Util.TableToString(desc))
 
 			-------------------------------------------------------------
 
@@ -150,24 +160,87 @@ sync_db = function()
 						break
 					end
 				end
-				if not is_exists then
-					local config_field_default = field_cfg.default
-					local str = nil
-					if config_field_default ~= '_Null' then
-						str = string.format("ADD %s %s DEFAULT '%s'", field_name, type_str_map[field_cfg.type], config_field_default)
-					else
-						str = string.format("ADD %s %s", field_name, type_str_map[field_cfg.type])
-					end
-					table.insert(change_list, str)
+				if is_exists then
+					break
 				end
+				local config_field_default = field_cfg.default
+				local str = nil
+				if config_field_default ~= '_Null' then
+					str = string.format("ADD %s %s DEFAULT '%s'", field_name, type_str_map[field_cfg.type], config_field_default)
+				else
+					str = string.format("ADD %s %s", field_name, type_str_map[field_cfg.type])
+				end
+				table.insert(change_list, str)
 				until true
 			end
 
-			Log.debug("change_list=%s", Util.TableToString(change_list))
+			-- Log.debug("change_list=%s", Util.TableToString(change_list))
 			if #change_list > 0 then
 				local sql = string.format("ALTER TABLE %s ", table_name)
-				for index, value in ipairs(change_list) do
-					if index ~= 1 then
+				for i, value in ipairs(change_list) do
+					if i ~= 1 then
+						sql = sql .. ","
+					end
+					sql = sql .. value
+				end
+				Log.debug("sql=%s", sql)
+				local ret = DBMgr.do_execute(db_name, sql, false)
+				if ret < 0 then
+					Log.err("alter table fail %s ", table_name)
+					return false
+				end
+			end
+
+			-------------------------------------------------------------
+
+			-- 4. desc table
+			local sql = string.format("DESC %s", table_name)
+			Log.debug("sql=%s", sql)
+			local desc = DBMgr.do_execute(db_name, sql, true)
+			if not desc then
+				Log.err("desc table fail %s ", table_name)
+				return false
+			end
+			-- Log.debug("desc=%s", Util.TableToString(desc))
+
+			-------------------------------------------------------------
+
+			-- 5. update key
+			local change_list = {}
+			for _, field_info in ipairs(desc) do
+				-- drop not exists key
+				if field_info.Key == 'MUL' and not key_map[field_info.Field] then
+					local str = string.format("DROP INDEX %s", field_info.Field)
+					table.insert(change_list, str)
+				end
+			end
+
+			-- add key
+			for field_name, field_cfg in pairs(table_struct) do
+				repeat
+				if not field_cfg.save or field_cfg.save == 0 or not field_cfg.key or field_cfg.key == 0 then
+					break
+				end
+				local is_set = false
+				for _, field_info in ipairs(desc) do
+					if field_name == field_info.Field and field_info.Key == 'MUL' then
+						is_set = true
+						break
+					end
+				end
+				if is_set then
+					break
+				end
+				local str = string.format("ADD INDEX %s (%s)", field_name, field_name)
+				table.insert(change_list, str)
+				until true
+			end
+
+			-- Log.debug("change_list=%s", Util.TableToString(change_list))
+			if #change_list > 0 then
+				local sql = string.format("ALTER TABLE %s ", table_name)
+				for i, value in ipairs(change_list) do
+					if i ~= 1 then
 						sql = sql .. ","
 					end
 					sql = sql .. value

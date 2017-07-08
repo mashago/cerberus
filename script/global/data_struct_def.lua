@@ -1,34 +1,18 @@
 
--- TODO should create by xls or csv
--- if default is '_Null' means no default value
+-- NOTE:
+-- 1. should set by coder handly
+-- 2. field position will be random, you have to accept this
+-- 3. if default is '_Null' means no default value
+-- 4. if key=1, will set a index for the field
 
 DataStructDef = {}
-
-DataStructDef.login_db = {}
-DataStructDef.login_db.user_info = 
-{
-	user_id = { type=_Int64, save=1, default='_Null', key='PRI', ai=1000},
-	channel_id = { type=_Int, save=1, default='0', key='MUL'},
-	username = { type=_String, save=1, default='_Null', key='UNI'},
-	password = { type=_String, save=1, default='_Null'},
-	create_date = { type=_Int64, save=1, default='0'},
-}
-
-DataStructDef.login_db.user_role = 
-{
-	role_id = { type=_Int64, save=1, default='_Null', key='PRI', ai=10000},
-	user_id = { type=_Int64, save=1, default='_Null', key='MUL'},
-	area_id = { type=_Int, save=1, default='_Null', key='MUL'},
-	role_name = { type=_String, save=1, default='_Null', key='UNI'},
-}
-
 
 DataStructDef.game_db = {}
 DataStructDef.game_db.role_info = 
 {
-	role_id = { type=_Int64, save=1, default='_Null'},
+	role_id = { type=_Int64, save=1, default='_Null', key=1},
 	role_name = { type=_String, save=1, default='_Null'},
-	user_id = { type=_Int64, save=1, default='_Null'},
+	user_id = { type=_Int64, save=1, default='_Null', key=0},
 	channel_id = { type=_Int, save=1, default='_Null'},
 	area_id = { type=_Int, save=1, default='_Null'},
 	lv = { type=_Int, save=1, default='1'},

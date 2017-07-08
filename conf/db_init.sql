@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS `user_role` (
 	`role_name` varchar(45) NOT NULL UNIQUE,
 	PRIMARY KEY (`role_id`),
 	KEY `user_id` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8;
 
 -- create role procedure
 DROP PROCEDURE IF EXISTS `create_user_role`;

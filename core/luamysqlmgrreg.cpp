@@ -94,8 +94,8 @@ int luamysqlmgr_select(lua_State* L)
 	lua_newtable(L);
 
 	int fieldCount = (*s)->FieldCount();
-	int numRows = (*s)->NumRows();
-	LOG_DEBUG("fieldCount=%d numRows=%d", fieldCount, numRows);
+	// int numRows = (*s)->NumRows();
+	// LOG_DEBUG("fieldCount=%d numRows=%d", fieldCount, numRows);
 
 	MYSQL_FIELD *pField = (*s)->FetchField();
 	MYSQL_ROW row;
@@ -113,7 +113,7 @@ int luamysqlmgr_select(lua_State* L)
 			lua_pushstring(L, row_value);
 			lua_setfield(L, -2, pField[j].name);
 		}
-		LOG_DEBUG("line = [%s]", print_buffer.c_str());
+		// LOG_DEBUG("line = [%s]", print_buffer.c_str());
 		lua_rawseti(L, -2, index);
 	}
 
