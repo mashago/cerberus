@@ -13,12 +13,7 @@ function register_rpc_handler()
 		sum = sum + 1
 
 		-- rpc to router
-		local server_info = ServiceMgr.get_server_by_type(ServerType.ROUTER)
-		if not server_info then
-			Log.err("bridge_rpc_test no router server_info")
-			return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
-		end
-		local status, result = RpcMgr.call(server_info, "router_rpc_test", {buff=buff, sum=sum})
+		local status, result = RpcMgr.call_by_server_type(ServerType.ROUTER, "router_rpc_test", {buff=buff, sum=sum})
 		if not status then
 			Log.err("bridge_rpc_test rpc call fail")
 			return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
@@ -28,12 +23,7 @@ function register_rpc_handler()
 		sum = result.sum
 
 		-- rpc to scene
-		local server_info = ServiceMgr.get_server_by_type(ServerType.SCENE)
-		if not server_info then
-			Log.err("bridge_rpc_test no scene server_info")
-			return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
-		end
-		local status, result = RpcMgr.call(server_info, "scene_rpc_test", {buff=buff, sum=sum})
+		local status, result = RpcMgr.call_by_server_type(ServerType.SCENE, "scene_rpc_test", {buff=buff, sum=sum})
 		if not status then
 			Log.err("bridge_rpc_test rpc call fail")
 			return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
@@ -77,16 +67,8 @@ function register_rpc_handler()
 			table_name = "role_info",
 			kvs = role_data,
 		}
-
 		Log.debug("bridge_create_role rpc_data=%s", Util.table_to_string(rpc_data))
-
-		local server_info = ServiceMgr.get_server_by_type(ServerType.DB, data.role_id)
-		if not server_info then
-			Log.err("bridge_create_role no db server_info")
-			return {result = ErrorCode.SYS_ERROR}
-		end
-
-		local status, result = RpcMgr.call(server_info, "db_insert_one", rpc_data)
+		local status, result = RpcMgr.call_by_server_type(ServerType.DB, "db_insert_one", rpc_data)
 		if not status then
 			Log.err("bridge_create_role rpc call fail")
 			return {result = ErrorCode.SYS_ERROR}
