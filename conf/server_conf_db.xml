@@ -3,6 +3,8 @@
 	<connect_to>
 	</connect_to>
 
+	<register_broadcast>0</register_broadcast>
+
 	<trust_ip>
 		<address ip = "127.0.0.1"/>
 	</trust_ip>

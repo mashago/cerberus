@@ -4,7 +4,8 @@
 	</scene_list>
 
 	<connect_to>
-		<address ip = "127.0.0.1" port = "7731" id = "31" type = "3" register = "0"/>
+		<!-- db_svr -->
+		<address ip = "127.0.0.1" port = "7731" register = "1"/>
 	</connect_to>
 
 	<trust_ip>

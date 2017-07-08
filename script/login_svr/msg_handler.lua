@@ -388,6 +388,7 @@ end
 
 function register_msg_handler()
 	Net.add_msg_handler(MID.REGISTER_SERVER_REQ, g_funcs.handle_register_server)
+	Net.add_msg_handler(MID.REGISTER_SERVER_RET, g_funcs.handle_register_server_ret)
 	Net.add_msg_handler(MID.REGISTER_AREA_REQ, handle_register_area)
 
 	Net.add_msg_handler(MID.USER_LOGIN_REQ, handle_user_login)

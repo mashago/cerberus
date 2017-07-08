@@ -20,6 +20,6 @@
 		-->
 
 		<!-- db_svr -->
-		<address ip = "127.0.0.1" port = "7731" id = "31" type = "3" register = "0"/>
+		<address ip = "127.0.0.1" port = "7731" register = "1"/>
 	</connect_to>
 </server>
