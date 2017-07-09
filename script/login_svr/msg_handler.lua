@@ -323,6 +323,7 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 		local status, result = RpcMgr.call_by_server_id(server_id, "bridge_create_role", rpc_data)
 		if not status then
 			Log.err("handle_create_role rpc call fail")
+			-- TODO delete in user_role
 			msg.result = ErrorCode.CREATE_ROLE_FAIL
 			user:send_msg(MID.CREATE_ROLE_RET, msg)
 			return

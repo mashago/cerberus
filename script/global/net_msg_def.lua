@@ -46,6 +46,10 @@ MID._id_name_map =
 	[60007] = "REGISTER_AREA_REQ",
 	[60008] = "REGISTER_AREA_RET",
 
+	-- msg for db
+	[70001] = "DB_INSERT",
+	[70002] = "DB_DELETE",
+	[70003] = "DB_UPDATE",
 }
 
 local function create_msg_id_array()
@@ -236,6 +240,23 @@ MSG_DEF_MAP =
 	[MID.REGISTER_AREA_RET] =
 	{
 		{ "result", _Int },
+	},
+
+	-----------------------------------------------------------
+
+	[MID.DB_INSERT] =
+	{
+		{ "db_name", _String },
+		{ "table_name", _String },
+		{ "fields", _StringArray },
+		{ "values", _StringArray },
+	},
+
+	[MID.DB_DELETE] =
+	{
+		{ "db_name", _String },
+		{ "table_name", _String },
+		{ "conditions", _String }, -- a table string
 	},
 
 }
