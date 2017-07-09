@@ -146,6 +146,50 @@ function DBMgr.get_insert_id(db_name)
 	return insert_id
 end
 
+-- local ret = DBMgr.do_delete("login_db", "user_role", {role_id=role_id})
+-- db_name = "login_db"
+-- table_name = "user_info"
+-- conditions = {role_id=role_id}
+-- return affected row nums, or negative for error
+function DBMgr.do_delete(db_name, table_name, conditions)
+	Log.debug("db_name=%s", db_name)
+	Log.debug("table_name=%s", table_name)
+	Log.debug("conditions=%s", Util.table_to_string(conditions))
+
+	local mysqlmgr = DBMgr._mysql_map[db_name] 
+	if not mysqlmgr then
+		return -1
+	end
+
+	local sql = "DELETE FROM " .. table_name
+
+	-- handle condition
+	if next(conditions) then
+		sql = sql .. " WHERE "
+
+		local index = 1
+		for k, v in pairs(conditions) do
+			if index ~= 1 then
+				sql = sql .. " AND "
+			end
+			sql = sql .. k .. "="
+			if type(v) == "string" then
+				sql = sql .. "'" .. v .. "'"
+			else
+				sql = sql .. v
+			end
+			index = index + 1
+		end
+
+	end
+
+	Log.debug("sql=%s", sql)
+
+	local ret = mysqlmgr:change(sql);
+	
+	return ret
+end
+
 -- for execute raw sql
 function DBMgr.do_execute(db_name, sql, has_ret)
 
