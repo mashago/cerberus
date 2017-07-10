@@ -36,4 +36,13 @@ function User:add_role(area_id, role_id, role_name)
 	table.insert(self._role_map[area_id], role)
 end
 
+function User:delete_role(area_id, role_id)
+	self._role_map[area_id] = self._role_map[area_id] or {}
+	for k, v in ipairs(self._role_map[area_id]) do
+		if v.role_id == role_id then
+			table.remove(self._role_map[area_id], k)
+		end
+	end
+end
+
 return User

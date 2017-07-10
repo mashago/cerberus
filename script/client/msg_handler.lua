@@ -58,6 +58,13 @@ local function handle_create_role(data, mailbox_id, msg_id)
 	end
 end
 
+local function handle_delete_role(data, mailbox_id, msg_id)
+	Log.debug("handle_delete_role: data=%s", Util.table_to_string(data))
+	if data.result ~= ErrorCode.SUCCESS then
+		Log.warn("handle_delete_role: result=%s", ErrorCodeText[data.result])
+	end
+end
+
 function register_msg_handler()
 	Net.add_msg_handler(MID.RPC_TEST_RET, handle_rpc_test)
 
@@ -65,4 +72,5 @@ function register_msg_handler()
 	Net.add_msg_handler(MID.AREA_LIST_RET, handle_area_list_ret)
 	Net.add_msg_handler(MID.ROLE_LIST_RET, handle_role_list_ret)
 	Net.add_msg_handler(MID.CREATE_ROLE_RET, handle_create_role)
+	Net.add_msg_handler(MID.DELETE_ROLE_RET, handle_delete_role)
 end

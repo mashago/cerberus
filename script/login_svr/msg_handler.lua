@@ -346,6 +346,92 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 
 end
 
+local function handle_delete_role(user, data, mailbox_id, msg_id)
+	Log.debug("handle_delete_role: data=%s", Util.table_to_string(data))
+
+	local func = function(user, data)
+
+		local area_id = data.area_id
+		local role_id = data.role_id
+
+		local msg =
+		{
+			result = ErrorCode.SUCCESS,
+		}
+
+		if not AreaMgr.is_open(area_id) then
+			msg.result = ErrorCode.AREA_NOT_OPEN
+			user:send_msg(MID.DELETE_ROLE_RET, msg)
+			return
+		end
+
+		-- 1. check already get role_list
+		-- 2. rpc to area bridge to delete role
+		-- 3. rpc to db delete role
+		-- 4. remove role from user
+
+		-- 1. check already get role_list
+		if not user._role_map[data.area_id] then
+			msg.result = ErrorCode.DELETE_ROLE_FAIL
+			user:send_msg(MID.DELETE_ROLE_RET, msg)
+			return
+		end
+
+		-- TODO
+		--[[
+		-- 2. rpc to area bridge to delete role
+		local server_id = AreaMgr.get_server_id(area_id)
+		local rpc_data = 
+		{
+			role_id=role_id,
+		}
+		local status, result = RpcMgr.call_by_server_id(server_id, "bridge_delete_role", rpc_data)
+		if not status then
+			Log.err("handle_delete_role rpc call fail")
+			-- delete in user_role
+			msg.result = ErrorCode.DELETE_ROLE_FAIL
+			user:send_msg(MID.DELETE_ROLE_RET, msg)
+			return
+		end
+		Log.debug("handle_delete_role: callback result2=%s", Util.table_to_string(result))
+		--]]
+
+		-- 3. rpc to db delete role
+		local rpc_data = 
+		{
+			db_name="login_db",
+			table_name="user_role",
+			fields={is_delete = 1},
+			conditions={role_id=role_id}
+		}
+		local status, result = RpcMgr.call_by_server_type(ServerType.DB, "db_update", rpc_data)
+		if not status then
+			Log.err("handle_delete_role rpc call fail")
+			msg.result = ErrorCode.SYS_ERROR
+			user:send_msg(MID.DELETE_ROLE_RET, msg)
+			return
+		end
+		Log.debug("handle_delete_role: callback result=%s", Util.table_to_string(result))
+
+		if result.result ~= ErrorCode.SUCCESS then
+			msg.result = result.result
+			user:send_msg(MID.DELETE_ROLE_RET, msg)
+			return
+		end
+
+		-- 4. remove role from user
+		if not user:is_ok() then
+			-- user may offline, do nothing
+			return
+		end
+
+		user:delete_role(area_id, role_id)
+		user:send_msg(MID.DELETE_ROLE_RET, msg)
+	end
+	RpcMgr.run(func, user, data)
+
+end
+
 function register_msg_handler()
 	Net.add_msg_handler(MID.REGISTER_SERVER_REQ, g_funcs.handle_register_server)
 	Net.add_msg_handler(MID.REGISTER_SERVER_RET, g_funcs.handle_register_server_ret)
@@ -355,6 +441,7 @@ function register_msg_handler()
 	Net.add_msg_handler(MID.AREA_LIST_REQ, handler_area_list_req)
 	Net.add_msg_handler(MID.ROLE_LIST_REQ, handle_role_list_req)
 	Net.add_msg_handler(MID.CREATE_ROLE_REQ, handle_create_role)
+	Net.add_msg_handler(MID.DELETE_ROLE_REQ, handle_delete_role)
 
 	Net.add_msg_handler(MID.RPC_TEST_REQ, handle_rpc_test)
 end

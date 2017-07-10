@@ -6,7 +6,13 @@ function cmd_handler.execute(buffer)
 	local params = Util.split_string(buffer, " ")
 	Log.debug("params=%s", Util.table_to_string(params))
 
-	if params[1] == "login" then
+
+	if params[1] == "rpc" then
+		cmd_handler.do_rpc_test(params)
+	elseif params[1] == "rpcx" then
+		cmd_handler.do_rpc_testx(params)
+
+	elseif params[1] == "login" then
 		cmd_handler.do_login(params)
 	elseif params[1] == "loginx" then
 		cmd_handler.do_loginx(params)
@@ -16,13 +22,47 @@ function cmd_handler.execute(buffer)
 		cmd_handler.do_role_list_req(params)
 	elseif params[1] == "create" then
 		cmd_handler.do_create_role(params)
+	elseif params[1] == "delete" then
+		cmd_handler.do_delete_role(params)
 
-	elseif params[1] == "rpc" then
-		cmd_handler.do_rpc_test(params)
-	elseif params[1] == "rpcx" then
-		cmd_handler.do_rpc_testx(params)
 	end
 
+end
+
+function cmd_handler.do_rpc_test(params)
+	-- rpc [buff]
+	if #params ~= 2 then
+		Log.warn("cmd_handler.do_rpc_test params not enough")
+		return
+	end
+
+	local msg =
+	{
+		buff = params[2],
+	}
+
+	send_to_login(MID.RPC_TEST_REQ, msg)
+end
+
+function cmd_handler.do_rpc_testx(params)
+
+	-- rpcx [num]
+	if #params ~= 2 then
+		Log.warn("cmd_handler.do_rpc_testx params not enough")
+		return
+	end
+
+	local num = tonumber(params[2])
+
+	local msg =
+	{
+		buff = "aaa"
+	}
+	for i=1, num do
+		send_to_login(MID.RPC_TEST_REQ, msg)
+	end
+
+	x_test_start(num)
 end
 
 function cmd_handler.do_login(params)
@@ -103,40 +143,20 @@ function cmd_handler.do_create_role(params)
 	send_to_login(MID.CREATE_ROLE_REQ, msg)
 end
 
-function cmd_handler.do_rpc_test(params)
-	-- rpc [buff]
-	if #params ~= 2 then
-		Log.warn("cmd_handler.do_rpc_test params not enough")
+function cmd_handler.do_delete_role(params)
+	-- delete [role_id] [opt area_id]
+	if #params < 2 then
+		Log.warn("cmd_handler.do_delete_role params not enough")
 		return
 	end
 
 	local msg =
 	{
-		buff = params[2],
+		area_id = tonumber(params[3] or "1"),
+		role_id = tonumber(params[2]),
 	}
 
-	send_to_login(MID.RPC_TEST_REQ, msg)
-end
-
-function cmd_handler.do_rpc_testx(params)
-
-	-- rpcx [num]
-	if #params ~= 2 then
-		Log.warn("cmd_handler.do_rpc_testx params not enough")
-		return
-	end
-
-	local num = tonumber(params[2])
-
-	local msg =
-	{
-		buff = "aaa"
-	}
-	for i=1, num do
-		send_to_login(MID.RPC_TEST_REQ, msg)
-	end
-
-	x_test_start(num)
+	send_to_login(MID.DELETE_ROLE_REQ, msg)
 end
 
 

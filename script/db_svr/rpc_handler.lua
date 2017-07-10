@@ -88,7 +88,7 @@ function register_rpc_handler()
 
 	local function db_select(data)
 		
-		Log.debug("db_insert: data=%s", Util.table_to_string(data))
+		Log.debug("db_select: data=%s", Util.table_to_string(data))
 
 		local db_name = data.db_name
 		local table_name = data.table_name
@@ -145,6 +145,29 @@ function register_rpc_handler()
 		return ret_data
 	end
 
+	local function db_update(data)
+		
+		Log.debug("db_update: data=%s", Util.table_to_string(data))
+
+		local db_name = data.db_name
+		local table_name = data.table_name
+		local fields = data.fields
+		local conditions = data.conditions
+
+		--[[
+		local ret = DBMgr.do_update(db_name, table_name, fields, conditions)
+		if not ret then
+			Log.err("db_update err db_name=%s table_name=%s fields=%s conditions=%s", db_name, table_name, Util.table_to_string(fields), Util.table_to_string(conditions))
+			return {result = ErrorCode.SYS_ERROR, data = {}}
+		end
+
+		Log.debug("db_update: ret=%s", Util.table_to_string(ret))
+		--]]
+	
+		-- must return a table
+		return {result = ErrorCode.SUCCESS}
+	end
+
 
 	RpcMgr._all_call_func.db_rpc_test = db_rpc_test
 
@@ -152,4 +175,5 @@ function register_rpc_handler()
 	RpcMgr._all_call_func.db_create_role = db_create_role
 	RpcMgr._all_call_func.db_select = db_select
 	RpcMgr._all_call_func.db_insert_one = db_insert_one
+	RpcMgr._all_call_func.db_update = db_update
 end
