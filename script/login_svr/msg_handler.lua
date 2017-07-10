@@ -289,6 +289,7 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 			user_id=user._user_id, 
 			area_id=area_id, 
 			role_name=role_name,
+			max_role=5,
 		}
 		local status, result = RpcMgr.call_by_server_type(ServerType.DB, "db_create_role", rpc_data, user._user_id)
 		if not status then

@@ -57,15 +57,13 @@ function register_rpc_handler()
 		
 		Log.debug("db_create_role: data=%s", Util.table_to_string(data))
 
-		-- each user only can has 4 role
-		local MAX_ROLE = 4
-
 		local user_id = data.user_id
 		local area_id = data.area_id
 		local role_name = data.role_name
+		local max_role = data.max_role
 
 		-- call a procedure
-		local sql = string.format("CALL create_user_role(%d,%d,'%s',%d)", user_id, area_id, role_name, MAX_ROLE)
+		local sql = string.format("CALL create_user_role(%d,%d,'%s',%d)", user_id, area_id, role_name, max_role)
 
 		local ret = DBMgr.do_execute("login_db", sql, true)
 		if not ret then

@@ -16,6 +16,8 @@ local function main_entry()
 
 	g_funcs.connect_to_mysql(xml_doc)
 
+	ServerConfig._no_broadcast = true
+
 end
 
 main_entry()

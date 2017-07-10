@@ -149,6 +149,10 @@ function g_funcs.handle_register_server(data, mailbox_id, msg_id)
 	new_server_info:send_msg(MID.REGISTER_SERVER_RET, msg)
 
 	-- broadcast
+	if ServerConfig._no_broadcast then
+		return
+	end
+
 	for server_id, server_info in pairs(ServiceServer._all_server_map) do
 		if server_id ~= data.server_id then
 			local msg = 

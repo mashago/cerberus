@@ -36,9 +36,10 @@ int main(int argc, char ** argv)
 	int port = root->IntAttribute("port");
 	const char *entry_file = (char*)root->Attribute("file");
 	int auto_shutdown = root->IntAttribute("auto_shutdown");
+	int no_broadcast = root->IntAttribute("no_broadcast");
 
-	LOG_DEBUG("server_id=%d server_type=%d ip=%s port=%d entry_file=%s auto_shutdown=%d"
-	, server_id, server_type, ip, port, entry_file, auto_shutdown);
+	LOG_DEBUG("server_id=%d server_type=%d ip=%s port=%d entry_file=%s auto_shutdown=%d no_broadcast=%d"
+	, server_id, server_type, ip, port, entry_file, auto_shutdown, no_broadcast);
 
 	std::set<std::string> trustIpSet;
 	tinyxml2::XMLElement *trust_ip = root->FirstChildElement("trust_ip");
