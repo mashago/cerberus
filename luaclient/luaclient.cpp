@@ -149,20 +149,16 @@ void LuaClient::HandleMsg(int64_t mailboxId, int msgId, Pluto &u)
 	lua_pushinteger(m_L, msgId);
 	lua_call(m_L, 2, 0);
 }
-*/
 
 void LuaClient::HandleDisconnect(Mailbox *pmb)
 {
 	LOG_DEBUG("mailboxId=%ld", pmb->GetMailboxId());
 
-	/*
 	lua_getglobal(m_L, "ccall_disconnect_handler");
 	lua_pushnumber(m_L, pmb->GetMailboxId());
 	lua_call(m_L, 1, 0);
-	*/
 }
 
-/*
 void LuaClient::HandleConnectToSuccess(Mailbox *pmb)
 {
 	LOG_DEBUG("mailboxId=%ld", pmb->GetMailboxId());
