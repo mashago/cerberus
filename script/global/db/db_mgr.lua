@@ -190,6 +190,73 @@ function DBMgr.do_delete(db_name, table_name, conditions)
 	return ret
 end
 
+-- local ret = DBMgr.do_update("login_db", "user_role", {is_delete=1}, {role_id=role_id})
+-- db_name = "login_db"
+-- table_name = "user_info"
+-- fields = {is_delete=1}
+-- conditions = {role_id=role_id}
+-- return affected row nums, or negative for error
+function DBMgr.do_update(db_name, table_name, fields, conditions)
+	Log.debug("db_name=%s", db_name)
+	Log.debug("table_name=%s", table_name)
+	Log.debug("fields=%s", Util.table_to_string(fields))
+	Log.debug("conditions=%s", Util.table_to_string(conditions))
+
+	local mysqlmgr = DBMgr._mysql_map[db_name] 
+	if not mysqlmgr then
+		return -1
+	end
+
+	if not next(fields) then
+		Log.warn("DBMgr.do_update fields empty table_name=%s", table_name)
+		return -1
+	end
+
+	local sql = "UPDATE " .. table_name .. " SET "
+
+	-- handle fields
+	local index = 1
+	for k, v in pairs(fields) do
+		if index ~= 1 then
+			sql = sql .. ","
+		end
+		sql = sql .. k .. "="
+		if type(v) == "string" then
+			sql = sql .. "'" .. v .. "'"
+		else
+			sql = sql .. v
+		end
+		index = index + 1
+	end
+
+
+	-- handle condition
+	if next(conditions) then
+		sql = sql .. " WHERE "
+
+		local index = 1
+		for k, v in pairs(conditions) do
+			if index ~= 1 then
+				sql = sql .. " AND "
+			end
+			sql = sql .. k .. "="
+			if type(v) == "string" then
+				sql = sql .. "'" .. v .. "'"
+			else
+				sql = sql .. v
+			end
+			index = index + 1
+		end
+
+	end
+
+	Log.debug("sql=%s", sql)
+
+	local ret = mysqlmgr:change(sql);
+	
+	return ret
+end
+
 -- for execute raw sql
 function DBMgr.do_execute(db_name, sql, has_ret)
 

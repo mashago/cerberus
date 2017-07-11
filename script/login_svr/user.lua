@@ -11,7 +11,7 @@ function User:new(mailbox_id, user_id, username, channel_id)
 	obj._username = username
 	obj._channel_id = channel_id
 	obj._is_online = true
-	obj._role_map = {} -- {[area_id]=role_list, }
+	obj._role_map = {} -- {[area_id]=role_list, } role_list={{role_id=x, role_name=y},}
 
 	return obj
 end

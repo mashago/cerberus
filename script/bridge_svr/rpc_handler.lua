@@ -13,24 +13,24 @@ function register_rpc_handler()
 		sum = sum + 1
 
 		-- rpc to router
-		local status, result = RpcMgr.call_by_server_type(ServerType.ROUTER, "router_rpc_test", {buff=buff, sum=sum})
+		local status, ret = RpcMgr.call_by_server_type(ServerType.ROUTER, "router_rpc_test", {buff=buff, sum=sum})
 		if not status then
 			Log.err("bridge_rpc_test rpc call fail")
 			return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
 		end
-		Log.debug("bridge_rpc_test: callback result=%s", Util.table_to_string(result))
-		buff = result.buff
-		sum = result.sum
+		Log.debug("bridge_rpc_test: callback ret=%s", Util.table_to_string(ret))
+		buff = ret.buff
+		sum = ret.sum
 
 		-- rpc to scene
-		local status, result = RpcMgr.call_by_server_type(ServerType.SCENE, "scene_rpc_test", {buff=buff, sum=sum})
+		local status, ret = RpcMgr.call_by_server_type(ServerType.SCENE, "scene_rpc_test", {buff=buff, sum=sum})
 		if not status then
 			Log.err("bridge_rpc_test rpc call fail")
 			return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
 		end
-		Log.debug("bridge_rpc_test: callback result=%s", Util.table_to_string(result))
-		buff = result.buff
-		sum = result.sum
+		Log.debug("bridge_rpc_test: callback ret=%s", Util.table_to_string(ret))
+		buff = ret.buff
+		sum = ret.sum
 
 		return {result = ErrorCode.SUCCESS, buff=buff, sum=sum}
 	end
@@ -68,18 +68,47 @@ function register_rpc_handler()
 			kvs = role_data,
 		}
 		Log.debug("bridge_create_role rpc_data=%s", Util.table_to_string(rpc_data))
-		local status, result = RpcMgr.call_by_server_type(ServerType.DB, "db_insert_one", rpc_data)
+		local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_insert_one", rpc_data)
 		if not status then
 			Log.err("bridge_create_role rpc call fail")
 			return {result = ErrorCode.SYS_ERROR}
 		end
-		Log.debug("bridge_create_role callback result=%s", Util.table_to_string(result))
+		Log.debug("bridge_create_role callback ret=%s", Util.table_to_string(ret))
 
-		return {result = result.result}
+		return {result = ret.result}
+
+	end
+
+	local function bridge_delete_role(data)
+		
+		Log.debug("bridge_delete_role: data=%s", Util.table_to_string(data))
+
+		-- TODO check if role is online
+
+		local role_id = data.role_id
+
+
+		-- core logic, set is_delete in game_db.role_info
+		local rpc_data = 
+		{
+			db_name = "game_db",
+			table_name = "role_info",
+			fields = {is_delete = 1},
+			conditions = {role_id=role_id}
+		}
+		local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_update", rpc_data)
+		if not status then
+			Log.err("handle_delete_role rpc call fail")
+			return {result = ErrorCode.SYS_ERROR}
+		end
+		Log.debug("handle_delete_role: callback ret=%s", Util.table_to_string(ret))
+
+		return {result = ret.result}
 
 	end
 
 	RpcMgr._all_call_func.bridge_rpc_test = bridge_rpc_test
 	RpcMgr._all_call_func.bridge_create_role = bridge_create_role
+	RpcMgr._all_call_func.bridge_delete_role = bridge_delete_role
 
 end

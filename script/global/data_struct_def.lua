@@ -15,6 +15,7 @@ DataStructDef.game_db.role_info =
 	user_id = { type=_Int64, save=1, default='_Null', key=0},
 	channel_id = { type=_Int, save=1, default='_Null'},
 	area_id = { type=_Int, save=1, default='_Null'},
+	is_delete = { type=_Int, save=1, default='0'},
 	lv = { type=_Int, save=1, default='1'},
 	exp = { type=_Int, save=1, default='0'},
 	scene_id = { type=_Int, save=1, default='1'},

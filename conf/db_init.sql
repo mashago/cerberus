@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS `user_role` (
 	`user_id` bigint(20) NOT NULL,
 	`area_id` int(11) NOT NULL,
 	`role_name` varchar(45) NOT NULL UNIQUE,
+	`is_delete` int(11) NOT NULL DEFAULT 0,
 	PRIMARY KEY (`role_id`),
 	KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8;
@@ -43,7 +44,7 @@ BEGIN
 	DECLARE out_role_count INT;
 	DECLARE EXIT HANDLER FOR 1062 SELECT -2 AS role_id; -- handle duplicate role_name 
 	
-	SELECT COUNT(*) INTO out_role_count FROM `user_role` WHERE `user_id`=in_user_id and `area_id`=in_area_id;
+	SELECT COUNT(*) INTO out_role_count FROM `user_role` WHERE `user_id`=in_user_id AND `area_id`=in_area_id AND `is_delete`=0;
 
 	IF out_role_count >= in_max_role THEN
 		SELECT -1 AS role_id;

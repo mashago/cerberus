@@ -154,15 +154,16 @@ function register_rpc_handler()
 		local fields = data.fields
 		local conditions = data.conditions
 
-		--[[
 		local ret = DBMgr.do_update(db_name, table_name, fields, conditions)
-		if not ret then
+		if ret < 0 then
 			Log.err("db_update err db_name=%s table_name=%s fields=%s conditions=%s", db_name, table_name, Util.table_to_string(fields), Util.table_to_string(conditions))
-			return {result = ErrorCode.SYS_ERROR, data = {}}
+			return {result = ErrorCode.SYS_ERROR}
+		end
+		if ret == 0 then
+			Log.warn("db_update nothing change db_name=%s table_name=%s fields=%s conditions=%s", db_name, table_name, Util.table_to_string(fields), Util.table_to_string(conditions))
 		end
 
-		Log.debug("db_update: ret=%s", Util.table_to_string(ret))
-		--]]
+		Log.debug("db_update: ret=%d", ret)
 	
 		-- must return a table
 		return {result = ErrorCode.SUCCESS}
