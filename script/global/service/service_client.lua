@@ -19,7 +19,7 @@ ServiceClient._is_connect_timer_running = false
 ServiceClient._connect_interval_ms = 2000
 
 function ServiceClient.is_service_server(mailbox_id)
-	for _, service_info in pairs(ServiceClient._all_service_server) do
+	for _, service_info in ipairs(ServiceClient._all_service_server) do
 		if service_info._mailbox_id == mailbox_id then
 			return true
 		end
@@ -39,6 +39,7 @@ function ServiceClient.add_connect_service(ip, port, server_id, server_type, reg
 		_register = register,
 		_is_connecting = false,
 		_is_connected = false,
+		_is_closing = false,
 		_last_connect_time = 0,
 		_server_list = {}, -- {server_id1, server_id2}
 	}
@@ -178,6 +179,7 @@ function ServiceClient.connect_to_success(mailbox_id)
 		Net.send_msg(mailbox_id, MID.REGISTER_SERVER_REQ, msg)
 		ServiceClient.print()
 	else
+		-- no register, add server by service
 		ServiceClient.add_server(mailbox_id, service_info._server_id, service_info._server_type, {}, {})
 	end
 end
@@ -286,6 +288,7 @@ end
 function ServiceClient.handle_disconnect(mailbox_id)
 	Log.info("ServiceClient.handle_disconnect mailbox_id=%d", mailbox_id)
 
+	--[[
 	for _, service_info in ipairs(ServiceClient._all_service_server) do
 		if service_info._mailbox_id == mailbox_id then
 			-- set disconnect
@@ -301,6 +304,38 @@ function ServiceClient.handle_disconnect(mailbox_id)
 			break
 		end
 	end
+	--]]
+
+	local service_info = ServiceClient.get_service(mailbox_id)
+	if not service_info then
+		Log.err("ServiceClient.handle_disconnect service nil mailbox_id=%d", mailbox_id)
+		return
+	end
+
+	-- remove those server which connect to the service
+	for _, server_id in ipairs(service_info._server_list) do
+		ServiceClient._remove_server_core(mailbox_id, server_id)
+	end
+	service_info._server_list = {}
+
+	if service_info._is_closing then
+		Log.info("ServiceClient.handle_disconnect remove closing service %d", mailbox_id)
+		-- mailbox is going to close, will not do reconnect
+		-- remove from _all_service_server
+		for k, service_info in ipairs(ServiceClient._all_service_server) do
+			if service_info._mailbox_id == mailbox_id then
+				table.remove(ServiceClient._all_service_server, k)
+				break
+			end
+		end
+		ServiceClient.print()
+		return
+	end
+
+	-- set disconnect
+	service_info._mailbox_id = -1
+	service_info._is_connecting = false
+	service_info._is_connected = false
 
 	if ServiceClient._is_connect_timer_running then
 		-- do nothing, connect timer will do reconnect
@@ -313,6 +348,41 @@ function ServiceClient.handle_disconnect(mailbox_id)
 
 	ServiceClient.print()
 end
+
+function ServiceClient.close_service(mailbox_id)
+	local service_info = ServiceClient.get_service(mailbox_id)
+	if not service_info then
+		Log.err("ServiceClient.close_service service nil mailbox_id=%d", mailbox_id)
+		return
+	end
+
+	-- mark down, will clean up by handle_disconnect
+	service_info._is_closing = true 
+
+	-- core logic
+	g_network:close_mailbox(mailbox_id)
+
+end
+
+function ServiceClient.close_service_by_type(server_type)
+
+	local service_info = nil
+	for _, sinfo in ipairs(ServiceClient._all_service_server) do
+		if sinfo._server_type == server_type then
+			service_info = sinfo
+			break
+		end
+	end
+
+	if not service_info then
+		Log.warn("ServiceClient.close_service_by_type no such service %d", server_type)
+		return
+	end
+
+	ServiceClient.close_service(service_info._mailbox_id)
+end
+
+----------------------------------------------
 
 function ServiceClient.get_server_by_id(server_id)
 	return ServiceClient._all_server_map[server_id]

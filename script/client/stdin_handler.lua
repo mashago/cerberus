@@ -24,6 +24,10 @@ function cmd_handler.execute(buffer)
 		cmd_handler.do_create_role(params)
 	elseif params[1] == "delete" then
 		cmd_handler.do_delete_role(params)
+	elseif params[1] == "close" then
+		cmd_handler.do_close_connect(params)
+	elseif params[1] == "connect" then
+		cmd_handler.do_connect(params)
 
 	end
 
@@ -157,6 +161,38 @@ function cmd_handler.do_delete_role(params)
 	}
 
 	send_to_login(MID.DELETE_ROLE_REQ, msg)
+end
+
+function cmd_handler.do_close_connect(params)
+	-- close [login/router]
+	if #params < 2 then
+		Log.warn("cmd_handler.do_close_connect params not enough")
+		return
+	end
+
+	local server_type = nil
+	if params[2] == "login" then
+		server_type = ServerType.LOGIN
+	elseif params[2] == "router" then
+		server_type = ServerType.ROUTER
+	end
+	if not server_type then
+		Log.warn("cmd_handler.do_close_connect no such service")
+		return
+	end
+
+	ServiceClient.close_service_by_type(server_type)
+
+end
+
+function cmd_handler.do_connect(params)
+	-- connect [ip] [port] [id] [type]
+	if #params < 5 then
+		Log.warn("cmd_handler.do_connect params not enough")
+		return
+	end
+
+	-- TODO
 end
 
 

@@ -229,7 +229,7 @@ function ccall_recv_msg_handler(mailbox_id, msg_id)
 end
 
 function ccall_disconnect_handler(mailbox_id)
-	-- Log.warn("ccall_disconnect_handler mailbox_id=%d", mailbox_id)
+	Log.warn("ccall_disconnect_handler mailbox_id=%d", mailbox_id)
 
 	local function error_handler(msg, mailbox_id)
 		local msg = debug.traceback(msg, 3)
