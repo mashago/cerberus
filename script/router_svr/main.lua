@@ -14,8 +14,8 @@ local function main_entry()
 		return
 	end
 
-	-- connect to other server
-	-- g_funcs.connect_to_servers(xml_doc)
+	-- load ip and port
+	g_funcs.load_address(xml_doc)
 
 end
 

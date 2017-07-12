@@ -7,6 +7,8 @@ ServerConfig._single_scene_list = {}
 ServerConfig._from_to_scene_list = {}
 ServerConfig._area_list = {}
 ServerConfig._no_broadcast = false
+ServerConfig._ip = ""
+ServerConfig._port = 0
 
 function ServerConfig.add_single_scene(scene_id)
 	if ServerConfig._all_scene_list[scene_id] then

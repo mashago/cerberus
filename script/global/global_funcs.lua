@@ -1,6 +1,21 @@
 
 g_funcs = {}
 
+function g_funcs.load_address(xml_doc)
+	local root_ele = xml_doc:first_child_element()
+	if not root_ele then
+		Log.err("tinyxml root_ele nil %s", g_conf_file)
+		return false
+	end
+
+	local ip = root_ele:string_attribute("ip")
+	local port = root_ele:int_attribute("port")
+	Log.info("g_funcs.load_address ip=%s port=%d", ip, port)
+
+	ServerConfig._ip = ip
+	ServerConfig._port = port
+end
+
 function g_funcs.connect_to_servers(xml_doc)
 	local root_ele = xml_doc:first_child_element()
 	if not root_ele then

@@ -37,6 +37,8 @@ MID._id_name_map =
 	[12] = "CREATE_ROLE_RET",
 	[13] = "DELETE_ROLE_REQ",
 	[14] = "DELETE_ROLE_RET",
+	[15] = "SELECT_ROLE_REQ",
+	[16] = "SELECT_ROLE_RET",
 
 	-- msg for server
 	[60001] = "REGISTER_SERVER_REQ",
@@ -192,6 +194,20 @@ MSG_DEF_MAP =
 	[MID.DELETE_ROLE_RET] =
 	{
 		{ "result", _Int },
+	},
+
+	[MID.SELECT_ROLE_REQ] =
+	{
+		{ "area_id", _Int },
+		{ "role_id", _Int64 },
+	},
+	[MID.SELECT_ROLE_RET] =
+	{
+		{ "result", _Int },
+		{ "ip", _String },
+		{ "port", _Int },
+		{ "user_id", _Int64 },
+		{ "token", _String },
 	},
 
 

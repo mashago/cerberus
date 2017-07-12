@@ -24,6 +24,9 @@ function cmd_handler.execute(buffer)
 		cmd_handler.do_create_role(params)
 	elseif params[1] == "delete" then
 		cmd_handler.do_delete_role(params)
+	elseif params[1] == "select" then
+		cmd_handler.do_select_role(params)
+
 	elseif params[1] == "close" then
 		cmd_handler.do_close_connect(params)
 	elseif params[1] == "connect" then
@@ -161,6 +164,22 @@ function cmd_handler.do_delete_role(params)
 	}
 
 	send_to_login(MID.DELETE_ROLE_REQ, msg)
+end
+
+function cmd_handler.do_select_role(params)
+	-- select [role_id] [opt area_id]
+	if #params < 2 then
+		Log.warn("cmd_handler.do_select_role params not enough")
+		return
+	end
+
+	local msg =
+	{
+		area_id = tonumber(params[3] or "1"),
+		role_id = tonumber(params[2]),
+	}
+
+	send_to_login(MID.SELECT_ROLE_REQ, msg)
 end
 
 function cmd_handler.do_close_connect(params)
