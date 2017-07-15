@@ -27,7 +27,8 @@ extern "C"
 #include <map>
 #include <list>
 #include "mailbox.h"
-#include "world.h"
+// #include "world.h"
+#include "event_pipe.h"
 
 
 class NetService
@@ -37,15 +38,17 @@ public:
 	NetService();
 	virtual ~NetService();
 
-	int Init(const char *addr, unsigned int port, std::set<std::string> &trustIpSet);
+	int Init(const char *addr, unsigned int port, std::set<std::string> &trustIpSet, EventPipe *net2worldPipe, EventPipe *world2netPipe);
 	int Service();
 	// return >= 0 as mailboxId, < 0 as error
 	int64_t ConnectTo(const char *addr, unsigned int port);
 
 	Mailbox *GetMailboxByFd(int fd);
 	Mailbox *GetMailboxByMailboxId(int64_t mailboxId);
+	/*
 	void SetWorld(World *world);
 	World *GetWorld();
+	*/
 
 	virtual int HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int socklen);
 
@@ -80,6 +83,8 @@ private:
 	std::list<Mailbox *> m_mb4del;
 	std::list<Pluto *> m_recvMsgs;
 	std::set<std::string> m_trustIpSet;
-	World *m_world;
+	// World *m_world;
+	EventPipe *m_net2worldPipe;
+	EventPipe *m_world2netPipe;
 };
 

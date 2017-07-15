@@ -35,7 +35,7 @@ static void timer_cb(evutil_socket_t fd, short event, void *user_data);
 static void stdin_cb(evutil_socket_t fd, short event, void *user_data);
 
 
-NetService::NetService() : m_mainEvent(nullptr), m_tickEvent(nullptr), m_timerEvent(nullptr), m_evconnlistener(nullptr), m_world(nullptr)
+NetService::NetService() : m_mainEvent(nullptr), m_tickEvent(nullptr), m_timerEvent(nullptr), m_evconnlistener(nullptr)
 {
 }
 
@@ -44,7 +44,7 @@ NetService::~NetService()
 }
 
 
-int NetService::Init(const char *addr, unsigned int port, std::set<std::string> &trustIpSet)
+int NetService::Init(const char *addr, unsigned int port, std::set<std::string> &trustIpSet, EventPipe *net2worldPipe, EventPipe *world2netPipe)
 {
 	m_trustIpSet = trustIpSet;
 
@@ -92,6 +92,9 @@ int NetService::Init(const char *addr, unsigned int port, std::set<std::string> 
 		LOG_ERROR("add stdin event fail");
 		return -1;
 	}
+
+	m_net2worldPipe = net2worldPipe;
+	m_world2netPipe = world2netPipe;
 
 	return 0;
 }
@@ -213,6 +216,7 @@ Mailbox *NetService::GetMailboxByMailboxId(int64_t mailboxId)
 	return iter->second;
 }
 
+/*
 void NetService::SetWorld(World *world)
 {
 	m_world = world;
@@ -222,6 +226,7 @@ World *NetService::GetWorld()
 {
 	return m_world;
 }
+*/
 
 
 int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int socklen)
@@ -279,7 +284,7 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 	}
 	pmb->SetBEV(bev);
 
-	m_world->HandleNewConnection(pmb);
+	// m_world->HandleNewConnection(pmb);
 
 	return 0;
 }
@@ -464,7 +469,7 @@ int NetService::HandleSocketConnected(evutil_socket_t fd)
 		return 0;
 	}
 
-	m_world->HandleConnectToSuccess(pmb);
+	// m_world->HandleConnectToSuccess(pmb);
 	return 0;
 }
 
@@ -534,7 +539,7 @@ void NetService::CloseMailbox(Mailbox *pmb)
 	}
 
 	// notice to world
-	m_world->HandleDisconnect(pmb);
+	// m_world->HandleDisconnect(pmb);
 
 	// push to list, delete by tick
 	pmb->SetDeleteFlag();
@@ -678,8 +683,9 @@ static void stdin_cb(evutil_socket_t fd, short event, void *user_data)
 		return;
 	}
 
-	NetService *server = (NetService *)user_data;
-	server->GetWorld()->HandleStdin(buffer, len);
+	// NetService *server = (NetService *)user_data;
+	// server->GetWorld()->HandleStdin(buffer, len);
+	// TODO
 }
 
 ////////// callback end ]

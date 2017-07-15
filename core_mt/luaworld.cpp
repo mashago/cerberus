@@ -178,6 +178,14 @@ void LuaWorld::HandleNewConnection(Mailbox *pmb)
 	lua_call(m_L, 2, 0);
 }
 
+void LuaWorld::HandleEvent()
+{
+	const std::list<EventNode> &eventList = m_net2worldPipe->Pop();
+
+	
+	m_net2worldPipe->CleanOut();
+}
+
 void LuaWorld::HandleTimer(void *arg)
 {
 	int64_t timer_index = (int64_t)arg;
