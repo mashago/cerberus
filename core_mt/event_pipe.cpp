@@ -1,7 +1,7 @@
 
 #include "event_pipe.h"
 
-EventPipe::EventPipe() {};
+EventPipe::EventPipe(bool isBlockWait) : m_isBlockWait(isBlockWait) {};
 EventPipe::~EventPipe() {};
 
 void EventPipe::Push(EventNode *node)
@@ -21,6 +21,9 @@ const std::list<EventNode *> & EventPipe::Pop()
 void EventPipe::Switch()
 {
 	std::unique_lock<std::mutex> lock(m_mtx);
-	m_cv.wait(lock, [this](){ return !m_eventList.IsInEmpty(); });
+	if (m_isBlockWait)
+	{
+		m_cv.wait(lock, [this](){ return !m_eventList.IsInEmpty(); });
+	}
 	m_eventList.Switch();
 }

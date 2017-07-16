@@ -133,7 +133,7 @@ struct EventNodeStdin : public EventNode
 class EventPipe
 {
 public:
-	EventPipe();
+	EventPipe(bool isBlockWait = true);
 	~EventPipe();
 	EventPipe(const EventNode &) = delete;
 	EventPipe & operator=(const EventPipe &) = delete;
@@ -144,6 +144,7 @@ public:
 private:
 	std::mutex m_mtx;
 	std::condition_variable m_cv;
+	bool m_isBlockWait;
 	SwitchList<EventNode *> m_eventList;
 
 	void Switch();
