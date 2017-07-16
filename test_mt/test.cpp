@@ -285,7 +285,6 @@ void thread_run(EventPipe *pipe, bool isBlockWait)
 				case EVENT_TYPE::EVENT_TYPE_MSG:
 				{
 					const EventNodeMsg &n = (EventNodeMsg&)node;
-					LOG_DEBUG("mailboxId=%ld msgId=%d", n.mailboxId, n.msgId);
 					break;
 				}
 				case EVENT_TYPE::EVENT_TYPE_STDIN:
@@ -340,8 +339,6 @@ int test2()
 		}
 		{
 			EventNodeMsg *node = new EventNodeMsg;
-			node->mailboxId = 4;
-			node->msgId = 10086;
 			pipe->Push(node);
 		}
 		{

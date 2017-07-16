@@ -45,10 +45,6 @@ public:
 
 	Mailbox *GetMailboxByFd(int fd);
 	Mailbox *GetMailboxByMailboxId(int64_t mailboxId);
-	/*
-	void SetWorld(World *world);
-	World *GetWorld();
-	*/
 
 	virtual int HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int socklen);
 
@@ -60,9 +56,11 @@ public:
 	virtual int HandleSocketClosed(evutil_socket_t fd);
 	virtual int HandleSocketError(evutil_socket_t fd);
 
+	virtual int HandleSendPluto();
 	virtual int HandleTickEvent();
 	// virtual int HandleRecvPluto();
-	virtual int HandleSendPluto();
+
+	void PushEvent(EventNode *node);
 
 	void CloseMailbox(int fd);
 	void CloseMailbox(int64_t mailboxId);
@@ -83,7 +81,6 @@ private:
 	std::list<Mailbox *> m_mb4del;
 	std::list<Pluto *> m_recvMsgs;
 	std::set<std::string> m_trustIpSet;
-	// World *m_world;
 	EventPipe *m_net2worldPipe;
 	EventPipe *m_world2netPipe;
 };

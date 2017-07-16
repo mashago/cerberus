@@ -12,18 +12,16 @@ public:
 
 	virtual bool Init(int server_id, int server_type, const char *conf_file, const char *entry_file) override;
 
-	virtual int HandlePluto(Pluto &u) override;
-	virtual void HandleDisconnect(Mailbox *pmb) override;
-	virtual void HandleConnectToSuccess(Mailbox *pmb) override;
-	virtual void HandleNewConnection(Mailbox *pmb) override;
-	virtual void HandleEvent(const EventNode &event) override;
+	virtual void HandleNewConnection(int64_t mailboxId, int32_t connType) override;
+	virtual void HandleConnectToSuccess(int64_t mailboxId) override;
+	virtual void HandleDisconnect(int64_t mailboxId) override;
+	virtual void HandlePluto(Pluto &u) override;
 
 	void HandleTimer(void *arg);
 protected:
 	LuaWorld();
 	virtual ~LuaWorld();
 
-	void HandleMsg(int64_t mailboxId, int msgId, Pluto &u);
 	lua_State *m_L;
 };
 

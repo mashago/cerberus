@@ -67,7 +67,7 @@ int main(int argc, char ** argv)
 
 	// init msg pipe
 	EventPipe *net2worldPipe = new EventPipe();
-	EventPipe *world2newPipe = new EventPipe();
+	EventPipe *world2newPipe = new EventPipe(false);
 
 	NetService *net = new NetService();
 	net->Init(ip, port, trustIpSet, net2worldPipe, world2newPipe);

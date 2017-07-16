@@ -92,6 +92,8 @@ bool LuaNetwork::WriteString(int len, const char* str)
 
 bool LuaNetwork::Send(int64_t mailboxId)
 {
+	// TODO
+	/*
 	Mailbox *pmb = m_net->GetMailboxByMailboxId(mailboxId);
 	if (!pmb)
 	{
@@ -105,10 +107,11 @@ bool LuaNetwork::Send(int64_t mailboxId)
 	m_sendPluto->SetMsgLen();
 	Pluto *pu = m_sendPluto->Clone();
 	// pu->SetMsgLen(m_sendPluto->GetMsgLen());
-	pu->SetMailbox(pmb);
+	pu->SetMailboxId(mailboxId);
 	pmb->PushPluto(pu);
 
 	initSendPluto();
+	*/
 
 	return true;
 }

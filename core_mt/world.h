@@ -20,16 +20,16 @@ public:
 
 	virtual bool Init(int server_id, int server_type, const char *conf_file, const char * entry_file);
 
-	virtual bool CheckPluto(Pluto &u);
-	virtual int HandlePluto(Pluto &u) = 0;
-	virtual void HandleDisconnect(Mailbox *pmb) = 0;
-	virtual void HandleConnectToSuccess(Mailbox *pmb) = 0;
-	virtual void HandleNewConnection(Mailbox *pmb);
-	virtual void HandleStdin(const char *buffer, int len);
-	virtual void HandleEvent(const EventNode &event);
+	virtual void HandleNewConnection(int64_t mailboxId, int32_t connType) = 0;
+	virtual void HandleConnectToSuccess(int64_t mailboxId) = 0;
+	virtual void HandleDisconnect(int64_t mailboxId) = 0;
+	virtual void HandlePluto(Pluto &u) = 0;
+	virtual void HandleStdin(const char *buffer);
+
+	void HandleEvent(const EventNode &node);
 
 	void RecvEvent();
-	void SendEvent(EventNode &node);
+	void SendEvent(EventNode *node);
 	
 protected:
 	NetService *m_net;

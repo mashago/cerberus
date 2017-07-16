@@ -117,15 +117,21 @@ struct EventNodeMsg : public EventNode
 	EventNodeMsg() : EventNode(EVENT_TYPE::EVENT_TYPE_MSG)
 	{
 	}
-	int64_t mailboxId;
-	int32_t msgId;
-	Pluto *u;
+	~EventNodeMsg()
+	{
+		delete pu;
+	}
+	Pluto *pu;
 };
 
 struct EventNodeStdin : public EventNode
 {
 	EventNodeStdin() : EventNode(EVENT_TYPE::EVENT_TYPE_STDIN)
 	{
+	}
+	~EventNodeStdin()
+	{
+		delete buffer;
 	}
 	char *buffer;
 };

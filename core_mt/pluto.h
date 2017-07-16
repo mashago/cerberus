@@ -48,6 +48,7 @@ public:
 		m_recvLen = len;
 	}
 
+	/*
 	Mailbox *GetMailbox()
 	{
 		return m_pmb;
@@ -57,10 +58,15 @@ public:
 	{
 		m_pmb = ptr;
 	}
+	*/
 
 	void SetMailboxId(int64_t mailboxId)
 	{
 		m_mailboxId = mailboxId;
+	}
+	int64_t GetMailboxId()
+	{
+		return m_mailboxId;
 	}
 
 	void ResetCursor();
@@ -97,7 +103,7 @@ private:
 	int m_bufferSize;
 	int m_recvLen;
 
-	Mailbox *m_pmb;
+	// Mailbox *m_pmb;
 	int64_t m_mailboxId;
 };
 
