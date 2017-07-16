@@ -16,7 +16,7 @@ public:
 	virtual void HandleDisconnect(Mailbox *pmb) override;
 	virtual void HandleConnectToSuccess(Mailbox *pmb) override;
 	virtual void HandleNewConnection(Mailbox *pmb) override;
-	virtual void HandleEvent() override;
+	virtual void HandleEvent(const EventNode &event) override;
 
 	void HandleTimer(void *arg);
 protected:

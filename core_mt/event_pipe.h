@@ -8,11 +8,13 @@
 #include <condition_variable>
 #include <memory>
 
+#include "common.h"
+
 template <typename T>
 class SwitchList
 {
 public:
-	typedef std::list<T> TaskList;
+	typedef std::list<T> NodeList;
 	
 	SwitchList() {}
 	~SwitchList() {}
@@ -53,63 +55,96 @@ public:
 		return m_pOutList->empty();
 	}
 
-	const TaskList & InList()
+	const NodeList & InList()
 	{
 		return *m_pInList;
 	}
 
-	const TaskList & OutList()
+	const NodeList & OutList()
 	{
 		return *m_pOutList;
 	}
 
 private:
-	TaskList m_list1;
-	TaskList m_list2;
-	TaskList *m_pInList = &m_list1;
-	TaskList *m_pOutList = &m_list2;
+	NodeList m_list1;
+	NodeList m_list2;
+	NodeList *m_pInList = &m_list1;
+	NodeList *m_pOutList = &m_list2;
 };
 
 struct EventNode
 {
 	int type;
-	void *ptr;
+protected:
+	EventNode(int t) : type(t) {}
+};
+
+struct EventNodeNewConnection : public EventNode
+{
+	EventNodeNewConnection() : EventNode(EVENT_TYPE::EVENT_TYPE_NEW_CONNECTION)
+	{
+	}
+	int64_t mailboxId;
+	int32_t connType;
+};
+
+struct EventNodeConnectToSuccess : public EventNode
+{
+	EventNodeConnectToSuccess() : EventNode(EVENT_TYPE::EVENT_TYPE_CONNNECT_TO_SUCCESS)
+	{
+	}
+	int64_t mailboxId;
+};
+
+struct EventNodeDissconnect : public EventNode
+{
+	EventNodeDissconnect() : EventNode(EVENT_TYPE::EVENT_TYPE_DISCONNECT)
+	{
+	}
+	int64_t mailboxId;
+};
+
+struct EventNodeTimer : public EventNode
+{
+	EventNodeTimer() : EventNode(EVENT_TYPE::EVENT_TYPE_TIMER)
+	{
+	}
+};
+
+class Pluto;
+struct EventNodeMsg : public EventNode
+{
+	EventNodeMsg() : EventNode(EVENT_TYPE::EVENT_TYPE_MSG)
+	{
+	}
+	int64_t mailboxId;
+	int32_t msgId;
+	Pluto *u;
+};
+
+struct EventNodeStdin : public EventNode
+{
+	EventNodeStdin() : EventNode(EVENT_TYPE::EVENT_TYPE_STDIN)
+	{
+	}
+	char *buffer;
 };
 
 class EventPipe
 {
 public:
-	EventPipe() {};
-	~EventPipe() {};
+	EventPipe();
+	~EventPipe();
+	EventPipe(const EventNode &) = delete;
+	EventPipe & operator=(const EventPipe &) = delete;
 
-	void Push(EventNode node)
-	{
-		std::unique_lock<std::mutex> lock(m_mtx);
-		m_eventList.Push(node);
-		m_cv.notify_all();
-	}
-
-	const std::list<EventNode> & Pop()
-	{
-		Switch();
-		return m_eventList.OutList();
-	}
-
-	void CleanOut()
-	{
-		m_eventList.CleanOut();
-	}
+	void Push(EventNode *node);
+	const std::list<EventNode *> & Pop();
 
 private:
-
-	SwitchList<EventNode> m_eventList;
 	std::mutex m_mtx;
 	std::condition_variable m_cv;
+	SwitchList<EventNode *> m_eventList;
 
-	void Switch()
-	{
-		std::unique_lock<std::mutex> lock(m_mtx);
-		m_cv.wait(lock, [this](){ return !m_eventList.IsInEmpty(); });
-		m_eventList.Switch();
-	}
+	void Switch();
 };

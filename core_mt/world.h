@@ -26,7 +26,10 @@ public:
 	virtual void HandleConnectToSuccess(Mailbox *pmb) = 0;
 	virtual void HandleNewConnection(Mailbox *pmb);
 	virtual void HandleStdin(const char *buffer, int len);
-	virtual void HandleEvent() = 0;
+	virtual void HandleEvent(const EventNode &event);
+
+	void RecvEvent();
+	void SendEvent(EventNode &node);
 	
 protected:
 	NetService *m_net;

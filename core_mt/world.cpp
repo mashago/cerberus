@@ -45,3 +45,18 @@ void World::HandleStdin(const char *buffer, int len)
 {
 	// default do nothing
 }
+
+void World::HandleEvent(const EventNode &event)
+{
+	// default do nothing
+}
+
+void World::RecvEvent()
+{
+	const std::list<EventNode *> &eventList = m_net2worldPipe->Pop();
+	for (auto iter = eventList.begin(); iter != eventList.end(); ++iter)
+	{
+		HandleEvent(**iter);
+		delete *iter;
+	}
+}

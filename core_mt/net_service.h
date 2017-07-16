@@ -61,7 +61,7 @@ public:
 	virtual int HandleSocketError(evutil_socket_t fd);
 
 	virtual int HandleTickEvent();
-	virtual int HandleRecvPluto();
+	// virtual int HandleRecvPluto();
 	virtual int HandleSendPluto();
 
 	void CloseMailbox(int fd);

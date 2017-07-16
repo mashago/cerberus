@@ -178,12 +178,23 @@ void LuaWorld::HandleNewConnection(Mailbox *pmb)
 	lua_call(m_L, 2, 0);
 }
 
-void LuaWorld::HandleEvent()
+void LuaWorld::HandleEvent(const EventNode &event)
 {
-	const std::list<EventNode> &eventList = m_net2worldPipe->Pop();
-
-	
-	m_net2worldPipe->CleanOut();
+	switch (event.type)
+	{
+		case EVENT_TYPE::EVENT_TYPE_NEW_CONNECTION:
+			break;
+		case EVENT_TYPE::EVENT_TYPE_CONNNECT_TO_SUCCESS:
+			break;
+		case EVENT_TYPE::EVENT_TYPE_DISCONNECT:
+			break;
+		case EVENT_TYPE::EVENT_TYPE_TIMER:
+			break;
+		case EVENT_TYPE::EVENT_TYPE_MSG:
+			break;
+		case EVENT_TYPE::EVENT_TYPE_STDIN:
+			break;
+	}
 }
 
 void LuaWorld::HandleTimer(void *arg)

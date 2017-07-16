@@ -14,7 +14,7 @@ void world_run(World *world)
 {
 	while (true)
 	{
-		world->HandleEvent();
+		world->RecvEvent();
 	}
 }
 
