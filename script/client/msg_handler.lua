@@ -7,22 +7,43 @@ function send_to_router(msg_id, msg)
 	ServiceClient.send_to_type_server(ServerType.ROUTER, msg_id, msg)
 end
 
+------------------------------------------------
 
 g_x_test_num = -1 -- x test end
+g_x_test_total_num = 0
 g_x_test_start_time = 0
+g_x_test_total_time = 0
+g_x_test_min_time = 0
+
 function x_test_start(num)
 	g_x_test_num = num
-	g_x_test_start_time = os.time()
+	g_x_test_total_num = num
+	g_x_test_start_time = get_time_ms_c()
+	g_x_test_total_time = 0
+	g_x_test_min_time = 0
 end
+
 function x_test_end()
+	local time_ms = get_time_ms_c()
 	if g_x_test_num > 0 then
 		g_x_test_num = g_x_test_num - 1
+		local time_ms_offset = time_ms - g_x_test_start_time
+		g_x_test_total_time = g_x_test_total_time + time_ms_offset
+		if g_x_test_min_time == 0 then
+			g_x_test_min_time = time_ms_offset
+		end
 	end
 	if g_x_test_num == 0 then
-		Log.debug("******* x test time use time=%d", os.time() - g_x_test_start_time)
+		Log.debug("******* x test time use time=%fms", time_ms - g_x_test_start_time)
+		Log.debug("******* g_x_test_total_num=%d", g_x_test_total_num)
+		Log.debug("******* g_x_test_total_time=%fms", g_x_test_total_time)
+		Log.debug("******* average time=%fms", g_x_test_total_time/ g_x_test_total_num)
+		Log.debug("******* min time=%fms", g_x_test_min_time)
 		g_x_test_num = -1  -- x test end
 	end
 end
+
+------------------------------------------------
 
 local function handle_rpc_test(data, mailbox_id, msg_id)
 	Log.debug("handle_rpc_test: data=%s", Util.table_to_string(data))

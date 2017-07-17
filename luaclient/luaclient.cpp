@@ -26,6 +26,7 @@ LuaClient::~LuaClient()
 {
 }
 
+/*
 static int logger_c(lua_State *L)
 {
 	luaL_checktype(L, 1, LUA_TNUMBER);
@@ -125,49 +126,8 @@ bool LuaClient::Init(int server_id, int server_type, const char *conf_file, cons
 
 	return true;
 }
-
-/*
-int LuaClient::HandlePluto(Pluto &u)
-{
-	Mailbox *pmb = u.GetMailbox();
-	LOG_DEBUG("mailboxId=%ld", pmb->GetMailboxId());
-	int64_t mailboxId = pmb->GetMailboxId();
-	int msgId = u.ReadMsgId();
-
-	HandleMsg(mailboxId, msgId, u);
-
-	return 0;
-}
 */
 
-/*
-void LuaClient::HandleMsg(int64_t mailboxId, int msgId, Pluto &u)
-{
-	LuaNetwork::Instance()->SetRecvPluto(&u);
-	lua_getglobal(m_L, "ccall_recv_msg_handler");
-	lua_pushnumber(m_L, mailboxId);
-	lua_pushinteger(m_L, msgId);
-	lua_call(m_L, 2, 0);
-}
-
-void LuaClient::HandleDisconnect(Mailbox *pmb)
-{
-	LOG_DEBUG("mailboxId=%ld", pmb->GetMailboxId());
-
-	lua_getglobal(m_L, "ccall_disconnect_handler");
-	lua_pushnumber(m_L, pmb->GetMailboxId());
-	lua_call(m_L, 1, 0);
-}
-
-void LuaClient::HandleConnectToSuccess(Mailbox *pmb)
-{
-	LOG_DEBUG("mailboxId=%ld", pmb->GetMailboxId());
-
-	lua_getglobal(m_L, "ccall_connect_to_success_handler");
-	lua_pushnumber(m_L, pmb->GetMailboxId());
-	lua_call(m_L, 1, 0);
-}
-*/
 
 void LuaClient::HandleNewConnection(Mailbox *pmb)
 {
@@ -180,17 +140,4 @@ void LuaClient::HandleStdin(const char *buffer, int len)
 	lua_pushlstring(m_L, buffer, len);
 	lua_call(m_L, 1, 0);
 }
-
-/*
-void LuaClient::HandleTimer(void *arg)
-{
-	int64_t timer_index = (int64_t)arg;
-	// LOG_DEBUG("timer_index=%ld", timer_index);
-
-	LuaClient *pInstance = Instance();
-	lua_getglobal(pInstance->m_L, "ccall_timer_handler");
-	lua_pushinteger(pInstance->m_L, timer_index);
-	lua_call(pInstance->m_L, 1, 0);
-}
-*/
 

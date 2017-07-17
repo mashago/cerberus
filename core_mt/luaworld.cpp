@@ -66,6 +66,16 @@ static int logger_c(lua_State *L)
 	return 0;
 }
 
+static int get_time_ms_c(lua_State *L)
+{
+	struct timeval tv;    
+	gettimeofday(&tv,NULL);
+	double time_ms = tv.tv_sec * 1000.0 + tv.tv_usec / 1000.0;
+	lua_pushnumber(L, time_ms);
+
+	return 1;
+}
+
 bool LuaWorld::Init(int server_id, int server_type, const char *conf_file, const char *entry_file)
 {
 	LuaNetwork::Instance()->SetWorld(this);
@@ -107,6 +117,7 @@ bool LuaWorld::Init(int server_id, int server_type, const char *conf_file, const
 
 	// register logger for lua
 	lua_register(m_L, "logger_c", logger_c);
+	lua_register(m_L, "get_time_ms_c", get_time_ms_c);
 	
 
 	// set global params
