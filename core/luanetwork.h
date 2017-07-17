@@ -15,7 +15,7 @@ public:
 		m_net = net;
 	}
 
-	int ConnectTo(const char* ip, int port); // return mailboxId or negative
+	int64_t ConnectTo(const char* ip, int port); // return mailboxId or negative
 	void WriteMsgId(int msg_id);
 	void WriteExt(int ext);
 	bool WriteByte(char val);

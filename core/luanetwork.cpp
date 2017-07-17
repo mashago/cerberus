@@ -9,7 +9,7 @@ LuaNetwork* LuaNetwork::Instance()
 	return instance;
 }
 
-int LuaNetwork::ConnectTo(const char* ip, int port)
+int64_t LuaNetwork::ConnectTo(const char* ip, int port)
 {
 	return m_net->ConnectTo(ip, port);
 }
