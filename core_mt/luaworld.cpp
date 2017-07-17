@@ -157,7 +157,7 @@ void LuaWorld::HandleConnectToSuccess(int64_t mailboxId)
 	lua_call(m_L, 1, 0);
 }
 
-void LuaWorld::HandlePluto(Pluto &u)
+void LuaWorld::HandleMsg(Pluto &u)
 {
 	int64_t mailboxId = u.GetMailboxId();
 	int msgId = u.ReadMsgId();
@@ -167,6 +167,16 @@ void LuaWorld::HandlePluto(Pluto &u)
 	lua_getglobal(m_L, "ccall_recv_msg_handler");
 	lua_pushnumber(m_L, mailboxId);
 	lua_pushinteger(m_L, msgId);
+	lua_call(m_L, 2, 0);
+}
+
+void LuaWorld::HandleConnectToRet(int64_t connIndex, int64_t mailboxId)
+{
+	LOG_DEBUG("connIndex=%ld mailboxId=%ld", connIndex, mailboxId);
+
+	lua_getglobal(m_L, "ccall_connect_to_ret_handler");
+	lua_pushnumber(m_L, connIndex);
+	lua_pushnumber(m_L, mailboxId);
 	lua_call(m_L, 2, 0);
 }
 
@@ -180,29 +190,31 @@ void LuaWorld::HandleTimer(void *arg)
 	lua_call(m_L, 1, 0);
 }
 
+//////////////////////////////////////////////
+
 int64_t LuaWorld::ConnectTo(const char* ip, unsigned int port)
 {
-	static int64_t index = 0;
+	static int64_t connIndex = 0;
 	
 	EventNodeConnectToReq *node = new EventNodeConnectToReq;
 	sprintf(node->ip, "%s", ip);
 	node->port = port;
-	node->ext = ++index;
-	m_world2netPipe->Push(node);
-	return index;
+	node->ext = ++connIndex;
+	SendEvent(node);
+	return connIndex;
 }
 
 void LuaWorld::SendPluto(Pluto *pu)
 {
 	EventNodeMsg *node = new EventNodeMsg;
 	node->pu = pu;
-	m_world2netPipe->Push(node);
+	SendEvent(node);
 }
 
 void LuaWorld::CloseMailbox(int64_t mailboxId)
 {
-	EventNodeDissconnect *node = new EventNodeDissconnect;
+	EventNodeDisconnect *node = new EventNodeDisconnect;
 	node->mailboxId = mailboxId;
-	m_world2netPipe->Push(node);
+	SendEvent(node);
 }
 

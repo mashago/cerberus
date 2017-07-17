@@ -95,7 +95,7 @@ int Mailbox::SendAll()
 		// pluto send done, do clean
 		m_sendPos = 0;
 		m_tobeSend.pop_front();
-		delete u;
+		delete u; // world new, net delete
 	}
 
 	return 0;

@@ -274,7 +274,7 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 	EventNodeNewConnection *node = new EventNodeNewConnection();
 	node->mailboxId = pmb->GetMailboxId();
 	node->connType = connType;
-	m_net2worldPipe->Push(node);
+	SendEvent(node);
 
 	return 0;
 }
@@ -394,7 +394,7 @@ int NetService::HandleSocketReadMessage(struct bufferevent *bev)
 		}
 
 		// new a pluto
-		pu = new Pluto(msgLen);
+		pu = new Pluto(msgLen); // net new, world delete
 		pmb->SetRecvPluto(pu);
 
 		// copy msghead to buffer
@@ -447,7 +447,7 @@ void NetService::AddRecvMsg(Pluto *pu)
 {
 	EventNodeMsg *node = new EventNodeMsg();
 	node->pu = pu;
-	m_net2worldPipe->Push(node);
+	SendEvent(node);
 }
 
 
@@ -462,7 +462,7 @@ int NetService::HandleSocketConnected(evutil_socket_t fd)
 
 	EventNodeConnectToSuccess *node = new EventNodeConnectToSuccess();
 	node->mailboxId = pmb->GetMailboxId();
-	m_net2worldPipe->Push(node);
+	SendEvent(node);
 
 	return 0;
 }
@@ -477,6 +477,104 @@ int NetService::HandleSocketError(evutil_socket_t fd)
 {
 	CloseMailbox(fd);
 	return 0;
+}
+
+void NetService::HandleWorldEvent()
+{
+	const std::list<EventNode *> &node_list = m_world2netPipe->Pop();
+	for (auto iter = node_list.begin(); iter != node_list.end(); iter++)
+	{
+		const EventNode &node = **iter;
+		LOG_DEBUG("node.type=%d", node.type);
+		switch (node.type)
+		{
+			case EVENT_TYPE::EVENT_TYPE_DISCONNECT:
+			{
+				const EventNodeDisconnect &real_node = (EventNodeDisconnect&)node;
+				LOG_DEBUG("mailboxId=%ld", real_node.mailboxId);
+				CloseMailbox(real_node.mailboxId);
+				break;
+			}
+			case EVENT_TYPE::EVENT_TYPE_MSG:
+			{
+				// add pluto into mailbox, set not auto delete pluto from node
+				const EventNodeMsg &real_node = (EventNodeMsg&)node;
+				Pluto *pu = real_node.pu;
+				int64_t mailboxId = pu->GetMailboxId();
+				LOG_DEBUG("mailboxId=%ld", mailboxId);
+				Mailbox *pmb = GetMailboxByMailboxId(mailboxId);
+				if (!pmb)
+				{
+					LOG_WARN("mail box null %ld", mailboxId);
+					delete pu; // world new, net delete
+					break;
+				}
+				pmb->PushPluto(pu);
+				break;
+			}
+			case EVENT_TYPE::EVENT_TYPE_CONNNECT_TO_REQ:
+			{
+				const EventNodeConnectToReq &real_node = (EventNodeConnectToReq&)node;
+				LOG_DEBUG("ext=%ld", real_node.ext);
+				int64_t mailboxId = ConnectTo(real_node.ip, real_node.port);
+				EventNodeConnectToRet *ret_node = new EventNodeConnectToRet();
+				ret_node->ext = real_node.ext;
+				ret_node->mailboxId = mailboxId;
+				SendEvent(ret_node);
+
+				break;
+			}
+			default:
+				LOG_ERROR("cannot handle this node %d", node.type);
+				break;
+		}
+
+		delete *iter; // world new, net delete
+	}
+}
+
+void NetService::HandleSendPluto()
+{
+	// loop all mailbox, do send all
+	std::list<Mailbox *> ls4del;
+	for (auto iter = m_fds.begin(); iter != m_fds.end(); iter++)
+	{
+		Mailbox *pmb = iter->second;
+		int ret = pmb->SendAll();
+		if (ret != 0)
+		{
+			ls4del.push_back(pmb);
+		}
+	}
+
+	// close error connect
+	for (auto iter = ls4del.begin(); iter != ls4del.end(); iter++)
+	{
+		CloseMailbox(*iter);
+	}
+}
+
+int NetService::HandleTickEvent()
+{
+	// 1. handle world event
+	// 2. handle send pluto
+	// 3. delete mailbox
+
+	// handle world event
+	HandleWorldEvent();
+
+	// handle send pluto
+	HandleSendPluto();
+
+	// delete mailbox
+	ClearContainer(m_mb4del);
+
+	return 0;
+}
+
+void NetService::SendEvent(EventNode *node)
+{
+	m_net2worldPipe->Push(node);
 }
 
 void NetService::CloseMailbox(int fd)
@@ -514,115 +612,15 @@ void NetService::CloseMailbox(Mailbox *pmb)
 	}
 
 	// notice to world
-	EventNodeDissconnect *node = new EventNodeDissconnect();
+	EventNodeDisconnect *node = new EventNodeDisconnect();
 	node->mailboxId = pmb->GetMailboxId();
-	m_net2worldPipe->Push(node);
+	SendEvent(node);
 
 	// push to list, delete by tick
 	pmb->SetDeleteFlag();
 	m_mb4del.push_back(pmb);
 	m_fds.erase(pmb->GetFd());
 	m_mailboxs.erase(pmb->GetMailboxId());
-}
-
-int NetService::HandleSendPluto()
-{
-	// loop all mailbox, do send all
-	std::list<Mailbox *> ls4del;
-	for (auto iter = m_fds.begin(); iter != m_fds.end(); iter++)
-	{
-		Mailbox *pmb = iter->second;
-		int ret = pmb->SendAll();
-		if (ret != 0)
-		{
-			ls4del.push_back(pmb);
-		}
-	}
-
-	// close error connect
-	for (auto iter = ls4del.begin(); iter != ls4del.end(); iter++)
-	{
-		CloseMailbox(*iter);
-	}
-
-	return 0;
-}
-
-void NetService::HandleWorldEvent()
-{
-	const std::list<EventNode *> &node_list = m_world2netPipe->Pop();
-	for (auto iter = node_list.begin(); iter != node_list.end(); iter++)
-	{
-		const EventNode &node = **iter;
-		LOG_DEBUG("node.type=%d", node.type);
-		switch (node.type)
-		{
-			case EVENT_TYPE::EVENT_TYPE_DISCONNECT:
-			{
-				const EventNodeDissconnect &real_node = (EventNodeDissconnect&)node;
-				LOG_DEBUG("mailboxId=%ld", real_node.mailboxId);
-				CloseMailbox(real_node.mailboxId);
-				break;
-			}
-			case EVENT_TYPE::EVENT_TYPE_MSG:
-			{
-				// add pluto into mailbox, set not auto delete pluto from node
-				const EventNodeMsg &real_node = (EventNodeMsg&)node;
-				Pluto *pu = real_node.pu;
-				int64_t mailboxId = pu->GetMailboxId();
-				LOG_DEBUG("mailboxId=%ld", mailboxId);
-				Mailbox *pmb = GetMailboxByMailboxId(mailboxId);
-				if (!pmb)
-				{
-					LOG_WARN("mail box null %ld", mailboxId);
-					delete pu;
-					break;
-				}
-				pmb->PushPluto(pu);
-				break;
-			}
-			case EVENT_TYPE::EVENT_TYPE_CONNNECT_TO_REQ:
-			{
-				const EventNodeConnectToReq &real_node = (EventNodeConnectToReq&)node;
-				LOG_DEBUG("ext=%ld", real_node.ext);
-				int64_t mailboxId = ConnectTo(real_node.ip, real_node.port);
-				EventNodeConnectToRet *ret_node = new EventNodeConnectToRet();
-				ret_node->ext = real_node.ext;
-				ret_node->mailboxId = mailboxId;
-				PushWorldEvent(ret_node);
-
-				break;
-			}
-			default:
-				LOG_ERROR("cannot handle this node %d", node.type);
-				break;
-		}
-
-		delete *iter;
-	}
-}
-
-int NetService::HandleTickEvent()
-{
-	// 1. handle world event
-	// 2. handle send pluto
-	// 3. delete mailbox
-
-	// handle world event
-	HandleWorldEvent();
-
-	// handle send pluto
-	HandleSendPluto();
-
-	// delete mailbox
-	ClearContainer(m_mb4del);
-
-	return 0;
-}
-
-void NetService::PushWorldEvent(EventNode *node)
-{
-	m_net2worldPipe->Push(node);
 }
 
 ////////// callback start [
@@ -681,7 +679,7 @@ static void timer_cb(evutil_socket_t fd, short event, void *user_data)
 	// TimerMgr::OnTimer();
 	NetService *server = (NetService *)user_data;
 	EventNodeTimer *node = new EventNodeTimer();
-	server->PushWorldEvent(node);
+	server->SendEvent(node);
 }
 
 static void stdin_cb(evutil_socket_t fd, short event, void *user_data)
@@ -726,7 +724,7 @@ static void stdin_cb(evutil_socket_t fd, short event, void *user_data)
 
 	EventNodeStdin *node = new EventNodeStdin();
 	node->buffer = ptr;
-	server->PushWorldEvent(node);
+	server->SendEvent(node);
 }
 
 ////////// callback end ]

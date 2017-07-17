@@ -35,9 +35,9 @@ struct EventNodeConnectToSuccess : public EventNode
 	int64_t mailboxId;
 };
 
-struct EventNodeDissconnect : public EventNode
+struct EventNodeDisconnect : public EventNode
 {
-	EventNodeDissconnect() : EventNode(EVENT_TYPE::EVENT_TYPE_DISCONNECT)
+	EventNodeDisconnect() : EventNode(EVENT_TYPE::EVENT_TYPE_DISCONNECT)
 	{
 	}
 	int64_t mailboxId;

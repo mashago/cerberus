@@ -23,10 +23,9 @@ public:
 	virtual void HandleNewConnection(int64_t mailboxId, int32_t connType) = 0;
 	virtual void HandleConnectToSuccess(int64_t mailboxId) = 0;
 	virtual void HandleDisconnect(int64_t mailboxId) = 0;
-	virtual void HandlePluto(Pluto &u) = 0;
+	virtual void HandleMsg(Pluto &u) = 0;
 	virtual void HandleStdin(const char *buffer);
-
-	void HandleEvent(const EventNode &node);
+	virtual void HandleConnectToRet(int64_t index, int64_t mailboxId) = 0;
 
 	void RecvEvent();
 	void SendEvent(EventNode *node);
@@ -35,5 +34,7 @@ protected:
 	NetService *m_net;
 	EventPipe *m_net2worldPipe;
 	EventPipe *m_world2netPipe;
+
+	void HandleEvent(const EventNode &node);
 };
 

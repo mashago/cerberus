@@ -261,35 +261,35 @@ void thread_run(EventPipe *pipe, bool isBlockWait)
 			{
 				case EVENT_TYPE::EVENT_TYPE_NEW_CONNECTION:
 				{
-					const EventNodeNewConnection &n = (EventNodeNewConnection&)node;
-					LOG_DEBUG("mailboxId=%ld connType=%d", n.mailboxId, n.connType);
+					const EventNodeNewConnection &real_node = (EventNodeNewConnection&)node;
+					LOG_DEBUG("mailboxId=%ld connType=%d", real_node.mailboxId, real_node.connType);
 					break;
 				}
 				case EVENT_TYPE::EVENT_TYPE_CONNNECT_TO_SUCCESS:
 				{
-					const EventNodeConnectToSuccess &n = (EventNodeConnectToSuccess&)node;
-					LOG_DEBUG("mailboxId=%ld", n.mailboxId);
+					const EventNodeConnectToSuccess &real_node = (EventNodeConnectToSuccess&)node;
+					LOG_DEBUG("mailboxId=%ld", real_node.mailboxId);
 					break;
 				}
 				case EVENT_TYPE::EVENT_TYPE_DISCONNECT:
 				{
-					const EventNodeDissconnect &n = (EventNodeDissconnect&)node;
-					LOG_DEBUG("mailboxId=%ld", n.mailboxId);
+					const EventNodeDisconnect &real_node = (EventNodeDisconnect&)node;
+					LOG_DEBUG("mailboxId=%ld", real_node.mailboxId);
 					break;
 				}
 				case EVENT_TYPE::EVENT_TYPE_TIMER:
 				{
-					const EventNodeTimer &n = (EventNodeTimer&)node;
+					// const EventNodeTimer &real_node = (EventNodeTimer&)node;
 					break;
 				}
 				case EVENT_TYPE::EVENT_TYPE_MSG:
 				{
-					const EventNodeMsg &n = (EventNodeMsg&)node;
+					// const EventNodeMsg &real_node = (EventNodeMsg&)node;
 					break;
 				}
 				case EVENT_TYPE::EVENT_TYPE_STDIN:
 				{
-					const EventNodeStdin &n = (EventNodeStdin&)node;
+					// const EventNodeStdin &real_node = (EventNodeStdin&)node;
 					break;
 				}
 			}
@@ -329,7 +329,7 @@ int test2()
 			pipe->Push(node);
 		}
 		{
-			EventNodeDissconnect *node = new EventNodeDissconnect;
+			EventNodeDisconnect *node = new EventNodeDisconnect;
 			node->mailboxId = 3;
 			pipe->Push(node);
 		}

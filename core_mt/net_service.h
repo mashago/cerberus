@@ -56,20 +56,19 @@ public:
 	virtual int HandleSocketClosed(evutil_socket_t fd);
 	virtual int HandleSocketError(evutil_socket_t fd);
 
-	virtual int HandleSendPluto();
-	void HandleWorldEvent();
+	virtual void HandleWorldEvent();
+	virtual void HandleSendPluto();
 	virtual int HandleTickEvent();
 
+	void SendEvent(EventNode *node);
 
 	void CloseMailbox(int fd);
 	void CloseMailbox(int64_t mailboxId);
-
-	void PushWorldEvent(EventNode *node);
+	void CloseMailbox(Mailbox *pmb);
 
 private:
 	bool Listen(const char *addr, unsigned int port);
 	Mailbox * NewMailbox(int fd, E_CONN_TYPE type);
-	void CloseMailbox(Mailbox *pmb);
 
 	struct event_base *m_mainEvent;
 	struct event *m_tickEvent;

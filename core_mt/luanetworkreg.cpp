@@ -748,10 +748,10 @@ int luanetwork_connect_to(lua_State* L)
 	int port = (int)lua_tointeger(L, -1);
 	LOG_DEBUG("ip=%s port=%d", ip, port);
 
-	int64_t mailboxId = (*s)->ConnectTo(ip, port);
+	int64_t connect_index = (*s)->ConnectTo(ip, port);
 
-	lua_pushboolean(L, mailboxId >= 0);
-	lua_pushnumber(L, mailboxId);
+	lua_pushboolean(L, connect_index >= 0);
+	lua_pushnumber(L, connect_index);
 
 	return 2;
 }

@@ -15,8 +15,10 @@ public:
 	virtual void HandleNewConnection(int64_t mailboxId, int32_t connType) override;
 	virtual void HandleConnectToSuccess(int64_t mailboxId) override;
 	virtual void HandleDisconnect(int64_t mailboxId) override;
-	virtual void HandlePluto(Pluto &u) override;
+	virtual void HandleMsg(Pluto &u) override;
+	virtual void HandleConnectToRet(int64_t connIndex, int64_t mailboxId) override;
 
+	// call by lua mgr
 	void HandleTimer(void *arg);
 	int64_t ConnectTo(const char* ip, unsigned int port); // return a connect index
 	void SendPluto(Pluto *pu);
