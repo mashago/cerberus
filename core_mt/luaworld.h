@@ -18,8 +18,10 @@ public:
 	virtual void HandleMsg(Pluto &u) override;
 	virtual void HandleConnectToRet(int64_t connIndex, int64_t mailboxId) override;
 
-	// call by lua mgr
+	// call from world - timermgr
 	void HandleTimer(void *arg);
+
+	// call from lua
 	int64_t ConnectTo(const char* ip, unsigned int port); // return a connect index
 	void SendPluto(Pluto *pu);
 	void CloseMailbox(int64_t mailboxId);

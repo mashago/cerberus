@@ -3,13 +3,20 @@
 #include "world.h"
 #include "mailbox.h"
 #include "timermgr.h"
+#include "event_pipe.h"
 
-World::World() : m_net(nullptr)
+World::World()
 {
 }
 
 World::~World()
 {
+}
+
+void World::SetEventPipe(EventPipe *net2worldPipe, EventPipe *world2netPipe)
+{
+	m_net2worldPipe = net2worldPipe;
+	m_world2netPipe = world2netPipe;
 }
 
 bool World::Init(int server_id, int server_type, const char *conf_file, const char *entry_file)

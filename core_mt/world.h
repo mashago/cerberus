@@ -2,9 +2,9 @@
 #pragma once
 
 #include "pluto.h"
-#include "event_pipe.h"
 
-class NetService;
+class EventPipe;
+struct EventNode;
 
 class World
 {
@@ -12,11 +12,7 @@ public:
 	World();
 	virtual ~World();
 
-	void SetEventPipe(EventPipe *net2worldPipe, EventPipe *world2netPipe)
-	{
-		m_net2worldPipe = net2worldPipe;
-		m_world2netPipe = world2netPipe;
-	}
+	void SetEventPipe(EventPipe *net2worldPipe, EventPipe *world2netPipe);
 
 	virtual bool Init(int server_id, int server_type, const char *conf_file, const char * entry_file);
 
@@ -30,8 +26,7 @@ public:
 	void RecvEvent();
 	void SendEvent(EventNode *node);
 	
-protected:
-	NetService *m_net;
+private:
 	EventPipe *m_net2worldPipe;
 	EventPipe *m_world2netPipe;
 

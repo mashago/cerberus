@@ -29,6 +29,7 @@ void _logcore(int type, const char *filename, const char *funcname, int linenum,
 	vsnprintf(buffer, MAX_LOG_BUFFER_SIZE, fmt, ap);
 	va_end(ap);
 
+	// if (1) return;
 	switch (type)
 	{
 		case LOG_TYPE_DEBUG:
@@ -51,7 +52,6 @@ void _logcore(int type, const char *filename, const char *funcname, int linenum,
 			break;
 		}
 	}
-	// if (1) return;
 	if (linenum != 0)
 	{
 		printf("[%s] [%s] %s:%s[%d] : %s", tags[type], time_buffer, filename, funcname, linenum, buffer);

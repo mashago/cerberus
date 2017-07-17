@@ -26,17 +26,20 @@ extern "C"
 #include <set>
 #include <map>
 #include <list>
-#include "mailbox.h"
-// #include "world.h"
-#include "event_pipe.h"
 
+#include "common.h"
+
+class Pluto;
+class Mailbox;
+class EventPipe;
+struct EventNode;
 
 class NetService
 {
 
 public:
 	NetService();
-	virtual ~NetService();
+	~NetService();
 
 	int Init(const char *addr, unsigned int port, std::set<std::string> &trustIpSet, EventPipe *net2worldPipe, EventPipe *world2netPipe);
 	int Service();
@@ -46,19 +49,19 @@ public:
 	Mailbox *GetMailboxByFd(int fd);
 	Mailbox *GetMailboxByMailboxId(int64_t mailboxId);
 
-	virtual int HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int socklen);
+	int HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int socklen);
 
-	virtual int HandleSocketReadEvent(struct bufferevent *bev);
-	virtual int HandleSocketReadMessage(struct bufferevent *bev);
-	virtual void AddRecvMsg(Pluto *u);
+	int HandleSocketRead(struct bufferevent *bev);
+	int HandleSocketReadMessage(struct bufferevent *bev);
+	void AddRecvMsg(Pluto *u);
 
-	virtual int HandleSocketConnected(evutil_socket_t fd);
-	virtual int HandleSocketClosed(evutil_socket_t fd);
-	virtual int HandleSocketError(evutil_socket_t fd);
+	int HandleSocketConnected(evutil_socket_t fd);
+	int HandleSocketClosed(evutil_socket_t fd);
+	int HandleSocketError(evutil_socket_t fd);
 
-	virtual void HandleWorldEvent();
-	virtual void HandleSendPluto();
-	virtual int HandleTickEvent();
+	void HandleWorldEvent();
+	void HandleSendPluto();
+	void HandleTickEvent();
 
 	void SendEvent(EventNode *node);
 

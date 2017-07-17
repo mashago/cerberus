@@ -9,7 +9,8 @@
 #include <memory>
 
 #include "common.h"
-#include "pluto.h"
+
+class Pluto;
 
 struct EventNode
 {

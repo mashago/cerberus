@@ -9,6 +9,7 @@ extern "C"
 #include "logger.h"
 #include "util.h"
 #include "mailbox.h"
+#include "pluto.h"
 
 static int64_t _get_mailbox_id()
 {

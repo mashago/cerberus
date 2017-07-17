@@ -11,7 +11,7 @@ extern "C"
 
 static LuaWorld *s_luaworld = nullptr;
 
-void handler_timer(void *arg)
+static void handler_timer(void *arg)
 {
 	if (s_luaworld)
 	{
@@ -29,7 +29,6 @@ int add_timer_c(lua_State *L)
 	luaL_checktype(L, 2, LUA_TBOOLEAN);
 
 	int64_t new_timer_index = TimerMgr::GetCurTimerIndex() + 1;
-	// int64_t ret_timer_index = TimerMgr::AddTimer(ms, LuaWorld::HandleTimer, (void *)new_timer_index, is_loop);
 	int64_t ret_timer_index = TimerMgr::AddTimer(ms, handler_timer, (void *)new_timer_index, is_loop);
 
 	lua_pushinteger(L, new_timer_index);

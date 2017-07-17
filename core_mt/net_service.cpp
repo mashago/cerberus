@@ -21,11 +21,13 @@ extern "C"
 #include <event2/buffer.h>
 }
 #include <string>
+
 #include "logger.h"
-#include "common.h"
 #include "util.h"
 #include "net_service.h"
-// #include "timermgr.h"
+#include "event_pipe.h"
+#include "pluto.h"
+#include "mailbox.h"
 
 static void listen_cb(struct evconnlistener *listener, evutil_socket_t fd, struct sockaddr *sa, int socklen, void *user_data);
 static void read_cb(struct bufferevent *bev, void *user_data);
@@ -318,7 +320,7 @@ enum READ_MSG_RESULT
 ,	READ_MSG_FINISH 	= 1 
 };
 
-int NetService::HandleSocketReadEvent(struct bufferevent *bev)
+int NetService::HandleSocketRead(struct bufferevent *bev)
 {
 	// loop to handle read data
 	
@@ -491,7 +493,7 @@ void NetService::HandleWorldEvent()
 			case EVENT_TYPE::EVENT_TYPE_DISCONNECT:
 			{
 				const EventNodeDisconnect &real_node = (EventNodeDisconnect&)node;
-				LOG_DEBUG("mailboxId=%ld", real_node.mailboxId);
+				// LOG_DEBUG("mailboxId=%ld", real_node.mailboxId);
 				CloseMailbox(real_node.mailboxId);
 				break;
 			}
@@ -501,7 +503,7 @@ void NetService::HandleWorldEvent()
 				const EventNodeMsg &real_node = (EventNodeMsg&)node;
 				Pluto *pu = real_node.pu;
 				int64_t mailboxId = pu->GetMailboxId();
-				LOG_DEBUG("mailboxId=%ld", mailboxId);
+				// LOG_DEBUG("mailboxId=%ld", mailboxId);
 				Mailbox *pmb = GetMailboxByMailboxId(mailboxId);
 				if (!pmb)
 				{
@@ -515,7 +517,7 @@ void NetService::HandleWorldEvent()
 			case EVENT_TYPE::EVENT_TYPE_CONNNECT_TO_REQ:
 			{
 				const EventNodeConnectToReq &real_node = (EventNodeConnectToReq&)node;
-				LOG_DEBUG("ext=%ld", real_node.ext);
+				// LOG_DEBUG("ext=%ld", real_node.ext);
 				int64_t mailboxId = ConnectTo(real_node.ip, real_node.port);
 				EventNodeConnectToRet *ret_node = new EventNodeConnectToRet();
 				ret_node->ext = real_node.ext;
@@ -554,7 +556,7 @@ void NetService::HandleSendPluto()
 	}
 }
 
-int NetService::HandleTickEvent()
+void NetService::HandleTickEvent()
 {
 	// 1. handle world event
 	// 2. handle send pluto
@@ -568,8 +570,6 @@ int NetService::HandleTickEvent()
 
 	// delete mailbox
 	ClearContainer(m_mb4del);
-
-	return 0;
 }
 
 void NetService::SendEvent(EventNode *node)
@@ -636,7 +636,7 @@ static void read_cb(struct bufferevent *bev, void *user_data)
 {
 	// handle read event
 	NetService *ns = (NetService *)user_data;
-	ns->HandleSocketReadEvent(bev);
+	ns->HandleSocketRead(bev);
 }
 
 static void event_cb(struct bufferevent *bev, short event, void *user_data)

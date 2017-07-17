@@ -7,7 +7,8 @@ extern "C"
 }
 #include <list>
 #include "common.h"
-#include "pluto.h"
+
+class Pluto;
 
 class Mailbox
 {

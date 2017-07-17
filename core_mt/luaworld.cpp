@@ -5,8 +5,9 @@ extern "C"
 #include <lualib.h>
 }
 #include "logger.h"
-#include "luaworld.h"
 #include "mailbox.h"
+#include "luaworld.h"
+#include "event_pipe.h"
 #include "luanetworkreg.h"
 #include "luanetwork.h"
 #include "luatinyxmlreg.h"
@@ -203,6 +204,7 @@ void LuaWorld::HandleTimer(void *arg)
 
 //////////////////////////////////////////////
 
+// send a eventnode to net, return a connect index for connect to ret event
 int64_t LuaWorld::ConnectTo(const char* ip, unsigned int port)
 {
 	static int64_t connIndex = 0;
