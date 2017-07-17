@@ -1,3 +1,3 @@
 
-require "global.net.net_handler"
-require "global.net.net_funcs"
+require "global.net_mt.net_handler"
+require "global.net_mt.net_funcs"
