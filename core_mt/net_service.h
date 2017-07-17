@@ -57,13 +57,14 @@ public:
 	virtual int HandleSocketError(evutil_socket_t fd);
 
 	virtual int HandleSendPluto();
+	void HandleWorldEvent();
 	virtual int HandleTickEvent();
-	// virtual int HandleRecvPluto();
 
-	void PushEvent(EventNode *node);
 
 	void CloseMailbox(int fd);
 	void CloseMailbox(int64_t mailboxId);
+
+	void PushWorldEvent(EventNode *node);
 
 private:
 	bool Listen(const char *addr, unsigned int port);

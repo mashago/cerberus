@@ -548,14 +548,68 @@ int NetService::HandleSendPluto()
 	return 0;
 }
 
+void NetService::HandleWorldEvent()
+{
+	const std::list<EventNode *> &node_list = m_world2netPipe->Pop();
+	for (auto iter = node_list.begin(); iter != node_list.end(); iter++)
+	{
+		const EventNode &node = **iter;
+		LOG_DEBUG("node.type=%d", node.type);
+		switch (node.type)
+		{
+			case EVENT_TYPE::EVENT_TYPE_DISCONNECT:
+			{
+				const EventNodeDissconnect &real_node = (EventNodeDissconnect&)node;
+				LOG_DEBUG("mailboxId=%ld", real_node.mailboxId);
+				CloseMailbox(real_node.mailboxId);
+				break;
+			}
+			case EVENT_TYPE::EVENT_TYPE_MSG:
+			{
+				// add pluto into mailbox, set not auto delete pluto from node
+				const EventNodeMsg &real_node = (EventNodeMsg&)node;
+				Pluto *pu = real_node.pu;
+				int64_t mailboxId = pu->GetMailboxId();
+				LOG_DEBUG("mailboxId=%ld", mailboxId);
+				Mailbox *pmb = GetMailboxByMailboxId(mailboxId);
+				if (!pmb)
+				{
+					LOG_WARN("mail box null %ld", mailboxId);
+					delete pu;
+					break;
+				}
+				pmb->PushPluto(pu);
+				break;
+			}
+			case EVENT_TYPE::EVENT_TYPE_CONNNECT_TO_REQ:
+			{
+				const EventNodeConnectToReq &real_node = (EventNodeConnectToReq&)node;
+				LOG_DEBUG("ext=%ld", real_node.ext);
+				int64_t mailboxId = ConnectTo(real_node.ip, real_node.port);
+				EventNodeConnectToRet *ret_node = new EventNodeConnectToRet();
+				ret_node->ext = real_node.ext;
+				ret_node->mailboxId = mailboxId;
+				PushWorldEvent(ret_node);
+
+				break;
+			}
+			default:
+				LOG_ERROR("cannot handle this node %d", node.type);
+				break;
+		}
+
+		delete *iter;
+	}
+}
+
 int NetService::HandleTickEvent()
 {
-	// 1. handle recv pluto
+	// 1. handle world event
 	// 2. handle send pluto
 	// 3. delete mailbox
 
-	// handle recv pluto
-	// HandleRecvPluto();
+	// handle world event
+	HandleWorldEvent();
 
 	// handle send pluto
 	HandleSendPluto();
@@ -566,7 +620,7 @@ int NetService::HandleTickEvent()
 	return 0;
 }
 
-void NetService::PushEvent(EventNode *node)
+void NetService::PushWorldEvent(EventNode *node)
 {
 	m_net2worldPipe->Push(node);
 }
@@ -627,7 +681,7 @@ static void timer_cb(evutil_socket_t fd, short event, void *user_data)
 	// TimerMgr::OnTimer();
 	NetService *server = (NetService *)user_data;
 	EventNodeTimer *node = new EventNodeTimer();
-	server->PushEvent(node);
+	server->PushWorldEvent(node);
 }
 
 static void stdin_cb(evutil_socket_t fd, short event, void *user_data)
@@ -672,7 +726,7 @@ static void stdin_cb(evutil_socket_t fd, short event, void *user_data)
 
 	EventNodeStdin *node = new EventNodeStdin();
 	node->buffer = ptr;
-	server->PushEvent(node);
+	server->PushWorldEvent(node);
 }
 
 ////////// callback end ]

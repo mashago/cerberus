@@ -3,19 +3,19 @@
 #include <stdint.h>
 
 class Pluto;
-class NetService;
+class LuaWorld;
 
 class LuaNetwork
 {
 public:
 	static LuaNetwork *Instance();
 
-	void SetNetService(NetService *net)
+	void SetWorld(LuaWorld *world)
 	{
-		m_net = net;
+		m_world = world;
 	}
 
-	int ConnectTo(const char* ip, int port); // return mailboxId or negative
+	int64_t ConnectTo(const char* ip, unsigned int port); // return mailboxId or negative
 	void WriteMsgId(int msg_id);
 	void WriteExt(int ext);
 	bool WriteByte(char val);
@@ -53,5 +53,5 @@ private:
 	Pluto *m_recvPluto;
 	Pluto *m_sendPluto;
 
-	NetService *m_net;
+	LuaWorld *m_world;
 };

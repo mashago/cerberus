@@ -1,7 +1,7 @@
 #include "logger.h"
 #include "pluto.h"
-#include "net_service.h"
 #include "luanetwork.h"
+#include "luaworld.h"
 
 LuaNetwork* LuaNetwork::Instance()
 {
@@ -9,9 +9,9 @@ LuaNetwork* LuaNetwork::Instance()
 	return instance;
 }
 
-int LuaNetwork::ConnectTo(const char* ip, int port)
+int64_t LuaNetwork::ConnectTo(const char* ip, unsigned int port)
 {
-	return m_net->ConnectTo(ip, port);
+	return m_world->ConnectTo(ip, port);
 }
 
 /*
@@ -92,26 +92,13 @@ bool LuaNetwork::WriteString(int len, const char* str)
 
 bool LuaNetwork::Send(int64_t mailboxId)
 {
-	// TODO
-	/*
-	Mailbox *pmb = m_net->GetMailboxByMailboxId(mailboxId);
-	if (!pmb)
-	{
-		LOG_WARN("mail box null %ld", mailboxId);
-		return false;
-	}
-
 	// TODO check pluto size
-
-
 	m_sendPluto->SetMsgLen();
 	Pluto *pu = m_sendPluto->Clone();
-	// pu->SetMsgLen(m_sendPluto->GetMsgLen());
 	pu->SetMailboxId(mailboxId);
-	pmb->PushPluto(pu);
+	m_world->SendPluto(pu);
 
 	initSendPluto();
-	*/
 
 	return true;
 }
@@ -168,6 +155,6 @@ bool LuaNetwork::ReadString(int &out_len, char *out_val)
 
 void LuaNetwork::CloseMailbox(int64_t mailboxId)
 {
-	m_net->CloseMailbox(mailboxId);
+	m_world->CloseMailbox(mailboxId);
 }
 

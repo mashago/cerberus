@@ -18,6 +18,9 @@ public:
 	virtual void HandlePluto(Pluto &u) override;
 
 	void HandleTimer(void *arg);
+	int64_t ConnectTo(const char* ip, unsigned int port); // return a connect index
+	void SendPluto(Pluto *pu);
+	void CloseMailbox(int64_t mailboxId);
 protected:
 	LuaWorld();
 	virtual ~LuaWorld();

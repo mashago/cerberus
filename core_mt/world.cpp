@@ -2,6 +2,7 @@
 #include "logger.h"
 #include "world.h"
 #include "mailbox.h"
+#include "timermgr.h"
 
 World::World() : m_net(nullptr)
 {
@@ -45,14 +46,15 @@ void World::HandleEvent(const EventNode &node)
 		}
 		case EVENT_TYPE::EVENT_TYPE_TIMER:
 		{
-			const EventNodeTimer &n = (EventNodeTimer&)node;
-			// TODO
+			// const EventNodeTimer &n = (EventNodeTimer&)node;
+			TimerMgr::OnTimer();
 			break;
 		}
 		case EVENT_TYPE::EVENT_TYPE_MSG:
 		{
 			const EventNodeMsg &n = (EventNodeMsg&)node;
 			HandlePluto(*n.pu);
+			delete n.pu;
 			break;
 		}
 		case EVENT_TYPE::EVENT_TYPE_STDIN:

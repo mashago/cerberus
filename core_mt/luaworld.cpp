@@ -68,7 +68,7 @@ static int logger_c(lua_State *L)
 
 bool LuaWorld::Init(int server_id, int server_type, const char *conf_file, const char *entry_file)
 {
-	LuaNetwork::Instance()->SetNetService(m_net);
+	LuaNetwork::Instance()->SetWorld(this);
 
 	m_L = luaL_newstate();
 	if (!m_L)
@@ -178,5 +178,31 @@ void LuaWorld::HandleTimer(void *arg)
 	lua_getglobal(m_L, "ccall_timer_handler");
 	lua_pushinteger(m_L, timer_index);
 	lua_call(m_L, 1, 0);
+}
+
+int64_t LuaWorld::ConnectTo(const char* ip, unsigned int port)
+{
+	static int64_t index = 0;
+	
+	EventNodeConnectToReq *node = new EventNodeConnectToReq;
+	sprintf(node->ip, "%s", ip);
+	node->port = port;
+	node->ext = ++index;
+	m_world2netPipe->Push(node);
+	return index;
+}
+
+void LuaWorld::SendPluto(Pluto *pu)
+{
+	EventNodeMsg *node = new EventNodeMsg;
+	node->pu = pu;
+	m_world2netPipe->Push(node);
+}
+
+void LuaWorld::CloseMailbox(int64_t mailboxId)
+{
+	EventNodeDissconnect *node = new EventNodeDissconnect;
+	node->mailboxId = mailboxId;
+	m_world2netPipe->Push(node);
 }
 
