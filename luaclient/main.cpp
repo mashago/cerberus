@@ -7,6 +7,7 @@
 #include "net_service.h"
 #include "luaclient.h"
 #include "tinyxml2.h"
+#include "event_pipe.h"
 
 int main(int argc, char ** argv)
 {
@@ -30,28 +31,21 @@ int main(int argc, char ** argv)
 	const char *ip = (char*)root->Attribute("ip");
 	int port = root->IntAttribute("port");
 	const char *entry_file = (char*)root->Attribute("file");
-	LOG_DEBUG("ip=%s port=%d entry_file=%s"
-	, ip, port, entry_file);
+	LOG_DEBUG("ip=%s port=%d entry_file=%s", ip, port, entry_file);
+	//
+
+	// init msg pipe
+	EventPipe *net2worldPipe = new EventPipe();
+	EventPipe *world2newPipe = new EventPipe(false);
+
+	World *world = LuaClient::Instance();
+	world->SetEventPipe(net2worldPipe, world2newPipe);
+	world->Init(0, 0, conf_file, entry_file);
+	world->Run();
 
 	NetService *net = new NetService();
 	std::set<std::string> trustIpSet;
-	net->Init("", 0, trustIpSet);
-
-	World *world = nullptr;
-	{
-		world = LuaClient::Instance();
-	}
-
-	if (nullptr == world)
-	{
-		LOG_ERROR("server type error");
-		return 0;
-	}
-
-	net->SetWorld(world);
-	world->SetNetService(net);
-	world->Init(0, 0, conf_file, entry_file);
-
+	net->Init("", 0, trustIpSet, net2worldPipe, world2newPipe);
 	net->Service();
 
 	return 0;

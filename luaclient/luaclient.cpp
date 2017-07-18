@@ -6,11 +6,6 @@ extern "C"
 }
 #include "logger.h"
 #include "luaclient.h"
-#include "mailbox.h"
-#include "luanetworkreg.h"
-#include "luanetwork.h"
-#include "luatinyxmlreg.h"
-#include "luatimerreg.h"
 
 LuaClient* LuaClient::Instance()
 {
@@ -26,15 +21,15 @@ LuaClient::~LuaClient()
 {
 }
 
-void LuaClient::HandleNewConnection(Mailbox *pmb)
+void LuaClient::HandleNewConnection(int64_t mailboxId, int32_t connType)
 {
 	// do nothing
 }
 
-void LuaClient::HandleStdin(const char *buffer, int len)
+void LuaClient::HandleStdin(const char *buffer)
 {
 	lua_getglobal(m_L, "ccall_stdin_handler");
-	lua_pushlstring(m_L, buffer, len);
+	lua_pushstring(m_L, buffer);
 	lua_call(m_L, 1, 0);
 }
 

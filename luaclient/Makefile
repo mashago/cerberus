@@ -14,9 +14,9 @@ OBJ:=$(patsubst %.cpp, %.o, $(patsubst %.c, %.o, $(SRC)))
 
 USER_MACROS:=
 
-INC:=../core ../tinyxml
+INC:=../core_mt ../tinyxml
 LIB_PATH:=../lib
-LIB:=core tinyxml lua event mysqlclient dl m
+LIB:=core_mt tinyxml lua event mysqlclient dl m
 
 ifeq "$(OS)" "Linux"
 LIB_PATH+=/usr/lib64/mysql/

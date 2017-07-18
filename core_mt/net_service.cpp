@@ -355,7 +355,7 @@ int NetService::HandleSocketReadMessage(struct bufferevent *bev)
 	struct evbuffer *input = bufferevent_get_input(bev);
 	const size_t input_len = evbuffer_get_length(input);
 
-	LOG_DEBUG("input_len=%lu", input_len);
+	// LOG_DEBUG("input_len=%lu", input_len);
 	if (input_len == 0)
 	{
 		return READ_MSG_WAIT;
@@ -487,7 +487,7 @@ void NetService::HandleWorldEvent()
 	for (auto iter = node_list.begin(); iter != node_list.end(); iter++)
 	{
 		const EventNode &node = **iter;
-		LOG_DEBUG("node.type=%d", node.type);
+		// LOG_DEBUG("node.type=%d", node.type);
 		switch (node.type)
 		{
 			case EVENT_TYPE::EVENT_TYPE_DISCONNECT:
