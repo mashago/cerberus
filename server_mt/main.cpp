@@ -1,7 +1,6 @@
 
 #include <set>
 #include <string>
-#include <thread>
 
 #include "common.h"
 #include "logger.h"
@@ -9,14 +8,6 @@
 #include "luaworld.h"
 #include "tinyxml2.h"
 #include "event_pipe.h"
-
-void world_run(World *world)
-{
-	while (true)
-	{
-		world->RecvEvent();
-	}
-}
 
 int main(int argc, char ** argv)
 {
@@ -69,22 +60,8 @@ int main(int argc, char ** argv)
 	EventPipe *net2worldPipe = new EventPipe();
 	EventPipe *world2newPipe = new EventPipe(false);
 
-	NetService *net = new NetService();
-	net->Init(ip, port, trustIpSet, net2worldPipe, world2newPipe);
-
-	World *world = nullptr;
-	{
-		world = LuaWorld::Instance();
-	}
-
-	if (nullptr == world)
-	{
-		LOG_ERROR("server type error");
-		return 0;
-	}
-
+	World *world = LuaWorld::Instance();
 	world->SetEventPipe(net2worldPipe, world2newPipe);
-
 	world->Init(server_id, server_type, conf_file, entry_file);
 
 	if (auto_shutdown)
@@ -92,10 +69,10 @@ int main(int argc, char ** argv)
 		printf("******* %s auto shutdown *******\n", conf_file);
 		return 0;
 	}
+	world->Run();
 
-	std::thread world_thread;
-	world_thread = std::thread([world](){ world_run(world); });
-
+	NetService *net = new NetService();
+	net->Init(ip, port, trustIpSet, net2worldPipe, world2newPipe);
 	net->Service();
 
 	return 0;

@@ -5,12 +5,14 @@
 #include "timermgr.h"
 #include "event_pipe.h"
 
-World::World()
+World::World() : m_isRunning(false), m_net2worldPipe(nullptr), m_world2netPipe(nullptr)
 {
 }
 
 World::~World()
 {
+	m_isRunning = false;
+	m_thread.join();
 }
 
 void World::SetEventPipe(EventPipe *net2worldPipe, EventPipe *world2netPipe)
@@ -22,6 +24,19 @@ void World::SetEventPipe(EventPipe *net2worldPipe, EventPipe *world2netPipe)
 bool World::Init(int server_id, int server_type, const char *conf_file, const char *entry_file)
 {
 	return true;
+}
+
+void World::Run()
+{
+	auto world_run = [](World *world)
+	{
+		while (world->m_isRunning)
+		{
+			world->RecvEvent();
+		}
+	};
+	m_isRunning = true;
+	m_thread = std::thread(world_run, this);
 }
 
 void World::HandleStdin(const char *buffer)
