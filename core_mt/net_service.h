@@ -55,7 +55,7 @@ public:
 	int HandleSocketReadMessage(struct bufferevent *bev);
 	void AddRecvMsg(Pluto *u);
 
-	int HandleSocketConnected(evutil_socket_t fd);
+	int HandleSocketConnectToSuccess(evutil_socket_t fd);
 	int HandleSocketClosed(evutil_socket_t fd);
 	int HandleSocketError(evutil_socket_t fd);
 
@@ -82,7 +82,8 @@ private:
 	std::map<int, Mailbox *> m_fds;
 	std::map<int64_t, Mailbox *> m_mailboxs;
 	std::list<Mailbox *> m_mb4del;
-	std::list<Pluto *> m_recvMsgs;
+	std::set<int64_t> m_sendMailboxs;
+
 	std::set<std::string> m_trustIpSet;
 	EventPipe *m_net2worldPipe;
 	EventPipe *m_world2netPipe;

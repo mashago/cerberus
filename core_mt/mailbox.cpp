@@ -34,23 +34,26 @@ Mailbox::~Mailbox()
 	ClearContainer(m_tobeSend);
 }
 
-void Mailbox::PushPluto(Pluto *u)
+void Mailbox::PushSendPluto(Pluto *u)
 {
 	m_tobeSend.push_back(u);
 }
 
+// return -1 as error
+// return 1 as send finish
+// return 0 as still has data not send
 int Mailbox::SendAll()
 {
 	// LOG_DEBUG("m_tobeSend.size=%d", m_tobeSend.size());
 
 	if (!m_bev)
 	{
-		return 0;
+		return 1;
 	}
 
 	if (m_tobeSend.empty())
 	{
-		return 0;
+		return 1;
 	}
 
 	struct evbuffer *output = bufferevent_get_output(m_bev);
@@ -67,7 +70,7 @@ int Mailbox::SendAll()
 		if (res <= 0 || iov_len == 0)
 		{
 			LOG_ERROR("evbuffer_reserve_space fail m_fd=%d nSendWant=%d res=%d", m_fd, nSendWant, res);
-			return 0;
+			return -1;
 		}
 
 		// reset iov_len to send buffer size, and copy buffer to iov
@@ -99,5 +102,10 @@ int Mailbox::SendAll()
 		delete u; // world new, net delete
 	}
 
-	return 0;
+	if (!m_tobeSend.empty())
+	{
+		return 0;
+	}
+
+	return 1;
 }

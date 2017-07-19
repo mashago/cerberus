@@ -113,6 +113,20 @@ int NetService::Service()
 		m_tickEvent = NULL;
 	}
 
+	if (m_timerEvent)
+	{
+		event_del(m_timerEvent);
+		event_free(m_timerEvent);
+		m_timerEvent = NULL;
+	}
+
+	if (m_stdinEvent)
+	{
+		event_del(m_stdinEvent);
+		event_free(m_stdinEvent);
+		m_stdinEvent = NULL;
+	}
+
 	event_base_free(m_mainEvent);
 
 	return 0;
@@ -226,6 +240,8 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 	// 2. check connection is valide
 	// 3. set fd non-block
 	// 4. accept clinet
+	// 5. new mailbox
+	// 6. send to world
 	
 	struct sockaddr_in *sin = (struct sockaddr_in *)sa;
 	const char *clientHost = inet_ntoa(sin->sin_addr);
@@ -273,6 +289,7 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 	}
 	pmb->SetBEV(bev);
 
+	// send to world
 	EventNodeNewConnection *node = new EventNodeNewConnection();
 	node->mailboxId = pmb->GetMailboxId();
 	node->connType = connType;
@@ -349,7 +366,7 @@ int NetService::HandleSocketReadMessage(struct bufferevent *bev)
 	// 1. get input evbuffer and length
 	// 2. check if has pluto in mailbox
 	// 3. copy to pluto buffer
-	// 4. if read msg finish, add into recv msg list, and clean mailbox pluto
+	// 4. if read msg finish, send pluto to world, and clean mailbox pluto
 
 	// get input evbuffer and length
 	struct evbuffer *input = bufferevent_get_input(bev);
@@ -435,7 +452,6 @@ int NetService::HandleSocketReadMessage(struct bufferevent *bev)
 	// get a full msg
 	// add into recv msg list
 	pu->SetRecvLen(pu->GetMsgLen());
-	// pu->SetMailbox(pmb);
 	pu->SetMailboxId(pmb->GetMailboxId());
 	AddRecvMsg(pu);
 
@@ -447,13 +463,14 @@ int NetService::HandleSocketReadMessage(struct bufferevent *bev)
 
 void NetService::AddRecvMsg(Pluto *pu)
 {
+	// send to world
 	EventNodeMsg *node = new EventNodeMsg();
 	node->pu = pu;
 	SendEvent(node);
 }
 
 
-int NetService::HandleSocketConnected(evutil_socket_t fd)
+int NetService::HandleSocketConnectToSuccess(evutil_socket_t fd)
 {
 	Mailbox *pmb = GetMailboxByFd(fd);
 	if (pmb == NULL)
@@ -462,6 +479,7 @@ int NetService::HandleSocketConnected(evutil_socket_t fd)
 		return 0;
 	}
 
+	// send to world
 	EventNodeConnectToSuccess *node = new EventNodeConnectToSuccess();
 	node->mailboxId = pmb->GetMailboxId();
 	SendEvent(node);
@@ -511,13 +529,15 @@ void NetService::HandleWorldEvent()
 					delete pu; // world new, net delete
 					break;
 				}
-				pmb->PushPluto(pu);
+				pmb->PushSendPluto(pu);
+				m_sendMailboxs.insert(mailboxId);
 				break;
 			}
 			case EVENT_TYPE::EVENT_TYPE_CONNNECT_TO_REQ:
 			{
 				const EventNodeConnectToReq &real_node = (EventNodeConnectToReq&)node;
 				// LOG_DEBUG("ext=%ld", real_node.ext);
+				// get a mailboxId, and send to world
 				int64_t mailboxId = ConnectTo(real_node.ip, real_node.port);
 				EventNodeConnectToRet *ret_node = new EventNodeConnectToRet();
 				ret_node->ext = real_node.ext;
@@ -539,17 +559,39 @@ void NetService::HandleSendPluto()
 {
 	// loop all mailbox, do send all
 	std::list<Mailbox *> ls4del;
-	for (auto iter = m_fds.begin(); iter != m_fds.end(); iter++)
+	for (auto iter = m_sendMailboxs.begin(); iter != m_sendMailboxs.end(); )
 	{
-		Mailbox *pmb = iter->second;
-		int ret = pmb->SendAll();
-		if (ret != 0)
+		int64_t mailboxId = *iter;
+		// LOG_DEBUG("mailboxId=%ld", mailboxId);
+		Mailbox *pmb = GetMailboxByMailboxId(mailboxId);
+		if (!pmb)
 		{
-			ls4del.push_back(pmb);
+			m_sendMailboxs.erase(iter++);	
+			LOG_ERROR("mailbox nil %ld", mailboxId);
+			continue;
 		}
+
+		int ret = pmb->SendAll();
+		if (ret == -1)
+		{
+			// send error
+			m_sendMailboxs.erase(iter++);	
+			ls4del.push_back(pmb);
+			LOG_ERROR("send error %ld", mailboxId);
+			continue;
+		}
+		else if (ret == 1)
+		{
+			// send finish
+			m_sendMailboxs.erase(iter++);	
+			continue;
+		}
+
+		// send not finish, keep mailbox in set
+		++iter;
 	}
 
-	// close error connect
+	// close error mailbox
 	for (auto iter = ls4del.begin(); iter != ls4del.end(); iter++)
 	{
 		CloseMailbox(*iter);
@@ -659,7 +701,7 @@ static void event_cb(struct bufferevent *bev, short event, void *user_data)
 	else if (event & BEV_EVENT_CONNECTED)
 	{
 		LOG_DEBUG("@@@@@@@ event connected %d", fd);
-		ns->HandleSocketConnected(fd);
+		ns->HandleSocketConnectToSuccess(fd);
 	}
 	else
 	{
@@ -676,7 +718,7 @@ static void tick_cb(evutil_socket_t fd, short event, void *user_data)
 // for add timer
 static void timer_cb(evutil_socket_t fd, short event, void *user_data)
 {
-	// TimerMgr::OnTimer();
+	// do nothing in net, just send to world
 	NetService *server = (NetService *)user_data;
 	EventNodeTimer *node = new EventNodeTimer();
 	server->SendEvent(node);

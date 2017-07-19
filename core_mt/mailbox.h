@@ -62,7 +62,7 @@ public:
 		return m_fdType;
 	}
 
-	void PushPluto(Pluto *u);
+	void PushSendPluto(Pluto *u);
 	int SendAll();
 
 private:
