@@ -1,6 +1,6 @@
 
 FILE_PATH:=../bin
-TARGET:=$(FILE_PATH)/TestMt
+TARGET:=$(FILE_PATH)/Test
 
 CC:=gcc
 CXX:=g++
