@@ -48,6 +48,9 @@ function ServiceClient.add_connect_service(ip, port, server_id, server_type, reg
 end
 
 function ServiceClient.create_connect_timer()
+	if ServiceClient._is_connect_timer_running then
+		return
+	end
 
 	local function timer_cb(arg)
 		Log.debug("ServiceClient timer_cb")
@@ -362,13 +365,7 @@ function ServiceClient.handle_disconnect(mailbox_id)
 	service_info._is_connecting = false
 	service_info._is_connected = false
 
-	if ServiceClient._is_connect_timer_running then
-		-- do nothing, connect timer will do reconnect
-		-- Log.debug("connect timer is running")
-		return
-	end
-
-	-- connect timer already close, start it
+	-- create connect timer to reconnect
 	ServiceClient.create_connect_timer()
 
 	ServiceClient.print()

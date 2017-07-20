@@ -86,11 +86,20 @@ local function handle_delete_role(data, mailbox_id, msg_id)
 	end
 end
 
+g_role_info = {}
+
 local function handle_select_role(data, mailbox_id, msg_id)
 	Log.debug("handle_select_role: data=%s", Util.table_to_string(data))
 	if data.result ~= ErrorCode.SUCCESS then
 		Log.warn("handle_select_role: result=%s", ErrorCodeText[data.result])
+		return
 	end
+
+	g_role_info.ip = data.ip
+	g_role_info.port = data.port
+	g_role_info.user_id = data.user_id
+	g_role_info.token = data.token
+
 end
 
 function register_msg_handler()

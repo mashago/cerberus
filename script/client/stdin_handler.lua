@@ -205,11 +205,18 @@ function cmd_handler.do_close_connect(params)
 end
 
 function cmd_handler.do_connect(params)
-	-- connect [ip] [port] [id] [type]
-	if #params < 5 then
-		Log.warn("cmd_handler.do_connect params not enough")
-		return
-	end
+	-- connect
+
+	local ip = g_role_info.ip
+	local port = g_role_info.port
+	local server_id = 1 -- XXX
+	local server_type = ServerType.ROUTER
+	local register = 0
+	ServiceClient.add_connect_service(ip, port, server_id, server_type, register)
+
+	ServiceClient.create_connect_timer()
+
+	
 
 	-- TODO
 end
