@@ -12,11 +12,21 @@ OS:=$(shell uname -s)
 SRC:=$(wildcard *.cpp) $(wildcard *.c)
 OBJ:=$(patsubst %.cpp, %.o, $(patsubst %.c, %.o, $(SRC)))
 
-USER_MACROS:=
+USE_SINGLE_THREAD_CORE:=0
 
-INC:=../core_mt ../tinyxml /usr/local/include/mysql /usr/include/mysql
+USER_MACROS:=
+INC:=../tinyxml /usr/local/include/mysql /usr/include/mysql
 LIB_PATH:=../lib
-LIB:=core_mt tinyxml lua event mysqlclient dl m
+LIB:=tinyxml lua event mysqlclient dl m
+
+ifeq "$(USE_SINGLE_THREAD_CORE)" "1"
+USER_MACROS+=_SINGLE_THREAD_CORE
+INC+=../core
+LIB+=core
+else
+INC+=../core_mt
+LIB+=core_mt
+endif
 
 ifeq "$(OS)" "Linux"
 LIB_PATH+=/usr/lib64/mysql/

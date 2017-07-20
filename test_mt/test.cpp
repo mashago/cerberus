@@ -7,7 +7,9 @@
 #include "logger.h"
 #include "tinyxml2.h"
 #include "mysqlmgr.h"
+#ifndef _SINGLE_THREAD_CORE
 #include "event_pipe.h"
+#endif
 
 // test xml config
 int test0()
@@ -248,6 +250,14 @@ int test1()
 	return 0;
 }
 
+#ifdef _SINGLE_THREAD_CORE
+int test2()
+{
+	return 0;
+}
+
+#else
+
 void thread_run(EventPipe *pipe, bool isBlockWait)
 {
 	while (true)
@@ -308,10 +318,10 @@ void thread_run(EventPipe *pipe, bool isBlockWait)
 // test event_pipe
 int test2()
 {
-	bool isBlockWait = false;
+	bool isBlockWait = true;
 	EventPipe *pipe = new EventPipe(isBlockWait);
 
-	std::thread t = std::thread([pipe, isBlockWait](){ thread_run(pipe, isBlockWait); });
+	std::thread t = std::thread(thread_run, pipe, isBlockWait);
 
 	const int MAX_BUFFER = 100;
 	char buffer[MAX_BUFFER+1] = {0};
@@ -350,6 +360,7 @@ int test2()
 
 	return 0;
 }
+#endif
 
 typedef int (*testcase_t) ();
 testcase_t test_list[] =
