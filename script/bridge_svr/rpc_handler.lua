@@ -63,12 +63,11 @@ function register_rpc_handler()
 
 		local rpc_data =
 		{
-			db_name = "game_db",
 			table_name = "role_info",
 			kvs = role_data,
 		}
 		Log.debug("bridge_create_role rpc_data=%s", Util.table_to_string(rpc_data))
-		local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_insert_one", rpc_data)
+		local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_game_insert_one", rpc_data)
 		if not status then
 			Log.err("bridge_create_role rpc call fail")
 			return {result = ErrorCode.SYS_ERROR}
@@ -91,12 +90,11 @@ function register_rpc_handler()
 		-- core logic, set is_delete in game_db.role_info
 		local rpc_data = 
 		{
-			db_name = "game_db",
 			table_name = "role_info",
 			fields = {is_delete = 1},
 			conditions = {role_id=role_id}
 		}
-		local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_update", rpc_data)
+		local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_game_update", rpc_data)
 		if not status then
 			Log.err("bridge_delete_role rpc call fail")
 			return {result = ErrorCode.SYS_ERROR}
@@ -122,12 +120,11 @@ function register_rpc_handler()
 		-- 1. load scene_id from db
 		local rpc_data = 
 		{
-			db_name = "game_db",
 			table_name = "role_info",
 			fields = {"scene_id"},
 			conditions = {role_id=role_id}
 		}
-		local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_select", rpc_data)
+		local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_game_select", rpc_data)
 		if not status then
 			Log.err("bridge_select_role rpc call fail")
 			return {result = ErrorCode.SYS_ERROR}

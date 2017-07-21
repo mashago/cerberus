@@ -20,6 +20,12 @@ ConnType =
 	TRUST 	= 2,
 }
 
+DBType = 
+{
+	LOGIN = 1,
+	GAME  = 2,
+}
+
 ErrorCode =
 {
 	SUCCESS 						= 1,

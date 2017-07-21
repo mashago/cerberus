@@ -24,18 +24,19 @@ function register_rpc_handler()
 		-- 1. insert account, if success, means register, return insert user_id
 		-- 2. select account, if not success, means password mismatch
 
+		local db_name = ServerConfig._db_name_map[DBType.LOGIN]
 		local username = data.username
 		local password = data.password
 		local channel_id = data.channel_id
 
-		local ret = DBMgr.do_insert("login_db", "user_info", {"username", "password", "channel_id"}, {{username, password, channel_id}})
+		local ret = DBMgr.do_insert(db_name, "user_info", {"username", "password", "channel_id"}, {{username, password, channel_id}})
 		if ret > 0 then
 			-- insert success
-			local user_id = DBMgr.get_insert_id("login_db")
+			local user_id = DBMgr.get_insert_id(db_name)
 			return {result = ErrorCode.SUCCESS, user_id = user_id}
 		end
 
-		local ret = DBMgr.do_select("login_db", "user_info", {}
+		local ret = DBMgr.do_select(db_name, "user_info", {}
 		, {username=username, password=password, channel_id=channel_id})
 		if not ret then
 			Log.warn("select user fail username=%s password=%s", username, password)
@@ -57,6 +58,7 @@ function register_rpc_handler()
 		
 		Log.debug("db_create_role: data=%s", Util.table_to_string(data))
 
+		local db_name = ServerConfig._db_name_map[DBType.LOGIN]
 		local user_id = data.user_id
 		local area_id = data.area_id
 		local role_name = data.role_name
@@ -65,7 +67,7 @@ function register_rpc_handler()
 		-- call a procedure
 		local sql = string.format("CALL create_user_role(%d,%d,'%s',%d)", user_id, area_id, role_name, max_role)
 
-		local ret = DBMgr.do_execute("login_db", sql, true)
+		local ret = DBMgr.do_execute(db_name, sql, true)
 		if not ret then
 			Log.err("db_create_role fail user_id=%d area_id=%d role_name=%s", user_id, area_id, role_name)
 			return {result = ErrorCode.SUCCESS, role_id = 0}
@@ -85,6 +87,7 @@ function register_rpc_handler()
 		return {result = ErrorCode.SUCCESS, role_id = role_id}
 	end
 
+	-------------------------------------------------
 
 	local function db_select(data)
 		
@@ -106,7 +109,6 @@ function register_rpc_handler()
 		-- must return a table
 		return {result = ErrorCode.SUCCESS, data = ret}
 	end
-
 
 	local function db_insert_one(data)
 		
@@ -169,12 +171,67 @@ function register_rpc_handler()
 		return {result = ErrorCode.SUCCESS}
 	end
 
+	------------------------------------------------------
+
+	local function db_login_select(data)
+		
+		local db_name = ServerConfig._db_name_map[DBType.LOGIN]
+		data.db_name = db_name
+		return db_select(data)
+	end
+
+	local function db_login_insert_one(data)
+		
+		local db_name = ServerConfig._db_name_map[DBType.LOGIN]
+		data.db_name = db_name
+		return db_insert_one(data)
+	end
+
+	local function db_login_update(data)
+		
+		local db_name = ServerConfig._db_name_map[DBType.LOGIN]
+		data.db_name = db_name
+		return db_update(data)
+	end
+
+	local function db_game_select(data)
+		
+		local db_name = ServerConfig._db_name_map[DBType.GAME]
+		data.db_name = db_name
+		return db_select(data)
+	end
+
+	local function db_game_insert_one(data)
+		
+		local db_name = ServerConfig._db_name_map[DBType.GAME]
+		data.db_name = db_name
+		return db_insert_one(data)
+	end
+
+	local function db_game_update(data)
+		
+		local db_name = ServerConfig._db_name_map[DBType.GAME]
+		data.db_name = db_name
+		return db_update(data)
+	end
+
+	--------------------------------------------------------
+
 
 	RpcMgr._all_call_func.db_rpc_test = db_rpc_test
 
 	RpcMgr._all_call_func.db_user_login = db_user_login
-	RpcMgr._all_call_func.db_create_role = db_create_role
+	RpcMgr._all_call_func.db_create_role = db_create_role -- call by login
+
 	RpcMgr._all_call_func.db_select = db_select
 	RpcMgr._all_call_func.db_insert_one = db_insert_one
 	RpcMgr._all_call_func.db_update = db_update
+
+	RpcMgr._all_call_func.db_login_select = db_login_select
+	RpcMgr._all_call_func.db_login_insert_one = db_login_insert_one
+	RpcMgr._all_call_func.db_login_update = db_login_update
+
+	RpcMgr._all_call_func.db_game_select = db_game_select
+	RpcMgr._all_call_func.db_game_insert_one = db_game_insert_one
+	RpcMgr._all_call_func.db_game_update = db_game_update
 end

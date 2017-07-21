@@ -127,9 +127,14 @@ function g_funcs.connect_to_mysql(xml_doc)
 		local username = info_ele:string_attribute("username")
 		local password = info_ele:string_attribute("password")
 		local db_name = info_ele:string_attribute("db_name")
-		Log.info("ip=%s port=%d username=%s password=%s db_name=%s", ip, port, username, password, db_name)
+		local db_type = info_ele:int_attribute("db_type")
+		Log.info("ip=%s port=%d username=%s password=%s db_name=%s db_type=%d", ip, port, username, password, db_name, db_type)
 
-		DBMgr.connect_to_mysql(ip, port, username, password, db_name)
+		-- core logic
+		local ret = DBMgr.connect_to_mysql(ip, port, username, password, db_name)
+		if ret then
+			ServerConfig._db_name_map[db_type] = db_name
+		end
 
 		info_ele = info_ele:next_sibling_element()
 	end

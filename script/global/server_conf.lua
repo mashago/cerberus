@@ -9,6 +9,7 @@ ServerConfig._area_list = {}
 ServerConfig._no_broadcast = false
 ServerConfig._ip = ""
 ServerConfig._port = 0
+ServerConfig._db_name_map = {} -- {[db_type]=db_name}
 
 function ServerConfig.add_single_scene(scene_id)
 	if ServerConfig._all_scene_list[scene_id] then

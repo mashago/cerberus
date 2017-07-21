@@ -212,7 +212,6 @@ local function handle_role_list_req(user, data, mailbox_id, msg_id)
 
 		local rpc_data = 
 		{
-			db_name="login_db",
 			table_name="user_role",
 			fields={"role_id", "role_name"},
 			conditions=
@@ -222,7 +221,7 @@ local function handle_role_list_req(user, data, mailbox_id, msg_id)
 				is_delete=0,
 			}
 		}
-		local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_select", rpc_data)
+		local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_login_select", rpc_data)
 		if not status then
 			Log.err("handle_role_list_req rpc call fail")
 			msg.result = ErrorCode.SYS_ERROR
@@ -421,12 +420,11 @@ local function handle_delete_role(user, data, mailbox_id, msg_id)
 		-- 4. rpc to db delete role
 		local rpc_data = 
 		{
-			db_name="login_db",
 			table_name="user_role",
 			fields={is_delete = 1},
 			conditions={role_id=role_id}
 		}
-		local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_update", rpc_data)
+		local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_login_update", rpc_data)
 		if not status then
 			Log.err("handle_delete_role rpc call fail")
 			msg.result = ErrorCode.SYS_ERROR
