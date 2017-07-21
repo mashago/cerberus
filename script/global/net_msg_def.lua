@@ -40,6 +40,9 @@ MID._id_name_map =
 	[15] = "SELECT_ROLE_REQ",
 	[16] = "SELECT_ROLE_RET",
 
+	[21] = "ROLE_ENTER_REQ",
+	[22] = "ROLE_ENTER_RET",
+
 	-- msg for server
 	[60001] = "REGISTER_SERVER_REQ",
 	[60002] = "REGISTER_SERVER_RET",
@@ -210,6 +213,17 @@ MSG_DEF_MAP =
 		{ "token", _String },
 	},
 
+	----------------------------------------
+
+	[MID.ROLE_ENTER_REQ] =
+	{
+		{ "user_id", _Int64 },
+		{ "token", _String },
+	},
+	[MID.ROLE_ENTER_RET] =
+	{
+		{ "result", _Int },
+	},
 
 	----------------------------------------
 

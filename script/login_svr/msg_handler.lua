@@ -37,7 +37,7 @@ local function handle_rpc_test(data, mailbox_id, msg_id)
 		msg.sum = sum
 
 		-- 2. get bridge
-		local server_id = AreaMgr.get_server_id(area_id)
+		local server_id = g_area_mgr:get_server_id(area_id)
 		local status, ret = RpcMgr.call_by_server_id(server_id, "bridge_rpc_test", {buff=buff, sum=sum})
 		if not status then
 			Log.err("handle_rpc_test rpc call fail")
@@ -74,7 +74,7 @@ local function handle_register_area(data, mailbox_id, msg_id)
 	{
 		result = ErrorCode.SUCCESS
 	}
-	if not AreaMgr.register_area(server_info._server_id, data.area_list) then
+	if not g_area_mgr:register_area(server_info._server_id, data.area_list) then
 		Log.warn("handle_register_area: register_area duplicate %s %s", server_info._server_id, Util.table_to_string(data.area_list))
 		msg.result = ErrorCode.REGISTER_AREA_DUPLICATE
 		server_info:send_msg(MID.REGISTER_AREA_RET, msg)
@@ -93,7 +93,7 @@ local function handle_user_login(data, mailbox_id, msg_id)
 			result = ErrorCode.SUCCESS
 		}
 
-		local user = UserMgr.get_user_by_mailbox(mailbox_id)
+		local user = g_user_mgr:get_user_by_mailbox(mailbox_id)
 		if user then
 			Log.warn("handle_user_login duplicate login [%s]", data.username)
 			msg.result = ErrorCode.USER_LOGIN_DUPLICATE_LOGIN
@@ -140,7 +140,7 @@ local function handle_user_login(data, mailbox_id, msg_id)
 		Log.debug("handle_user_login: user_id=%d", user_id)
 
 		local user = User:new(mailbox_id, user_id, username, channel_id)
-		if not UserMgr.add_user(user) then
+		if not g_user_mgr:add_user(user) then
 			Log.warn("handle_user_login duplicate login2 [%s]", username)
 			msg.result = ErrorCode.USER_LOGIN_DUPLICATE_LOGIN
 			Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, msg)
@@ -157,7 +157,7 @@ end
 local function handler_area_list_req(user, data, mailbox_id, msg_id)
 	Log.debug("handler_area_list_req: data=%s", Util.table_to_string(data))
 
-	local area_map = AreaMgr._area_map
+	local area_map = g_area_mgr._area_map
 	local area_list = {}
 	for k, v in pairs(area_map) do
 		table.insert(area_list, {area_id=k, area_name="qwerty"})
@@ -180,7 +180,7 @@ local function handle_role_list_req(user, data, mailbox_id, msg_id)
 		role_list = {},
 	}
 
-	if not AreaMgr.is_open(data.area_id) then
+	if not g_area_mgr:is_open(data.area_id) then
 		msg.result = ErrorCode.AREA_NOT_OPEN
 		user:send_msg(MID.ROLE_LIST_RET, msg)
 		return
@@ -269,7 +269,7 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 			role_id = 0,
 		}
 
-		if not AreaMgr.is_open(area_id) then
+		if not g_area_mgr:is_open(area_id) then
 			msg.result = ErrorCode.AREA_NOT_OPEN
 			user:send_msg(MID.CREATE_ROLE_RET, msg)
 			return
@@ -316,7 +316,7 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 		Log.debug("handle_create_role role_id=%d", role_id)
 
 		-- 3. rpc to area bridge to create role data
-		local server_id = AreaMgr.get_server_id(area_id)
+		local server_id = g_area_mgr:get_server_id(area_id)
 		local rpc_data = 
 		{
 			role_id=role_id,
@@ -363,7 +363,7 @@ local function handle_delete_role(user, data, mailbox_id, msg_id)
 			result = ErrorCode.SUCCESS,
 		}
 
-		if not AreaMgr.is_open(area_id) then
+		if not g_area_mgr:is_open(area_id) then
 			msg.result = ErrorCode.AREA_NOT_OPEN
 			user:send_msg(MID.DELETE_ROLE_RET, msg)
 			return
@@ -398,7 +398,7 @@ local function handle_delete_role(user, data, mailbox_id, msg_id)
 		end
 
 		-- 3. rpc to area bridge to delete role
-		local server_id = AreaMgr.get_server_id(area_id)
+		local server_id = g_area_mgr:get_server_id(area_id)
 		local rpc_data = 
 		{
 			role_id=role_id,
@@ -469,7 +469,7 @@ local function handle_select_role(user, data, mailbox_id, msg_id)
 			token = "",
 		}
 
-		if not AreaMgr.is_open(area_id) then
+		if not g_area_mgr:is_open(area_id) then
 			msg.result = ErrorCode.AREA_NOT_OPEN
 			user:send_msg(MID.SELECT_ROLE_RET, msg)
 			return
@@ -500,7 +500,7 @@ local function handle_select_role(user, data, mailbox_id, msg_id)
 		end
 
 		-- 2. rpc to area bridge
-		local server_id = AreaMgr.get_server_id(area_id)
+		local server_id = g_area_mgr:get_server_id(area_id)
 		local rpc_data = 
 		{
 			user_id=user._user_id,

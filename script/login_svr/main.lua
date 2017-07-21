@@ -1,6 +1,4 @@
 
-require "login_svr.area_mgr"
-require "login_svr.user_mgr"
 require "login_svr.msg_handler"
 require "login_svr.net_event_handler"
 
@@ -17,6 +15,12 @@ local function main_entry()
 
 	-- connect to other server
 	g_funcs.connect_to_servers(xml_doc)
+
+	local AreaMgr = require "login_svr.area_mgr"
+	g_area_mgr = AreaMgr:new()
+
+	local UserMgr = require "login_svr.user_mgr"
+	g_user_mgr = UserMgr:new()
 
 end
 
