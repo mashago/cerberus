@@ -25,15 +25,30 @@ function register_rpc_handler()
 		local role_id = data.role_id
 		local scene_id = data.scene_id
 		local token = data.token
-
-		-- TODO check if already online, create user
 		
 		local msg =
 		{
 			result = ErrorCode.SUCCESS,
-			ip=ServerConfig._ip,
-			port=ServerConfig._port,
+			ip = "",
+			port = 0,
 		}
+
+		-- check if already online
+		local user = g_user_mgr:get_user_by_id(user_id)
+		if user then
+			-- duplicate login
+			Log.warn("router_select_role: duplicate select role %d %d", user_id, role_id)
+			msg.result = ErrorCode.SELECT_ROLE_DUPLICATE_LOGIN
+			return msg
+		end
+		-- create user
+		local User = require "router_svr.user"
+		user = User:new(user_id, role_id, scene_id, token)
+		g_user_mgr:add_user(user)
+		
+		msg.result = ErrorCode.SUCCESS
+		msg.ip = ServerConfig._ip
+		msg.port = ServerConfig._port
 
 		return msg
 	end
