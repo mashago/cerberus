@@ -36,11 +36,16 @@ function register_rpc_handler()
 		-- check if already online
 		local user = g_user_mgr:get_user_by_id(user_id)
 		if user then
-			-- duplicate login
-			Log.warn("router_select_role: duplicate select role %d %d", user_id, role_id)
-			msg.result = ErrorCode.SELECT_ROLE_DUPLICATE_LOGIN
-			return msg
+			if user:is_online() then
+				-- duplicate select role
+				Log.warn("router_select_role: duplicate select role %d %d", user_id, role_id)
+				msg.result = ErrorCode.SELECT_ROLE_DUPLICATE_LOGIN
+				return msg
+			end
+			-- has user, but offline, just remove user 
+			g_user_mgr:del_user(user)
 		end
+
 		-- create user
 		local User = require "router_svr.user"
 		user = User:new(user_id, role_id, scene_id, token)

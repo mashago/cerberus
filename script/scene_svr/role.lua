@@ -13,7 +13,7 @@ function Role:new(role_id, mailbox_id)
 end
 
 function Role:send_msg(msg_id, msg)
-	-- add role_id inside
+	-- add role_id into ext
 	return Net.send_msg_ext(self._mailbox_id, msg_id, self._role_id, msg)
 end
 

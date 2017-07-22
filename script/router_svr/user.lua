@@ -17,6 +17,14 @@ function User:new(user_id, role_id, scene_id, token)
 	return obj
 end
 
+function User:is_online()
+	return self._mailbox_id ~= 0
+end
+
+function User:send_msg(msg_id, msg)
+	return Net.send_msg(self._mailbox_id, msg_id, msg)
+end
+
 function User:disconnect()
 	self._mailbox_id = 0
 	local scene_server_info = ServiceMgr.get_server_by_id(self._scene_server_id)

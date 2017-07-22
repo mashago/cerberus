@@ -21,9 +21,6 @@ local function main_entry()
 	local UserMgr = require "router_svr.user_mgr"
 	g_user_mgr = UserMgr:new()
 
-	local RoleMgr = require "router_svr.role_mgr"
-	g_role_mgr = RoleMgr:new()
-
 end
 
 main_entry()

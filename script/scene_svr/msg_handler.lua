@@ -77,6 +77,9 @@ local function handle_router_role_enter_req(data, mailbox_id)
 			Log.debug("handle_router_role_enter_req: role already exists %d", role_id)
 		end
 		
+		-- 2. rpc db get role info
+		-- TODO
+
 
 		local msg = 
 		{

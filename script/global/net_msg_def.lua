@@ -27,6 +27,7 @@ MID._id_name_map =
 	[3] = "RPC_TEST_REQ",
 	[4] = "RPC_TEST_RET",
 
+	-- login server handle
 	[5] = "USER_LOGIN_REQ",
 	[6] = "USER_LOGIN_RET",
 	[7] = "AREA_LIST_REQ",
@@ -40,6 +41,7 @@ MID._id_name_map =
 	[15] = "SELECT_ROLE_REQ",
 	[16] = "SELECT_ROLE_RET",
 
+	-- router server handle
 	[21] = "ROLE_ENTER_REQ",
 	[22] = "ROLE_ENTER_RET",
 
@@ -339,6 +341,8 @@ RAW_MID =
 	[MID.REMOTE_CALL_RET] = true,
 	[MID.REGISTER_AREA_REQ] = true,
 	[MID.REGISTER_AREA_RET] = true,
+
+	[MID.ROUTER_ROLE_ENTER_REQ] = true,
 }
 
 --[[

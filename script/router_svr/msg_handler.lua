@@ -23,6 +23,8 @@ local function handle_role_enter(data, mailbox_id)
 		return
 	end
 
+	local role_id = user._role_id
+	local scene_id = user._scene_id
 	if user._token ~= token then
 		Log.warn("handle_role_enter: user token mismatch %d %s %s", user_id, token, user._token)
 		msg.result = ErrorCode.ROLE_ENTER_FAIL
@@ -30,9 +32,16 @@ local function handle_role_enter(data, mailbox_id)
 		return
 	end
 
+	local u = g_user_mgr:get_user_by_mailbox(mailbox_id)
+	if u then
+		Log.warn("handle_role_enter: mailbox already connect to a user %d", user_id)
+		msg.result = ErrorCode.ROLE_ENTER_FAIL
+		Net.send_msg(mailbox_id, MID.ROLE_ENTER_RET, msg)
+		return
+	end
+
+
 	-- 2. update user info
-	local role_id = user._role_id
-	local scene_id = user._scene_id
 	user._mailbox_id = mailbox_id
 
 	local scene_server_info = nil
@@ -52,20 +61,7 @@ local function handle_role_enter(data, mailbox_id)
 	user._scene_server_id = scene_server_info._server_id
 	Log.debug("handle_role_enter: user._scene_server_id=%d", user._scene_server_id)
 
-	-- 3. add role
-	local role = g_role_mgr:get_role_by_id(role_id)
-	if role then
-		Log.warn("handle_role_enter: role exists %d %d", user_id, role_id)
-		msg.result = ErrorCode.ROLE_ENTER_FAIL
-		Net.send_msg(mailbox_id, MID.ROLE_ENTER_RET, msg)
-		return
-	end
-
-	local Role = require "router_svr.role"
-	local role = Role:new(role_id, user_id, mailbox_id, scene_server_id)
-	g_role_mgr:add_role(role)
-
-	-- 4. send msg to scene
+	-- 3. send msg to scene
 	local msg =
 	{
 		role_id = role_id,
