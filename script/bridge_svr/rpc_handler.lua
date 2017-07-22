@@ -82,10 +82,27 @@ function register_rpc_handler()
 		
 		Log.debug("bridge_delete_role: data=%s", Util.table_to_string(data))
 
-		-- TODO check if role is online
-
+		local user_id = data.user_id
 		local role_id = data.role_id
 
+		-- check if role is online
+		local rpc_data = 
+		{
+			user_id = user_id,
+			role_id = role_id,
+		}
+		local status, ret = RpcMgr.call_by_server_type(ServerType.ROUTER, "router_check_role_online", rpc_data, user_id)
+		if not status then
+			Log.err("bridge_delete_role rpc router call fail")
+			return {result = ErrorCode.SYS_ERROR}
+		end
+		Log.debug("bridge_delete_role: callback ret=%s", Util.table_to_string(ret))
+
+		if ret.is_online == true then
+			-- role online in router
+			Log.warn("bridge_delete_role: role online %d %d", user_id, role_id)
+			return {result = ErrorCode.DELETE_ROLE_ONLINE}
+		end
 
 		-- core logic, set is_delete in game_db.role_info
 		local rpc_data = 
@@ -109,7 +126,6 @@ function register_rpc_handler()
 		
 		Log.debug("bridge_select_role: data=%s", Util.table_to_string(data))
 
-		-- TODO check if role is online
 		-- 1. load scene_id from db
 		-- 2. create a token
 		-- 3. choose a router by user_id

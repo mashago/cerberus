@@ -1,6 +1,7 @@
 
 require "router_svr.msg_handler"
 require "router_svr.rpc_handler"
+require "router_svr.net_event_handler"
 
 local function main_entry()
 	Log.info("router_svr main_entry")
@@ -19,6 +20,9 @@ local function main_entry()
 
 	local UserMgr = require "router_svr.user_mgr"
 	g_user_mgr = UserMgr:new()
+
+	local RoleMgr = require "router_svr.role_mgr"
+	g_role_mgr = RoleMgr:new()
 
 end
 

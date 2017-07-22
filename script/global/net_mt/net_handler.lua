@@ -92,16 +92,17 @@ end
 local function recv_msg_handler(mailbox_id, msg_id)
 	local ext = g_network:read_ext()
 	Log.debug("recv_msg_handler ext=%d", ext)
+	
+	local msg_handler = Net.get_msg_handler(msg_id)
+	if not msg_handler then
+		-- TODO if it is a router server, should transfer msg to target
+		Log.warn("recv_msg_handler handler not exists msg_id=%d", msg_id)
+		return
+	end
 
 	local flag, data = recv_msg(msg_id)	
 	if not flag then
 		Log.err("recv_msg_handler recv_msg fail mailbox_id=%d msg_id=%d", mailbox_id, msg_id)
-		return
-	end
-	
-	local msg_handler = Net.get_msg_handler(msg_id)
-	if not msg_handler then
-		Log.warn("recv_msg_handler handler not exists msg_id=%d", msg_id)
 		return
 	end
 
@@ -119,9 +120,9 @@ local function recv_msg_handler(mailbox_id, msg_id)
 	end
 
 	if not RAW_MID[msg_id] and g_net_event_client_msg then
-		g_net_event_client_msg(msg_handler, data, mailbox_id, msg_id)
+		g_net_event_client_msg(msg_handler, data, mailbox_id, msg_id, ext)
 	else
-		msg_handler(data, mailbox_id, msg_id)
+		msg_handler(data, mailbox_id, msg_id, ext)
 	end
 end
 

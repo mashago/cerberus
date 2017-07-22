@@ -17,7 +17,7 @@ USE_SINGLE_THREAD_CORE:=0
 USER_MACROS:=
 INC:=../tinyxml /usr/local/include/mysql /usr/include/mysql
 LIB_PATH:=../lib
-LIB:=tinyxml lua event mysqlclient dl m
+LIB:=tinyxml 
 
 ifeq "$(USE_SINGLE_THREAD_CORE)" "1"
 USER_MACROS+=_SINGLE_THREAD_CORE
@@ -27,6 +27,8 @@ else
 INC+=../core_mt
 LIB+=core_mt
 endif
+
+LIB+=lua event mysqlclient dl m
 
 ifeq "$(OS)" "Linux"
 LIB_PATH+=/usr/lib64/mysql/

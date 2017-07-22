@@ -1,6 +1,7 @@
 
 require "scene_svr.msg_handler"
 require "scene_svr.rpc_handler"
+require "scene_svr.net_event_handler"
 
 local function main_entry()
 	Log.info("scene_svr main_entry")
@@ -19,6 +20,8 @@ local function main_entry()
 	-- connect to other server
 	g_funcs.connect_to_servers(xml_doc)
 
+	local RoleMgr = require "scene_svr.role_mgr"
+	g_role_mgr = RoleMgr:new()
 end
 
 main_entry()

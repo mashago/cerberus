@@ -401,6 +401,7 @@ local function handle_delete_role(user, data, mailbox_id, msg_id)
 		local server_id = g_area_mgr:get_server_id(area_id)
 		local rpc_data = 
 		{
+			user_id=user._user_id,
 			role_id=role_id,
 		}
 		local status, ret = RpcMgr.call_by_server_id(server_id, "bridge_delete_role", rpc_data)

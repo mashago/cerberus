@@ -34,7 +34,7 @@ end
 function UserMgr:del_user(user)
 	self._all_user_map[user._user_id] = nil
 	self._mailbox_user_map[user._mailbox_id] = nil
-	user._is_online = false
+	user._mailbox_id = 0
 end
 
 return UserMgr

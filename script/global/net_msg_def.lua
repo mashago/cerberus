@@ -53,6 +53,10 @@ MID._id_name_map =
 	[60007] = "REGISTER_AREA_REQ",
 	[60008] = "REGISTER_AREA_RET",
 
+	[60101] = "ROUTER_ROLE_ENTER_REQ",
+	[60102] = "ROUTER_ROLE_ENTER_RET",
+	[60103] = "ROUTER_ROLE_DISCONNECT",
+
 	-- msg for db
 	[70001] = "DB_INSERT",
 	[70002] = "DB_DELETE",
@@ -284,6 +288,22 @@ MSG_DEF_MAP =
 		{ "result", _Int },
 	},
 
+	[MID.ROUTER_ROLE_ENTER_REQ] =
+	{
+		{ "role_id", _Int64 },
+		{ "scene_id", _Int },
+	},
+	[MID.ROUTER_ROLE_ENTER_RET] =
+	{
+		{ "result", _Int },
+		{ "role_id", _Int64 },
+	},
+
+	[MID.ROUTER_ROLE_DISCONNECT] =
+	{
+		{ "role_id", _Int64 },
+	},
+
 	-----------------------------------------------------------
 
 	[MID.DB_INSERT] =
@@ -309,6 +329,7 @@ RAW_MID =
 	[MID.CLIENT_TEST] = true,
 	[MID.RPC_TEST_REQ] = true,
 	[MID.USER_LOGIN_REQ] = true,
+	[MID.ROLE_ENTER_REQ] = true,
 
 	[MID.REGISTER_SERVER_REQ] = true,
 	[MID.REGISTER_SERVER_RET] = true,

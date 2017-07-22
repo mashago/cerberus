@@ -53,6 +53,32 @@ function register_rpc_handler()
 		return msg
 	end
 
+	local function router_check_role_online(data)
+		
+		Log.debug("router_check_role_online: data=%s", Util.table_to_string(data))
+
+		local user_id = data.user_id
+		local role_id = data.role_id
+
+		local msg =
+		{
+			is_online = false
+		}
+
+		local user = g_user_mgr:get_user_by_id(user_id)
+		if not user then
+			return msg
+		end
+
+		if role_id ~= user._role_id then
+			return msg
+		end
+
+		msg.is_online = true
+		return msg
+	end
+
 	RpcMgr._all_call_func.router_rpc_test = router_rpc_test
 	RpcMgr._all_call_func.router_select_role = router_select_role
+	RpcMgr._all_call_func.router_check_role_online = router_check_role_online
 end
