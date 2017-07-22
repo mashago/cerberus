@@ -23,6 +23,14 @@ local function handle_role_enter(data, mailbox_id)
 		return
 	end
 
+	if user:is_online() then
+		-- user already online
+		Log.warn("handle_role_enter: user already online %d", user_id)
+		msg.result = ErrorCode.ROLE_ENTER_FAIL
+		Net.send_msg(mailbox_id, MID.ROLE_ENTER_RET, msg)
+		return
+	end
+
 	local role_id = user._role_id
 	local scene_id = user._scene_id
 	if user._token ~= token then
@@ -39,7 +47,6 @@ local function handle_role_enter(data, mailbox_id)
 		Net.send_msg(mailbox_id, MID.ROLE_ENTER_RET, msg)
 		return
 	end
-
 
 	-- 2. update user info
 	user._mailbox_id = mailbox_id
