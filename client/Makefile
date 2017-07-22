@@ -14,9 +14,9 @@ OBJ:=$(patsubst %.cpp, %.o, $(patsubst %.c, %.o, $(SRC)))
 
 USER_MACROS:=
 
-INC:=../core
+INC:=../core_mt
 LIB_PATH:=../lib
-LIB:=core event mysqlclient
+LIB:=core_mt event mysqlclient
 
 ifeq "$(OS)" "Linux"
 LIB_PATH+=/usr/lib64/mysql/
