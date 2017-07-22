@@ -2,7 +2,7 @@
 package.path = package.path .. ";../script/?.lua"
 
 require "global.net_msg_def"
-require "global.init"
+require "global.init_old"
 require "global.global_def"
 require "global.global_funcs"
 require "global.server_conf"
