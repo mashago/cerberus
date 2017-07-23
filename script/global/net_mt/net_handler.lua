@@ -95,8 +95,11 @@ local function recv_msg_handler(mailbox_id, msg_id)
 	
 	local msg_handler = Net.get_msg_handler(msg_id)
 	if not msg_handler then
-		-- TODO if it is a router server, should transfer msg to target
-		Log.warn("recv_msg_handler handler not exists msg_id=%d", msg_id)
+		if g_net_event_transfer_msg then
+			g_net_event_transfer_msg(mailbox_id, msg_id, ext)
+		else
+			Log.warn("recv_msg_handler handler not exists msg_id=%d", msg_id)
+		end
 		return
 	end
 

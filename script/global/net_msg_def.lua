@@ -44,6 +44,7 @@ MID._id_name_map =
 	-- router server handle
 	[21] = "ROLE_ENTER_REQ",
 	[22] = "ROLE_ENTER_RET",
+	[23] = "ROLE_ATTR_RET",
 
 	-- msg for server
 	[60001] = "REGISTER_SERVER_REQ",
@@ -229,6 +230,12 @@ MSG_DEF_MAP =
 	[MID.ROLE_ENTER_RET] =
 	{
 		{ "result", _Int },
+	},
+
+	[MID.ROLE_ATTR_RET] =
+	{
+		{ "role_id", _Int64 },
+		{ "scene_id", _Int },
 	},
 
 	----------------------------------------

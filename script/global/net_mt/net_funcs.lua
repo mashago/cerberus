@@ -4,6 +4,7 @@ Net._msg_handler_map = {}
 Net._all_mailbox = {} -- {mailbox_id=x, conn_type=y}
 
 function Net.send_msg_ext(mailbox_id, msg_id, ext, data)
+	Log.debug("Net.send_msg msgdef mailbox_id=%d msg_id=%d ext=%d", mailbox_id, msg_id, ext)
 	local msgdef = MSG_DEF_MAP[msg_id]
 	if not msgdef then
 		Log.err("Net.send_msg msgdef not exists msg_id=%d", msg_id)

@@ -67,13 +67,15 @@ local function handle_router_role_enter_req(data, mailbox_id)
 
 		-- 1. new role
 		-- 2. rpc db get role info
-		-- 3. back to router
+		-- 3. init role attr
+		-- 4. sync to client
+		-- 5. success to router
 
 		-- 1. new role
 		local role = g_role_mgr:get_role_by_id(role_id)
 		if not role then
 			local Role = require "scene_svr.role"
-			local role = Role:new(role_id, mailbox_id)
+			role = Role:new(role_id, mailbox_id)
 			g_role_mgr:add_role(role)
 		else
 			Log.debug("handle_router_role_enter_req: role already exists %d", role_id)
@@ -81,7 +83,16 @@ local function handle_router_role_enter_req(data, mailbox_id)
 		
 		-- 2. rpc db get role info
 		-- TODO
+		-- 3. init role attr
+		-- 4. sync to client
+		local msg =
+		{
+			role_id = role_id,
+			scene_id = scene_id,
+		}
+		role:send_msg(MID.ROLE_ATTR_RET, msg)
 
+		-- 5. success to router
 		local msg = 
 		{
 			result = ErrorCode.SUCCESS,

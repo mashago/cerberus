@@ -1,5 +1,6 @@
 
 function g_net_event_server_disconnect(server_id)
+	
 end
 
 function g_net_event_client_disconnect(mailbox_id)
@@ -11,6 +12,11 @@ function g_net_event_client_disconnect(mailbox_id)
 
 	Log.info("g_net_event_client_disconnect: user_id=%d", user._user_id)
 	return user:disconnect()
+end
+
+function g_net_event_transfer_msg(mailbox_id, msg_id, ext)
+	Log.info("g_net_event_transfer_msg: mailbox_id=%d, msg_id=%d, ext=%d", mailbox_id, msg_id, ext)
+	-- TODO transfer to client or server
 end
 
 --[[
