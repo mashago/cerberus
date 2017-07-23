@@ -2,7 +2,7 @@
 
 Description:
 build by C++ & Lua, config use XML
-all server is single thread for now
+network and logicworld run in different thread
 
 View:
 
@@ -35,5 +35,4 @@ n * DB
 
 TODO:
 rpc timeout check
-merge service server and client
 

@@ -20,6 +20,8 @@ function RoleMgr:add_role(role)
 	end
 
 	self._all_role_map[role._role_id] = role
+
+	self._mailbox_role_map[role._mailbox_id] = self._mailbox_role_map[role._mailbox_id] or {}
 	self._mailbox_role_map[role._mailbox_id][role._role_id] = true
 	return true
 end

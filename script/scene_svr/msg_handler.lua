@@ -59,6 +59,8 @@ end
 
 local function handle_router_role_enter_req(data, mailbox_id)
 	local func = function(mailbox_id, data)
+		
+		Log.debug("handle_router_role_enter_req: mailbox_id=%d data=%s", mailbox_id, Util.table_to_string(data))
 
 		local role_id = data.role_id
 		local scene_id = data.scene_id
@@ -80,13 +82,12 @@ local function handle_router_role_enter_req(data, mailbox_id)
 		-- 2. rpc db get role info
 		-- TODO
 
-
 		local msg = 
 		{
 			result = ErrorCode.SUCCESS,
 			role_id = role_id,
 		}
-		Net.send_msg(mailbox_id, MID.ROUTER_ROLE_ENTER_RET, msg)
+		local ret = Net.send_msg(mailbox_id, MID.ROUTER_ROLE_ENTER_RET, msg)
 	end
 	-- rpc warpper
 	RpcMgr.run(func, mailbox_id, data)

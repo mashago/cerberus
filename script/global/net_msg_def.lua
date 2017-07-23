@@ -343,6 +343,7 @@ RAW_MID =
 	[MID.REGISTER_AREA_RET] = true,
 
 	[MID.ROUTER_ROLE_ENTER_REQ] = true,
+	[MID.ROUTER_ROLE_ENTER_RET] = true,
 }
 
 --[[

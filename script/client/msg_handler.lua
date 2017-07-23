@@ -86,8 +86,7 @@ local function handle_delete_role(data, mailbox_id, msg_id)
 	end
 end
 
-g_role_info = {}
-
+g_common_data = {}
 local function handle_select_role(data, mailbox_id, msg_id)
 	Log.debug("handle_select_role: data=%s", Util.table_to_string(data))
 	if data.result ~= ErrorCode.SUCCESS then
@@ -95,11 +94,18 @@ local function handle_select_role(data, mailbox_id, msg_id)
 		return
 	end
 
-	g_role_info.ip = data.ip
-	g_role_info.port = data.port
-	g_role_info.user_id = data.user_id
-	g_role_info.token = data.token
+	g_common_data.ip = data.ip
+	g_common_data.port = data.port
+	g_common_data.user_id = data.user_id
+	g_common_data.token = data.token
 
+end
+
+local function handle_role_enter(data, mailbox_id, msg_id)
+	Log.debug("handle_role_enter: data=%s", Util.table_to_string(data))
+	if data.result ~= ErrorCode.SUCCESS then
+		Log.warn("handle_role_enter: result=%s", ErrorCodeText[data.result])
+	end
 end
 
 function register_msg_handler()
@@ -111,4 +117,5 @@ function register_msg_handler()
 	Net.add_msg_handler(MID.CREATE_ROLE_RET, handle_create_role)
 	Net.add_msg_handler(MID.DELETE_ROLE_RET, handle_delete_role)
 	Net.add_msg_handler(MID.SELECT_ROLE_RET, handle_select_role)
+	Net.add_msg_handler(MID.ROLE_ENTER_RET, handle_role_enter)
 end

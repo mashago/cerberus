@@ -32,6 +32,9 @@ function cmd_handler.execute(buffer)
 	elseif params[1] == "connect" then
 		cmd_handler.do_connect(params)
 
+	elseif params[1] == "enter" then
+		cmd_handler.do_enter(params)
+
 	end
 
 end
@@ -207,18 +210,25 @@ end
 function cmd_handler.do_connect(params)
 	-- connect
 
-	local ip = g_role_info.ip
-	local port = g_role_info.port
+	local ip = g_common_data.ip
+	local port = g_common_data.port
 	local server_id = 1 -- XXX
 	local server_type = ServerType.ROUTER
 	local register = 0
 	ServiceClient.add_connect_service(ip, port, server_id, server_type, register)
 
 	ServiceClient.create_connect_timer()
+end
 
-	
+function cmd_handler.do_enter(params)
+	-- enter
+	local msg =
+	{
+		user_id = g_common_data.user_id,
+		token = g_common_data.token,
+	}
 
-	-- TODO
+	send_to_router(MID.ROLE_ENTER_REQ, msg)
 end
 
 
