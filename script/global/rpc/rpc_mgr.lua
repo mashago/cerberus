@@ -8,11 +8,24 @@ RpcMgr._origin_map = {} -- { [new_session_id] = {from_server_id=x, to_server_id=
 -- rpc warpper
 function RpcMgr.run(func, ...)
 	local cor = coroutine.create(func)
-	local status, session_id = coroutine.resume(cor, ...)
-	if status and session_id then
-		-- return session_id if has rpc inside
-		RpcMgr._all_session_map[session_id] = cor	
+	local status, result = coroutine.resume(cor, ...)
+	if not status then
+		Log.err("RpcMgr.run: resume error %s", result)
+		return
 	end
+	if not result then
+		-- no rpc inside, do nothing
+		return
+	end
+
+	if type(result) ~= "number" then
+		Log.err("RpcMgr.run: run result not a session_id")
+		return
+	end
+
+	local session_id = result
+	-- return session_id if has rpc inside
+	RpcMgr._all_session_map[session_id] = cor	
 end
 
 -- rpc call function
@@ -56,7 +69,7 @@ function RpcMgr.callback(session_id, result, data)
 
 	local status, result = coroutine.resume(cor, result, data)
 	if not status then
-		Log.err("RpcMgr.callback cor resume fail")
+		Log.err("RpcMgr.callback: cor resume error %s", result)
 		return
 	end
 

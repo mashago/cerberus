@@ -218,8 +218,8 @@ end
 
 
 function ccall_recv_msg_handler(mailbox_id, msg_id)
-	Log.info("mailbox_id=%d msg_id=%d", mailbox_id, msg_id)
-	local msg_name = MID._id_name_map[msg_id]
+	Log.info("ccall_recv_msg_handler: mailbox_id=%d msg_id=%d", mailbox_id, msg_id)
+	local msg_name = MID._id_name_map[msg_id] or "unknow msg"
 	Log.info("msg_name=%s", msg_name)
 
 	local function error_handler(msg, mailbox_id, msg_id)
