@@ -68,6 +68,15 @@ function ServerInfo:send_msg_ext(msg_id, ext, msg)
 	return Net.send_msg_ext(mailbox_id, msg_id, ext, msg)
 end
 
+function ServerInfo:transfer_msg(ext)
+	local mailbox_id = self:get_mailbox_id()
+	if mailbox_id == -1 then
+		Log.warn("ServerInfo:send_msg mailbox nil msg_id=%d", msg_id)
+		return false
+	end
+	return Net.transfer_msg(mailbox_id, ext)
+end
+
 function ServerInfo:print()
 	Log.info("ServerInfo:print _server_id=%d _server_type=%d _mailbox_id=%d \n_secondhand_mailbox_id=%s \n_single_scene_list=%s \n_from_to_scene_list=%s", self._server_id,
 	self._server_type,

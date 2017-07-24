@@ -4,24 +4,16 @@ Net._msg_handler_map = {}
 Net._all_mailbox = {} -- {mailbox_id=x, conn_type=y}
 
 function Net.send_msg_ext(mailbox_id, msg_id, ext, data)
-	Log.debug("Net.send_msg msgdef mailbox_id=%d msg_id=%d ext=%d", mailbox_id, msg_id, ext)
+	Log.debug("Net.send_msg_ext msgdef mailbox_id=%d msg_id=%d ext=%d", mailbox_id, msg_id, ext)
 	local msgdef = MSG_DEF_MAP[msg_id]
 	if not msgdef then
-		Log.err("Net.send_msg msgdef not exists msg_id=%d", msg_id)
+		Log.err("Net.send_msg_ext msgdef not exists msg_id=%d", msg_id)
 		return false
 	end
-
-	--[[
-	local args = {...}
-	if #msgdef ~= #args then
-		Log.err("Net.send_msg args count error msg_id=%d", msg_id)
-		return false
-	end
-	--]]
 
 	local flag = write_data_by_msgdef(data, msgdef, 0)
 	if not flag then
-		Log.err("Net.send_msg write data error msg_id=%d", msg_id)
+		Log.err("Net.send_msg_ext write data error msg_id=%d", msg_id)
 		return false
 	end
 
@@ -32,6 +24,17 @@ end
 
 function Net.send_msg(mailbox_id, msg_id, data)
 	return Net.send_msg_ext(mailbox_id, msg_id, 0, data)
+end
+
+-- transfer msg, copy data from recv pluto to send pluto, update ext if necessary
+function Net.transfer_msg(mailbox_id, ext)
+	Log.debug("Net.transfer_msg msgdef mailbox_id=%d ext=%d", mailbox_id, ext or 0)
+
+	g_network:transfer()
+	if ext then
+		g_network:write_ext(ext)
+	end
+	return g_network:send(mailbox_id)
 end
 
 function Net.add_msg_handler(msg_id, func)

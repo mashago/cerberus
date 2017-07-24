@@ -17,7 +17,7 @@ Pluto::~Pluto()
 	delete [] m_buffer;
 }
 
-int Pluto::GetMsgLen()
+int Pluto::GetMsgLen() const
 {
 	return (int)ntohl(*(uint32_t *)(m_buffer));
 }
@@ -217,4 +217,12 @@ Pluto *Pluto::Clone()
 	char *buffer = pu->GetBuffer();
 	memcpy(buffer, m_buffer, len);
 	return pu;
+}
+
+void Pluto::Copy(const Pluto *pu)
+{
+	int len = pu->GetMsgLen();
+	char *buffer = const_cast<Pluto *>(pu)->GetBuffer();
+	memcpy(m_buffer, buffer, len);
+	m_cursor = m_buffer + len; // update m_cursor pos to buffer end, for SetMsgLen right
 }

@@ -103,6 +103,13 @@ bool LuaNetwork::Send(int64_t mailboxId)
 	return true;
 }
 
+bool LuaNetwork::Transfer()
+{
+	// copy recv pluto data to send pluto
+	m_sendPluto->Copy(m_recvPluto);
+	return true;
+}
+
 void LuaNetwork::SetRecvPluto(Pluto *pu)
 {
 	m_recvPluto = pu;

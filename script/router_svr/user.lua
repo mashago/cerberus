@@ -25,6 +25,10 @@ function User:send_msg(msg_id, msg)
 	return Net.send_msg(self._mailbox_id, msg_id, msg)
 end
 
+function User:transfer_msg()
+	return Net.transfer_msg(self._mailbox_id)
+end
+
 function User:offline()
 	-- set mailbox_id 0
 	-- send to scene server

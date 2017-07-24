@@ -27,6 +27,7 @@ public:
 	bool WriteString(int len, const char* str);
 
 	bool Send(int64_t mailboxId);
+	bool Transfer();
 
 	//当前可写字符的最大长度
 	// int can_write_string_maxlen();

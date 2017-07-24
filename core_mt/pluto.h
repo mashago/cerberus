@@ -31,7 +31,7 @@ public:
 	Pluto(int bufferSize);
 	~Pluto();
 
-	int GetMsgLen();
+	int GetMsgLen() const;
 	void SetMsgLen(int len = 0);
 
 	char * GetBuffer();
@@ -81,6 +81,7 @@ public:
 	bool ReadString(int &out_len, char *out_val);
 
 	Pluto *Clone();
+	void Copy(const Pluto *pu);
 
 	void Print();
 

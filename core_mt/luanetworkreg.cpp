@@ -356,6 +356,18 @@ int luanetwork_send(lua_State* L)
 	return 1;
 }
 
+int luanetwork_transfer(lua_State* L)
+{
+	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
+	luaL_argcheck(L, s != NULL, 1, "invalid user data");
+
+	bool ret = (*s)->Transfer();
+
+	lua_pushboolean(L, ret);
+
+	return 1;
+}
+
 //////////////////////////////////////////////////////
 
 int luanetwork_read_byte(lua_State* L)
@@ -803,6 +815,7 @@ static const luaL_Reg lua_reg_member_funcs[] =
 	{ "write_string_array", luanetwork_write_string_array },
 
 	{ "send", luanetwork_send },
+	{ "transfer", luanetwork_transfer },
 
 	{ "read_msg_id", luanetwork_read_msg_id },
 	{ "read_ext", luanetwork_read_ext },
