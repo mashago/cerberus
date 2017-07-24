@@ -43,6 +43,7 @@ function register_rpc_handler()
 				return msg
 			end
 			-- has user, but offline, just remove user 
+			Log.debug("router_select_role: user offline, del user user_id=%d old_role_id=%d new_role_id%d", user_id, user._role_id, role_id)
 			g_user_mgr:del_user(user)
 		end
 

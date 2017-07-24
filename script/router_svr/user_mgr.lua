@@ -21,7 +21,6 @@ function UserMgr:add_user(user)
 	end
 
 	self._all_user_map[user._user_id] = user
-	self._mailbox_user_map[user._mailbox_id] = user
 	self._role_user_map[user._role_id] = user
 	return true
 end
@@ -43,6 +42,16 @@ function UserMgr:del_user(user)
 	self._mailbox_user_map[user._mailbox_id] = nil
 	self._role_user_map[user._role_id] = nil
 	user._mailbox_id = 0
+end
+
+function UserMgr:online(user, mailbox_id)
+	self._mailbox_user_map[mailbox_id] = user
+	user._mailbox_id = mailbox_id
+end
+
+function UserMgr:offline(user)
+	self._mailbox_user_map[user._mailbox_id] = nil
+	user:offline()
 end
 
 return UserMgr

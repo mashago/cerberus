@@ -107,6 +107,8 @@ end
 
 local function handle_router_role_disconnect(role, data, mailbox_id)
 
+	Log.debug("handle_router_role_disconnect: role._role_id=%d", role._role_id)
+
 	g_role_mgr:del_role(role)
 
 end

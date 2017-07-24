@@ -25,8 +25,12 @@ function User:send_msg(msg_id, msg)
 	return Net.send_msg(self._mailbox_id, msg_id, msg)
 end
 
-function User:disconnect()
+function User:offline()
+	-- set mailbox_id 0
+	-- send to scene server
+
 	self._mailbox_id = 0
+
 	local scene_server_info = ServiceMgr.get_server_by_id(self._scene_server_id)
 	if not scene_server_info then
 		Log.err("User:disconnect: scene server not exists scene_id=%d", self._scene_server_id)

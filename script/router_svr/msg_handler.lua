@@ -49,7 +49,7 @@ local function handle_role_enter(data, mailbox_id)
 	end
 
 	-- 2. update user info
-	user._mailbox_id = mailbox_id
+	g_user_mgr:online(user, mailbox_id)
 
 	local scene_server_info = nil
 	if user._scene_server_id == 0 then

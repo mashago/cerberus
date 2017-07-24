@@ -151,8 +151,8 @@ function register_rpc_handler()
 			return {result = ret.result}
 		end
 
-		if #ret.data ~= 1 or ret.data[1].scene_id == nil then
-			Log.warning("bridge_select_role: role not exists %d %d", user_id, role_id)
+		if #ret.data ~= 1 or not ret.data[1].scene_id then
+			Log.warn("bridge_select_role: role not exists %d %d", user_id, role_id)
 			return {result = ErrorCode.ROLE_NOT_EXISTS}
 		end
 
