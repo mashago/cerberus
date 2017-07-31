@@ -4,6 +4,7 @@ extern "C"
 #include <lauxlib.h>
 #include <lualib.h>
 }
+#include "util.h"
 #include "logger.h"
 #include "mailbox.h"
 #include "luaworld.h"
@@ -70,7 +71,7 @@ static int logger_c(lua_State *L)
 static int get_time_ms_c(lua_State *L)
 {
 	struct timeval tv;    
-	gettimeofday(&tv,NULL);
+	gettimeofday(&tv, NULL);
 	double time_ms = tv.tv_sec * 1000.0 + tv.tv_usec / 1000.0;
 	lua_pushnumber(L, time_ms);
 

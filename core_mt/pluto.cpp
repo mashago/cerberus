@@ -1,5 +1,9 @@
 
+#ifdef WIN32
+#include<Winsock2.h>
+#else
 #include <arpa/inet.h>
+#endif
 #include <string.h>
 #include <string>
 
