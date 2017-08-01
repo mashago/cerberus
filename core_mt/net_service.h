@@ -72,7 +72,7 @@ public:
 
 	void SendEvent(EventNode *node);
 
-	void CloseMailbox(int fd);
+	void CloseMailboxByFd(int fd);
 	void CloseMailbox(int64_t mailboxId);
 	void CloseMailbox(Mailbox *pmb);
 

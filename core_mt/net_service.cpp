@@ -506,13 +506,13 @@ int NetService::HandleSocketConnectToSuccess(evutil_socket_t fd)
 
 int NetService::HandleSocketClosed(evutil_socket_t fd)
 {
-	CloseMailbox((int)fd);
+	CloseMailboxByFd(fd);
 	return 0;
 }
 
 int NetService::HandleSocketError(evutil_socket_t fd)
 {
-	CloseMailbox((int)fd);
+	CloseMailboxByFd(fd);
 	return 0;
 }
 
@@ -636,7 +636,7 @@ void NetService::SendEvent(EventNode *node)
 	m_net2worldPipe->Push(node);
 }
 
-void NetService::CloseMailbox(int fd)
+void NetService::CloseMailboxByFd(int fd)
 {
 	Mailbox *pmb = GetMailboxByFd(fd);
 	if (pmb == nullptr)

@@ -1,3 +1,7 @@
 tags
 *.o
 .DS_Store
+sln
+bin
+lib
+include

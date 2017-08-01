@@ -7,8 +7,8 @@
 
 DataStructDef = {}
 
-DataStructDef.game_db = {}
-DataStructDef.game_db.role_info = 
+DataStructDef.mn_game_db = {}
+DataStructDef.mn_game_db.role_info = 
 {
 	role_id = { type=_Int64, save=1, default='_Null', key=1},
 	role_name = { type=_String, save=1, default='_Null'},

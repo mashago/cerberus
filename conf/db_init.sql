@@ -1,13 +1,13 @@
 -- call by root
-CREATE DATABASE IF NOT EXISTS login_db;
-GRANT all on login_db.* to testss@'%' identified by '123456';
-GRANT all on login_db.* to testss@'localhost' identified by '123456';
+CREATE DATABASE IF NOT EXISTS mn_login_db;
+GRANT all on mn_login_db.* to testmn@'%' identified by '123456';
+GRANT all on mn_login_db.* to testmn@'localhost' identified by '123456';
 
-CREATE DATABASE IF NOT EXISTS game_db;
-GRANT all on game_db.* to testss@'%' identified by '123456';
-GRANT all on game_db.* to testss@'localhost' identified by '123456';
+CREATE DATABASE IF NOT EXISTS mn_game_db;
+GRANT all on mn_game_db.* to testmn@'%' identified by '123456';
+GRANT all on mn_game_db.* to testmn@'localhost' identified by '123456';
 
-use login_db;
+use mn_login_db;
 DROP TABLE IF EXISTS `user_info`;
 CREATE TABLE IF NOT EXISTS `user_info` (
 	`user_id` bigint(20) NOT NULL AUTO_INCREMENT,
