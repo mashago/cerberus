@@ -1,8 +1,10 @@
 
+#ifndef WIN32
+#include <sys/time.h>
+#endif
 #include "util.h"
 #include "logger.h"
 #include "timermgr.h"
-// #include "net_service.h"
 
 std::map<int64_t, TimerMgr::Timer> TimerMgr::m_timerMap;
 std::list<int64_t> TimerMgr::m_timerDelList;
