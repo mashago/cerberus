@@ -95,7 +95,7 @@ bool LuaWorld::Init(int server_id, int server_type, const char *conf_file, const
 		{ LUA_TABLIBNAME, luaopen_table },
 		{ LUA_IOLIBNAME, luaopen_io },
 		{ LUA_OSLIBNAME, luaopen_os },
-		{ LUA_BITLIBNAME, luaopen_bit32 },
+		// { LUA_BITLIBNAME, luaopen_bit32 },
 		{ LUA_COLIBNAME, luaopen_coroutine },
 		{ LUA_MATHLIBNAME, luaopen_math },
 		{ LUA_DBLIBNAME, luaopen_debug },

@@ -1,6 +1,3 @@
-#ifndef WIN32
-// #include <unistd.h>
-#endif
 #include <stdio.h>
 #include "util.h"
 #include "logger.h"

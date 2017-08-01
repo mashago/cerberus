@@ -1,7 +1,5 @@
 
-#ifdef WIN32
-// #include <windows.h>
-#endif
+
 #include <time.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -44,11 +42,26 @@ void _logcore(int type, const char *filename, const char *funcname, int linenum,
 	va_end(ap);
 
 	// if (1) return;
+
+#ifdef _WIN32
+	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+	WORD wOldColorAttrs;
+	CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
+
+	// save the current color  
+	GetConsoleScreenBufferInfo(h, &csbiInfo);
+	wOldColorAttrs = csbiInfo.wAttributes;
+#endif
+
 	switch (type)
 	{
 		case LOG_TYPE_DEBUG:
 		{
+#ifdef WIN32
+			SetConsoleTextAttribute(h, FOREGROUND_GREEN | FOREGROUND_INTENSITY); // green
+#else
 			printf("\033[0;32;32m");
+#endif
 			break;
 		}
 		case LOG_TYPE_INFO:
@@ -57,12 +70,20 @@ void _logcore(int type, const char *filename, const char *funcname, int linenum,
 		}
 		case LOG_TYPE_WARN:
 		{
+#ifdef WIN32
+			SetConsoleTextAttribute(h, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY); // yellow
+#else
 			printf("\033[1;33m");
+#endif
 			break;
 		}
 		case LOG_TYPE_ERROR:
 		{
+#ifdef WIN32
+			SetConsoleTextAttribute(h, FOREGROUND_RED | FOREGROUND_INTENSITY); // red
+#else
 			printf("\033[0;32;31m");
+#endif
 			break;
 		}
 	}
@@ -74,7 +95,13 @@ void _logcore(int type, const char *filename, const char *funcname, int linenum,
 	{
 		printf("[%s] [%s] : %s", tags[type], time_buffer, buffer);
 	}
+#ifdef WIN32
+	// Restore the original color  
+	SetConsoleTextAttribute(h, wOldColorAttrs);
+	printf("\n");
+#else
 	printf("\033[m\n");
+#endif
 }
 
 /*

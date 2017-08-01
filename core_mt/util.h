@@ -24,13 +24,13 @@ void ClearContainer(TC<TP> &c)
 }
 
 #ifdef WIN32
-void localtime_r(time_t *now_time, struct tm *detail)
+inline void localtime_r(time_t *now_time, struct tm *detail)
 {
 	localtime_s(detail, now_time);
 }
 
 // http://blog.csdn.net/earbao/article/details/53260297
-void gettimeofday(struct timeval *tp, void *ptr)
+inline void gettimeofday(struct timeval *tp, void *ptr)
 {
 	uint64_t  intervals;
 	FILETIME  ft;

@@ -8,6 +8,7 @@ extern "C"
 #include <io.h>  
 #include <process.h>
 #include <winsock2.h>
+#include <conio.h>
 #else
 #include <unistd.h>
 #include <sys/socket.h>
@@ -93,8 +94,19 @@ int NetService::Init(const char *addr, unsigned int port, std::set<std::string> 
 	}
 
 	// init stdin event
+	// in win32, cannot add stdin fd into libevent
+	// so have to create a timer to check keyboard input
+	// good job, microsoft.
+	struct timeval *ptr = NULL;
+#ifdef WIN32
+	m_stdinEvent = event_new(m_mainEvent, -1, EV_PERSIST, stdin_cb, this);
+	tv.tv_sec = 0;
+	tv.tv_usec = 100;
+	ptr = &tv;
+#else
 	m_stdinEvent = event_new(m_mainEvent, STDIN_FILENO, EV_READ | EV_PERSIST, stdin_cb, this);
-	if (event_add(m_stdinEvent, NULL) != 0)
+#endif
+	if (event_add(m_stdinEvent, ptr) != 0)
 	{
 		LOG_ERROR("add stdin event fail");
 		return -1;
@@ -494,13 +506,13 @@ int NetService::HandleSocketConnectToSuccess(evutil_socket_t fd)
 
 int NetService::HandleSocketClosed(evutil_socket_t fd)
 {
-	CloseMailbox(fd);
+	CloseMailbox((int)fd);
 	return 0;
 }
 
 int NetService::HandleSocketError(evutil_socket_t fd)
 {
-	CloseMailbox(fd);
+	CloseMailbox((int)fd);
 	return 0;
 }
 
@@ -729,6 +741,67 @@ static void timer_cb(evutil_socket_t fd, short event, void *user_data)
 	server->SendEvent(node);
 }
 
+#ifdef WIN32
+// http://www.cnblogs.com/kingstarer/p/6629562.html
+static void stdin_cb(evutil_socket_t fd, short event, void *user_data)
+{
+	static bool bLineEnd = false;
+	static std::string buffer = "";
+    
+	// check keyboard hit
+    if (_kbhit())
+    {
+        char cInput = EOF;
+        do
+        {
+			// get input char, _getch() can get char without enter press
+            int nInput = (char) _getch();
+            cInput = (char) nInput;
+
+			if (nInput >= 32 && nInput <= 126)
+			{
+				char tmp[2];
+				tmp[0] = cInput;
+				tmp[1] = '\0';
+				buffer.append(tmp);
+			}
+
+            putch(nInput);
+
+            if (cInput == '\r')
+            {
+                cInput = '\n';
+                putch(cInput);
+				// buffer.append("\n");
+				bLineEnd = true;
+                break;
+            }     
+        }
+		while (_kbhit());
+    }
+
+	if (bLineEnd)
+	{
+		// printf("buffer=%s", buffer.c_str());
+		// struct evbuffer *output = bufferevent_get_output(bev);
+		// evbuffer_add(output, buffer.c_str(), buffer.size());
+
+		NetService *server = (NetService *)user_data;
+
+		int size = buffer.size();
+		char *ptr = new char[size+1];
+		memcpy(ptr, buffer.c_str(), size);
+		ptr[size] = '\0';
+
+		EventNodeStdin *node = new EventNodeStdin();
+		node->buffer = ptr;
+		server->SendEvent(node);
+
+		buffer = "";
+		bLineEnd = false;
+	}
+}
+#else
 static void stdin_cb(evutil_socket_t fd, short event, void *user_data)
 {
 	const int MAX_BUFFER = 1024;
@@ -773,5 +846,6 @@ static void stdin_cb(evutil_socket_t fd, short event, void *user_data)
 	node->buffer = ptr;
 	server->SendEvent(node);
 }
+#endif
 
 ////////// callback end ]
