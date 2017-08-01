@@ -1,8 +1,9 @@
 
-#include <unistd.h>
+// #include <unistd.h>
 #include <set>
 #include <string>
 
+#include "util.h"
 #include "common.h"
 #include "logger.h"
 #include "tinyxml2.h"
@@ -310,7 +311,7 @@ void thread_run(EventPipe *pipe, bool isBlockWait)
 		if (!isBlockWait)
 		{
 			LOG_DEBUG("not block wait");
-			sleep(1);
+			sleep_second(1);
 		}
 	}
 }

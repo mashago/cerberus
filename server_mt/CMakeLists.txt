@@ -13,8 +13,10 @@ INCLUDE_DIRECTORIES(
 .
 ../core_mt
 ../tinyxml
-/usr/include
 /usr/local/include
+/usr/include
+/usr/local/include/mysql
+/usr/include/mysql
 )
 
 LINK_DIRECTORIES(
@@ -24,11 +26,11 @@ LINK_DIRECTORIES(
 
 IF(CMAKE_SYSTEM_NAME MATCHES "Darwin")
 	INCLUDE_DIRECTORIES(/usr/local/include/mysql)
-	LINK_DIRECTORIES(/usr/local/mysql/lib)
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Linux")
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
-	INCLUDE_DIRECTORIES(/usr/include/mysql)
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
+	INCLUDE_DIRECTORIES(${PROJECT_PATH}/include/windows/lua)
+	INCLUDE_DIRECTORIES(${PROJECT_PATH}/include/windows/libevent)
 	INCLUDE_DIRECTORIES(${PROJECT_PATH}/include/windows/mysql)
 	LINK_DIRECTORIES(${PROJECT_PATH}/lib/windows)
 ELSE()

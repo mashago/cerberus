@@ -1,9 +1,8 @@
-#ifdef WIN32
-#include <windows.h>
-#else
-#include <unistd.h>
+#ifndef WIN32
+// #include <unistd.h>
 #endif
 #include <stdio.h>
+#include "util.h"
 #include "logger.h"
 #include "mysqlmgr.h"
 
@@ -136,11 +135,7 @@ int MysqlMgr::CoreQuery(const char *sql, int len, bool is_select)
 		if (m_err == 2013 || m_err == 2006 || m_err == 8888)
 		{
 			LOG_ERROR("CoreQuery:disconnect errno=%d", m_err);
-#ifdef WIN32
-			Sleep(1000);
-#else
-			sleep(1);
-#endif
+			sleep_second(1);
 			Reconnect();
 			reconn_count++;
 		}

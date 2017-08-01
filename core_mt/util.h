@@ -55,3 +55,12 @@ void gettimeofday(struct timeval *tp, void *ptr)
 	tp->tv_usec = (long)((intervals % 10000000) / 10);
 }
 #endif
+
+void sleep_second(int second)
+{
+#ifdef WIN32
+	Sleep(second * 1000);
+#else
+	sleep(1);
+#endif
+}
