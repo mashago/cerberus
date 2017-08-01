@@ -4,6 +4,8 @@
 #ifdef _WIN32
 #include <winsock2.h>
 #include <Windows.h>
+#else
+#include <unistd.h>
 #endif
 #include <time.h>
 #include <memory>
@@ -56,7 +58,7 @@ void gettimeofday(struct timeval *tp, void *ptr)
 }
 #endif
 
-void sleep_second(int second)
+inline void sleep_second(int second)
 {
 #ifdef WIN32
 	Sleep(second * 1000);
