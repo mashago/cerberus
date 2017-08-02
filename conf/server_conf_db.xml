@@ -11,7 +11,7 @@
 
 	<mysql>
 		<info ip = "127.0.0.1" port = "3306" username = "testmn" password = "123456" db_name = "mn_login_db" db_type = "1"/>
-		<info ip = "127.0.0.1" port = "3306" username = "testmn" password = "123456" db_name = "mn_game_db" db_type = "2"/>
+		<info ip = "127.0.0.1" port = "3306" username = "testmn" password = "123456" db_name = "mn_game_db" db_type = "2" db_suffix = "1"/>
 	</mysql>
 
 </server>

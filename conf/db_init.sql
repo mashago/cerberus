@@ -8,7 +8,7 @@ GRANT all on mn_game_db.* to testmn@'%' identified by '123456';
 GRANT all on mn_game_db.* to testmn@'localhost' identified by '123456';
 
 use mn_login_db;
-DROP TABLE IF EXISTS `user_info`;
+-- DROP TABLE IF EXISTS `user_info`;
 CREATE TABLE IF NOT EXISTS `user_info` (
 	`user_id` bigint(20) NOT NULL AUTO_INCREMENT,
 	`channel_id` int(11) NOT NULL DEFAULT '0',
@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS `user_info` (
 	KEY `channel_id` (`channel_id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `user_role`;
+-- DROP TABLE IF EXISTS `user_role`;
 CREATE TABLE IF NOT EXISTS `user_role` (
 	`role_id` bigint(20) NOT NULL AUTO_INCREMENT,
 	`user_id` bigint(20) NOT NULL,
