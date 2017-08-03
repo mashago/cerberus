@@ -5,6 +5,9 @@ require "client.stdin_handler"
 local function main_entry()
 	Log.info("client main_entry")
 
+	local TimeCounter = require "client.time_counter"
+	g_time_counter = TimeCounter:new()
+
 	register_msg_handler()
 
 	local xml_doc = LuaTinyXMLDoc.create()

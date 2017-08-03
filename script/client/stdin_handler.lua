@@ -34,7 +34,9 @@ function cmd_handler.execute(buffer)
 
 	elseif params[1] == "enter" then
 		cmd_handler.do_enter(params)
-
+	
+	else
+		Log.warn("unknow cmd")
 	end
 
 end
@@ -123,6 +125,8 @@ end
 function cmd_handler.do_area_list_req(params)
 	-- arealist
 	send_to_login(MID.AREA_LIST_REQ)
+
+	g_time_counter:start()
 end
 
 function cmd_handler.do_role_list_req(params)
@@ -135,6 +139,8 @@ function cmd_handler.do_role_list_req(params)
 	}
 
 	send_to_login(MID.ROLE_LIST_REQ, msg)
+
+	g_time_counter:start()
 end
 
 function cmd_handler.do_create_role(params)
@@ -151,6 +157,8 @@ function cmd_handler.do_create_role(params)
 	}
 
 	send_to_login(MID.CREATE_ROLE_REQ, msg)
+
+	g_time_counter:start()
 end
 
 function cmd_handler.do_delete_role(params)
@@ -167,6 +175,8 @@ function cmd_handler.do_delete_role(params)
 	}
 
 	send_to_login(MID.DELETE_ROLE_REQ, msg)
+
+	g_time_counter:start()
 end
 
 function cmd_handler.do_select_role(params)
@@ -183,6 +193,8 @@ function cmd_handler.do_select_role(params)
 	}
 
 	send_to_login(MID.SELECT_ROLE_REQ, msg)
+
+	g_time_counter:start()
 end
 
 function cmd_handler.do_close_connect(params)
@@ -229,6 +241,8 @@ function cmd_handler.do_enter(params)
 	}
 
 	send_to_router(MID.ROLE_ENTER_REQ, msg)
+
+	g_time_counter:start()
 end
 
 

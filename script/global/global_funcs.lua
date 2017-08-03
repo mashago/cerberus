@@ -128,12 +128,18 @@ function g_funcs.connect_to_mysql(xml_doc)
 		local password = info_ele:string_attribute("password")
 		local db_name = info_ele:string_attribute("db_name")
 		local db_type = info_ele:int_attribute("db_type")
-		Log.info("ip=%s port=%d username=%s password=%s db_name=%s db_type=%d", ip, port, username, password, db_name, db_type)
+		local db_suffix = info_ele:string_attribute("db_suffix") or ""
+		Log.info("ip=%s port=%d username=%s password=%s db_name=%s db_type=%d db_suffix=%s", ip, port, username, password, db_name, db_type, db_suffix)
+
+		local real_db_name = db_name .. db_suffix
+		Log.info("real_db_name=%s", real_db_name)
 
 		-- core logic
-		local ret = DBMgr.connect_to_mysql(ip, port, username, password, db_name)
+		local ret = DBMgr.connect_to_mysql(ip, port, username, password, real_db_name)
 		if ret then
-			ServerConfig._db_name_map[db_type] = db_name
+			ServerConfig._db_name_map[db_type] = real_db_name
+		else
+			Log.warn("g_funcs.connect_to_mysql fail ip=%s port=%d username=%s password=%s db_name=%s db_type=%d db_suffix=%s real_db_name=%s", ip, port, username, password, db_name, db_type, db_suffix, real_db_name)
 		end
 
 		info_ele = info_ele:next_sibling_element()

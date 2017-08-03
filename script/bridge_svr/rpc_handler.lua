@@ -45,7 +45,7 @@ function register_rpc_handler()
 		local role_data = {}
 
 		-- set default value by config
-		for k, v in pairs(DataStructDef.mn_game_db.role_info) do
+		for k, v in pairs(DataStructDef.role_info) do
 			repeat
 			if not v.save or v.save == 0 then
 				break
