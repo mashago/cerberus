@@ -3,33 +3,7 @@
 #include "luanetwork.h"
 #include "luaworld.h"
 
-LuaNetwork* LuaNetwork::Instance()
-{
-	static LuaNetwork *instance = new LuaNetwork();
-	return instance;
-}
-
-int64_t LuaNetwork::ConnectTo(const char* ip, unsigned int port)
-{
-	return m_world->ConnectTo(ip, port);
-}
-
-/*
-LuaNetwork::LuaNetwork()
-	:_recv_data(_nullptr)
-	, _recv_data_len(0)
-	, _recv_msg_id(0)
-	, _recv_session_id(INT_MAX)
-	, _cur_read_data_len(0)
-	, _send_data_buff_len(MSG_MIN_LEN)
-	, _send_data_buff_msg_id(-1)
-	,_recv_addition(0)
-{
-	memset(_send_data_buff, 0, sizeof(_send_data_buff));
-}
-*/
-
-LuaNetwork::LuaNetwork() : m_recvPluto(nullptr), m_sendPluto(nullptr)
+LuaNetwork::LuaNetwork(LuaWorld *world) : m_recvPluto(nullptr), m_sendPluto(nullptr), m_world(world)
 {
 	m_sendPluto = new Pluto(MSGLEN_MAX);
 }
@@ -39,6 +13,10 @@ LuaNetwork::~LuaNetwork()
 	delete m_sendPluto;
 }
 
+int64_t LuaNetwork::ConnectTo(const char* ip, unsigned int port)
+{
+	return m_world->ConnectTo(ip, port);
+}
 
 void LuaNetwork::initSendPluto()
 {

@@ -1,5 +1,5 @@
 
-g_network = LuaNetwork:instance()
+g_network = LuaNetwork:instance(g_luaworld_ptr)
 
 local read_val_action = 
 {

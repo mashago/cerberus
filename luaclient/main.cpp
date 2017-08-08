@@ -43,7 +43,7 @@ int main(int argc, char ** argv)
 	EventPipe *net2worldPipe = new EventPipe();
 	EventPipe *world2newPipe = new EventPipe(false);
 
-	World *world = LuaClient::Instance();
+	World *world = new LuaClient();
 	world->SetEventPipe(net2worldPipe, world2newPipe);
 	world->Init(0, 0, conf_file, entry_file);
 	world->Run();

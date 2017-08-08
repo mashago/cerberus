@@ -15,13 +15,7 @@ extern "C"
 #include "luamysqlmgrreg.h"
 #include "luatimerreg.h"
 
-LuaWorld* LuaWorld::Instance()
-{
-	static LuaWorld *instance = new LuaWorld();
-	return instance;
-}
-
-LuaWorld::LuaWorld() : m_L(nullptr)
+LuaWorld::LuaWorld() : m_L(nullptr), m_luanetwork(nullptr)
 {
 }
 
@@ -80,7 +74,7 @@ static int get_time_ms_c(lua_State *L)
 
 bool LuaWorld::Init(int server_id, int server_type, const char *conf_file, const char *entry_file)
 {
-	LuaNetwork::Instance()->SetWorld(this);
+	m_luanetwork = new LuaNetwork(this);
 
 	m_L = luaL_newstate();
 	if (!m_L)
@@ -132,6 +126,12 @@ bool LuaWorld::Init(int server_id, int server_type, const char *conf_file, const
 	lua_pushstring(m_L, entry_file);
 	lua_setglobal(m_L, "g_entry_file");
 
+	// push this to lua
+	lua_pushlightuserdata(m_L, (void *)this);
+	luaL_newmetatable(m_L, "LuaWorldPtr");
+	lua_setmetatable(m_L, -2);
+	lua_setglobal(m_L, "g_luaworld_ptr");
+
 	if (luaL_dofile(m_L, "../script/main_mt.lua"))
 	{
 		const char * msg = lua_tostring(m_L, -1);
@@ -176,7 +176,7 @@ void LuaWorld::HandleMsg(Pluto &u)
 	int msgId = u.ReadMsgId();
 	LOG_DEBUG("mailboxId=%ld msgId=%d", mailboxId, msgId);
 
-	LuaNetwork::Instance()->SetRecvPluto(&u);
+	m_luanetwork->SetRecvPluto(&u);
 	lua_getglobal(m_L, "ccall_recv_msg_handler");
 	lua_pushnumber(m_L, mailboxId);
 	lua_pushinteger(m_L, msgId);

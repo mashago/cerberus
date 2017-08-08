@@ -8,12 +8,8 @@ class LuaWorld;
 class LuaNetwork
 {
 public:
-	static LuaNetwork *Instance();
-
-	void SetWorld(LuaWorld *world)
-	{
-		m_world = world;
-	}
+	LuaNetwork(LuaWorld *world);
+	~LuaNetwork();
 
 	int64_t ConnectTo(const char* ip, unsigned int port); // return mailboxId or negative
 	void WriteMsgId(int msg_id);
@@ -46,13 +42,9 @@ public:
 	void CloseMailbox(int64_t mailboxId);
 
 private:
-	LuaNetwork();
-	~LuaNetwork();
-
 	void initSendPluto();
 
 	Pluto *m_recvPluto;
 	Pluto *m_sendPluto;
-
 	LuaWorld *m_world;
 };

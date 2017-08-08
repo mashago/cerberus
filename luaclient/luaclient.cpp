@@ -7,12 +7,6 @@ extern "C"
 #include "logger.h"
 #include "luaclient.h"
 
-LuaClient* LuaClient::Instance()
-{
-	static LuaClient *instance = new LuaClient();
-	return instance;
-}
-
 LuaClient::LuaClient()
 {
 }

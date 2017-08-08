@@ -65,7 +65,7 @@ int main(int argc, char ** argv)
 	EventPipe *net2worldPipe = new EventPipe();
 	EventPipe *world2newPipe = new EventPipe(false);
 
-	World *world = LuaWorld::Instance();
+	World *world = new LuaWorld();
 	world->SetEventPipe(net2worldPipe, world2newPipe);
 	world->Init(server_id, server_type, conf_file, entry_file);
 

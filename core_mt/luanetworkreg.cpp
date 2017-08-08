@@ -6,13 +6,17 @@ extern "C"
 }
 #include "logger.h"
 #include "pluto.h"
+#include "luaworld.h"
 #include "luanetworkreg.h"
 #include "luanetwork.h"
 
 int luanetwork_instance(lua_State *L)
 {
+	LuaWorld* luaworld = (LuaWorld*)luaL_checkudata(L, 2, "LuaWorldPtr");
+	// LuaWorld* s = (LuaWorld*)lua_touserdata(L, 2);
+
 	LuaNetwork **ptr = (LuaNetwork**)lua_newuserdata(L, sizeof(LuaNetwork **));
-	*ptr = LuaNetwork::Instance();
+	*ptr = luaworld->m_luanetwork;
 
 	luaL_getmetatable(L, "LuaNetwork");
 
