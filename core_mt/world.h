@@ -6,6 +6,7 @@
 
 class EventPipe;
 struct EventNode;
+class TimerMgr;
 
 class World
 {
@@ -28,6 +29,7 @@ public:
 	void SendEvent(EventNode *node);
 	
 	bool m_isRunning;
+	TimerMgr *m_timerMgr;
 private:
 	EventPipe *m_net2worldPipe;
 	EventPipe *m_world2netPipe;

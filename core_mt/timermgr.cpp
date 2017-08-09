@@ -6,9 +6,13 @@
 #include "logger.h"
 #include "timermgr.h"
 
-std::map<int64_t, TimerMgr::Timer> TimerMgr::m_timerMap;
-std::list<int64_t> TimerMgr::m_timerDelList;
-int64_t TimerMgr::m_timerIndex = 0;
+TimerMgr::TimerMgr() : m_timerIndex(0)
+{
+}
+
+TimerMgr::~TimerMgr()
+{
+}
 
 int64_t TimerMgr::GetCurTimerIndex()
 {

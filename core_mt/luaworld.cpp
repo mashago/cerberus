@@ -15,7 +15,7 @@ extern "C"
 #include "luamysqlmgrreg.h"
 #include "luatimerreg.h"
 
-LuaWorld::LuaWorld() : m_L(nullptr), m_luanetwork(nullptr)
+LuaWorld::LuaWorld() : m_L(nullptr), m_luanetwork(nullptr), m_connIndex(0)
 {
 }
 
@@ -109,7 +109,7 @@ bool LuaWorld::Init(int server_id, int server_type, const char *conf_file, const
 	}
 
 	// register timer function
-	reg_timer_funcs(m_L, this);
+	reg_timer_funcs(m_L);
 
 	// register logger for lua
 	lua_register(m_L, "logger_c", logger_c);
@@ -208,14 +208,12 @@ void LuaWorld::HandleTimer(void *arg)
 // send a eventnode to net, return a connect index for connect to ret event
 int64_t LuaWorld::ConnectTo(const char* ip, unsigned int port)
 {
-	static int64_t connIndex = 0;
-	
 	EventNodeConnectToReq *node = new EventNodeConnectToReq;
 	sprintf(node->ip, "%s", ip);
 	node->port = port;
-	node->ext = ++connIndex;
+	node->ext = ++m_connIndex;
 	SendEvent(node);
-	return connIndex;
+	return m_connIndex;
 }
 
 void LuaWorld::SendPluto(Pluto *pu)

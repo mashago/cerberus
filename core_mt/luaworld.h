@@ -30,5 +30,6 @@ public:
 
 	lua_State *m_L;
 	LuaNetwork *m_luanetwork;
+	int64_t m_connIndex;
 };
 

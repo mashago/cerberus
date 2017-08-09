@@ -4,7 +4,7 @@ Timer = {}
 Timer._timer_mgr = {}
 
 function Timer.add_timer(ms, cb_func, arg, is_loop)
-	local timer_index, ret = add_timer_c(ms, is_loop)
+	local timer_index, ret = add_timer_c(g_luaworld_ptr, ms, is_loop)
 	if not ret then
 		return false
 	end
@@ -14,7 +14,7 @@ end
 
 function Timer.del_timer(timer_index)
 	Timer._timer_mgr[timer_index] = nil
-	return del_timer_c(timer_index)
+	return del_timer_c(g_luaworld_ptr, timer_index)
 end
 
 function ccall_timer_handler(timer_index)

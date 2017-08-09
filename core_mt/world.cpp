@@ -4,15 +4,18 @@
 #include "mailbox.h"
 #include "timermgr.h"
 #include "event_pipe.h"
+#include "timermgr.h"
 
-World::World() : m_isRunning(false), m_net2worldPipe(nullptr), m_world2netPipe(nullptr)
+World::World() : m_isRunning(false), m_timerMgr(nullptr), m_net2worldPipe(nullptr), m_world2netPipe(nullptr)
 {
+	m_timerMgr = new TimerMgr();
 }
 
 World::~World()
 {
 	m_isRunning = false;
 	m_thread.join();
+	delete m_timerMgr;
 }
 
 void World::SetEventPipe(EventPipe *net2worldPipe, EventPipe *world2netPipe)
@@ -69,7 +72,7 @@ void World::HandleEvent(const EventNode &node)
 		case EVENT_TYPE::EVENT_TYPE_TIMER:
 		{
 			// const EventNodeTimer &real_node = (EventNodeTimer&)node;
-			TimerMgr::OnTimer();
+			m_timerMgr->OnTimer();
 			break;
 		}
 		case EVENT_TYPE::EVENT_TYPE_MSG:
