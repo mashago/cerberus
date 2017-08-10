@@ -13,8 +13,8 @@ extern "C"
 int add_timer_c(lua_State *L)
 {
 	LuaWorld* luaworld = (LuaWorld*)luaL_checkudata(L, 1, "LuaWorldPtr");
-	luaL_checktype(L, 1, LUA_TNUMBER);
-	luaL_checktype(L, 2, LUA_TBOOLEAN);
+	luaL_checktype(L, 2, LUA_TNUMBER);
+	luaL_checktype(L, 3, LUA_TBOOLEAN);
 
 	int ms = lua_tointeger(L, 2);
 	bool is_loop = lua_toboolean(L, 3);
