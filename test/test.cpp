@@ -7,9 +7,7 @@
 #include "logger.h"
 #include "tinyxml2.h"
 #include "mysqlmgr.h"
-#ifndef _SINGLE_THREAD_CORE
 #include "event_pipe.h"
-#endif
 
 // test xml config
 int test0()
@@ -250,14 +248,6 @@ int test1()
 	return 0;
 }
 
-#ifdef _SINGLE_THREAD_CORE
-int test2()
-{
-	return 0;
-}
-
-#else
-
 void thread_run(EventPipe *pipe, bool isBlockWait)
 {
 	while (true)
@@ -360,7 +350,6 @@ int test2()
 
 	return 0;
 }
-#endif
 
 typedef int (*testcase_t) ();
 testcase_t test_list[] =
