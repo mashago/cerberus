@@ -1,8 +1,0 @@
-require "global.util.util"
-require "global.log.logger"
-require "global.net_old.init"
-require "global.timer.timer"
-require "global.service_old.init"
-require "global.rpc.rpc_mgr"
-require "global.db.db_mgr"
-require "global.db.db_proxy"
