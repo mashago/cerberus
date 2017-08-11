@@ -15,4 +15,7 @@ start "router_svr" ServerMt.exe "../conf/server_conf_router.xml"
 @echo "Start Scene Server..."
 start "scene_svr" ServerMt.exe "../conf/server_conf_scene.xml"
 
+@echo "Start Lua Client..."
+start "client" LuaClient.exe "../conf/client_conf.xml"
+
 exit
