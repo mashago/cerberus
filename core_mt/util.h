@@ -6,6 +6,7 @@
 #include <Windows.h>
 #else
 #include <unistd.h>
+#include <sys/time.h>
 #endif
 #include <time.h>
 #include <memory>
