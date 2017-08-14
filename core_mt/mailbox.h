@@ -1,13 +1,10 @@
 
 #pragma once
 
-extern "C"
-{
-#include <event2/bufferevent.h>
-}
 #include <list>
 #include "common.h"
 
+struct bufferevent;
 class Pluto;
 
 class Mailbox

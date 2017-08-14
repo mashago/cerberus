@@ -22,11 +22,7 @@ extern "C"
 #include <time.h>
 #include <errno.h>
 
-#include <event2/event.h>
-#include <event2/listener.h>
 #include <event2/util.h>
-#include <event2/bufferevent.h>
-#include <event2/buffer.h>
 }
 
 #include <string>
@@ -35,6 +31,11 @@ extern "C"
 #include <list>
 
 #include "common.h"
+
+struct event_base;
+struct event;
+struct bufferevent;
+struct evconnlistener;
 
 class Pluto;
 class Mailbox;
