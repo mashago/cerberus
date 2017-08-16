@@ -265,7 +265,7 @@ void thread_run(EventPipe *pipe, bool isBlockWait)
 					LOG_DEBUG("mailboxId=%ld connType=%d", real_node.mailboxId, real_node.connType);
 					break;
 				}
-				case EVENT_TYPE::EVENT_TYPE_CONNNECT_TO_SUCCESS:
+				case EVENT_TYPE::EVENT_TYPE_CONNECT_TO_SUCCESS:
 				{
 					const EventNodeConnectToSuccess &real_node = (EventNodeConnectToSuccess&)node;
 					LOG_DEBUG("mailboxId=%ld", real_node.mailboxId);

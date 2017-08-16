@@ -57,7 +57,7 @@ void World::HandleEvent(const EventNode &node)
 			HandleNewConnection(real_node.mailboxId, real_node.connType);
 			break;
 		}
-		case EVENT_TYPE::EVENT_TYPE_CONNNECT_TO_SUCCESS:
+		case EVENT_TYPE::EVENT_TYPE_CONNECT_TO_SUCCESS:
 		{
 			const EventNodeConnectToSuccess &real_node = (EventNodeConnectToSuccess&)node;
 			HandleConnectToSuccess(real_node.mailboxId);
@@ -88,7 +88,7 @@ void World::HandleEvent(const EventNode &node)
 			HandleStdin(real_node.buffer);
 			break;
 		}
-		case EVENT_TYPE::EVENT_TYPE_CONNNECT_TO_RET:
+		case EVENT_TYPE::EVENT_TYPE_CONNECT_TO_RET:
 		{
 			const EventNodeConnectToRet &real_node = (EventNodeConnectToRet&)node;
 			HandleConnectToRet(real_node.ext, real_node.mailboxId);

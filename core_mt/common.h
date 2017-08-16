@@ -19,15 +19,3 @@ enum MSGID_TYPE
 	CLIENT_TEST = 1,
 	CLIENT_TEST_RET = 2,
 };
-
-enum EVENT_TYPE
-{
-	EVENT_TYPE_NEW_CONNECTION 			= 1, // n2w
-	EVENT_TYPE_CONNNECT_TO_SUCCESS 		= 2, // n2w
-	EVENT_TYPE_DISCONNECT 				= 3, // n2w, w2n
-	EVENT_TYPE_TIMER 					= 4, // n2w
-	EVENT_TYPE_MSG 						= 5, // n2w, w2n
-	EVENT_TYPE_STDIN 					= 6, // n2w
-	EVENT_TYPE_CONNNECT_TO_REQ 			= 7, // w2n
-	EVENT_TYPE_CONNNECT_TO_RET 			= 8, // n2w
-};

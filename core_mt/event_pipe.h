@@ -12,6 +12,20 @@
 
 class Pluto;
 
+enum EVENT_TYPE
+{
+	EVENT_TYPE_NEW_CONNECTION 			= 1, // n2w
+	EVENT_TYPE_CONNECT_TO_SUCCESS 		= 2, // n2w
+	EVENT_TYPE_DISCONNECT 				= 3, // n2w, w2n
+	EVENT_TYPE_TIMER 					= 4, // n2w
+	EVENT_TYPE_MSG 						= 5, // n2w, w2n
+	EVENT_TYPE_STDIN 					= 6, // n2w
+	EVENT_TYPE_CONNECT_TO_REQ 			= 7, // w2n
+	EVENT_TYPE_CONNECT_TO_RET 			= 8, // n2w
+	EVENT_TYPE_HTTP_REQ 				= 9, // w2n
+	EVENT_TYPE_HTTP_RSP 				= 10, // n2w
+};
+
 struct EventNode
 {
 	int type;
@@ -30,7 +44,7 @@ struct EventNodeNewConnection : public EventNode
 
 struct EventNodeConnectToSuccess : public EventNode
 {
-	EventNodeConnectToSuccess() : EventNode(EVENT_TYPE::EVENT_TYPE_CONNNECT_TO_SUCCESS)
+	EventNodeConnectToSuccess() : EventNode(EVENT_TYPE::EVENT_TYPE_CONNECT_TO_SUCCESS)
 	{
 	}
 	int64_t mailboxId;
@@ -68,12 +82,12 @@ struct EventNodeStdin : public EventNode
 	{
 		delete buffer;
 	}
-	char *buffer;
+	char *buffer = NULL;
 };
 
 struct EventNodeConnectToReq : public EventNode
 {
-	EventNodeConnectToReq() : EventNode(EVENT_TYPE::EVENT_TYPE_CONNNECT_TO_REQ)
+	EventNodeConnectToReq() : EventNode(EVENT_TYPE::EVENT_TYPE_CONNECT_TO_REQ)
 	{
 	}
 	char ip[50];	
@@ -83,11 +97,36 @@ struct EventNodeConnectToReq : public EventNode
 
 struct EventNodeConnectToRet : public EventNode
 {
-	EventNodeConnectToRet() : EventNode(EVENT_TYPE::EVENT_TYPE_CONNNECT_TO_RET)
+	EventNodeConnectToRet() : EventNode(EVENT_TYPE::EVENT_TYPE_CONNECT_TO_RET)
 	{
 	}
 	int64_t ext;
 	int64_t mailboxId;
+};
+
+struct EventNodeHttpReq : public EventNode
+{
+	EventNodeHttpReq() : EventNode(EVENT_TYPE::EVENT_TYPE_HTTP_REQ)
+	{
+	}
+	~EventNodeHttpReq()
+	{
+		delete url;
+		delete data;
+	}
+	char *url = NULL;
+	int64_t session_id;
+	int32_t request_type; // 1 for get, 2 for post
+	char *data = NULL;
+	int32_t data_len;
+};
+
+struct EventNodeHttpRsp : public EventNode
+{
+	EventNodeHttpRsp() : EventNode(EVENT_TYPE::EVENT_TYPE_HTTP_RSP)
+	{
+	}
+	int64_t session_id;
 };
 
 //////////////////////////////////////////////

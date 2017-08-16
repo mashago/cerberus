@@ -549,7 +549,7 @@ void NetService::HandleWorldEvent()
 				m_sendMailboxs.insert(mailboxId);
 				break;
 			}
-			case EVENT_TYPE::EVENT_TYPE_CONNNECT_TO_REQ:
+			case EVENT_TYPE::EVENT_TYPE_CONNECT_TO_REQ:
 			{
 				const EventNodeConnectToReq &real_node = (EventNodeConnectToReq&)node;
 				// LOG_DEBUG("ext=%ld", real_node.ext);
