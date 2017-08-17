@@ -143,3 +143,8 @@ void LuaNetwork::CloseMailbox(int64_t mailboxId)
 	m_world->CloseMailbox(mailboxId);
 }
 
+bool LuaNetwork::HttpRequest(const char *url, int64_t session_id, int request_type, const char *post_data, int post_data_len)
+{
+	return m_world->HttpRequest(url, session_id, request_type, post_data, post_data_len);
+}
+

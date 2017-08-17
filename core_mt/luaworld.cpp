@@ -230,3 +230,10 @@ void LuaWorld::CloseMailbox(int64_t mailboxId)
 	SendEvent(node);
 }
 
+bool LuaWorld::HttpRequest(const char *url, int64_t session_id, int request_type, const char *post_data, int post_data_len)
+{
+	// TODO
+
+	return true;
+}
+

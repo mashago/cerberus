@@ -27,6 +27,8 @@ public:
 	int64_t ConnectTo(const char* ip, unsigned int port); // return a connect index
 	void SendPluto(Pluto *pu);
 	void CloseMailbox(int64_t mailboxId);
+	bool HttpRequest(const char *url, int64_t session_id, int request_type, const char *post_data, int post_data_len);
+	
 
 	lua_State *m_L;
 	LuaNetwork *m_luanetwork;

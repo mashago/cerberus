@@ -112,13 +112,13 @@ struct EventNodeHttpReq : public EventNode
 	~EventNodeHttpReq()
 	{
 		delete url;
-		delete data;
+		delete post_data;
 	}
 	char *url = NULL;
 	int64_t session_id;
 	int32_t request_type; // 1 for get, 2 for post
-	char *data = NULL;
-	int32_t data_len;
+	char *post_data = NULL;
+	int32_t post_data_len;
 };
 
 struct EventNodeHttpRsp : public EventNode

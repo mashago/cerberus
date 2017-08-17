@@ -786,6 +786,31 @@ int luanetwork_close_mailbox(lua_State* L)
 	return 0;
 }
 
+int luanetwork_http_request(lua_State* L)
+{
+	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
+	luaL_argcheck(L, s != NULL, 1, "invalid user data");
+
+	// url, session_id, request_type, post_data, post_data_len
+	luaL_checktype(L, 2, LUA_TSTRING);
+	luaL_checktype(L, 3, LUA_TNUMBER);
+	luaL_checktype(L, 4, LUA_TNUMBER);
+	luaL_checktype(L, 5, LUA_TSTRING);
+	luaL_checktype(L, 6, LUA_TNUMBER);
+
+	const char *url = lua_tostring(L, 2);
+	int64_t session_id = (int64_t)lua_tonumber(L, 3);
+	int request_type = lua_tointeger(L, 4);
+	const char *post_data = lua_tostring(L, 5);
+	int post_data_len = lua_tointeger(L, 6);
+
+	bool ret = (*s)->HttpRequest(url, session_id, request_type, post_data, post_data_len);
+
+	lua_pushboolean(L, ret);
+
+	return 1;
+}
+
 //////////////////////////////////////////////////////
 
 
@@ -843,6 +868,8 @@ static const luaL_Reg lua_reg_member_funcs[] =
 
 	{ "connect_to", luanetwork_connect_to },
 	{ "close_mailbox", luanetwork_close_mailbox},
+
+	{ "http_request", luanetwork_http_request },
 
 	{ NULL, NULL },
 };
