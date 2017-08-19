@@ -36,6 +36,8 @@ struct event_base;
 struct event;
 struct bufferevent;
 struct evconnlistener;
+struct evdns_base;
+struct evhttp_connection;
 
 class Pluto;
 class Mailbox;
@@ -77,9 +79,12 @@ public:
 	void CloseMailbox(int64_t mailboxId);
 	void CloseMailbox(Mailbox *pmb);
 
+	bool HttpRequest(const char *url, int64_t session_id, int request_type, const char *post_data, int post_data_len);
+
 private:
 	bool Listen(const char *addr, unsigned int port);
 	Mailbox * NewMailbox(int fd, E_CONN_TYPE type);
+	struct evhttp_connection * GetHttpConnection(struct event_base *main_event, struct evdns_base *dns, const char *host, int port);
 
 	struct event_base *m_mainEvent;
 	struct event *m_tickEvent;
@@ -95,5 +100,7 @@ private:
 	std::set<std::string> m_trustIpSet;
 	EventPipe *m_net2worldPipe;
 	EventPipe *m_world2netPipe;
+
+	std::map<std::string, struct evhttp_connection *> m_httpConnMap; // "host:port" : conn
 };
 

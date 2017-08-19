@@ -24,6 +24,7 @@ extern "C"
 #include <event2/listener.h>
 #include <event2/bufferevent.h>
 #include <event2/buffer.h>
+#include <event2/http.h>
 }
 #include <string>
 
@@ -40,6 +41,8 @@ static void event_cb(struct bufferevent *bev, short event, void *user_data);
 static void tick_cb(evutil_socket_t fd, short event, void *user_data);
 static void timer_cb(evutil_socket_t fd, short event, void *user_data);
 static void stdin_cb(evutil_socket_t fd, short event, void *user_data);
+static void http_conn_close_cb(struct evhttp_connection *http_conn, void *user_data);
+static void http_done_cb(struct evhttp_request *http_request, void *user_data);
 
 
 NetService::NetService() : m_mainEvent(nullptr), m_tickEvent(nullptr), m_timerEvent(nullptr), m_evconnlistener(nullptr)
@@ -562,6 +565,12 @@ void NetService::HandleWorldEvent()
 
 				break;
 			}
+			case EVENT_TYPE::EVENT_TYPE_HTTP_REQ:
+			{
+				const EventNodeHttpReq &real_node = (EventNodeHttpReq&)node;
+				HttpRequest(real_node.url, real_node.session_id, real_node.request_type, real_node.post_data, real_node.post_data_len);
+				break;
+			}
 			default:
 				LOG_ERROR("cannot handle this node %d", node.type);
 				break;
@@ -679,6 +688,110 @@ void NetService::CloseMailbox(Mailbox *pmb)
 	m_mb4del.push_back(pmb);
 	m_fds.erase(pmb->GetFd());
 	m_mailboxs.erase(pmb->GetMailboxId());
+}
+
+bool NetService::HttpRequest(const char *url, int64_t session_id, int request_type, const char *post_data, int post_data_len)
+{
+
+	// 1. init uri, host, port, path
+	// 2. new dns
+	// 3. new connection
+	// 4. new request
+
+	struct evhttp_uri *uri = NULL;
+	do
+	{
+		// 1. init uri, host, port, path
+		uri = evhttp_uri_parse(url);
+		if (!uri)
+		{
+			LOG_ERROR("evhttp_uri_parse fail");
+			break;
+		}
+
+		const char *host = evhttp_uri_get_host(uri);
+		if (!host)
+		{
+			LOG_ERROR("evhttp_uri_get_host fail");
+			break;
+		}
+		
+		int port = evhttp_uri_get_port(uri);
+		if (port == -1)
+		{
+			port = 80;
+		}
+
+		const char *path = evhttp_uri_get_path(uri);
+		if (!path || strlen(path) == 0)
+		{
+			path = "/";
+		}
+
+		// 3. new connection
+		struct evhttp_connection *http_conn = GetHttpConnection(m_mainEvent, NULL, host, port);
+		if (!http_conn)
+		{
+			LOG_ERROR("create_connection fail");
+			break;
+		}
+
+		// 4. new request
+		// const char *post_data = "{\"login_account\":\"m1\",\"session_id\":\"123456\"}";
+		struct evhttp_request *http_request = evhttp_request_new(http_done_cb, (void *)this);
+		evhttp_add_header(evhttp_request_get_output_headers(http_request), "Host", host);
+		if (request_type == 1)
+		{
+			evhttp_make_request(http_conn, http_request, EVHTTP_REQ_GET, path);
+		}
+		else if (request_type == 2)
+		{
+			evbuffer_add(evhttp_request_get_output_buffer(http_request), post_data, post_data_len);
+			evhttp_make_request(http_conn, http_request, EVHTTP_REQ_POST, path);
+		}
+
+	}
+	while (false);
+
+	if (uri)
+	{
+		evhttp_uri_free(uri);
+	}
+
+	return true;
+}
+
+static std::string get_http_conn_key(const char *host, int port)
+{
+	std::string key(host);
+	key.append(":");
+	key.append(std::to_string(port));
+	return key;
+}
+
+struct evhttp_connection * NetService::GetHttpConnection(struct event_base *main_event, struct evdns_base *dns, const char *host, int port)
+{
+	std::string key = get_http_conn_key(host, port);
+	auto iter = m_httpConnMap.find(key);
+	if (iter != m_httpConnMap.end())
+	{
+		LOG_DEBUG("create_connection: use old connection");
+		return iter->second;
+	}
+
+	LOG_DEBUG("create_connection: new connection");
+	struct evhttp_connection *http_conn = evhttp_connection_base_new(main_event, dns, host, port);
+	if (!http_conn)
+	{
+		LOG_ERROR("evhttp_connection_base_new fail");
+		return NULL;
+	}
+	evhttp_connection_set_timeout(http_conn, 600);
+	evhttp_connection_set_closecb(http_conn, http_conn_close_cb, (void *)this);
+
+	m_httpConnMap[key] = http_conn;
+
+	return http_conn;
 }
 
 ////////// callback start [
@@ -846,5 +959,13 @@ static void stdin_cb(evutil_socket_t fd, short event, void *user_data)
 	server->SendEvent(node);
 }
 #endif
+
+static void http_conn_close_cb(struct evhttp_connection *http_conn, void *user_data)
+{
+}
+
+static void http_done_cb(struct evhttp_request *http_request, void *user_data)
+{
+}
 
 ////////// callback end ]

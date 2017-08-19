@@ -80,7 +80,7 @@ struct EventNodeStdin : public EventNode
 	}
 	~EventNodeStdin()
 	{
-		delete buffer;
+		delete [] buffer;
 	}
 	char *buffer = NULL;
 };
@@ -111,8 +111,8 @@ struct EventNodeHttpReq : public EventNode
 	}
 	~EventNodeHttpReq()
 	{
-		delete url;
-		delete post_data;
+		delete [] url;
+		delete [] post_data;
 	}
 	char *url = NULL;
 	int64_t session_id;
