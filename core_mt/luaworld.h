@@ -19,6 +19,7 @@ public:
 	virtual void HandleDisconnect(int64_t mailboxId) override;
 	virtual void HandleMsg(Pluto &u) override;
 	virtual void HandleConnectToRet(int64_t connIndex, int64_t mailboxId) override;
+	virtual void HandleHttpResponse(int64_t session_id, int response_code, const char *content, int content_len) override;
 
 	// call from world - timermgr
 	void HandleTimer(void *arg);

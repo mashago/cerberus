@@ -46,7 +46,6 @@ struct EventNode;
 
 class NetService
 {
-
 public:
 	NetService();
 	~NetService();
@@ -79,6 +78,7 @@ public:
 	void CloseMailbox(int64_t mailboxId);
 	void CloseMailbox(Mailbox *pmb);
 
+	void RemoveHttpConn(struct evhttp_connection *http_conn);
 	bool HttpRequest(const char *url, int64_t session_id, int request_type, const char *post_data, int post_data_len);
 
 private:
@@ -102,5 +102,11 @@ private:
 	EventPipe *m_world2netPipe;
 
 	std::map<std::string, struct evhttp_connection *> m_httpConnMap; // "host:port" : conn
+};
+
+struct HttpRequestArg
+{
+	NetService *ns;
+	int64_t session_id;
 };
 

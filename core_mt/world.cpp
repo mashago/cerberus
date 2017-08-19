@@ -94,6 +94,12 @@ void World::HandleEvent(const EventNode &node)
 			HandleConnectToRet(real_node.ext, real_node.mailboxId);
 			break;
 		}
+		case EVENT_TYPE::EVENT_TYPE_HTTP_RSP:
+		{
+			const EventNodeHttpRsp &real_node = (EventNodeHttpRsp&)node;
+			HandleHttpResponse(real_node.session_id, real_node.response_code, real_node.content, real_node.content_len);
+			break;
+		}
 		default:
 			LOG_ERROR("cannot handle this node %d", node.type);
 			break;

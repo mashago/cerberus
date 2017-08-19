@@ -193,6 +193,11 @@ void LuaWorld::HandleConnectToRet(int64_t connIndex, int64_t mailboxId)
 	lua_call(m_L, 2, 0);
 }
 
+void LuaWorld::HandleHttpResponse(int64_t session_id, int response_code, const char *content, int content_len)
+{
+	// TODO
+}
+
 void LuaWorld::HandleTimer(void *arg)
 {
 	int64_t timer_index = (int64_t)arg;

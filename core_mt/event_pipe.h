@@ -118,15 +118,20 @@ struct EventNodeHttpReq : public EventNode
 	int64_t session_id;
 	int32_t request_type; // 1 for get, 2 for post
 	char *post_data = NULL;
-	int32_t post_data_len;
+	int32_t post_data_len = 0;
 };
 
 struct EventNodeHttpRsp : public EventNode
 {
 	EventNodeHttpRsp() : EventNode(EVENT_TYPE::EVENT_TYPE_HTTP_RSP)
 	{
+		delete [] content;
 	}
 	int64_t session_id;
+	int response_code;
+	char *content = NULL;
+	int32_t content_len = 0;
+
 };
 
 //////////////////////////////////////////////

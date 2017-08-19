@@ -690,6 +690,18 @@ void NetService::CloseMailbox(Mailbox *pmb)
 	m_mailboxs.erase(pmb->GetMailboxId());
 }
 
+void NetService::RemoveHttpConn(struct evhttp_connection *http_conn)
+{
+	for (auto iter = m_httpConnMap.begin(); iter != m_httpConnMap.end(); ++iter)
+	{
+		if (iter->second == http_conn)
+		{
+			m_httpConnMap.erase(iter);
+			break;
+		}
+	}
+}
+
 bool NetService::HttpRequest(const char *url, int64_t session_id, int request_type, const char *post_data, int post_data_len)
 {
 
@@ -737,8 +749,10 @@ bool NetService::HttpRequest(const char *url, int64_t session_id, int request_ty
 		}
 
 		// 4. new request
-		// const char *post_data = "{\"login_account\":\"m1\",\"session_id\":\"123456\"}";
-		struct evhttp_request *http_request = evhttp_request_new(http_done_cb, (void *)this);
+		struct HttpRequestArg *arg = new HttpRequestArg;
+		arg->ns = this;
+		arg->session_id = session_id;
+		struct evhttp_request *http_request = evhttp_request_new(http_done_cb, (void *)arg);
 		evhttp_add_header(evhttp_request_get_output_headers(http_request), "Host", host);
 		if (request_type == 1)
 		{
@@ -840,17 +854,17 @@ static void event_cb(struct bufferevent *bev, short event, void *user_data)
 
 static void tick_cb(evutil_socket_t fd, short event, void *user_data)
 {
-	NetService *server = (NetService *)user_data;
-	server->HandleTickEvent();
+	NetService *ns = (NetService *)user_data;
+	ns->HandleTickEvent();
 }
 
 // for add timer
 static void timer_cb(evutil_socket_t fd, short event, void *user_data)
 {
 	// do nothing in net, just send to world
-	NetService *server = (NetService *)user_data;
+	NetService *ns = (NetService *)user_data;
 	EventNodeTimer *node = new EventNodeTimer();
-	server->SendEvent(node);
+	ns->SendEvent(node);
 }
 
 #ifdef WIN32
@@ -898,7 +912,7 @@ static void stdin_cb(evutil_socket_t fd, short event, void *user_data)
 		// struct evbuffer *output = bufferevent_get_output(bev);
 		// evbuffer_add(output, buffer.c_str(), buffer.size());
 
-		NetService *server = (NetService *)user_data;
+		NetService *ns = (NetService *)user_data;
 
 		int size = buffer.size();
 		char *ptr = new char[size+1];
@@ -907,7 +921,7 @@ static void stdin_cb(evutil_socket_t fd, short event, void *user_data)
 
 		EventNodeStdin *node = new EventNodeStdin();
 		node->buffer = ptr;
-		server->SendEvent(node);
+		ns->SendEvent(node);
 
 		buffer = "";
 		bLineEnd = false;
@@ -949,23 +963,57 @@ static void stdin_cb(evutil_socket_t fd, short event, void *user_data)
 		return;
 	}
 
-	NetService *server = (NetService *)user_data;
+	NetService *ns = (NetService *)user_data;
 
 	char *ptr = new char[len+1];
 	memcpy(ptr, buffer, len+1);
 
 	EventNodeStdin *node = new EventNodeStdin();
 	node->buffer = ptr;
-	server->SendEvent(node);
+	ns->SendEvent(node);
 }
 #endif
 
 static void http_conn_close_cb(struct evhttp_connection *http_conn, void *user_data)
 {
+	LOG_DEBUG("******* http_conn_close_callback *******");
+
+	NetService *ns = (NetService *)user_data;
+	ns->RemoveHttpConn(http_conn);
 }
 
 static void http_done_cb(struct evhttp_request *http_request, void *user_data)
 {
+	struct HttpRequestArg *arg = (struct HttpRequestArg *)user_data;
+	NetService *ns = arg->ns;
+	EventNodeHttpRsp *node = new EventNodeHttpRsp;
+	do
+	{
+		node->session_id = arg->session_id;
+		if (!http_request)
+		{
+			node->response_code = -1;
+			break;
+		}
+
+		node->response_code = evhttp_request_get_response_code(http_request);
+		
+		struct evbuffer *input_buffer = evhttp_request_get_input_buffer(http_request);
+		size_t input_len = evbuffer_get_length(input_buffer);
+
+		if (input_len > 0)
+		{
+			char *content = new char[input_len];
+			
+			int n = evbuffer_copyout(input_buffer, content, input_len);
+			evbuffer_drain(input_buffer, n);
+			node->content = content;
+		}
+	}
+	while (false);
+
+	ns->SendEvent(node);
+	delete arg;
 }
 
 ////////// callback end ]
