@@ -34,6 +34,9 @@ function cmd_handler.execute(buffer)
 
 	elseif params[1] == "enter" then
 		cmd_handler.do_enter(params)
+
+	elseif params[1] == "http" then
+		cmd_handler.do_http_request(params)
 	
 	else
 		Log.warn("unknow cmd")
@@ -245,6 +248,15 @@ function cmd_handler.do_enter(params)
 	g_time_counter:start()
 end
 
+function cmd_handler.do_http_request(params)
+	-- http
+	local url = "http://www.baidu.com"
+	local session_id = 1
+	local request_type = 1
+	Net.http_request_get(url, session_id, request_type)
+	-- Net.http_request_get(url, session_id, request_type)
+	-- Net.http_request_get(url, session_id, request_type)
+end
 
 function ccall_stdin_handler(buffer)
 	Log.info("ccall_stdin_handler buffer=%s", buffer)

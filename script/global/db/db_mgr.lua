@@ -66,9 +66,9 @@ function DBMgr.do_select(db_name, table_name, fields, conditions)
 	end
 	Log.debug("sql=%s", sql)
 
-	local ret, data = mysqlmgr:select(sql);
+	local ret, data = mysqlmgr:select(sql)
 	if not ret then
-		return nil;
+		return nil
 	end
 	
 	return data
@@ -129,7 +129,7 @@ function DBMgr.do_insert(db_name, table_name, fields, values)
 	end
 	Log.debug("sql=%s", sql)
 
-	local ret = mysqlmgr:change(sql);
+	local ret = mysqlmgr:change(sql)
 	
 	return ret
 end
@@ -185,7 +185,7 @@ function DBMgr.do_delete(db_name, table_name, conditions)
 
 	Log.debug("sql=%s", sql)
 
-	local ret = mysqlmgr:change(sql);
+	local ret = mysqlmgr:change(sql)
 	
 	return ret
 end
@@ -252,7 +252,7 @@ function DBMgr.do_update(db_name, table_name, fields, conditions)
 
 	Log.debug("sql=%s", sql)
 
-	local ret = mysqlmgr:change(sql);
+	local ret = mysqlmgr:change(sql)
 	
 	return ret
 end
@@ -265,14 +265,14 @@ function DBMgr.do_execute(db_name, sql, has_ret)
 		return nil
 	end
 	if has_ret then
-		local ret, data = mysqlmgr:select(sql);
+		local ret, data = mysqlmgr:select(sql)
 		if not ret then
-			return nil;
+			return nil
 		end
 		return data
 	end
 
-	local ret = mysqlmgr:change(sql);
+	local ret = mysqlmgr:change(sql)
 	return ret
 end
 

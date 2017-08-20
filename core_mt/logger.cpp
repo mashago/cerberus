@@ -34,7 +34,7 @@ void _logcore(int type, const char *filename, const char *funcname, int linenum,
 
 
 	enum {MAX_LOG_BUFFER_SIZE = 2048};
-	char buffer[MAX_LOG_BUFFER_SIZE];
+	char buffer[MAX_LOG_BUFFER_SIZE+1];
 
 	va_list ap;
 	va_start(ap, fmt);

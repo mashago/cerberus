@@ -1008,6 +1008,8 @@ static void http_done_cb(struct evhttp_request *http_request, void *user_data)
 			int n = evbuffer_copyout(input_buffer, content, input_len);
 			evbuffer_drain(input_buffer, n);
 			node->content = content;
+			node->content_len = input_len;
+			// LOG_DEBUG("http_done_cb: content=%s", content);
 		}
 	}
 	while (false);

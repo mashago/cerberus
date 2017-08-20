@@ -195,7 +195,20 @@ void LuaWorld::HandleConnectToRet(int64_t connIndex, int64_t mailboxId)
 
 void LuaWorld::HandleHttpResponse(int64_t session_id, int response_code, const char *content, int content_len)
 {
-	// TODO
+	// LOG_DEBUG("session_id=%ld response_code=%d content_len=%d content=%s", session_id, response_code, content_len, content);
+
+	lua_getglobal(m_L, "ccall_http_response_handler");
+	lua_pushnumber(m_L, session_id);
+	lua_pushinteger(m_L, response_code);
+	if (content)
+	{
+		lua_pushlstring(m_L, content, content_len);
+	}
+	else
+	{
+		lua_pushstring(m_L, "");
+	}
+	lua_call(m_L, 3, 0);
 }
 
 void LuaWorld::HandleTimer(void *arg)
@@ -242,8 +255,12 @@ bool LuaWorld::HttpRequest(const char *url, int64_t session_id, int request_type
 	char *url_ptr = new char[len];
 	memcpy(url_ptr, url, len);
 
-	char *post_data_ptr = new char[post_data_len];
-	memcpy(post_data_ptr, post_data, post_data_len);
+	char *post_data_ptr = NULL;
+	if (post_data_len == 0)
+	{
+		post_data_ptr = new char[post_data_len];
+		memcpy(post_data_ptr, post_data, post_data_len);
+	}
 
 	node->url = url_ptr;
 	node->session_id = session_id;
