@@ -6,7 +6,7 @@
 #6.set output path
 
 #1.define target
-SET(TARGET_NAME LuaClient)
+SET(TARGET_NAME MassNetClient)
 
 #2.include and lib
 INCLUDE_DIRECTORIES(

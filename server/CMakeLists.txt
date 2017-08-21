@@ -6,7 +6,7 @@
 #6.set output path
 
 #1.define target
-SET(TARGET_NAME ServerMt)
+SET(TARGET_NAME MassNetServer)
 
 #2.include and lib
 INCLUDE_DIRECTORIES(
