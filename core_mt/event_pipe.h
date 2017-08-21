@@ -9,6 +9,7 @@
 #include <memory>
 
 #include "common.h"
+#include "util.h"
 
 class Pluto;
 
@@ -136,74 +137,12 @@ struct EventNodeHttpRsp : public EventNode
 
 //////////////////////////////////////////////
 
-template <typename T>
-class SwitchList
-{
-public:
-	typedef std::list<T> NodeList;
-	
-	SwitchList() {}
-	~SwitchList() {}
-
-	template <typename TT>
-	void Push(TT &&task)
-	{
-		m_pInList->push_back(std::forward<TT>(task));
-	}
-
-	void Switch()
-	{
-		std::swap(m_pInList, m_pOutList);
-	}
-
-	void CleanOut()
-	{
-		m_pOutList->clear();
-	}
-
-	int GetInSize()
-	{
-		return m_pInList->size();
-	}
-
-	int GetOutSize()
-	{
-		return m_pOutList->size();
-	}
-
-	bool IsInEmpty()
-	{
-		return m_pInList->empty();
-	}
-
-	bool IsOutEmpty()
-	{
-		return m_pOutList->empty();
-	}
-
-	const NodeList & InList()
-	{
-		return *m_pInList;
-	}
-
-	const NodeList & OutList()
-	{
-		return *m_pOutList;
-	}
-
-private:
-	NodeList m_list1;
-	NodeList m_list2;
-	NodeList *m_pInList = &m_list1;
-	NodeList *m_pOutList = &m_list2;
-};
-
 class EventPipe
 {
 public:
 	EventPipe(bool isBlockWait = true);
 	~EventPipe();
-	EventPipe(const EventNode &) = delete;
+	EventPipe(const EventPipe &) = delete;
 	EventPipe & operator=(const EventPipe &) = delete;
 
 	void Push(EventNode *node);
@@ -212,7 +151,7 @@ public:
 private:
 	std::mutex m_mtx;
 	std::condition_variable m_cv;
-	bool m_isBlockWait;
+	const bool m_isBlockWait;
 	SwitchList<EventNode *> m_eventList;
 
 	void Switch();

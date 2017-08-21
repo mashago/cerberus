@@ -10,6 +10,7 @@
 #endif
 #include <time.h>
 #include <memory>
+#include <list>
 
 // clear pointer container
 template <typename TP, template <typename E, typename Alloc = std::allocator<E>> class TC>
@@ -23,6 +24,68 @@ void ClearContainer(TC<TP> &c)
 		c.erase(iter);
 	}
 }
+
+template <typename T>
+class SwitchList
+{
+public:
+	typedef std::list<T> NodeList;
+	
+	SwitchList() {}
+	~SwitchList() {}
+
+	template <typename TT>
+	void Push(TT &&task)
+	{
+		m_pInList->push_back(std::forward<TT>(task));
+	}
+
+	void Switch()
+	{
+		std::swap(m_pInList, m_pOutList);
+	}
+
+	void CleanOut()
+	{
+		m_pOutList->clear();
+	}
+
+	int GetInSize()
+	{
+		return m_pInList->size();
+	}
+
+	int GetOutSize()
+	{
+		return m_pOutList->size();
+	}
+
+	bool IsInEmpty()
+	{
+		return m_pInList->empty();
+	}
+
+	bool IsOutEmpty()
+	{
+		return m_pOutList->empty();
+	}
+
+	const NodeList & InList()
+	{
+		return *m_pInList;
+	}
+
+	const NodeList & OutList()
+	{
+		return *m_pOutList;
+	}
+
+private:
+	NodeList m_list1;
+	NodeList m_list2;
+	NodeList *m_pInList = &m_list1;
+	NodeList *m_pOutList = &m_list2;
+};
 
 #ifdef WIN32
 inline void localtime_r(time_t *now_time, struct tm *detail)

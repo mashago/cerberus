@@ -15,23 +15,88 @@ static const char *tags[] =
 ,	"ERROR"
 };
 
-void _logcore(int type, const char *filename, const char *funcname, int linenum, const char *fmt, ...)
+void format_log_str(char *out_buffer, const int buffer_len, bool is_for_print, int type, const char *filename, const char *funcname, int linenum, const char *fmt, ...)
 {
+	out_buffer[0] = '\0';
+
 	time_t now_time = time(NULL);
 	char time_buffer[50];
-#ifdef WIN32
-	// SYSTEMTIME sys_time;
-	// GetLocalTime(&sys_time);
-	// sprintf(time_buffer, "%02d:%02d:%02d", sys_time.wHour, sys_time.wMinute, sys_time.wSecond);
-	// struct tm detail;
-	// localtime_s(&detail, &now_time);
-	// sprintf(time_buffer, "%02d:%02d:%02d", detail.tm_hour, detail.tm_min, detail.tm_sec);
-#else
-#endif
+
 	struct tm detail;
 	localtime_r(&now_time, &detail);
 	sprintf(time_buffer, "%02d:%02d:%02d", detail.tm_hour, detail.tm_min, detail.tm_sec);
 
+	// enum {MAX_LOG_BUFFER_SIZE = 2048};
+	const int MAX_LOG_BUFFER_SIZE = buffer_len - 100;
+	if (MAX_LOG_BUFFER_SIZE < 1)
+	{
+		return;
+	}
+	char buffer[MAX_LOG_BUFFER_SIZE+1];
+
+	va_list ap;
+	va_start(ap, fmt);
+	vsnprintf(buffer, MAX_LOG_BUFFER_SIZE, fmt, ap);
+	va_end(ap);
+
+	// if (1) return;
+
+	
+	char prefix_buffer[50] = {0};
+	char tail_buffer[50] = {0};
+	if (is_for_print)
+	{
+		switch (type)
+		{
+			case LOG_TYPE_DEBUG:
+			{
+#ifndef WIN32
+				sprintf(prefix_buffer, "\033[0;32;32m");
+#endif
+				break;
+			}
+			case LOG_TYPE_INFO:
+			{
+				break;
+			}
+			case LOG_TYPE_WARN:
+			{
+#ifndef WIN32
+				sprintf(prefix_buffer, "\033[1;33m");
+#endif
+				break;
+			}
+			case LOG_TYPE_ERROR:
+			{
+#ifndef WIN32
+				sprintf(prefix_buffer, "\033[0;32;31m");
+#endif
+				break;
+			}
+		}
+#ifndef WIN32
+		sprintf(tail_buffer, "\033[m");
+#endif
+	}
+
+	if (linenum != 0)
+	{
+		snprintf(out_buffer, buffer_len, "%s[%s] [%s] %s:%s[%d] : %s%s\n", prefix_buffer, tags[type], time_buffer, filename, funcname, linenum, buffer, tail_buffer);
+	}
+	else
+	{
+		snprintf(out_buffer, buffer_len, "%s[%s] [%s] : %s%s\n", prefix_buffer, tags[type], time_buffer, buffer, tail_buffer);
+	}
+}
+
+void _logcore(int type, const char *filename, const char *funcname, int linenum, const char *fmt, ...)
+{
+	time_t now_time = time(NULL);
+	char time_buffer[50];
+
+	struct tm detail;
+	localtime_r(&now_time, &detail);
+	sprintf(time_buffer, "%02d:%02d:%02d", detail.tm_hour, detail.tm_min, detail.tm_sec);
 
 	enum {MAX_LOG_BUFFER_SIZE = 2048};
 	char buffer[MAX_LOG_BUFFER_SIZE+1];
@@ -104,45 +169,46 @@ void _logcore(int type, const char *filename, const char *funcname, int linenum,
 #endif
 }
 
-/*
-void __log(const char *title, const char *fmt, va_list ap)
-{
-	enum {MAX_LOG_BUFFER_SIZE = 1024};
-	char buffer[MAX_LOG_BUFFER_SIZE];
-	vsnprintf(buffer, MAX_LOG_BUFFER_SIZE, fmt, ap);
+///////////////////////////////////////////
 
-	printf("%s %s\n", title, buffer);
+LogPipe::LogPipe() {};
+LogPipe::~LogPipe() {};
+
+void LogPipe::Push(const char *buffer)
+{
+	std::unique_lock<std::mutex> lock(m_mtx);
+	m_eventList.Push(buffer);
+	m_cv.notify_all();
 }
 
-void LogDebug(const char *fmt, ...)
+const std::list<const char *> & LogPipe::Pop()
 {
-	va_list ap;
-	va_start(ap, fmt);
-	__log("DEBUG", fmt, ap);
-	va_end(ap);
+	m_eventList.CleanOut();
+	Switch();
+	return m_eventList.OutList();
 }
 
-void LogInfo(const char *fmt, ...)
+void LogPipe::Switch()
 {
-	va_list ap;
-	va_start(ap, fmt);
-	__log("INFO", fmt, ap);
-	va_end(ap);
+	std::unique_lock<std::mutex> lock(m_mtx);
+	m_cv.wait(lock, [this](){ return !m_eventList.IsInEmpty(); });
+	m_eventList.Switch();
 }
 
-void LogWarn(const char *fmt, ...)
+////////////
+
+Logger::Logger(const char *log_file_name) : m_logFileName(log_file_name) {}
+Logger::~Logger() {}
+
+void Logger::SendLog(int type, const char *filename, const char *funcname, int linenum, const char *fmt, ...)
 {
-	va_list ap;
-	va_start(ap, fmt);
-	__log("WARN", fmt, ap);
-	va_end(ap);
 }
 
-void LogError(const char *fmt, ...)
+void Logger::RecvLog()
 {
-	va_list ap;
-	va_start(ap, fmt);
-	__log("ERROR", fmt, ap);
-	va_end(ap);
+	auto log_list = m_logPipe.Pop();
+	for (auto iter = log_list.begin(); iter != log_list.end(); ++iter)
+	{
+		// TODO printf or write into file
+	}
 }
-*/

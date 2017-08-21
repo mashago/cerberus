@@ -1,6 +1,14 @@
 
 #pragma once
 
+#include <list>
+#include <utility>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+#include <memory>
+#include "util.h"
+
 enum
 {
 	LOG_TYPE_DEBUG = 1,
@@ -16,3 +24,33 @@ void _logcore(int type, const char *filename, const char *funcname, int linenum,
 #define LOG_WARN(fmt, ...) _logcore(LOG_TYPE_WARN, __FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
 #define LOG_ERROR(fmt, ...) _logcore(LOG_TYPE_ERROR, __FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
 
+class LogPipe
+{
+public:
+	LogPipe();
+	~LogPipe();
+	LogPipe(const LogPipe &) = delete;
+	LogPipe & operator=(const LogPipe &) = delete;
+
+	void Push(const char *buffer);
+	const std::list<const char *> & Pop();
+
+private:
+	std::mutex m_mtx;
+	std::condition_variable m_cv;
+	SwitchList<const char *> m_eventList;
+
+	void Switch();
+};
+
+class Logger
+{
+public:
+	Logger(const char *log_file_name);
+	~Logger();
+	void SendLog(int type, const char *filename, const char *funcname, int linenum, const char *fmt, ...);
+	void RecvLog();
+private:
+	LogPipe m_logPipe;
+	const char *m_logFileName;
+};
