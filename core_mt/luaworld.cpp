@@ -1,11 +1,13 @@
 
 extern "C"
 {
+#include <string.h>
 #include <lauxlib.h>
 #include <lualib.h>
 }
 #include "util.h"
 #include "logger.h"
+#include "pluto.h"
 #include "mailbox.h"
 #include "luaworld.h"
 #include "event_pipe.h"

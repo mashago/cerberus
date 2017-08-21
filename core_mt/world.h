@@ -2,11 +2,11 @@
 #pragma once
 
 #include <thread>
-#include "pluto.h"
 
 class EventPipe;
 struct EventNode;
 class TimerMgr;
+class Pluto;
 
 class World
 {

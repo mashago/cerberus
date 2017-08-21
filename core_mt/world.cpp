@@ -1,6 +1,7 @@
 
 #include "logger.h"
 #include "world.h"
+#include "pluto.h"
 #include "mailbox.h"
 #include "timermgr.h"
 #include "event_pipe.h"

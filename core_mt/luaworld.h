@@ -3,7 +3,6 @@
 
 #include <lua.hpp>
 #include "world.h"
-#include "pluto.h"
 
 class LuaNetwork;
 class LuaWorld : public World
