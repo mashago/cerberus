@@ -351,14 +351,31 @@ int test2()
 	return 0;
 }
 
+void log_thread_func(int thread_index)
+{
+	int num = 0;
+	while (true)
+	{
+		Logger::Instance()->SendLog(LOG_TYPE_DEBUG, __FILE__, __FUNCTION__, __LINE__, "[%d][%d]%s", thread_index, num, "hello log debug");
+		Logger::Instance()->SendLog(LOG_TYPE_INFO, __FILE__, __FUNCTION__, __LINE__, "[%d][%d]%s", thread_index, num, "hello log info");
+		Logger::Instance()->SendLog(LOG_TYPE_WARN, __FILE__, __FUNCTION__, __LINE__, "[%d][%d]%s", thread_index, num, "hello log warn");
+		Logger::Instance()->SendLog(LOG_TYPE_ERROR, __FILE__, __FUNCTION__, __LINE__, "[%d][%d]%s", thread_index, num, "hello log error");
+		++num;
+		sleep(1);
+	}
+
+}
+
 int test3()
 {
-	Logger::Instance()->Init("");
-	Logger::Instance()->SendLog(LOG_TYPE_DEBUG, __FILE__, __FUNCTION__, __LINE__, "%s", "hello log debug");
-	Logger::Instance()->SendLog(LOG_TYPE_INFO, __FILE__, __FUNCTION__, __LINE__, "%s", "hello log info");
-	Logger::Instance()->SendLog(LOG_TYPE_WARN, __FILE__, __FUNCTION__, __LINE__, "%s", "hello log warn");
-	Logger::Instance()->SendLog(LOG_TYPE_ERROR, __FILE__, __FUNCTION__, __LINE__, "%s", "hello log error");
-	Logger::Instance()->RecvLog();
+	Logger::Instance()->Init("log.txt");
+	std::thread t1 = std::thread(log_thread_func, 1);
+	std::thread t2 = std::thread(log_thread_func, 2);
+
+	while (true)
+	{
+		Logger::Instance()->RecvLog();
+	}
 
 	return 0;
 }

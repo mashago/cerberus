@@ -3,6 +3,7 @@
 #include <time.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <fcntl.h>
 #include "util.h"
 #include "logger.h"
 
@@ -203,9 +204,11 @@ Logger * Logger::Instance()
 	return instance;
 }
 
-void Logger::Init(const char *log_file_name)
+void Logger::Init(const char *log_file_name, bool is_print_log)
 {
 	m_logFileName = log_file_name;
+	m_isWriteLog = m_logFileName != "";
+	m_isPrintLog = is_print_log;
 }
 
 Logger::Logger() {}
@@ -240,40 +243,33 @@ void Logger::SendLog(int type, const char *filename, const char *funcname, int l
 	
 	char prefix_buffer[50] = {0};
 	char tail_buffer[50] = {0};
-	if (m_logFileName == "")
+#ifndef WIN32
+	switch (type)
 	{
-		switch (type)
+		case LOG_TYPE_DEBUG:
 		{
-			case LOG_TYPE_DEBUG:
-			{
-#ifndef WIN32
-				sprintf(prefix_buffer, "\033[0;32;32m");
-#endif
-				break;
-			}
-			case LOG_TYPE_INFO:
-			{
-				break;
-			}
-			case LOG_TYPE_WARN:
-			{
-#ifndef WIN32
-				sprintf(prefix_buffer, "\033[1;33m");
-#endif
-				break;
-			}
-			case LOG_TYPE_ERROR:
-			{
-#ifndef WIN32
-				sprintf(prefix_buffer, "\033[0;32;31m");
-#endif
-				break;
-			}
+			sprintf(prefix_buffer, "\033[0;32;32m");
+			sprintf(tail_buffer, "\033[m");
+			break;
 		}
-#ifndef WIN32
-		sprintf(tail_buffer, "\033[m");
-#endif
+		case LOG_TYPE_INFO:
+		{
+			break;
+		}
+		case LOG_TYPE_WARN:
+		{
+			sprintf(prefix_buffer, "\033[1;33m");
+			sprintf(tail_buffer, "\033[m");
+			break;
+		}
+		case LOG_TYPE_ERROR:
+		{
+			sprintf(prefix_buffer, "\033[0;32;31m");
+			sprintf(tail_buffer, "\033[m");
+			break;
+		}
 	}
+#endif
 
 	if (linenum != 0)
 	{
@@ -290,10 +286,36 @@ void Logger::SendLog(int type, const char *filename, const char *funcname, int l
 void Logger::RecvLog()
 {
 	auto log_list = m_logPipe.Pop();
+	if (log_list.empty())
+	{
+		return;
+	}
+
+	FILE *pfile = NULL;
+	if (m_isWriteLog)
+	{
+		pfile = fopen(m_logFileName.c_str(), "a");
+	}
 	for (auto iter = log_list.begin(); iter != log_list.end(); ++iter)
 	{
-		// TODO printf or write into file
-		printf(*iter);	
+		if (m_isPrintLog)
+		{
+			PrintLog(*iter);
+		}
+		if (pfile)
+		{
+			fwrite(*iter, strlen(*iter), 1, pfile);
+		}
+
 		delete [] (*iter);
 	}
+	if (pfile)
+	{
+		fclose(pfile);
+	}
+}
+
+void Logger::PrintLog(const char *buffer)
+{
+	printf("%s", buffer);
 }

@@ -49,12 +49,16 @@ class Logger
 {
 public:
 	static Logger *Instance();
-	void Init(const char *log_file_name);
+	void Init(const char *log_file_name, bool is_print_log = true);
 	void SendLog(int type, const char *filename, const char *funcname, int linenum, const char *fmt, ...);
 	void RecvLog();
 private:
 	Logger();
 	~Logger();
+	void PrintLog(const char *buffer);
+
 	LogPipe m_logPipe;
 	std::string m_logFileName;
+	bool m_isWriteLog;
+	bool m_isPrintLog;
 };
