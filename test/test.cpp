@@ -351,12 +351,25 @@ int test2()
 	return 0;
 }
 
+int test3()
+{
+	Logger::Instance()->Init("");
+	Logger::Instance()->SendLog(LOG_TYPE_DEBUG, __FILE__, __FUNCTION__, __LINE__, "%s", "hello log debug");
+	Logger::Instance()->SendLog(LOG_TYPE_INFO, __FILE__, __FUNCTION__, __LINE__, "%s", "hello log info");
+	Logger::Instance()->SendLog(LOG_TYPE_WARN, __FILE__, __FUNCTION__, __LINE__, "%s", "hello log warn");
+	Logger::Instance()->SendLog(LOG_TYPE_ERROR, __FILE__, __FUNCTION__, __LINE__, "%s", "hello log error");
+	Logger::Instance()->RecvLog();
+
+	return 0;
+}
+
 typedef int (*testcase_t) ();
 testcase_t test_list[] =
 {
 	test0
 ,	test1
 ,	test2
+,	test3
 };
 
 int main(int argc, char ** argv)

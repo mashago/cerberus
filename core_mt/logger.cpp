@@ -197,11 +197,94 @@ void LogPipe::Switch()
 
 ////////////
 
-Logger::Logger(const char *log_file_name) : m_logFileName(log_file_name) {}
+Logger * Logger::Instance()
+{
+	static Logger *instance = new Logger();
+	return instance;
+}
+
+void Logger::Init(const char *log_file_name)
+{
+	m_logFileName = log_file_name;
+}
+
+Logger::Logger() {}
 Logger::~Logger() {}
 
 void Logger::SendLog(int type, const char *filename, const char *funcname, int linenum, const char *fmt, ...)
 {
+	// 1. new log buffer
+	// 2. init time buffer
+	// 3. init content buffer
+	// 4. init color prefix and tail
+	// 5. sprintf log
+	// 6. push
+	
+	enum {MAX_LOG_SIZE = 2048, MAX_LOG_CONTENT_SIZE = MAX_LOG_SIZE - 100};
+	char *log_buffer = new char[MAX_LOG_SIZE+1];
+	log_buffer[0] = '\0';
+
+	time_t now_time = time(NULL);
+	char time_buffer[50];
+
+	struct tm detail;
+	localtime_r(&now_time, &detail);
+	sprintf(time_buffer, "%02d:%02d:%02d", detail.tm_hour, detail.tm_min, detail.tm_sec);
+
+	char content_buffer[MAX_LOG_CONTENT_SIZE+1];
+	va_list ap;
+	va_start(ap, fmt);
+	vsnprintf(content_buffer, MAX_LOG_CONTENT_SIZE, fmt, ap);
+	va_end(ap);
+
+	
+	char prefix_buffer[50] = {0};
+	char tail_buffer[50] = {0};
+	if (m_logFileName == "")
+	{
+		switch (type)
+		{
+			case LOG_TYPE_DEBUG:
+			{
+#ifndef WIN32
+				sprintf(prefix_buffer, "\033[0;32;32m");
+#endif
+				break;
+			}
+			case LOG_TYPE_INFO:
+			{
+				break;
+			}
+			case LOG_TYPE_WARN:
+			{
+#ifndef WIN32
+				sprintf(prefix_buffer, "\033[1;33m");
+#endif
+				break;
+			}
+			case LOG_TYPE_ERROR:
+			{
+#ifndef WIN32
+				sprintf(prefix_buffer, "\033[0;32;31m");
+#endif
+				break;
+			}
+		}
+#ifndef WIN32
+		sprintf(tail_buffer, "\033[m");
+#endif
+	}
+
+	if (linenum != 0)
+	{
+		snprintf(log_buffer, MAX_LOG_SIZE, "%s[%s] [%s] %s:%s[%d] : %s%s\n", prefix_buffer, tags[type], time_buffer, filename, funcname, linenum, content_buffer, tail_buffer);
+	}
+	else
+	{
+		snprintf(log_buffer, MAX_LOG_SIZE, "%s[%s] [%s] : %s%s\n", prefix_buffer, tags[type], time_buffer, content_buffer, tail_buffer);
+	}
+
+	m_logPipe.Push(log_buffer);
 }
 
 void Logger::RecvLog()
@@ -210,5 +293,7 @@ void Logger::RecvLog()
 	for (auto iter = log_list.begin(); iter != log_list.end(); ++iter)
 	{
 		// TODO printf or write into file
+		printf(*iter);	
+		delete [] (*iter);
 	}
 }

@@ -7,6 +7,8 @@
 #include <mutex>
 #include <condition_variable>
 #include <memory>
+#include <string>
+
 #include "util.h"
 
 enum
@@ -46,11 +48,13 @@ private:
 class Logger
 {
 public:
-	Logger(const char *log_file_name);
-	~Logger();
+	static Logger *Instance();
+	void Init(const char *log_file_name);
 	void SendLog(int type, const char *filename, const char *funcname, int linenum, const char *fmt, ...);
 	void RecvLog();
 private:
+	Logger();
+	~Logger();
 	LogPipe m_logPipe;
-	const char *m_logFileName;
+	std::string m_logFileName;
 };
