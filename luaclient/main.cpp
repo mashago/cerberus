@@ -11,7 +11,7 @@
 
 int main(int argc, char ** argv)
 {
-	LOG_DEBUG("%s", argv[0]);
+	printf("%s\n", argv[0]);
 
 #ifdef WIN32
 	WSADATA wsa_data;
@@ -21,14 +21,14 @@ int main(int argc, char ** argv)
 	// LuaClient [config_file]
 	if (argc < 2) 
 	{
-		LOG_ERROR("arg error");
+		printf("arg error\n");
 		return 0;
 	}
 	const char *conf_file = argv[1];
 	tinyxml2::XMLDocument doc;
 	if (doc.LoadFile(conf_file) != tinyxml2::XMLError::XML_SUCCESS)
 	{
-		LOG_ERROR("load conf error %s", conf_file);
+		printf("load conf error %s\n", conf_file);
 		return 0;
 	}
 
@@ -36,8 +36,10 @@ int main(int argc, char ** argv)
 	const char *ip = (char*)root->Attribute("ip");
 	int port = root->IntAttribute("port");
 	const char *entry_file = (char*)root->Attribute("file");
-	LOG_DEBUG("ip=%s port=%d entry_file=%s", ip, port, entry_file);
+	printf("ip=%s port=%d entry_file=%s\n", ip, port, entry_file);
 	//
+
+	LOG_INIT("", true);
 
 	// init msg pipe
 	EventPipe *net2worldPipe = new EventPipe();

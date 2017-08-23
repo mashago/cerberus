@@ -37,26 +37,22 @@ static int logger_c(lua_State *L)
 	{
 		case LOG_TYPE_DEBUG:
 		{
-			// LOG_DEBUG("%s", str);
-			_logcore(LOG_TYPE_DEBUG, __FILE__, __FUNCTION__, 0, "%s", str);
+			Logger::Instance()->SendLog(LOG_TYPE_DEBUG, __FILE__, __FUNCTION__, 0, "%s", str);
 			break;
 		}
 		case LOG_TYPE_INFO:
 		{
-			// LOG_INFO("%s", str);
-			_logcore(LOG_TYPE_INFO, __FILE__, __FUNCTION__, 0, "%s", str);
+			Logger::Instance()->SendLog(LOG_TYPE_INFO, __FILE__, __FUNCTION__, 0, "%s", str);
 			break;
 		}
 		case LOG_TYPE_WARN:
 		{
-			// LOG_WARN("%s", str);
-			_logcore(LOG_TYPE_WARN, __FILE__, __FUNCTION__, 0, "%s", str);
+			Logger::Instance()->SendLog(LOG_TYPE_WARN, __FILE__, __FUNCTION__, 0, "%s", str);
 			break;
 		}
 		case LOG_TYPE_ERROR:
 		{
-			// LOG_ERROR("%s", str);
-			_logcore(LOG_TYPE_ERROR, __FILE__, __FUNCTION__, 0, "%s", str);
+			Logger::Instance()->SendLog(LOG_TYPE_ERROR, __FILE__, __FUNCTION__, 0, "%s", str);
 			break;
 		}
 	};

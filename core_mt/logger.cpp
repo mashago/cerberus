@@ -137,6 +137,11 @@ Logger * Logger::Instance()
 
 void Logger::Init(const char *log_file_name, bool is_print_log)
 {
+	if (m_isRunning)
+	{
+		return;
+	}
+
 	m_logFileName = log_file_name;
 	m_isWriteLog = m_logFileName != "";
 	m_isPrintLog = is_print_log;
@@ -153,7 +158,6 @@ void Logger::Init(const char *log_file_name, bool is_print_log)
 		this->RecvLog();
 	};
 	m_isRunning = true;
-	// m_logThread = std::thread(log_run, this);
 	m_logThread = std::thread(log_run);
 }
 
@@ -190,11 +194,11 @@ void Logger::SendLog(int type, const char *filename, const char *funcname, int l
 	
 	if (linenum != 0)
 	{
-		snprintf(log_buffer, MAX_LOG_SIZE, "%s [%s] %s:%s[%d] : %s\n", tags[type], time_buffer, filename, funcname, linenum, content_buffer);
+		snprintf(log_buffer, MAX_LOG_SIZE, "%s [%s] %s:%s[%d] : %s", tags[type], time_buffer, filename, funcname, linenum, content_buffer);
 	}
 	else
 	{
-		snprintf(log_buffer, MAX_LOG_SIZE, "%s [%s] : %s\n", tags[type], time_buffer, content_buffer);
+		snprintf(log_buffer, MAX_LOG_SIZE, "%s [%s] : %s", tags[type], time_buffer, content_buffer);
 	}
 
 	m_logPipe.Push(log_buffer);
@@ -233,6 +237,7 @@ void Logger::RecvLog()
 	if (pfile)
 	{
 		fclose(pfile);
+		// TODO shift log file
 	}
 }
 
@@ -291,9 +296,9 @@ void Logger::PrintLog(const char *buffer)
 #else
 
 	char prefix_buffer[50] = {0};
-	char tail_buffer[50] = {0};
+	const char *tail_buffer = "\033[m";
 
-	auto set_color = [&prefix_buffer, &tail_buffer](const char *input, const char *prefix, const char *color)
+	auto set_color = [&prefix_buffer](const char *input, const char *prefix, const char *color)
 	{
 		int input_len = strlen(input);
 		int prefix_len = strlen(prefix);
@@ -310,17 +315,17 @@ void Logger::PrintLog(const char *buffer)
 			}
 		}
 		sprintf(prefix_buffer, "%s", color);
-		sprintf(tail_buffer, "%s", "\033[m");
 
 		return true;
 	};
 
 	// Set the new color  
 	set_color(buffer, tags[LOG_TYPE_DEBUG], "\033[0;32;32m");
+	set_color(buffer, tags[LOG_TYPE_INFO], "\033[m");
 	set_color(buffer, tags[LOG_TYPE_WARN], "\033[1;33m");
 	set_color(buffer, tags[LOG_TYPE_ERROR], "\033[0;32;31m");
 
-	printf("%s%s%s", prefix_buffer, buffer, tail_buffer);
+	printf("%s%s%s\n", prefix_buffer, buffer, tail_buffer);
 
 #endif
 }

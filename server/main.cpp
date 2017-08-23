@@ -11,7 +11,7 @@
 
 int main(int argc, char ** argv)
 {
-	LOG_DEBUG("%s", argv[0]);
+	printf("%s\n", argv[0]);
 
 #ifdef WIN32
 	WSADATA wsa_data;
@@ -21,7 +21,7 @@ int main(int argc, char ** argv)
 	// Server [config_file]
 	if (argc < 2) 
 	{
-		LOG_ERROR("arg error");
+		printf("arg error\n");
 		return 0;
 	}
 
@@ -30,7 +30,7 @@ int main(int argc, char ** argv)
 	tinyxml2::XMLDocument doc;
 	if (doc.LoadFile(conf_file) != tinyxml2::XMLError::XML_SUCCESS)
 	{
-		LOG_ERROR("load conf error %s", conf_file);
+		printf("load conf error %s\n", conf_file);
 		return 0;
 	}
 
@@ -43,7 +43,8 @@ int main(int argc, char ** argv)
 	int auto_shutdown = root->IntAttribute("auto_shutdown");
 	int no_broadcast = root->IntAttribute("no_broadcast");
 
-	LOG_DEBUG("server_id=%d server_type=%d ip=%s port=%d entry_file=%s auto_shutdown=%d no_broadcast=%d"
+
+	printf("server_id=%d server_type=%d ip=%s port=%d entry_file=%s auto_shutdown=%d no_broadcast=%d\n"
 	, server_id, server_type, ip, port, entry_file, auto_shutdown, no_broadcast);
 
 	std::set<std::string> trustIpSet;
@@ -54,12 +55,15 @@ int main(int argc, char ** argv)
 		while (addr)
 		{
 			const char *ip = (char *)addr->Attribute("ip");
-			LOG_DEBUG("trust ip=%s", ip);
 			trustIpSet.insert(ip);
 			addr = addr->NextSiblingElement();
 		}
 	}
 	//
+
+	char log_file_name[100];
+	sprintf(log_file_name, "%s%d", SERVER_NAME_ARRAY[server_type], server_id);
+	LOG_INIT(log_file_name, true);
 
 	// init msg pipe
 	EventPipe *net2worldPipe = new EventPipe();
