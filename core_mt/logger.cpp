@@ -4,91 +4,19 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <string.h>
 #include "util.h"
 #include "logger.h"
 
 static const char *tags[] =
 {
-	"NULL"
-,	"DEBUG"
-,	"INFO"
-,	"WARN"
-,	"ERROR"
+	"[NULL]"
+,	"[DEBUG]"
+,	"[INFO]"
+,	"[WARN]"
+,	"[ERROR]"
 };
 
-void format_log_str(char *out_buffer, const int buffer_len, bool is_for_print, int type, const char *filename, const char *funcname, int linenum, const char *fmt, ...)
-{
-	out_buffer[0] = '\0';
-
-	time_t now_time = time(NULL);
-	char time_buffer[50];
-
-	struct tm detail;
-	localtime_r(&now_time, &detail);
-	sprintf(time_buffer, "%02d:%02d:%02d", detail.tm_hour, detail.tm_min, detail.tm_sec);
-
-	// enum {MAX_LOG_BUFFER_SIZE = 2048};
-	const int MAX_LOG_BUFFER_SIZE = buffer_len - 100;
-	if (MAX_LOG_BUFFER_SIZE < 1)
-	{
-		return;
-	}
-	char buffer[MAX_LOG_BUFFER_SIZE+1];
-
-	va_list ap;
-	va_start(ap, fmt);
-	vsnprintf(buffer, MAX_LOG_BUFFER_SIZE, fmt, ap);
-	va_end(ap);
-
-	// if (1) return;
-
-	
-	char prefix_buffer[50] = {0};
-	char tail_buffer[50] = {0};
-	if (is_for_print)
-	{
-		switch (type)
-		{
-			case LOG_TYPE_DEBUG:
-			{
-#ifndef WIN32
-				sprintf(prefix_buffer, "\033[0;32;32m");
-#endif
-				break;
-			}
-			case LOG_TYPE_INFO:
-			{
-				break;
-			}
-			case LOG_TYPE_WARN:
-			{
-#ifndef WIN32
-				sprintf(prefix_buffer, "\033[1;33m");
-#endif
-				break;
-			}
-			case LOG_TYPE_ERROR:
-			{
-#ifndef WIN32
-				sprintf(prefix_buffer, "\033[0;32;31m");
-#endif
-				break;
-			}
-		}
-#ifndef WIN32
-		sprintf(tail_buffer, "\033[m");
-#endif
-	}
-
-	if (linenum != 0)
-	{
-		snprintf(out_buffer, buffer_len, "%s[%s] [%s] %s:%s[%d] : %s%s\n", prefix_buffer, tags[type], time_buffer, filename, funcname, linenum, buffer, tail_buffer);
-	}
-	else
-	{
-		snprintf(out_buffer, buffer_len, "%s[%s] [%s] : %s%s\n", prefix_buffer, tags[type], time_buffer, buffer, tail_buffer);
-	}
-}
 
 void _logcore(int type, const char *filename, const char *funcname, int linenum, const char *fmt, ...)
 {
@@ -155,11 +83,11 @@ void _logcore(int type, const char *filename, const char *funcname, int linenum,
 	}
 	if (linenum != 0)
 	{
-		printf("[%s] [%s] %s:%s[%d] : %s", tags[type], time_buffer, filename, funcname, linenum, buffer);
+		printf("%s [%s] %s:%s[%d] : %s", tags[type], time_buffer, filename, funcname, linenum, buffer);
 	}
 	else
 	{
-		printf("[%s] [%s] : %s", tags[type], time_buffer, buffer);
+		printf("%s [%s] : %s", tags[type], time_buffer, buffer);
 	}
 #ifdef WIN32
 	// Restore the original color  
@@ -172,8 +100,8 @@ void _logcore(int type, const char *filename, const char *funcname, int linenum,
 
 ///////////////////////////////////////////
 
-LogPipe::LogPipe() {};
-LogPipe::~LogPipe() {};
+LogPipe::LogPipe() {}
+LogPipe::~LogPipe() {}
 
 void LogPipe::Push(const char *buffer)
 {
@@ -198,6 +126,9 @@ void LogPipe::Switch()
 
 ////////////
 
+Logger::Logger() : m_isRunning(false), m_isWriteLog(false), m_isPrintLog(false) {}
+Logger::~Logger() {}
+
 Logger * Logger::Instance()
 {
 	static Logger *instance = new Logger();
@@ -209,21 +140,37 @@ void Logger::Init(const char *log_file_name, bool is_print_log)
 	m_logFileName = log_file_name;
 	m_isWriteLog = m_logFileName != "";
 	m_isPrintLog = is_print_log;
-}
 
-Logger::Logger() {}
-Logger::~Logger() {}
+	auto log_run = [this]()
+	{
+		while (this->m_isRunning)
+		{
+			this->RecvLog();	
+		}
+		printf("log stop loop\n");
+		// handle last log
+		this->m_logPipe.Push(NULL);
+		this->RecvLog();
+	};
+	m_isRunning = true;
+	// m_logThread = std::thread(log_run, this);
+	m_logThread = std::thread(log_run);
+}
 
 void Logger::SendLog(int type, const char *filename, const char *funcname, int linenum, const char *fmt, ...)
 {
+	if (!m_isRunning)
+	{
+		return;
+	}
+
 	// 1. new log buffer
 	// 2. init time buffer
 	// 3. init content buffer
-	// 4. init color prefix and tail
-	// 5. sprintf log
-	// 6. push
+	// 4. sprintf log
+	// 5. push
 	
-	enum {MAX_LOG_SIZE = 2048, MAX_LOG_CONTENT_SIZE = MAX_LOG_SIZE - 100};
+	enum {MAX_LOG_SIZE = 2048, MAX_LOG_CONTENT_SIZE = MAX_LOG_SIZE - 200};
 	char *log_buffer = new char[MAX_LOG_SIZE+1];
 	log_buffer[0] = '\0';
 
@@ -241,43 +188,13 @@ void Logger::SendLog(int type, const char *filename, const char *funcname, int l
 	va_end(ap);
 
 	
-	char prefix_buffer[50] = {0};
-	char tail_buffer[50] = {0};
-#ifndef WIN32
-	switch (type)
-	{
-		case LOG_TYPE_DEBUG:
-		{
-			sprintf(prefix_buffer, "\033[0;32;32m");
-			sprintf(tail_buffer, "\033[m");
-			break;
-		}
-		case LOG_TYPE_INFO:
-		{
-			break;
-		}
-		case LOG_TYPE_WARN:
-		{
-			sprintf(prefix_buffer, "\033[1;33m");
-			sprintf(tail_buffer, "\033[m");
-			break;
-		}
-		case LOG_TYPE_ERROR:
-		{
-			sprintf(prefix_buffer, "\033[0;32;31m");
-			sprintf(tail_buffer, "\033[m");
-			break;
-		}
-	}
-#endif
-
 	if (linenum != 0)
 	{
-		snprintf(log_buffer, MAX_LOG_SIZE, "%s[%s] [%s] %s:%s[%d] : %s%s\n", prefix_buffer, tags[type], time_buffer, filename, funcname, linenum, content_buffer, tail_buffer);
+		snprintf(log_buffer, MAX_LOG_SIZE, "%s [%s] %s:%s[%d] : %s\n", tags[type], time_buffer, filename, funcname, linenum, content_buffer);
 	}
 	else
 	{
-		snprintf(log_buffer, MAX_LOG_SIZE, "%s[%s] [%s] : %s%s\n", prefix_buffer, tags[type], time_buffer, content_buffer, tail_buffer);
+		snprintf(log_buffer, MAX_LOG_SIZE, "%s [%s] : %s\n", tags[type], time_buffer, content_buffer);
 	}
 
 	m_logPipe.Push(log_buffer);
@@ -298,6 +215,10 @@ void Logger::RecvLog()
 	}
 	for (auto iter = log_list.begin(); iter != log_list.end(); ++iter)
 	{
+		if (!*iter)
+		{
+			continue;
+		}
 		if (m_isPrintLog)
 		{
 			PrintLog(*iter);
@@ -315,7 +236,91 @@ void Logger::RecvLog()
 	}
 }
 
+void Logger::Stop()
+{
+	m_isRunning = false;
+	m_logPipe.Push(NULL);
+	m_logThread.join();
+}
+
 void Logger::PrintLog(const char *buffer)
 {
+	// add color by buffer prefix tag
+#ifdef _WIN32
+	HANDLE h = GetStdHandle(STD_OUTPUT_HANDLE);
+	WORD wOldColorAttrs;
+	CONSOLE_SCREEN_BUFFER_INFO csbiInfo;
+
+	// save the current color  
+	GetConsoleScreenBufferInfo(h, &csbiInfo);
+	wOldColorAttrs = csbiInfo.wAttributes;
+
+	// check log level
+	// [ERROR] [WARNING] [INFO] [DEBUG]
+	auto set_color = [&h](const char *input, const char *prefix, WORD color)
+	{
+		int input_len = strlen(input);
+		int prefix_len = strlen(prefix);
+		if (input_len < prefix_len)
+		{
+			return false;
+		}
+
+		for (int i = 0; i < prefix_len; ++i)
+		{
+			if (*input++ != *prefix++)
+			{
+				return false;
+			}
+		}
+		SetConsoleTextAttribute(h, color);
+
+		return true;
+	};
+
+	// Set the new color  
+	set_color(buffer, tags[LOG_TYPE_DEBUG], FOREGROUND_GREEN | FOREGROUND_INTENSITY); // green
+	set_color(buffer, tags[LOG_TYPE_WARN], FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY); // yellow
+	set_color(buffer, tags[LOG_TYPE_ERROR], FOREGROUND_RED | FOREGROUND_INTENSITY); // red
+
 	printf("%s", buffer);
+
+	// Restore the original color  
+	SetConsoleTextAttribute(h, wOldColorAttrs);
+
+#else
+
+	char prefix_buffer[50] = {0};
+	char tail_buffer[50] = {0};
+
+	auto set_color = [&prefix_buffer, &tail_buffer](const char *input, const char *prefix, const char *color)
+	{
+		int input_len = strlen(input);
+		int prefix_len = strlen(prefix);
+		if (input_len < prefix_len)
+		{
+			return false;
+		}
+
+		for (int i = 0; i < prefix_len; ++i)
+		{
+			if (*input++ != *prefix++)
+			{
+				return false;
+			}
+		}
+		sprintf(prefix_buffer, "%s", color);
+		sprintf(tail_buffer, "%s", "\033[m");
+
+		return true;
+	};
+
+	// Set the new color  
+	set_color(buffer, tags[LOG_TYPE_DEBUG], "\033[0;32;32m");
+	set_color(buffer, tags[LOG_TYPE_WARN], "\033[1;33m");
+	set_color(buffer, tags[LOG_TYPE_ERROR], "\033[0;32;31m");
+
+	printf("%s%s%s", prefix_buffer, buffer, tail_buffer);
+
+#endif
 }

@@ -51,14 +51,19 @@ public:
 	static Logger *Instance();
 	void Init(const char *log_file_name, bool is_print_log = true);
 	void SendLog(int type, const char *filename, const char *funcname, int linenum, const char *fmt, ...);
-	void RecvLog();
+	void Stop();
+
+
 private:
 	Logger();
 	~Logger();
 	void PrintLog(const char *buffer);
+	void RecvLog();
 
 	LogPipe m_logPipe;
 	std::string m_logFileName;
+	bool m_isRunning;
 	bool m_isWriteLog;
 	bool m_isPrintLog;
+	std::thread m_logThread;
 };

@@ -354,16 +354,15 @@ int test2()
 void log_thread_func(int thread_index)
 {
 	int num = 0;
-	while (true)
+	while (num < 10)
 	{
 		Logger::Instance()->SendLog(LOG_TYPE_DEBUG, __FILE__, __FUNCTION__, __LINE__, "[%d][%d]%s", thread_index, num, "hello log debug");
 		Logger::Instance()->SendLog(LOG_TYPE_INFO, __FILE__, __FUNCTION__, __LINE__, "[%d][%d]%s", thread_index, num, "hello log info");
 		Logger::Instance()->SendLog(LOG_TYPE_WARN, __FILE__, __FUNCTION__, __LINE__, "[%d][%d]%s", thread_index, num, "hello log warn");
 		Logger::Instance()->SendLog(LOG_TYPE_ERROR, __FILE__, __FUNCTION__, __LINE__, "[%d][%d]%s", thread_index, num, "hello log error");
 		++num;
-		sleep(1);
+		// sleep(1);
 	}
-
 }
 
 int test3()
@@ -372,10 +371,10 @@ int test3()
 	std::thread t1 = std::thread(log_thread_func, 1);
 	std::thread t2 = std::thread(log_thread_func, 2);
 
-	while (true)
-	{
-		Logger::Instance()->RecvLog();
-	}
+	t1.join();
+	t2.join();
+
+	Logger::Instance()->Stop();
 
 	return 0;
 }
