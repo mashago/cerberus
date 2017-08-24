@@ -1,4 +1,12 @@
 
+extern "C"
+{
+#ifndef WIN32
+#include <unistd.h>
+#endif
+#include <stdlib.h>
+}
+
 #include <set>
 #include <string>
 
@@ -9,6 +17,7 @@
 #include "tinyxml2.h"
 #include "event_pipe.h"
 
+// for log file name
 static const char *SERVER_NAME_ARRAY[] =
 {
 	"null"
@@ -26,10 +35,21 @@ static const char *SERVER_NAME_ARRAY[] =
 int main(int argc, char ** argv)
 {
 	printf("%s\n", argv[0]);
+	
 
 #ifdef WIN32
 	WSADATA wsa_data;
 	WSAStartup(0x0201, &wsa_data);
+#else
+	signal(SIGHUP,  SIG_IGN );
+	signal(SIGCHLD,  SIG_IGN );
+
+	pid_t pid = daemon(1, 0);
+	if (pid < 0)
+	{
+		perror("daemon fail");
+		return -1;
+	}
 #endif
 
 	// Server [config_file]

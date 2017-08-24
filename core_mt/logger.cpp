@@ -260,8 +260,7 @@ void Logger::RecvLog()
 
 void Logger::ShiftLogFile()
 {
-	// enum { MAX_LOG_FILE_SIZE = 1024000 }; 
-	enum { MAX_LOG_FILE_SIZE = 102400 }; 
+	enum { MAX_LOG_FILE_SIZE = 102400000 }; 
 	std::string file_name = m_logFileName + ".txt";
 
 #ifdef WIN32
