@@ -230,6 +230,7 @@ void Logger::RecvLog()
 		if (pfile)
 		{
 			fwrite(*iter, strlen(*iter), 1, pfile);
+			fwrite("\n", 1, 1, pfile);
 		}
 
 		delete [] (*iter);

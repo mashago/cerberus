@@ -22,20 +22,6 @@ enum E_SERVER_TYPE
 	SERVER_TYPE_CHAT 		= 9,
 };
 
-static const char *SERVER_NAME_ARRAY[] =
-{
-	"null"
-,	"router_svr"
-,	"scene_svr"
-,	"db_svr"
-,	"bridge_svr"
-,	"login_svr"
-,	"public_svr"
-,	"cross_svr"
-,	"pay_svr"
-,	"chat_svr"
-};
-
 enum MSGID_TYPE
 {
 	CLIENT_TEST = 1,

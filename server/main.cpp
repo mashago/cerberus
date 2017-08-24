@@ -9,6 +9,20 @@
 #include "tinyxml2.h"
 #include "event_pipe.h"
 
+static const char *SERVER_NAME_ARRAY[] =
+{
+	"null"
+,	"router_svr"
+,	"scene_svr"
+,	"db_svr"
+,	"bridge_svr"
+,	"login_svr"
+,	"public_svr"
+,	"cross_svr"
+,	"pay_svr"
+,	"chat_svr"
+};
+
 int main(int argc, char ** argv)
 {
 	printf("%s\n", argv[0]);

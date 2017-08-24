@@ -367,7 +367,7 @@ void log_thread_func(int thread_index)
 
 int test3()
 {
-	LOG_INIT("", true);
+	LOG_INIT("test_log", true);
 	std::thread t1 = std::thread(log_thread_func, 1);
 	std::thread t2 = std::thread(log_thread_func, 2);
 
