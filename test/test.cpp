@@ -356,10 +356,10 @@ void log_thread_func(int thread_index)
 	int num = 0;
 	while (num < 100)
 	{
-		Logger::Instance()->SendLog(LOG_TYPE_DEBUG, __FILE__, __FUNCTION__, __LINE__, "[%d][%d]%s", thread_index, num, "hello log debug");
-		Logger::Instance()->SendLog(LOG_TYPE_INFO, __FILE__, __FUNCTION__, __LINE__, "[%d][%d]%s", thread_index, num, "hello log info");
-		Logger::Instance()->SendLog(LOG_TYPE_WARN, __FILE__, __FUNCTION__, __LINE__, "[%d][%d]%s", thread_index, num, "hello log warn");
-		Logger::Instance()->SendLog(LOG_TYPE_ERROR, __FILE__, __FUNCTION__, __LINE__, "[%d][%d]%s", thread_index, num, "hello log error");
+		LOG_DEBUG("[%d][%d]%s", thread_index, num, "hello log debug");
+		LOG_INFO("[%d][%d]%s", thread_index, num, "hello log info");
+		LOG_WARN("[%d][%d]%s", thread_index, num, "hello log warn");
+		LOG_ERROR("[%d][%d]%s", thread_index, num, "hello log error");
 		++num;
 		// sleep(1);
 	}
@@ -367,14 +367,13 @@ void log_thread_func(int thread_index)
 
 int test3()
 {
-	LOG_INIT("testlog", true);
 	std::thread t1 = std::thread(log_thread_func, 1);
 	std::thread t2 = std::thread(log_thread_func, 2);
 
 	t1.join();
 	t2.join();
 
-	Logger::Instance()->Stop();
+	LOG_STOP();
 
 	return 0;
 }
@@ -390,6 +389,7 @@ testcase_t test_list[] =
 
 int main(int argc, char ** argv)
 {
+	LOG_INIT("testlog", true);
 	LOG_DEBUG("%s", argv[0]);
 
 	int ret;

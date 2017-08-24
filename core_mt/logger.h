@@ -19,14 +19,20 @@ enum
 	LOG_TYPE_ERROR = 4,
 };
 
-/*
+#define NOT_USE_LOGGER 0
+
+#if (NOT_USE_LOGGER == 1)
 void _logcore(int type, const char *filename, const char *funcname, int linenum, const char *fmt, ...);
 
+#define LOG_INIT(log_file_name, is_print_log) do {} while (false)
 #define LOG_DEBUG(fmt, ...) _logcore(LOG_TYPE_DEBUG, __FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
 #define LOG_INFO(fmt, ...) _logcore(LOG_TYPE_INFO, __FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
 #define LOG_WARN(fmt, ...) _logcore(LOG_TYPE_WARN, __FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
 #define LOG_ERROR(fmt, ...) _logcore(LOG_TYPE_ERROR, __FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
-*/
+#define LOG_RAW(type, filename, funcname, linenum, fmt, ...) _logcore(type, filename, funcname, linenum, fmt, ##__VA_ARGS__);
+#define LOG_STOP() do {} while (false)
+
+#else
 
 class LogPipe
 {
@@ -76,4 +82,7 @@ private:
 #define LOG_INFO(fmt, ...) Logger::Instance()->SendLog(LOG_TYPE_INFO, __FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
 #define LOG_WARN(fmt, ...) Logger::Instance()->SendLog(LOG_TYPE_WARN, __FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
 #define LOG_ERROR(fmt, ...) Logger::Instance()->SendLog(LOG_TYPE_ERROR, __FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
+#define LOG_RAW(type, filename, funcname, linenum, fmt, ...) Logger::Instance()->SendLog(type, filename, funcname, linenum, fmt, ##__VA_ARGS__)
+#define LOG_STOP() Logger::Instance()->Stop()
 
+#endif

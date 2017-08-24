@@ -22,6 +22,8 @@ static const char *tags[] =
 };
 
 
+#if (NOT_USE_LOGGER == 1)
+
 void _logcore(int type, const char *filename, const char *funcname, int linenum, const char *fmt, ...)
 {
 	time_t now_time = time(NULL);
@@ -102,7 +104,7 @@ void _logcore(int type, const char *filename, const char *funcname, int linenum,
 #endif
 }
 
-///////////////////////////////////////////
+#else
 
 LogPipe::LogPipe() {}
 LogPipe::~LogPipe() {}
@@ -154,8 +156,8 @@ void Logger::Init(const char *log_file_name, bool is_print_log)
 	mkdir("../log", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 #endif
 
+	m_isWriteLog = strcmp(log_file_name, "");
 	m_logFileName = std::string("../log/") + log_file_name;
-	m_isWriteLog = m_logFileName != "";
 	m_isPrintLog = is_print_log;
 
 	auto log_run = [this]()
@@ -284,7 +286,7 @@ void Logger::ShiftLogFile()
 	// rename
 	struct timeval tv;    
 	gettimeofday(&tv, NULL);
-	int64_t time_ms = tv.tv_sec * 1000.0 + tv.tv_usec / 1000.0;
+	int64_t time_ms = (int64_t)(tv.tv_sec * 1000.0 + tv.tv_usec / 1000.0);
 	std::string new_file_name = m_logFileName + "_" + std::to_string(time_ms) + ".txt";
 	if (rename(file_name.c_str(), new_file_name.c_str()) < 0)
 	{
@@ -381,3 +383,5 @@ void Logger::PrintLog(const char *buffer)
 
 #endif
 }
+
+#endif

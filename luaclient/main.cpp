@@ -39,7 +39,7 @@ int main(int argc, char ** argv)
 	printf("ip=%s port=%d entry_file=%s\n", ip, port, entry_file);
 	//
 
-	LOG_INIT("", true);
+	LOG_INIT("client", true);
 
 	// init msg pipe
 	EventPipe *net2worldPipe = new EventPipe();
