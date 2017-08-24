@@ -5,6 +5,10 @@
 #include <stdio.h>
 #include <fcntl.h>
 #include <string.h>
+#include <sys\stat.h>
+#ifdef WIN32
+#include <direct.h>
+#endif
 #include "util.h"
 #include "logger.h"
 
@@ -142,7 +146,15 @@ void Logger::Init(const char *log_file_name, bool is_print_log)
 		return;
 	}
 
-	m_logFileName = log_file_name;
+	// mkdir log
+	
+#ifdef WIN32
+	_mkdir("../log");
+#else
+	mkdir("../log", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
+#endif
+
+	m_logFileName = std::string("../log/") + log_file_name;
 	m_isWriteLog = m_logFileName != "";
 	m_isPrintLog = is_print_log;
 
@@ -213,9 +225,10 @@ void Logger::RecvLog()
 	}
 
 	FILE *pfile = NULL;
+	std::string file_name = m_logFileName + ".txt";
 	if (m_isWriteLog)
 	{
-		pfile = fopen(m_logFileName.c_str(), "a");
+		pfile = fopen(file_name.c_str(), "a");
 	}
 	for (auto iter = log_list.begin(); iter != log_list.end(); ++iter)
 	{
@@ -239,6 +252,44 @@ void Logger::RecvLog()
 	{
 		fclose(pfile);
 		// TODO shift log file
+		ShiftLogFile();
+	}
+}
+
+void Logger::ShiftLogFile()
+{
+	// enum { MAX_LOG_FILE_SIZE = 1024000 }; 
+	enum { MAX_LOG_FILE_SIZE = 102400 }; 
+	std::string file_name = m_logFileName + ".txt";
+
+#ifdef WIN32
+	struct _stat file_stat;
+	if (_stat(file_name.c_str(), &file_stat) < 0)
+#else
+	struct stat file_stat;
+	if (stat(file_name.c_str(), &file_stat) < 0)
+#endif
+	{
+		perror("Logger::ShiftLogFile stat error");
+		return;
+	}
+
+	// printf("file_stat.st_size=%lld\n", (long long)file_stat.st_size);
+
+	if (file_stat.st_size < MAX_LOG_FILE_SIZE)
+	{
+		return;
+	}
+
+	// rename
+	struct timeval tv;    
+	gettimeofday(&tv, NULL);
+	int64_t time_ms = tv.tv_sec * 1000.0 + tv.tv_usec / 1000.0;
+	std::string new_file_name = m_logFileName + "_" + std::to_string(time_ms) + ".txt";
+	if (rename(file_name.c_str(), new_file_name.c_str()) < 0)
+	{
+		perror("Logger::ShiftLogFile rename error");
+		return;
 	}
 }
 
@@ -289,7 +340,7 @@ void Logger::PrintLog(const char *buffer)
 	set_color(buffer, tags[LOG_TYPE_WARN], FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY); // yellow
 	set_color(buffer, tags[LOG_TYPE_ERROR], FOREGROUND_RED | FOREGROUND_INTENSITY); // red
 
-	printf("%s", buffer);
+	printf("%s\n", buffer);
 
 	// Restore the original color  
 	SetConsoleTextAttribute(h, wOldColorAttrs);

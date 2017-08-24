@@ -61,6 +61,7 @@ private:
 	~Logger();
 	void PrintLog(const char *buffer);
 	void RecvLog();
+	void ShiftLogFile();
 
 	LogPipe m_logPipe;
 	std::string m_logFileName;

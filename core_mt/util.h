@@ -120,6 +120,9 @@ inline void gettimeofday(struct timeval *tp, void *ptr)
 	tp->tv_sec = (long)(intervals / 10000000);
 	tp->tv_usec = (long)((intervals % 10000000) / 10);
 }
+
+#define snprintf(buffer, count, format, ...) do {_snprintf(buffer, count-1, format, ##__VA_ARGS__); buffer[count-1] = '\0'; } while (false)
+
 #endif
 
 inline void sleep_second(int second)

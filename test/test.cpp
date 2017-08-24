@@ -354,7 +354,7 @@ int test2()
 void log_thread_func(int thread_index)
 {
 	int num = 0;
-	while (num < 10)
+	while (num < 100)
 	{
 		Logger::Instance()->SendLog(LOG_TYPE_DEBUG, __FILE__, __FUNCTION__, __LINE__, "[%d][%d]%s", thread_index, num, "hello log debug");
 		Logger::Instance()->SendLog(LOG_TYPE_INFO, __FILE__, __FUNCTION__, __LINE__, "[%d][%d]%s", thread_index, num, "hello log info");
@@ -367,7 +367,7 @@ void log_thread_func(int thread_index)
 
 int test3()
 {
-	LOG_INIT("test_log", true);
+	LOG_INIT("testlog", true);
 	std::thread t1 = std::thread(log_thread_func, 1);
 	std::thread t2 = std::thread(log_thread_func, 2);
 
