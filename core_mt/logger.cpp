@@ -156,7 +156,7 @@ void Logger::Init(const char *log_file_name, bool is_print_log)
 	mkdir("../log", S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH);
 #endif
 
-	m_isWriteLog = strcmp(log_file_name, "");
+	m_isWriteLog = strcmp(log_file_name, "") != 0;
 	m_logFileName = std::string("../log/") + log_file_name;
 	m_isPrintLog = is_print_log;
 
