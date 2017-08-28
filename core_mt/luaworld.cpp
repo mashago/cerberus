@@ -134,7 +134,7 @@ bool LuaWorld::Init(int server_id, int server_type, const char *conf_file, const
 	lua_setmetatable(m_L, -2);
 	lua_setglobal(m_L, "g_luaworld_ptr");
 
-	if (luaL_dofile(m_L, "../script/main_mt.lua"))
+	if (luaL_dofile(m_L, "../script/main.lua"))
 	{
 		const char * msg = lua_tostring(m_L, -1);
 		LOG_ERROR("msg=%s", msg);
