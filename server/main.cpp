@@ -36,21 +36,8 @@ int main(int argc, char ** argv)
 {
 	printf("%s\n", argv[0]);
 	
-
-#ifdef WIN32
-	WSADATA wsa_data;
-	WSAStartup(0x0201, &wsa_data);
-#else
 	signal(SIGHUP,  SIG_IGN );
 	signal(SIGCHLD,  SIG_IGN );
-
-	pid_t pid = daemon(1, 0);
-	if (pid < 0)
-	{
-		perror("daemon fail");
-		return -1;
-	}
-#endif
 
 	// Server [config_file]
 	if (argc < 2) 
@@ -59,12 +46,44 @@ int main(int argc, char ** argv)
 		return 0;
 	}
 
-	// load config
+#ifdef WIN32
+	WSADATA wsa_data;
+	WSAStartup(0x0201, &wsa_data);
 	const char *conf_file = argv[1];
+#else
+	bool is_daemon = false;
+	const char *conf_file = "";
+
+	int c;
+	while ((c = getopt(argc, argv, "dc:")) != -1)
+	{
+		switch (c)
+		{
+			case 'd':
+				is_daemon = true;
+				break;
+			case 'c':
+				conf_file = optarg;
+				break;
+		}
+	}
+
+	if (is_daemon)
+	{
+		pid_t pid = daemon(1, 0);
+		if (pid < 0)
+		{
+			perror("daemon fail");
+			return -1;
+		}
+	}
+#endif
+
+	// load config
 	tinyxml2::XMLDocument doc;
 	if (doc.LoadFile(conf_file) != tinyxml2::XMLError::XML_SUCCESS)
 	{
-		printf("load conf error %s\n", conf_file);
+		printf("load conf error %s!!!!\n", conf_file);
 		return 0;
 	}
 

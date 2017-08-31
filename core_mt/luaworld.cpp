@@ -4,6 +4,7 @@ extern "C"
 #include <string.h>
 #include <lauxlib.h>
 #include <lualib.h>
+#include "lfs.h"
 }
 #include "util.h"
 #include "logger.h"
@@ -101,6 +102,7 @@ bool LuaWorld::Init(int server_id, int server_type, const char *conf_file, const
 		{ "LuaTinyXMLDoc", luaopen_luatinyxmldoc },
 		{ "LuaTinyXMLEle", luaopen_luatinyxmlele },
 		{ "LuaMysqlMgr", luaopen_luamysqlmgr },
+		{ "lfs", luaopen_lfs },
 		{ NULL, NULL },
 	};
 

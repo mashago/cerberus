@@ -5,15 +5,11 @@
 #4.create lib
 
 #1.define target
-SET(TARGET_NAME core_mt)
+SET(TARGET_NAME lfs)
 
 #2.include
 INCLUDE_DIRECTORIES(
 ./
-../tinyxml
-../lfs
-/usr/local/include/mysql
-/usr/include/mysql
 )
 
 IF(CMAKE_SYSTEM_NAME MATCHES "Darwin")
@@ -22,8 +18,8 @@ ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Linux")
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
 	INCLUDE_DIRECTORIES(${PROJECT_PATH}/include/windows/lua)
-	INCLUDE_DIRECTORIES(${PROJECT_PATH}/include/windows/libevent)
-	INCLUDE_DIRECTORIES(${PROJECT_PATH}/include/windows/mysql)
+	#INCLUDE_DIRECTORIES(${PROJECT_PATH}/include/windows/libevent)
+	#INCLUDE_DIRECTORIES(${PROJECT_PATH}/include/windows/mysql)
 	#LINK_DIRECTORIES(${PROJECT_PATH}/lib/windows)
 ELSE()
 ENDIF()
