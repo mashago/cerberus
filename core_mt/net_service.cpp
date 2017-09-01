@@ -73,7 +73,7 @@ int NetService::Init(const char *addr, unsigned int port, std::set<std::string> 
 		return -1;
 	}
 
-	// init tick timer
+	// init tick timer, for net_server handle logic
 	m_tickEvent = event_new(m_mainEvent, -1, EV_PERSIST, tick_cb, this);
 	struct timeval tv;
 	tv.tv_sec = 0;
@@ -85,10 +85,10 @@ int NetService::Init(const char *addr, unsigned int port, std::set<std::string> 
 		return -1;
 	}
 
-	// init timer
+	// init world timer, for world timer
 	m_timerEvent = event_new(m_mainEvent, -1, EV_PERSIST, timer_cb, this);
 	tv.tv_sec = 0;
-	tv.tv_usec = 500 * 1000;
+	tv.tv_usec = 100 * 1000;
 	if (event_add(m_timerEvent, &tv) != 0)
 	{
 		LOG_ERROR("add normal timer fail");
