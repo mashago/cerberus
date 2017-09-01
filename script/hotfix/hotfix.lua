@@ -236,9 +236,9 @@ end
 
 -- User can set log functions. Default is no log.
 -- Like: require("hotfix").log_info = function(s) mylog:info(s) end
-function M.log_error(msg_str) print("error " .. msg_str) end
-function M.log_info(msg_str)  print("info " .. msg_str)end
-function M.log_debug(msg_str)  print("debug " .. msg_str)end
+function M.log_error(msg_str) Log.err("error %s", msg_str) end
+function M.log_info(msg_str)  Log.info("info %s", msg_str)end
+function M.log_debug(msg_str)  Log.debug("debug %s", msg_str)end
 
 -- Add objects to protect.
 -- Example: add_protect({table, math, print})

@@ -28,6 +28,9 @@ local function main()
 	math.randomseed(os.time())
 
 	require(g_entry_file)
+
+	local hotfix = require("hotfix.main")
+	hotfix.run()
 end
 
 local status, msg = xpcall(main, function(msg) local msg = debug.traceback(msg, 3) return msg end)
