@@ -5,6 +5,7 @@ extern "C"
 #include <unistd.h>
 #endif
 #include <stdlib.h>
+#include <fcntl.h>
 }
 
 #include <set>
@@ -31,6 +32,25 @@ static const char *SERVER_NAME_ARRAY[] =
 ,	"pay_svr"
 ,	"chat_svr"
 };
+
+// copy from redis
+void daemonize(void)
+{
+	int fd;
+
+	if (fork() != 0) exit(0); /* parent exits */
+	setsid(); /* create a new session */
+
+	/* Every output goes to /dev/null. If Redis is daemonized but 
+	 * the 'logfile' is set to 'stdout' in the configuration file 
+	 * it will not log at all. */
+	if ((fd = open("/dev/null", O_RDWR, 0)) != -1) {  
+		dup2(fd, STDIN_FILENO);  
+		dup2(fd, STDOUT_FILENO);  
+		dup2(fd, STDERR_FILENO);  
+		if (fd > STDERR_FILENO) close(fd);  
+	}  
+} 
 
 int main(int argc, char ** argv)
 {
@@ -70,12 +90,7 @@ int main(int argc, char ** argv)
 
 	if (is_daemon)
 	{
-		pid_t pid = daemon(1, 0);
-		if (pid < 0)
-		{
-			perror("daemon fail");
-			return -1;
-		}
+		daemonize();
 	}
 #endif
 
