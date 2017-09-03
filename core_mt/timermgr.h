@@ -7,6 +7,7 @@ extern "C"
 }
 #include <functional>
 #include <map>
+#include <queue>
 #include <list>
 
 class NetService;
@@ -35,6 +36,18 @@ private:
 	};
 
 	std::map<int64_t, Timer> m_timerMap;
+
+	struct TimerOrderNode
+	{
+		int64_t _wake_time;
+		int64_t _timer_index;
+		friend bool operator<(const TimerOrderNode &n1, const TimerOrderNode &n2)
+		{
+			return n1._wake_time > n2._wake_time;
+		}
+	};
+	std::priority_queue<TimerOrderNode> m_timerOrderQueue;
+
 	std::list<int64_t> m_timerDelList;
 	int64_t m_timerIndex;
 

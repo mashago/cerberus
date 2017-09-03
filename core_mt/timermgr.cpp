@@ -33,6 +33,11 @@ int64_t TimerMgr::AddTimer(int ms, TIMER_CB cb_func, void *arg, bool is_loop)
 	t._cb_func = cb_func;
 	m_timerMap[m_timerIndex] = t;
 
+	TimerOrderNode n;
+	n._wake_time = t._wake_time;
+	n._timer_index = m_timerIndex;
+	m_timerOrderQueue.push(n);
+
 	return m_timerIndex;
 }
 
@@ -48,6 +53,46 @@ void TimerMgr::OnTimer()
 	gettimeofday(&tv, NULL);
 	int64_t now_time = tv.tv_sec * 1000 + tv.tv_usec / 1000;
 	// LOG_DEBUG("now_time=%lld", now_time);
+
+	// new logic
+	/*
+	while (!m_timerOrderQueue.empty())
+	{
+		const TimerOrderNode &n = m_timerOrderQueue.top();
+		if (n._wake_time > now_time)
+		{
+			break;
+		}
+
+		int64_t wake_time = n._wake_time;
+		int64_t timer_index = n._timer_index;
+		m_timerOrderQueue.pop();
+
+		auto iter = m_timerMap.find(timer_index);
+		if (iter == m_timerMap.end())
+		{
+			// XXX something go wrong
+			continue;
+		}
+		
+		Timer &timer = iter->second;
+		timer._cb_func(timer._arg);
+		if (timer._is_loop)
+		{
+			timer._wake_time = now_time + timer._ms;
+
+			TimerOrderNode n;
+			n._wake_time = timer._wake_time;
+			n._timer_index = timer_index;
+			m_timerOrderQueue.push(n);
+			continue;
+		}
+
+		// one time job timer
+		DelTimer(timer_index);
+
+	}
+	*/
 
 	// TODO change to priority_queue
 	for (auto iter = m_timerMap.begin(); iter != m_timerMap.end(); ++iter)
