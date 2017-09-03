@@ -8,7 +8,6 @@ extern "C"
 #include <functional>
 #include <map>
 #include <queue>
-#include <list>
 
 class NetService;
 
@@ -25,11 +24,12 @@ public:
 	bool DelTimer(int64_t timer_index);
 	void OnTimer();
 private:
+
+	void AddTimerOrder(int64_t wake_time, int64_t timer_index);
 	
 	struct Timer
 	{
 		int _ms;
-		int64_t _wake_time; // ms
 		bool _is_loop;
 		void *_arg;
 		TIMER_CB _cb_func;
@@ -39,7 +39,7 @@ private:
 
 	struct TimerOrderNode
 	{
-		int64_t _wake_time;
+		int64_t _wake_time; // ms
 		int64_t _timer_index;
 		friend bool operator<(const TimerOrderNode &n1, const TimerOrderNode &n2)
 		{
@@ -48,7 +48,5 @@ private:
 	};
 	std::priority_queue<TimerOrderNode> m_timerOrderQueue;
 
-	std::list<int64_t> m_timerDelList;
-	int64_t m_timerIndex;
-
+	int64_t m_curTimerIndex;
 };

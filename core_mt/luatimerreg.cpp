@@ -19,7 +19,7 @@ int add_timer_c(lua_State *L)
 	int ms = lua_tointeger(L, 2);
 	bool is_loop = lua_toboolean(L, 3);
 
-	int64_t new_timer_index = luaworld->m_timerMgr->GetCurTimerIndex() + 1;
+	int64_t new_timer_index = luaworld->m_timerMgr->GetCurTimerIndex();
 	// int64_t ret_timer_index = luaworld->m_timerMgr->AddTimer(ms, handler_timer, (void *)new_timer_index, is_loop);
 	int64_t ret_timer_index = luaworld->m_timerMgr->AddTimer(ms, std::bind(&LuaWorld::HandleTimer, luaworld, std::placeholders::_1), (void *)new_timer_index, is_loop);
 
