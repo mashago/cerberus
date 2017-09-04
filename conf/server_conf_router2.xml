@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<server id = "2" type = "1" ip = "127.0.0.1" port = "7712" file = "router_svr/main"> 
-	<connect_to>
-	</connect_to>
-
-	<trust_ip>
-		<address ip = "127.0.0.1"/>
-	</trust_ip>
-</server>
