@@ -6,6 +6,7 @@ extern "C"
 #endif
 #include <stdlib.h>
 #include <fcntl.h>
+#include <signal.h>
 }
 
 #include <set>
@@ -33,6 +34,7 @@ static const char *SERVER_NAME_ARRAY[] =
 ,	"chat_svr"
 };
 
+#ifndef WIN32
 // copy from redis
 void daemonize(void)
 {
@@ -51,13 +53,12 @@ void daemonize(void)
 		if (fd > STDERR_FILENO) close(fd);  
 	}  
 } 
+#endif
 
 int main(int argc, char ** argv)
 {
 	printf("%s\n", argv[0]);
 	
-	signal(SIGHUP,  SIG_IGN );
-	signal(SIGCHLD,  SIG_IGN );
 
 	// Server [config_file]
 	if (argc < 2) 
@@ -71,6 +72,8 @@ int main(int argc, char ** argv)
 	WSAStartup(0x0201, &wsa_data);
 	const char *conf_file = argv[1];
 #else
+	signal(SIGHUP,  SIG_IGN );
+	signal(SIGCHLD,  SIG_IGN );
 	bool is_daemon = false;
 	const char *conf_file = "";
 

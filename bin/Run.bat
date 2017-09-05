@@ -1,10 +1,13 @@
 @echo off
 
+@echo "Start DB Login Server..."
+start "db_login_svr" MassNetServer.exe "../conf/server_conf_db_login.xml"
+
 @echo "Start Login Server..."
 start "login_svr" MassNetServer.exe "../conf/server_conf_login.xml"
 
-@echo "Start DB Server..."
-start "db_svr" MassNetServer.exe "../conf/server_conf_db.xml"
+@echo "Start DB Game Server..."
+start "db_game_svr" MassNetServer.exe "../conf/server_conf_db_game.xml"
 
 @echo "Start Bridge Server..."
 start "bridge_svr" MassNetServer.exe "../conf/server_conf_bridge.xml"
