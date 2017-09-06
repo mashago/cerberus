@@ -47,21 +47,23 @@ function ServiceClient.is_service_server(mailbox_id)
 	return false
 end
 
-function ServiceClient.add_connect_service(ip, port, server_id, server_type, register, invite)
+function ServiceClient.add_connect_service(ip, port, server_id, server_type, register, invite, no_reconnect)
+	-- TODO check duplicate connect service
 	local service_info = 
 	{
 		_server_id = server_id or 0, 
 		_server_type = server_type or 0, 
 		_ip = ip, 
 		_port = port, 
-		-- _desc = desc, 
+		_register = register, -- 0 or 1, send my scene info to target service
+		_invite = invite, -- 0 or 1, invite target service connect me
+		_no_reconnect = no_reconnect, -- 0 or 1, default do reconnect
+
 		_mailbox_id = 0,
 		_connect_index = 0,
-		_register = register, -- send my scene info to target service
-		_invite = invite, -- invite target service connect me
+
 		_is_connecting = false,
 		_is_connected = false,
-		_is_closing = false,
 		_last_connect_time = 0,
 		_server_list = {}, -- {server_id1, server_id2}
 	}
@@ -366,7 +368,7 @@ function ServiceClient.handle_disconnect(mailbox_id)
 	end
 	service_info._server_list = {}
 
-	if service_info._is_closing then
+	if service_info._no_reconnect == 1 then
 		Log.info("ServiceClient.handle_disconnect remove closing service %d", mailbox_id)
 		-- mailbox is going to close, will not do reconnect
 		-- remove from _all_service_server
@@ -401,7 +403,7 @@ function ServiceClient.close_service(mailbox_id)
 	end
 
 	-- mark down, will clean up by handle_disconnect
-	service_info._is_closing = true 
+	service_info._no_reconnect = 1
 
 	-- core logic
 	g_network:close_mailbox(mailbox_id)

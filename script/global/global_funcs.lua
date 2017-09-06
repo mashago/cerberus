@@ -37,8 +37,9 @@ function g_funcs.connect_to_servers(xml_doc)
 		local server_type = address_ele:int_attribute("type")
 		local register = address_ele:int_attribute("register")
 		local invite = address_ele:int_attribute("invite")
-		Log.info("ip=%s port=%d server_id=%d server_type=%d register=%d invite=%d", ip, port, server_id, server_type, register, invite)
-		ServiceClient.add_connect_service(ip, port, server_id, server_type, register, invite)
+		local no_reconnect = address_ele:int_attribute("no_reconnect")
+		Log.info("ip=%s port=%d server_id=%d server_type=%d register=%d invite=%d no_reconnect=%d", ip, port, server_id, server_type, register, invite, no_reconnect)
+		ServiceClient.add_connect_service(ip, port, server_id, server_type, register, invite, no_reconnect)
 
 		address_ele = address_ele:next_sibling_element()
 	end

@@ -113,6 +113,17 @@ local function handle_router_role_disconnect(role, data, mailbox_id)
 
 end
 
+local function handle_invite_connect(data, mailbox_id)
+	local ip = data.ip
+	local port = data.port
+	local server_id = 0
+	local server_type = 0
+	local register = 1
+	local invite = 0
+	local no_reconnect = 1
+	ServiceClient.add_connect_service(ip, port, server_id, server_type, register, invite, no_reconnect)
+end
+
 function register_msg_handler()
 	Net.add_msg_handler(MID.REGISTER_SERVER_RET, g_funcs.handle_register_server_ret)
 	Net.add_msg_handler(MID.REGISTER_SERVER_BROADCAST, g_funcs.handle_register_server_broadcast)
@@ -122,4 +133,6 @@ function register_msg_handler()
 
 	Net.add_msg_handler(MID.ROUTER_ROLE_ENTER_REQ, handle_router_role_enter_req)
 	Net.add_msg_handler(MID.ROUTER_ROLE_DISCONNECT, handle_router_role_disconnect)
+
+	Net.add_msg_handler(MID.INVITE_CONNECT_REQ, handle_invite_connect)
 end

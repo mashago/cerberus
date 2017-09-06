@@ -3,7 +3,7 @@
 	<connect_to>
 		<!-- cross_svr -->
 		<!--
-		<address ip = "127.0.0.1" port = "7771" register = "0" invite = "1"/>
+		<address ip = "127.0.0.1" port = "7771" id = "71", type = "7" register = "0" invite = "1"/>
 		-->
 	</connect_to>
 
