@@ -18,6 +18,26 @@ ServiceClient._scene_server_map = {}
 ServiceClient._is_connect_timer_running = false
 ServiceClient._connect_interval_ms = 2000
 
+ServiceClient.is_service_server = nil
+ServiceClient.add_connect_service = nil
+ServiceClient.create_connect_timer = nil
+ServiceClient.get_service = nil
+ServiceClient.add_server = nil
+ServiceClient.connect_to_ret = nil
+ServiceClient.connect_to_success = nil
+ServiceClient.register_success = nil
+ServiceClient._remove_server_core = nil
+ServiceClient.remove_server = nil
+ServiceClient.handle_disconnect = nil
+ServiceClient.close_service = nil
+ServiceClient.close_service_by_type = nil
+ServiceClient.get_server_by_id = nil
+ServiceClient.get_server_by_scene = nil
+ServiceClient.get_server_by_mailbox = nil
+ServiceClient.get_server_by_type = nil
+ServiceClient.send_to_type_server = nil
+ServiceClient.print = nil
+
 function ServiceClient.is_service_server(mailbox_id)
 	for _, service_info in ipairs(ServiceClient._all_service_server) do
 		if service_info._mailbox_id == mailbox_id then
@@ -27,7 +47,7 @@ function ServiceClient.is_service_server(mailbox_id)
 	return false
 end
 
-function ServiceClient.add_connect_service(ip, port, server_id, server_type, register)
+function ServiceClient.add_connect_service(ip, port, server_id, server_type, register, invite)
 	local service_info = 
 	{
 		_server_id = server_id or 0, 
@@ -37,7 +57,8 @@ function ServiceClient.add_connect_service(ip, port, server_id, server_type, reg
 		-- _desc = desc, 
 		_mailbox_id = 0,
 		_connect_index = 0,
-		_register = register,
+		_register = register, -- send my scene info to target service
+		_invite = invite, -- invite target service connect me
 		_is_connecting = false,
 		_is_connected = false,
 		_is_closing = false,
@@ -119,7 +140,9 @@ function ServiceClient.get_service(mailbox_id)
 	return nil
 end
 
-function ServiceClient.add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list, is_secondhand)
+-- if server is with direct connection, is_indirect is false, like scene to router
+-- if server is add by broadcast, is_indirect is true, like briedge to scene
+function ServiceClient.add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list, is_indirect)
 
 	-- service server add server
 	local service_info = ServiceClient.get_service(mailbox_id)
@@ -127,33 +150,34 @@ function ServiceClient.add_server(mailbox_id, server_id, server_type, single_sce
 		table.insert(service_info._server_list, server_id)
 	end
 
-	-- if exists in all_server_map, means add by other service server, just update mailbox_id or secondhand_mailbox_id
+	-- if exists in all_server_map, means add by other service server, just update _mailbox_id or _indirect_mailbox_id_list
 	local server_info = ServiceClient._all_server_map[server_id]
 	if server_info then
-		if not is_secondhand and server_info._mailbox_id ~= -1 then
-			Log.err("ServiceClient.service_add_connect_server duplicate set mailbox_id=%d server_id=%d", mailbox_id, server_id)
+		if not is_indirect and server_info._mailbox_id ~= -1 then
+			Log.err("ServiceClient.add_server duplicate set mailbox_id server_id=%d", server_id)
 			return
 		end
-		for k, v in ipairs(server_info._secondhand_mailbox_id) do
+		for k, v in ipairs(server_info._indirect_mailbox_id_list) do
 			if v == mailbox_id then
-				Log.err("ServiceClient.service_add_connect_server duplicate secondhand_mailbox_id=%d server_id=%d", mailbox_id, server_id)
+				Log.err("ServiceClient.add_server duplicate set indirect_mailbox_id server_id=%d", server_id)
 				return
 			end
 		end
 
-		if not is_secondhand then
+		if not is_indirect then
 			server_info._mailbox_id = mailbox_id
 		else
-			table.insert(server_info._secondhand_mailbox_id, mailbox_id)
+			table.insert(server_info._indirect_mailbox_id_list, mailbox_id)
 		end
 		
+		Log.info("ServiceClient.add_server:")
 		ServiceClient.print()
 		return
 	end
 
 	-- init server_info
 	local ServerInfo = require "global.service.server_info"
-	local server_info = ServerInfo:new(server_id, server_type, mailbox_id, single_scene_list, from_to_scene_list, is_secondhand)
+	local server_info = ServerInfo:new(server_id, server_type, mailbox_id, single_scene_list, from_to_scene_list, is_indirect)
 	-- Log.debug("server_info._scene_list=%s", Util.table_to_string(server_info._scene_list))
 
 	-- add into all_server_map
@@ -169,6 +193,7 @@ function ServiceClient.add_server(mailbox_id, server_id, server_type, single_sce
 		table.insert(ServiceClient._scene_server_map[scene_id], server_id)
 	end
 
+	Log.info("ServiceClient.add_server:")
 	ServiceClient.print()
 end
 
@@ -205,10 +230,21 @@ function ServiceClient.connect_to_success(mailbox_id)
 			from_to_scene_list = ServerConfig._from_to_scene_list,
 		}
 		Net.send_msg(mailbox_id, MID.REGISTER_SERVER_REQ, msg)
-		ServiceClient.print()
 	else
 		-- no register, add server by service
-		ServiceClient.add_server(mailbox_id, service_info._server_id, service_info._server_type, {}, {})
+		ServiceClient.add_server(mailbox_id, service_info._server_id, service_info._server_type, {}, {}, false)
+		Log.info("ServiceClient.connect_to_success:")
+		ServiceClient.print()
+	end
+
+	if service_info._invite == 1 then
+		-- send invite msg
+		local msg = 
+		{
+			ip = ServerConfig._ip,
+			port = ServerConfig._port,
+		}
+		Net.send_msg(mailbox_id, MID.INVITE_CONNECT_REQ, msg)
 	end
 end
 
@@ -223,9 +259,10 @@ function ServiceClient.register_success(mailbox_id, server_id, server_type)
 	service_info._server_type = server_type
 
 	-- add service as a server too
-	ServiceClient.add_server(mailbox_id, server_id, server_type, {}, {})
+	ServiceClient.add_server(mailbox_id, server_id, server_type, {}, {}, false)
 
-	-- ServiceClient.print()
+	Log.info("ServiceClient.register_success:")
+	ServiceClient.print()
 end
 
 function ServiceClient._remove_server_core(mailbox_id, server_id)
@@ -241,9 +278,9 @@ function ServiceClient._remove_server_core(mailbox_id, server_id)
 		return
 	end
 
-	for i=#server_info._secondhand_mailbox_id, 1, -1 do
-		if server_info._secondhand_mailbox_id[i] == mailbox_id then
-			table.remove(server_info._secondhand_mailbox_id, i)
+	for i=#server_info._indirect_mailbox_id_list, 1, -1 do
+		if server_info._indirect_mailbox_id_list[i] == mailbox_id then
+			table.remove(server_info._indirect_mailbox_id_list, i)
 		end
 	end
 
@@ -251,7 +288,7 @@ function ServiceClient._remove_server_core(mailbox_id, server_id)
 		server_info._mailbox_id = -1
 	end
 	
-	if server_info._mailbox_id ~= -1 or #server_info._secondhand_mailbox_id > 0 then
+	if server_info._mailbox_id ~= -1 or #server_info._indirect_mailbox_id_list > 0 then
 		-- still has service connect to this server, do nothing
 		return
 	end
@@ -310,29 +347,12 @@ function ServiceClient.remove_server(mailbox_id, server_id)
 	-- 2. remove server core
 	ServiceClient._remove_server_core(mailbox_id, server_id)
 
+	Log.info("ServiceClient.remove_server:")
 	ServiceClient.print()
 end
 
 function ServiceClient.handle_disconnect(mailbox_id)
 	Log.info("ServiceClient.handle_disconnect mailbox_id=%d", mailbox_id)
-
-	--[[
-	for _, service_info in ipairs(ServiceClient._all_service_server) do
-		if service_info._mailbox_id == mailbox_id then
-			-- set disconnect
-			service_info._mailbox_id = -1
-			service_info._is_connecting = false
-			service_info._is_connected = false
-
-			for _, server_id in ipairs(service_info._server_list) do
-				ServiceClient._remove_server_core(mailbox_id, server_id)
-			end
-			service_info._server_list = {}
-
-			break
-		end
-	end
-	--]]
 
 	local service_info = ServiceClient.get_service(mailbox_id)
 	if not service_info then
@@ -356,6 +376,7 @@ function ServiceClient.handle_disconnect(mailbox_id)
 				break
 			end
 		end
+		Log.info("ServiceClient.handle_disconnect:")
 		ServiceClient.print()
 		return
 	end
@@ -368,6 +389,7 @@ function ServiceClient.handle_disconnect(mailbox_id)
 	-- create connect timer to reconnect
 	ServiceClient.create_connect_timer()
 
+	Log.info("ServiceClient.handle_disconnect:")
 	ServiceClient.print()
 end
 

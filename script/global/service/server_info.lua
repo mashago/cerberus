@@ -1,7 +1,7 @@
 
 local ServerInfo = {}
 
-function ServerInfo:new(server_id, server_type, mailbox_id, single_scene_list, from_to_scene_list, is_secondhand)
+function ServerInfo:new(server_id, server_type, mailbox_id, single_scene_list, from_to_scene_list, is_indirect)
 	local obj = {}	
 	setmetatable(obj, self)
 	self.__index = self
@@ -10,12 +10,12 @@ function ServerInfo:new(server_id, server_type, mailbox_id, single_scene_list, f
 	obj._server_type = server_type
 
 	obj._mailbox_id = -1 -- default -1
-	obj._secondhand_mailbox_id = {} -- indirect mailbox id
+	obj._indirect_mailbox_id_list = {} -- indirect mailbox id
 
-	if not is_secondhand then
+	if not is_indirect then
 		obj._mailbox_id = mailbox_id
 	else
-		obj._secondhand_mailbox_id = {mailbox_id}
+		obj._indirect_mailbox_id_list = {mailbox_id}
 	end
 
 	obj._single_scene_list = single_scene_list
@@ -38,19 +38,19 @@ end
 
 -- get a mailbox to send msg
 -- use _mailbox_id first, it is direct connect
--- if _mailbox_id not exists, random one from _secondhand_mailbox_id
+-- if _mailbox_id not exists, random one from _indirect_mailbox_id_list
 function ServerInfo:get_mailbox_id()
 	if self._mailbox_id ~= -1 then
 		return self._mailbox_id
 	end
 
-	local len = #self._secondhand_mailbox_id
+	local len = #self._indirect_mailbox_id_list
 	if len == 0 then
 		return -1
 	end
 
 	local r = math.random(len)
-    local mailbox_id = self._secondhand_mailbox_id[r]
+    local mailbox_id = self._indirect_mailbox_id_list[r]
 	
 	return mailbox_id
 end
@@ -78,13 +78,12 @@ function ServerInfo:transfer_msg(ext)
 end
 
 function ServerInfo:print()
-	Log.info("ServerInfo:print _server_id=%d _server_type=%d _mailbox_id=%d \n_secondhand_mailbox_id=%s \n_single_scene_list=%s \n_from_to_scene_list=%s", self._server_id,
-	self._server_type,
-	self._mailbox_id,
-	Util.table_to_string(self._secondhand_mailbox_id),
-	Util.table_to_string(self._single_scene_list),
-	Util.table_to_string(self._from_to_scene_list)
-	)
+	Log.info("------ServerInfo--------")
+	Log.info("ServerInfo _server_id=%d _server_type=%d _mailbox_id=%d", self._server_id, self._server_type, self._mailbox_id)
+	Log.info("ServerInfo._indirect_mailbox_id_list=%s", Util.table_to_string(self._indirect_mailbox_id_list))
+	Log.info("ServerInfo._single_scene_list=%s", Util.table_to_string(self._single_scene_list))
+	Log.info("ServerInfo._from_to_scene_list=%s", Util.table_to_string(self._from_to_scene_list))
+	Log.info("--------------")
 end
 
 return ServerInfo

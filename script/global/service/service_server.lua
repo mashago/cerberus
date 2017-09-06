@@ -47,6 +47,7 @@ function ServiceServer.add_server(mailbox_id, server_id, server_type, single_sce
 		table.insert(ServiceServer._scene_server_map[scene_id], server_id)
 	end
 
+	Log.info("ServiceServer.add_server:")
 	ServiceServer.print()
 
 	return server_info
@@ -103,6 +104,7 @@ function ServiceServer.handle_disconnect(mailbox_id)
 		end
 	end
 
+	Log.info("ServiceServer.handle_disconnect:")
 	ServiceServer.print()
 end
 

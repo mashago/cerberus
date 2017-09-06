@@ -36,8 +36,9 @@ function g_funcs.connect_to_servers(xml_doc)
 		local server_id = address_ele:int_attribute("id")
 		local server_type = address_ele:int_attribute("type")
 		local register = address_ele:int_attribute("register")
-		Log.info("ip=%s port=%d server_id=%d server_type=%d register=%d", ip, port, server_id, server_type, register)
-		ServiceClient.add_connect_service(ip, port, server_id, server_type, register)
+		local invite = address_ele:int_attribute("invite")
+		Log.info("ip=%s port=%d server_id=%d server_type=%d register=%d invite=%d", ip, port, server_id, server_type, register, invite)
+		ServiceClient.add_connect_service(ip, port, server_id, server_type, register, invite)
 
 		address_ele = address_ele:next_sibling_element()
 	end
@@ -228,7 +229,7 @@ end
 -- a common handle for MID.REGISTER_SERVER_BROADCAST
 function g_funcs.handle_register_server_broadcast(data, mailbox_id, msg_id)
 	Log.debug("handle_register_server_broadcast: data=%s", Util.table_to_string(data))
-	ServiceClient.add_server(mailbox_id, data.server_id, data.server_type, data.single_scene_list, data.from_to_scene_list)
+	ServiceClient.add_server(mailbox_id, data.server_id, data.server_type, data.single_scene_list, data.from_to_scene_list, true)
 end
 
 -- a common handle for MID.SERVER_DISCONNECT

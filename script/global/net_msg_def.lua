@@ -55,6 +55,7 @@ MID._id_name_map =
 	[60006] = "REMOTE_CALL_RET",
 	[60007] = "REGISTER_AREA_REQ",
 	[60008] = "REGISTER_AREA_RET",
+	[60009] = "INVITE_CONNECT_REQ",
 
 	[60101] = "ROUTER_ROLE_ENTER_REQ",
 	[60102] = "ROUTER_ROLE_ENTER_RET",
@@ -295,6 +296,12 @@ MSG_DEF_MAP =
 	[MID.REGISTER_AREA_RET] =
 	{
 		{ "result", _Int },
+	},
+
+	[MID.INVITE_CONNECT_REQ] =
+	{
+		{ "ip", _String },
+		{ "port", _Int },
 	},
 
 	[MID.ROUTER_ROLE_ENTER_REQ] =
