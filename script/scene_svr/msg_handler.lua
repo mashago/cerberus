@@ -114,6 +114,7 @@ local function handle_router_role_disconnect(role, data, mailbox_id)
 end
 
 local function handle_invite_connect(data, mailbox_id)
+	Log.debug("handle_invite_connect data=%s", Util.table_to_string(data))
 	local ip = data.ip
 	local port = data.port
 	local server_id = 0
@@ -122,6 +123,7 @@ local function handle_invite_connect(data, mailbox_id)
 	local invite = 0
 	local no_reconnect = 1
 	ServiceClient.add_connect_service(ip, port, server_id, server_type, register, invite, no_reconnect)
+	ServiceClient.create_connect_timer()
 end
 
 function register_msg_handler()

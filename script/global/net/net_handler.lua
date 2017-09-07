@@ -246,7 +246,7 @@ function ccall_disconnect_handler(mailbox_id)
 	local function handle_disconnect(mailbox_id)
 		
 		if ServiceServer.is_service_client(mailbox_id) then
-			Log.info("ccall_disconnect_handler service_client disconnect %d", mailbox_id)
+			Log.warn("ccall_disconnect_handler service_client disconnect %d", mailbox_id)
 			-- service client disconnect
 			local server_info = ServiceServer.get_server_by_mailbox(mailbox_id)
 			if g_net_event_server_disconnect then
@@ -255,10 +255,11 @@ function ccall_disconnect_handler(mailbox_id)
 			ServiceServer.handle_disconnect(mailbox_id)
 		elseif ServiceClient.is_service_server(mailbox_id) then
 			-- service server disconnect
-			Log.info("ccall_disconnect_handler service_server disconnect %d", mailbox_id)
+			Log.warn("ccall_disconnect_handler service_server disconnect %d", mailbox_id)
 			ServiceClient.handle_disconnect(mailbox_id)
 		else
 			-- client disconnect
+			Log.warn("ccall_disconnect_handler client disconnect %d", mailbox_id)
 			if g_net_event_client_disconnect then
 				g_net_event_client_disconnect(mailbox_id)
 			end

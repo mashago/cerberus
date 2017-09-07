@@ -48,7 +48,15 @@ function ServiceClient.is_service_server(mailbox_id)
 end
 
 function ServiceClient.add_connect_service(ip, port, server_id, server_type, register, invite, no_reconnect)
-	-- TODO check duplicate connect service
+	-- check duplicate connect service
+	
+	for k, v in ipairs(ServiceClient._all_service_server) do
+		if v._ip == ip and v.port == port then
+			Log.warn("ServiceClient.add_connect_service duplicate add ip=%s port=%d", ip, port)
+			return
+		end
+	end
+	
 	local service_info = 
 	{
 		_server_id = server_id or 0, 
@@ -490,7 +498,7 @@ function ServiceClient.send_to_type_server(server_type, msg_id, msg)
 end
 
 function ServiceClient.print()
-	Log.info("*********ServiceClient********")
+	Log.info("************* ServiceClient ***********")
 	Log.info("ServiceClient._all_service_server=%s", Util.table_to_string(ServiceClient._all_service_server))
 	Log.info("ServiceClient._all_server_map=")
 	for k, server_info in pairs(ServiceClient._all_server_map) do
@@ -498,7 +506,7 @@ function ServiceClient.print()
 	end
 	Log.info("ServiceClient._type_server_map=%s", Util.table_to_string(ServiceClient._type_server_map))
 	Log.info("ServiceClient._scene_server_map=%s", Util.table_to_string(ServiceClient._scene_server_map))
-	Log.info("******************************")
+	Log.info("***************************************")
 end
 
 return ServiceClient

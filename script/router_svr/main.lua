@@ -18,6 +18,9 @@ local function main_entry()
 	-- load ip and port
 	g_funcs.load_address(xml_doc)
 
+	-- connect to other server
+	g_funcs.connect_to_servers(xml_doc)
+
 	local UserMgr = require "router_svr.user_mgr"
 	g_user_mgr = UserMgr:new()
 

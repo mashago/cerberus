@@ -104,7 +104,7 @@ function ServiceServer.handle_disconnect(mailbox_id)
 		end
 	end
 
-	Log.info("ServiceServer.handle_disconnect:")
+	Log.debug("ServiceServer.handle_disconnect:")
 	ServiceServer.print()
 end
 
@@ -158,14 +158,14 @@ function ServiceServer.get_server_by_mailbox(mailbox_id)
 end
 
 function ServiceServer.print()
-	Log.info("---------ServiceServer--------")
+	Log.info("############# ServiceServer ###########")
 	Log.info("ServiceServer._all_server_map=")
 	for k, server_info in pairs(ServiceServer._all_server_map) do
 		server_info:print()
 	end
 	Log.info("ServiceServer._type_server_map=%s", Util.table_to_string(ServiceServer._type_server_map))
 	Log.info("ServiceServer._scene_server_map=%s", Util.table_to_string(ServiceServer._scene_server_map))
-	Log.info("------------------------------")
+	Log.info("#######################################")
 end
 
 return ServiceServer

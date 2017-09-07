@@ -8,7 +8,7 @@ ServerType =
 	BRIDGE 			= 4,
 	LOGIN 			= 5,
 	PUBLIC 			= 6,
-	CROSS 			= 7,
+	CROSS_SCENE		= 7,
 	PAY 			= 8,
 	CHAT 			= 9,
 }
