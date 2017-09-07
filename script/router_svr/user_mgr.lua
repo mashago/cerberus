@@ -10,6 +10,8 @@ function UserMgr:new()
 	obj._mailbox_user_map = {} -- {[mailbox_id]=[User], }
 	obj._role_user_map = {} -- {[role_id]=[User], }
 
+	obj._offline_user_map = {} -- {[user_id]=timer_index,}
+
 	return obj	
 end
 
@@ -47,11 +49,29 @@ end
 function UserMgr:online(user, mailbox_id)
 	self._mailbox_user_map[mailbox_id] = user
 	user._mailbox_id = mailbox_id
+
+	local user_id = user._user_id
+	-- re-online user, remove timer
+	local timer_index = self._offline_user_map[user_id]
+	if timer_index then
+		Timer.del_timer(timer_index)
+		self._offline_user_map[user_id] = nil
+	end
 end
 
 function UserMgr:offline(user)
 	self._mailbox_user_map[user._mailbox_id] = nil
 	user:offline()
+	-- add timer to delete user
+	local delete_user_interval_ms = 30 * 1000
+	local timer_cb = function(user_id)
+		Log.debug("UserMgr:offline delete offline user %d", user_id)
+		self._offline_user_map[user_id] = nil
+		local user = self:get_user_by_id(user_id)
+		self:del_user(user)
+	end
+	local timer_index = Timer.add_timer(delete_user_interval_ms, timer_cb, user._user_id, false)
+
 end
 
 return UserMgr

@@ -34,6 +34,7 @@ function User:offline()
 	-- send to scene server
 
 	self._mailbox_id = 0
+	self._role_id = 0
 
 	local scene_server_info = ServiceMgr.get_server_by_id(self._scene_server_id)
 	if not scene_server_info then
