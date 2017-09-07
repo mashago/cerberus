@@ -45,13 +45,14 @@ function register_rpc_handler()
 		local role_data = {}
 
 		-- set default value by config
-		for k, v in pairs(DataStructDef.role_info) do
+		for _, field_def in ipairs(DataStructDef.role_info) do
 			repeat
-			if not v.save or v.save == 0 then
+			local field_name = field_def.field
+			if not field_def.save or field_def.save == 0 then
 				break
 			end
-			local default = Util.convert_value_by_type(v.default, v.type)
-			role_data[k]=default
+			local default = Util.convert_value_by_type(field_def.default, field_def.type)
+			role_data[field_name]=default
 			until true
 		end
 		Log.debug("bridge_create_role: data=%s", Util.table_to_string(data))

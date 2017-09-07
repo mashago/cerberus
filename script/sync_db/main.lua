@@ -52,9 +52,10 @@ sync_db = function()
 		local sql = string.format("CREATE TABLE IF NOT EXISTS %s (", table_name)
 		local i = 0
 		local key_map = {}
-		for field_name, field_cfg in pairs(table_def) do
+		for _, field_def in ipairs(table_def) do
 			repeat
-			if not field_cfg.save or field_cfg.save == 0 then
+			local field_name = field_def.field
+			if not field_def.save or field_def.save == 0 then
 				break
 			end
 			local line = ""
@@ -63,8 +64,8 @@ sync_db = function()
 				line = line .. ","
 			end
 
-			local field_type_str = type_str_map[field_cfg.type]
-			local field_default = field_cfg.default
+			local field_type_str = type_str_map[field_def.type]
+			local field_default = field_def.default
 			if field_default ~= '_Null' then
 				line = line .. string.format("%s %s DEFAULT '%s'", field_name, field_type_str, field_default)
 			else
@@ -72,7 +73,7 @@ sync_db = function()
 			end
 
 			-- mark key field
-			if field_cfg.key and field_cfg.key == 1 then
+			if field_def.key and field_def.key == 1 then
 				key_map[field_name] = true
 			end
 
@@ -121,18 +122,24 @@ sync_db = function()
 			local field_type = field_info.Type
 			local field_default = field_info.Default
 
-			local field_cfg = table_def[field_name]
+			local field_def = nil
+			for __, t in ipairs(table_def) do
+				if t.field == field_name then
+					field_def = t
+					break
+				end
+			end
 
 			-- 3.1 drop row
-			if not field_cfg or field_cfg.save == 0 then
+			if not field_def or field_def.save == 0 then
 				local str = string.format("DROP %s", field_name)
 				table.insert(change_list, str)
 				break
 			end
 
 			-- 3.2 modify row
-			local config_field_type = type_str_map[field_cfg.type]
-			local config_field_default = field_cfg.default
+			local config_field_type = type_str_map[field_def.type]
+			local config_field_default = field_def.default
 
 			if field_type == config_field_type 
 			and field_default == config_field_default then
@@ -149,10 +156,11 @@ sync_db = function()
 			until true
 		end
 
-		for field_name, field_cfg in pairs(table_def) do
+		for _, field_def in ipairs(table_def) do
 			repeat
+			local field_name = field_def.field
 			-- 3.3 add row
-			if not field_cfg.save or field_cfg.save == 0 then
+			if not field_def.save or field_def.save == 0 then
 				break
 			end
 			local is_exists = false
@@ -165,12 +173,12 @@ sync_db = function()
 			if is_exists then
 				break
 			end
-			local config_field_default = field_cfg.default
+			local config_field_default = field_def.default
 			local str = nil
 			if config_field_default ~= '_Null' then
-				str = string.format("ADD %s %s DEFAULT '%s'", field_name, type_str_map[field_cfg.type], config_field_default)
+				str = string.format("ADD %s %s DEFAULT '%s'", field_name, type_str_map[field_def.type], config_field_default)
 			else
-				str = string.format("ADD %s %s", field_name, type_str_map[field_cfg.type])
+				str = string.format("ADD %s %s", field_name, type_str_map[field_def.type])
 			end
 			table.insert(change_list, str)
 			until true
@@ -218,9 +226,10 @@ sync_db = function()
 		end
 
 		-- add key
-		for field_name, field_cfg in pairs(table_def) do
+		for _, field_def in ipairs(table_def) do
 			repeat
-			if not field_cfg.save or field_cfg.save == 0 or not field_cfg.key or field_cfg.key == 0 then
+			local field_name = field_def.field
+			if not field_def.save or field_def.save == 0 or not field_def.key or field_def.key == 0 then
 				break
 			end
 			local is_set = false
