@@ -94,7 +94,6 @@ local function handle_delete_role(data, mailbox_id, msg_id)
 	g_time_counter:print()
 end
 
-g_common_data = {}
 local function handle_select_role(data, mailbox_id, msg_id)
 	Log.debug("handle_select_role: data=%s", Util.table_to_string(data))
 	if data.result ~= ErrorCode.SUCCESS then
@@ -102,11 +101,15 @@ local function handle_select_role(data, mailbox_id, msg_id)
 		return
 	end
 
-	g_common_data.ip = data.ip
-	g_common_data.port = data.port
-	g_common_data.user_id = data.user_id
-	g_common_data.token = data.token
+	g_client._server_list[ServerType.ROUTER] =
+	{
+		ip = data.ip,
+		port = data.port,
+		server_id = 1, -- no same with login is ok
+	}
 
+	g_client._user_id = data.user_id
+	g_client._user_token = data.token
 
 	g_time_counter:print()
 end

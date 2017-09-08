@@ -63,7 +63,7 @@ function UserMgr:offline(user)
 	self._mailbox_user_map[user._mailbox_id] = nil
 	user:offline()
 	-- add timer to delete user
-	local delete_user_interval_ms = 30 * 1000
+	local delete_user_interval_ms = 300 * 1000
 	local timer_cb = function(user_id)
 		Log.debug("UserMgr:offline delete offline user %d", user_id)
 		self._offline_user_map[user_id] = nil

@@ -12,6 +12,14 @@ function cmd_handler.execute(buffer)
 	elseif params[1] == "rpcx" then
 		cmd_handler.do_rpc_testx(params)
 
+	
+	elseif params[1] == "pserver" then
+		cmd_handler.do_print_server_list(params)
+	elseif params[1] == "connect" then
+		cmd_handler.do_connect(params)
+	elseif params[1] == "close" then
+		cmd_handler.do_close_connect(params)
+
 	elseif params[1] == "login" then
 		cmd_handler.do_login(params)
 	elseif params[1] == "loginx" then
@@ -26,11 +34,6 @@ function cmd_handler.execute(buffer)
 		cmd_handler.do_delete_role(params)
 	elseif params[1] == "select" then
 		cmd_handler.do_select_role(params)
-
-	elseif params[1] == "close" then
-		cmd_handler.do_close_connect(params)
-	elseif params[1] == "connect" then
-		cmd_handler.do_connect(params)
 
 	elseif params[1] == "enter" then
 		cmd_handler.do_enter(params)
@@ -78,6 +81,65 @@ function cmd_handler.do_rpc_testx(params)
 	end
 
 	x_test_start(num)
+end
+
+
+function cmd_handler.do_print_server_list(params)
+	Log.debug("cmd_handler.do_print_server_list server_list=%s", Util.table_to_string(g_client._server_list))
+end
+
+function cmd_handler.do_connect(params)
+	-- connect [login/router]
+	if #params < 2 then
+		Log.warn("cmd_handler.do_connect params not enough")
+		return
+	end
+
+	local server_type = nil
+	if params[2] == "login" then
+		server_type = ServerType.LOGIN
+	elseif params[2] == "router" then
+		server_type = ServerType.ROUTER
+	end
+	if not server_type then
+		Log.warn("cmd_handler.do_connect server type nil")
+		return
+	end
+
+	local server_info = g_client._server_list[server_type]
+	if not server_info then
+		Log.warn("cmd_handler.do_connect no such server info")
+		return
+	end
+
+	local ip = server_info.ip
+	local port = server_info.port
+	local server_id = server_info.server_id
+	local register = 0
+	ServiceClient.add_connect_service(ip, port, server_id, server_type, register)
+
+	ServiceClient.create_connect_timer()
+end
+
+function cmd_handler.do_close_connect(params)
+	-- close [login/router]
+	if #params < 2 then
+		Log.warn("cmd_handler.do_close_connect params not enough")
+		return
+	end
+
+	local server_type = nil
+	if params[2] == "login" then
+		server_type = ServerType.LOGIN
+	elseif params[2] == "router" then
+		server_type = ServerType.ROUTER
+	end
+	if not server_type then
+		Log.warn("cmd_handler.do_close_connect no such service")
+		return
+	end
+
+	ServiceClient.close_service_by_type(server_type)
 end
 
 function cmd_handler.do_login(params)
@@ -200,47 +262,12 @@ function cmd_handler.do_select_role(params)
 	g_time_counter:start()
 end
 
-function cmd_handler.do_close_connect(params)
-	-- close [login/router]
-	if #params < 2 then
-		Log.warn("cmd_handler.do_close_connect params not enough")
-		return
-	end
-
-	local server_type = nil
-	if params[2] == "login" then
-		server_type = ServerType.LOGIN
-	elseif params[2] == "router" then
-		server_type = ServerType.ROUTER
-	end
-	if not server_type then
-		Log.warn("cmd_handler.do_close_connect no such service")
-		return
-	end
-
-	ServiceClient.close_service_by_type(server_type)
-
-end
-
-function cmd_handler.do_connect(params)
-	-- connect
-
-	local ip = g_common_data.ip
-	local port = g_common_data.port
-	local server_id = 1 -- XXX
-	local server_type = ServerType.ROUTER
-	local register = 0
-	ServiceClient.add_connect_service(ip, port, server_id, server_type, register)
-
-	ServiceClient.create_connect_timer()
-end
-
 function cmd_handler.do_enter(params)
 	-- enter
 	local msg =
 	{
-		user_id = g_common_data.user_id,
-		token = g_common_data.token,
+		user_id = g_client._user_id,
+		token = g_client._user_token,
 	}
 
 	send_to_router(MID.ROLE_ENTER_REQ, msg)

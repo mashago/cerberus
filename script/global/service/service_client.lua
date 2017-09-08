@@ -50,6 +50,10 @@ end
 function ServiceClient.add_connect_service(ip, port, server_id, server_type, register, invite, no_reconnect)
 	-- check duplicate connect service
 	
+	register = register or 0
+	invite = invite or 0
+	no_reconnect = no_reconnect or 0
+
 	for k, v in ipairs(ServiceClient._all_service_server) do
 		if v._ip == ip and v.port == port then
 			Log.warn("ServiceClient.add_connect_service duplicate add ip=%s port=%d", ip, port)
