@@ -198,7 +198,65 @@ function register_rpc_handler()
 		
 		local db_name = ServerConfig._db_name_map[DBType.GAME]
 		data.db_name = db_name
-		return db_select(data)
+
+		local ret = db_select(data)
+		if ret.result ~= ErrorCode.SUCCESS then
+			return ret
+		end
+		if #ret.data == 0 then
+			return ret
+		end
+
+		Log.debug("ret=%s", Util.table_to_string(ret))
+		
+		-- convert to data def type
+		local table_name = data.table_name
+		local table_def = DataStructDef[table_name]
+		if not table_def then
+			Log.warn("db_game_select no such table define [%d]", table_name)
+			return ret
+		end
+
+		local type_map = {} -- [field]=type
+		local line = ret.data[1]
+		for field, value in pairs(line) do
+			for _, field_def in ipairs(table_def) do
+				if field_def.field == field then
+					type_map[field] = field_def.type
+					break
+				end
+			end
+		end
+		Log.debug("type_map=%s", Util.table_to_string(type_map))
+
+		local function type_cast(value, type)
+			-- TODO handle bool
+			if type == _String then
+				return value
+			end
+
+			if type == _Byte or type == _Int
+			or type == _Float or type == _Short
+			or type == _Int64 then
+				return tonumber(value)
+			end
+
+			if type == _Struct then
+				return Util.unserialize(value)
+			end
+
+			Log.warn("type_cast unknow type %d", type)
+			return value
+		end
+		for _, line in ipairs(ret.data) do
+			for field, value in pairs(line) do
+				line[field] = type_cast(value, type_map[field])
+			end
+		end
+
+		Log.debug("ret2=%s", Util.table_to_string(ret))
+		return ret
+		-- return db_select(data)
 	end
 
 	local function db_game_insert_one(data)

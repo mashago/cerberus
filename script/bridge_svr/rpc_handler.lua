@@ -157,7 +157,8 @@ function register_rpc_handler()
 			return {result = ErrorCode.ROLE_NOT_EXISTS}
 		end
 
-		local scene_id = tonumber(ret.data[1].scene_id)
+		-- local scene_id = tonumber(ret.data[1].scene_id)
+		local scene_id = ret.data[1].scene_id
 		
 		local token = "0000" -- TODO
 
