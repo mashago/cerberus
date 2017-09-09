@@ -1,195 +1,195 @@
 
+local function bridge_rpc_test(data)
+	
+	Log.debug("bridge_rpc_test: xxxxxxxxxxxxxx")
+	Log.debug("bridge_rpc_test: data=%s", Util.table_to_string(data))
 
-function register_rpc_handler()
+	local buff = data.buff
+	local sum = data.sum
 
-	local function bridge_rpc_test(data)
-		
-		Log.debug("bridge_rpc_test: data=%s", Util.table_to_string(data))
+	buff = buff .. "2"
+	sum = sum + 1
 
-		local buff = data.buff
-		local sum = data.sum
+	-- rpc to router
+	local status, ret = RpcMgr.call_by_server_type(ServerType.ROUTER, "router_rpc_test", {buff=buff, sum=sum})
+	if not status then
+		Log.err("bridge_rpc_test rpc call fail")
+		return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
+	end
+	Log.debug("bridge_rpc_test: callback ret=%s", Util.table_to_string(ret))
+	buff = ret.buff
+	sum = ret.sum
 
-		buff = buff .. "2"
-		sum = sum + 1
+	-- rpc to scene
+	local status, ret = RpcMgr.call_by_server_type(ServerType.SCENE, "scene_rpc_test", {buff=buff, sum=sum})
+	if not status then
+		Log.err("bridge_rpc_test rpc call fail")
+		return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
+	end
+	Log.debug("bridge_rpc_test: callback ret=%s", Util.table_to_string(ret))
+	buff = ret.buff
+	sum = ret.sum
 
-		-- rpc to router
-		local status, ret = RpcMgr.call_by_server_type(ServerType.ROUTER, "router_rpc_test", {buff=buff, sum=sum})
-		if not status then
-			Log.err("bridge_rpc_test rpc call fail")
-			return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
+	return {result = ErrorCode.SUCCESS, buff=buff, sum=sum}
+end
+
+-----------------------------------------------------------
+
+local function bridge_create_role(data)
+	
+	Log.debug("bridge_create_role: data=%s", Util.table_to_string(data))
+
+	-- rpc to db to insert role_info
+	local role_data = {}
+
+	-- set default value by config
+	for _, field_def in ipairs(DataStructDef.role_info) do
+		repeat
+		local field_name = field_def.field
+		if not field_def.save or field_def.save == 0 then
+			break
 		end
-		Log.debug("bridge_rpc_test: callback ret=%s", Util.table_to_string(ret))
-		buff = ret.buff
-		sum = ret.sum
+		local default = Util.convert_value_by_type(field_def.default, field_def.type)
+		role_data[field_name]=default
+		until true
+	end
+	Log.debug("bridge_create_role: data=%s", Util.table_to_string(data))
 
-		-- rpc to scene
-		local status, ret = RpcMgr.call_by_server_type(ServerType.SCENE, "scene_rpc_test", {buff=buff, sum=sum})
-		if not status then
-			Log.err("bridge_rpc_test rpc call fail")
-			return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
-		end
-		Log.debug("bridge_rpc_test: callback ret=%s", Util.table_to_string(ret))
-		buff = ret.buff
-		sum = ret.sum
-
-		return {result = ErrorCode.SUCCESS, buff=buff, sum=sum}
+	-- set other value
+	for k, v in pairs(data) do
+		role_data[k] = v
 	end
 
-	-----------------------------------------------------------
+	local rpc_data =
+	{
+		table_name = "role_info",
+		kvs = role_data,
+	}
+	Log.debug("bridge_create_role rpc_data=%s", Util.table_to_string(rpc_data))
+	local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_game_insert_one", rpc_data)
+	if not status then
+		Log.err("bridge_create_role rpc call fail")
+		return {result = ErrorCode.SYS_ERROR}
+	end
+	Log.debug("bridge_create_role callback ret=%s", Util.table_to_string(ret))
 
-	local function bridge_create_role(data)
-		
-		Log.debug("bridge_create_role: data=%s", Util.table_to_string(data))
+	return {result = ret.result}
 
-		-- rpc to db to insert role_info
-		local role_data = {}
+end
 
-		-- set default value by config
-		for _, field_def in ipairs(DataStructDef.role_info) do
-			repeat
-			local field_name = field_def.field
-			if not field_def.save or field_def.save == 0 then
-				break
-			end
-			local default = Util.convert_value_by_type(field_def.default, field_def.type)
-			role_data[field_name]=default
-			until true
-		end
-		Log.debug("bridge_create_role: data=%s", Util.table_to_string(data))
+local function bridge_delete_role(data)
+	
+	Log.debug("bridge_delete_role: data=%s", Util.table_to_string(data))
 
-		-- set other value
-		for k, v in pairs(data) do
-			role_data[k] = v
-		end
+	local user_id = data.user_id
+	local role_id = data.role_id
 
-		local rpc_data =
-		{
-			table_name = "role_info",
-			kvs = role_data,
-		}
-		Log.debug("bridge_create_role rpc_data=%s", Util.table_to_string(rpc_data))
-		local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_game_insert_one", rpc_data)
-		if not status then
-			Log.err("bridge_create_role rpc call fail")
-			return {result = ErrorCode.SYS_ERROR}
-		end
-		Log.debug("bridge_create_role callback ret=%s", Util.table_to_string(ret))
+	-- check if role is online
+	local rpc_data = 
+	{
+		user_id = user_id,
+		role_id = role_id,
+	}
+	local status, ret = RpcMgr.call_by_server_type(ServerType.ROUTER, "router_check_role_online", rpc_data, user_id)
+	if not status then
+		Log.err("bridge_delete_role rpc router call fail")
+		return {result = ErrorCode.SYS_ERROR}
+	end
+	Log.debug("bridge_delete_role: callback ret=%s", Util.table_to_string(ret))
 
+	if ret.is_online == true then
+		-- role online in router
+		Log.warn("bridge_delete_role: role online %d %d", user_id, role_id)
+		return {result = ErrorCode.DELETE_ROLE_ONLINE}
+	end
+
+	-- core logic, set is_delete in game_db.role_info
+	local rpc_data = 
+	{
+		table_name = "role_info",
+		fields = {is_delete = 1},
+		conditions = {role_id=role_id}
+	}
+	local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_game_update", rpc_data)
+	if not status then
+		Log.err("bridge_delete_role rpc call fail")
+		return {result = ErrorCode.SYS_ERROR}
+	end
+	Log.debug("bridge_delete_role: callback ret=%s", Util.table_to_string(ret))
+
+	return {result = ret.result}
+
+end
+
+local function bridge_select_role(data)
+	
+	Log.debug("bridge_select_role: data=%s", Util.table_to_string(data))
+
+	-- 1. load scene_id from db
+	-- 2. create a token
+	-- 3. choose a router by user_id
+
+	local user_id = data.user_id
+	local role_id = data.role_id
+
+	-- 1. load scene_id from db
+	local rpc_data = 
+	{
+		table_name = "role_info",
+		fields = {"scene_id"},
+		conditions = {role_id=role_id}
+	}
+	local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_game_select", rpc_data)
+	if not status then
+		Log.err("bridge_select_role rpc call fail")
+		return {result = ErrorCode.SYS_ERROR}
+	end
+	Log.debug("bridge_select_role: callback ret=%s", Util.table_to_string(ret))
+
+	if ret.result ~= ErrorCode.SUCCESS then
 		return {result = ret.result}
-
 	end
 
-	local function bridge_delete_role(data)
-		
-		Log.debug("bridge_delete_role: data=%s", Util.table_to_string(data))
+	if #ret.data ~= 1 or not ret.data[1].scene_id then
+		Log.warn("bridge_select_role: role not exists %d %d", user_id, role_id)
+		return {result = ErrorCode.ROLE_NOT_EXISTS}
+	end
 
-		local user_id = data.user_id
-		local role_id = data.role_id
+	-- local scene_id = tonumber(ret.data[1].scene_id)
+	local scene_id = ret.data[1].scene_id
+	
+	local token = "0000" -- TODO
 
-		-- check if role is online
-		local rpc_data = 
-		{
-			user_id = user_id,
-			role_id = role_id,
-		}
-		local status, ret = RpcMgr.call_by_server_type(ServerType.ROUTER, "router_check_role_online", rpc_data, user_id)
-		if not status then
-			Log.err("bridge_delete_role rpc router call fail")
-			return {result = ErrorCode.SYS_ERROR}
-		end
-		Log.debug("bridge_delete_role: callback ret=%s", Util.table_to_string(ret))
-
-		if ret.is_online == true then
-			-- role online in router
-			Log.warn("bridge_delete_role: role online %d %d", user_id, role_id)
-			return {result = ErrorCode.DELETE_ROLE_ONLINE}
-		end
-
-		-- core logic, set is_delete in game_db.role_info
-		local rpc_data = 
-		{
-			table_name = "role_info",
-			fields = {is_delete = 1},
-			conditions = {role_id=role_id}
-		}
-		local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_game_update", rpc_data)
-		if not status then
-			Log.err("bridge_delete_role rpc call fail")
-			return {result = ErrorCode.SYS_ERROR}
-		end
-		Log.debug("bridge_delete_role: callback ret=%s", Util.table_to_string(ret))
-
+	local rpc_data = 
+	{
+		user_id=user_id, 
+		role_id=role_id, 
+		scene_id=scene_id,
+		token=token,
+	}
+	local status, ret = RpcMgr.call_by_server_type(ServerType.ROUTER, "router_select_role", rpc_data, user_id)
+	if not status then
+		Log.err("bridge_select_role rpc call fail")
+		return {result = ErrorCode.SYS_ERROR}
+	end
+	Log.debug("bridge_select_role: callback ret=%s", Util.table_to_string(ret))
+	if ret.result ~= ErrorCode.SUCCESS then
 		return {result = ret.result}
-
 	end
 
-	local function bridge_select_role(data)
-		
-		Log.debug("bridge_select_role: data=%s", Util.table_to_string(data))
+	local msg = 
+	{
+		result=ErrorCode.SUCCESS,
+		ip=ret.ip,
+		port=ret.port,
+		token=token,
+	}
 
-		-- 1. load scene_id from db
-		-- 2. create a token
-		-- 3. choose a router by user_id
+	return msg
 
-		local user_id = data.user_id
-		local role_id = data.role_id
+end
 
-		-- 1. load scene_id from db
-		local rpc_data = 
-		{
-			table_name = "role_info",
-			fields = {"scene_id"},
-			conditions = {role_id=role_id}
-		}
-		local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_game_select", rpc_data)
-		if not status then
-			Log.err("bridge_select_role rpc call fail")
-			return {result = ErrorCode.SYS_ERROR}
-		end
-		Log.debug("bridge_select_role: callback ret=%s", Util.table_to_string(ret))
-
-		if ret.result ~= ErrorCode.SUCCESS then
-			return {result = ret.result}
-		end
-
-		if #ret.data ~= 1 or not ret.data[1].scene_id then
-			Log.warn("bridge_select_role: role not exists %d %d", user_id, role_id)
-			return {result = ErrorCode.ROLE_NOT_EXISTS}
-		end
-
-		-- local scene_id = tonumber(ret.data[1].scene_id)
-		local scene_id = ret.data[1].scene_id
-		
-		local token = "0000" -- TODO
-
-		local rpc_data = 
-		{
-			user_id=user_id, 
-			role_id=role_id, 
-			scene_id=scene_id,
-			token=token,
-		}
-		local status, ret = RpcMgr.call_by_server_type(ServerType.ROUTER, "router_select_role", rpc_data, user_id)
-		if not status then
-			Log.err("bridge_select_role rpc call fail")
-			return {result = ErrorCode.SYS_ERROR}
-		end
-		Log.debug("bridge_select_role: callback ret=%s", Util.table_to_string(ret))
-		if ret.result ~= ErrorCode.SUCCESS then
-			return {result = ret.result}
-		end
-
-		local msg = 
-		{
-			result=ErrorCode.SUCCESS,
-			ip=ret.ip,
-			port=ret.port,
-			token=token,
-		}
-
-		return msg
-
-	end
+local function register_rpc_handler()
 
 	RpcMgr._all_call_func.bridge_rpc_test = bridge_rpc_test
 	RpcMgr._all_call_func.bridge_create_role = bridge_create_role
@@ -197,3 +197,6 @@ function register_rpc_handler()
 	RpcMgr._all_call_func.bridge_select_role = bridge_select_role
 
 end
+
+register_rpc_handler()
+

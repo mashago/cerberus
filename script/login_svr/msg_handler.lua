@@ -1,4 +1,3 @@
-local User = require "login_svr.user"
 
 local function handle_rpc_test(data, mailbox_id, msg_id)
 	Log.debug("handle_rpc_test: data=%s", Util.table_to_string(data))
@@ -84,16 +83,8 @@ local function handle_register_area(data, mailbox_id, msg_id)
 	server_info:send_msg(MID.REGISTER_AREA_RET, msg)
 end
 
-
-local function l_func()
-	-- Log.warn("handle_user_login() xxxxxxxxxxxxxxx")
-	Log.warn("handle_user_login() yyyyyyyyyyyyyyy")
-end
-
 local function handle_user_login(data, mailbox_id, msg_id)
 	Log.debug("handle_user_login: data=%s", Util.table_to_string(data))
-
-	l_func()
 
 	local func = function(mailbox_id, data)
 		local msg =
@@ -147,6 +138,7 @@ local function handle_user_login(data, mailbox_id, msg_id)
 		local user_id = ret.user_id
 		Log.debug("handle_user_login: user_id=%d", user_id)
 
+		local User = require "login_svr.user"
 		local user = User:new(mailbox_id, user_id, username, channel_id)
 		if not g_user_mgr:add_user(user) then
 			Log.warn("handle_user_login duplicate login2 [%s]", username)
@@ -544,7 +536,7 @@ local function handle_select_role(user, data, mailbox_id, msg_id)
 
 end
 
-function register_msg_handler()
+local function register_msg_handler()
 	Net.add_msg_handler(MID.REGISTER_SERVER_REQ, g_funcs.handle_register_server)
 	Net.add_msg_handler(MID.REGISTER_SERVER_RET, g_funcs.handle_register_server_ret)
 	Net.add_msg_handler(MID.REGISTER_AREA_REQ, handle_register_area)
@@ -558,3 +550,5 @@ function register_msg_handler()
 
 	Net.add_msg_handler(MID.RPC_TEST_REQ, handle_rpc_test)
 end
+
+register_msg_handler()

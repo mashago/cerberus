@@ -1,11 +1,10 @@
 
-require "login_svr.msg_handler"
 require "login_svr.net_event_handler"
 
 local function main_entry()
 	Log.info("login_svr main_entry")
 
-	register_msg_handler()
+	require "login_svr.msg_handler"
 
 	local xml_doc = LuaTinyXMLDoc.create()
 	if not xml_doc:load_file(g_conf_file) then

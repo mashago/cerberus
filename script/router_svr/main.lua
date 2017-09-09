@@ -1,13 +1,11 @@
 
-require "router_svr.msg_handler"
-require "router_svr.rpc_handler"
 require "router_svr.net_event_handler"
 
 local function main_entry()
 	Log.info("router_svr main_entry")
 
-	register_msg_handler()
-	register_rpc_handler()
+	require "router_svr.msg_handler"
+	require "router_svr.rpc_handler"
 
 	local xml_doc = LuaTinyXMLDoc.create()
 	if not xml_doc:load_file(g_conf_file) then

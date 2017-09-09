@@ -12,8 +12,10 @@ local function handle_db_delete(data, mailbox_id, msg_id)
 	Log.debug("handle_db_delete ret=%d", ret)
 end
 
-function register_msg_handler()
+local function register_msg_handler()
 	Net.add_msg_handler(MID.REGISTER_SERVER_REQ, g_funcs.handle_register_server)
 
 	Net.add_msg_handler(MID.DB_DELETE, handle_db_delete)
 end
+
+register_msg_handler()

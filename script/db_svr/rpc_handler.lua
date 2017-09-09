@@ -273,7 +273,7 @@ end
 
 --------------------------------------------------------
 
-function register_rpc_handler()
+local function register_rpc_handler()
 
 	RpcMgr._all_call_func.db_rpc_test = db_rpc_test
 
@@ -292,3 +292,5 @@ function register_rpc_handler()
 	RpcMgr._all_call_func.db_game_insert_one = db_game_insert_one
 	RpcMgr._all_call_func.db_game_update = db_game_update
 end
+
+register_rpc_handler()

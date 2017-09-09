@@ -1,6 +1,4 @@
 
-require "client.msg_handler"
-require "client.stdin_handler"
 
 local function load_server_list(xml_doc)
 	-- init server list
@@ -33,8 +31,6 @@ local function load_server_list(xml_doc)
 
 		address_ele = address_ele:next_sibling_element()
 	end
-
-
 end
 
 local function main_entry()
@@ -46,7 +42,8 @@ local function main_entry()
 	local TimeCounter = require "client.time_counter"
 	g_time_counter = TimeCounter:new()
 
-	register_msg_handler()
+	require "client.msg_handler"
+	require "client.stdin_handler"
 
 	local xml_doc = LuaTinyXMLDoc.create()
 	if not xml_doc:load_file(g_conf_file) then

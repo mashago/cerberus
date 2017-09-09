@@ -1,6 +1,6 @@
 
 
-function register_rpc_handler()
+local function register_rpc_handler()
 
 	local call_func_map = RpcMgr._all_call_func
 
@@ -18,3 +18,5 @@ function register_rpc_handler()
 	end
 
 end
+
+register_rpc_handler()

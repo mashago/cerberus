@@ -1,12 +1,10 @@
 
-require "bridge_svr.msg_handler"
-require "bridge_svr.rpc_handler"
 
 local function main_entry()
 	Log.info("bridge_svr main_entry")
 
-	register_msg_handler()
-	register_rpc_handler()
+	require "bridge_svr.msg_handler"
+	require "bridge_svr.rpc_handler"
 
 	local xml_doc = LuaTinyXMLDoc.create()
 	if not xml_doc:load_file(g_conf_file) then

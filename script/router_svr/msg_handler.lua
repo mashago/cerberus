@@ -115,9 +115,11 @@ local function handle_router_role_enter_ret(data, mailbox_id)
 
 end
 
-function register_msg_handler()
+local function register_msg_handler()
 	Net.add_msg_handler(MID.REGISTER_SERVER_REQ, g_funcs.handle_register_server)
 
 	Net.add_msg_handler(MID.ROLE_ENTER_REQ, handle_role_enter)
 	Net.add_msg_handler(MID.ROUTER_ROLE_ENTER_RET, handle_router_role_enter_ret)
 end
+
+register_msg_handler()
