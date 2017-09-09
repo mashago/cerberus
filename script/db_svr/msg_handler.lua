@@ -1,5 +1,5 @@
 
-function handle_db_delete(data, mailbox_id, msg_id)
+local function handle_db_delete(data, mailbox_id, msg_id)
 	Log.debug("handle_db_delete: data=%s", Util.table_to_string(data))
 
 	local db_name = data.db_name

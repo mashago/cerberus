@@ -24,6 +24,7 @@ function User:is_ok()
 end
 
 function User:send_msg(msg_id, msg)
+	-- Log.warn("User:send_msg() xxxxxxxxxxxxxxxx")
 	if not self._is_online then
 		return false
 	end

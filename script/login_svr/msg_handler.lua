@@ -84,8 +84,16 @@ local function handle_register_area(data, mailbox_id, msg_id)
 	server_info:send_msg(MID.REGISTER_AREA_RET, msg)
 end
 
+
+local function l_func()
+	-- Log.warn("handle_user_login() xxxxxxxxxxxxxxx")
+	Log.warn("handle_user_login() yyyyyyyyyyyyyyy")
+end
+
 local function handle_user_login(data, mailbox_id, msg_id)
 	Log.debug("handle_user_login: data=%s", Util.table_to_string(data))
+
+	l_func()
 
 	local func = function(mailbox_id, data)
 		local msg =
