@@ -23,7 +23,7 @@ sync_db = function()
 	local type_str_map = 
 	{
 		[_Byte] = "int(11)",
-		[_Bool] = "int(11)",
+		[_Bool] = "boolean",
 		[_Int] = "int(11)",
 		[_Float] = "float(11)",
 		[_Short] = "int(11)",

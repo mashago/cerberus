@@ -14,7 +14,7 @@ DataStructDef.role_info =
 	[3] = {field='user_id', type=_Int64, save=1, default='_Null', key=0},
 	[4] = {field='channel_id', type=_Int, save=1, default='_Null'},
 	[5] = {field='area_id', type=_Int, save=1, default='_Null'},
-	[6] = {field='is_delete', type=_Int, save=1, default='0'},
+	[6] = {field='is_delete', type=_Bool, save=1, default='0'},
 	[7] = {field='lv', type=_Int, save=1, default='1'},
 	[8] = {field='exp', type=_Int, save=1, default='0'},
 	[9] = {field='scene_id', type=_Int, save=1, default='1'},

@@ -45,6 +45,7 @@ MID._id_name_map =
 	[21] = "ROLE_ENTER_REQ",
 	[22] = "ROLE_ENTER_RET",
 	[23] = "ROLE_ATTR_RET",
+	[24] = "ROLE_ATTR_CHANGE_REQ",
 
 	-- msg for server
 	[60001] = "REGISTER_SERVER_REQ",
@@ -96,6 +97,106 @@ RoleListStruct =
 	{ "role_id", _Int64 },
 	{ "role_name", _String },
 }
+
+-----------------------------------
+
+ByteAttrStruct = 
+{
+	{ "attr_id", _Int },
+	{ "value", _Byte },
+}
+
+ByteArrayAttrStruct = 
+{
+	{ "attr_id", _Int },
+	{ "value", _ByteArray },
+}
+
+BoolAttrStruct = 
+{
+	{ "attr_id", _Int },
+	{ "value", _Bool },
+}
+
+BoolArrayAttrStruct = 
+{
+	{ "attr_id", _Int },
+	{ "value", _BoolArray },
+}
+
+IntAttrStruct = 
+{
+	{ "attr_id", _Int },
+	{ "value", _Int },
+}
+
+IntArrayAttrStruct = 
+{
+	{ "attr_id", _Int },
+	{ "value", _IntArray },
+}
+
+FloatAttrStruct = 
+{
+	{ "attr_id", _Int },
+	{ "value", _Float },
+}
+
+FloatArrayAttrStruct = 
+{
+	{ "attr_id", _Int },
+	{ "value", _FloatArray },
+}
+
+ShortAttrStruct = 
+{
+	{ "attr_id", _Int },
+	{ "value", _Short },
+}
+
+ShortArrayAttrStruct = 
+{
+	{ "attr_id", _Int },
+	{ "value", _ShortArray },
+}
+
+Int64AttrStruct = 
+{
+	{ "attr_id", _Int },
+	{ "value", _Int64 },
+}
+
+Int64ArrayAttrStruct = 
+{
+	{ "attr_id", _Int },
+	{ "value", _Int64Array },
+}
+
+StringAttrStruct = 
+{
+	{ "attr_id", _Int },
+	{ "value", _String },
+}
+
+StringArrayAttrStruct = 
+{
+	{ "attr_id", _Int },
+	{ "value", _StringArray },
+}
+
+StructAttrStruct = 
+{
+	{ "attr_id", _Int },
+	{ "value", _Struct },
+}
+
+StructArrayAttrStruct = 
+{
+	{ "attr_id", _Int },
+	{ "value", _StructArray },
+}
+
+-----------------------------------
 
 
 MSG_DEF_MAP = {}
@@ -237,6 +338,27 @@ MSG_DEF_MAP =
 	{
 		{ "role_id", _Int64 },
 		{ "scene_id", _Int },
+	},
+
+	[MID.ROLE_ATTR_CHANGE_REQ] =
+	{
+		{ "byte_attr_list", _StructArray, ByteAttrStruct },
+		{ "bool_attr_list", _StructArray, BoolAttrStruct },
+		{ "int_attr_list", _StructArray, IntAttrStruct },
+		{ "float_attr_list", _StructArray, FloatAttrStruct },
+		{ "short_attr_list", _StructArray, ShortAttrStruct },
+		{ "int64_attr_list", _StructArray, Int64AttrStruct },
+		{ "string_attr_list", _StructArray, StringAttrStruct },
+		{ "struct_attr_list", _StructArray, StructAttrStruct },
+
+		{ "bytearray_attr_list", _StructArray, ByteArrayAttrStruct },
+		{ "boolarray_attr_list", _StructArray, BoolArrayAttrStruct },
+		{ "intarray_attr_list", _StructArray, IntArrayAttrStruct },
+		{ "floatarray_attr_list", _StructArray, FloatArrayAttrStruct },
+		{ "shortarray_attr_list", _StructArray, ShortArrayAttrStruct },
+		{ "int64array_attr_list", _StructArray, Int64ArrayAttrStruct },
+		{ "stringarray_attr_list", _StructArray, StringArrayAttrStruct },
+		{ "structarray_attr_list", _StructArray, StructArrayAttrStruct },
 	},
 
 	----------------------------------------

@@ -228,9 +228,12 @@ local function db_game_select(data)
 	Log.debug("type_map=%s", Util.table_to_string(type_map))
 
 	local function type_cast(value, type)
-		-- TODO handle bool
 		if type == _String then
 			return value
+		end
+
+		if type == _Bool then
+			return value == "1"
 		end
 
 		if type == _Byte or type == _Int
