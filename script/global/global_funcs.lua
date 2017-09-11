@@ -239,4 +239,88 @@ function g_funcs.handle_server_disconnect(data, mailbox_id, msg_id)
 	ServiceClient.remove_server(mailbox_id, data.server_id)
 end
 
+function g_funcs.get_empty_attr_list_table()
+	local ret = 
+	{
+		byte_attr_list = {},
+		bool_attr_list = {},
+		int_attr_list = {},
+		float_attr_list = {},
+		short_attr_list = {},
+		int64_attr_list = {},
+		string_attr_list = {},
+		struct_attr_list = {},
+
+		bytearray_attr_list = {},
+		boolarray_attr_list = {},
+		intarray_attr_list = {},
+		floatarray_attr_list = {},
+		shortarray_attr_list = {},
+		int64array_attr_list = {},
+		stringarray_attr_list = {},
+		structarray_attr_list = {},
+	}
+	return ret
+end
+
+function g_funcs.set_attr_table(input_table, table_name, field_name, value)
+	local table_cfg = DataStructDef[table_name]
+	if not table_cfg then
+		return false
+	end
+
+	local field_cfg = table_cfg[field_name]
+	if not field_cfg then
+		return false
+	end
+
+	local value = DataStructDef.convert_type_str2mem(table_name, field_name, value)
+	if value == nil then
+		return false
+	end
+
+	local field_type = field_cfg.type
+	local attr_id = field_cfg.id
+
+	local insert_table = nil
+	if field_type == _Byte then
+		insert_table = input_table.byte_attr_list
+	elseif field_type == _Bool then
+		insert_table = input_table.bool_attr_list
+	elseif field_type == _Int then
+		insert_table = input_table.int_attr_list
+	elseif field_type == _Float then
+		insert_table = input_table.float_attr_list
+	elseif field_type == _Short then
+		insert_table = input_table.short_attr_list
+	elseif field_type == _Int64 then
+		insert_table = input_table.int64_attr_list
+	elseif field_type == _String then
+		insert_table = input_table.string_attr_list
+	elseif field_type == _Struct then
+		insert_table = input_table.struct_attr_list
+
+	elseif field_type == _ByteArray then
+		insert_table = input_table.bytearray_attr_list
+	elseif field_type == _BoolArray then
+		insert_table = input_table.boolarray_attr_list
+	elseif field_type == _IntArray then
+		insert_table = input_table.intarray_attr_list
+	elseif field_type == _FloatArray then
+		insert_table = input_table.floatarray_attr_list
+	elseif field_type == _ShortArray then
+		insert_table = input_table.shortarray_attr_list
+	elseif field_type == _Int64Array then
+		insert_table = input_table.int64array_attr_list
+	elseif field_type == _StringArray then
+		insert_table = input_table.stringarray_attr_list
+	elseif field_type == _StructArray then
+		insert_table = input_table.structarray_attr_list
+	end
+
+	table.insert(insert_table, {attr_id=attr_id, value=value})
+
+	return true
+end
+
 return g_funcs

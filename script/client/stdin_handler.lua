@@ -40,6 +40,9 @@ function cmd_handler.execute(buffer)
 
 	elseif params[1] == "http" then
 		cmd_handler.do_http_request(params)
+
+	elseif params[1] == "attr" then
+		cmd_handler.do_attr_change(params)
 	
 	else
 		Log.warn("unknow cmd")
@@ -283,6 +286,25 @@ function cmd_handler.do_http_request(params)
 	Net.http_request_get(url, session_id, request_type)
 	-- Net.http_request_get(url, session_id, request_type)
 	-- Net.http_request_get(url, session_id, request_type)
+end
+
+function cmd_handler.do_attr_change(params)
+	-- attr [attr_name] [value]
+	if #params < 3 then
+		Log.warn("cmd_handler.do_attr_change params not enough")
+		return
+	end
+
+	local attr_name = params[2]
+	local attr_value = params[3]
+
+	local attr_table = g_funcs.get_empty_attr_list_table()
+	g_funcs.set_attr_table(attr_table, "role_info", attr_name, attr_value)
+
+	Log.debug("cmd_handler.do_attr_change attr_table=%s", Util.table_to_string(attr_table))
+
+	-- send_to_login(MID.SELECT_ROLE_REQ, msg)
+
 end
 
 function ccall_stdin_handler(buffer)
