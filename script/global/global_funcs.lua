@@ -264,7 +264,7 @@ function g_funcs.get_empty_attr_list_table()
 end
 
 function g_funcs.set_attr_table(input_table, table_name, field_name, value)
-	local table_cfg = DataStructDef[table_name]
+	local table_cfg = DataStructDef.data[table_name]
 	if not table_cfg then
 		return false
 	end
@@ -274,7 +274,7 @@ function g_funcs.set_attr_table(input_table, table_name, field_name, value)
 		return false
 	end
 
-	local value = DataStructDef.convert_type_str2mem(table_name, field_name, value)
+	local value = DataStructDef.func.convert_type_str2mem(table_name, field_name, value)
 	if value == nil then
 		return false
 	end

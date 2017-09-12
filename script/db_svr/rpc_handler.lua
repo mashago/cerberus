@@ -209,7 +209,7 @@ local function db_game_select(data)
 	
 	-- convert to data def type
 	local table_name = data.table_name
-	local table_def = DataStructDef[table_name]
+	local table_def = DataStructDef.data[table_name]
 	if not table_def then
 		Log.warn("db_game_select no such table define [%d]", table_name)
 		return ret

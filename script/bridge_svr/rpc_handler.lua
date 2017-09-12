@@ -43,7 +43,7 @@ local function bridge_create_role(data)
 	local role_data = {}
 
 	-- set default value by config
-	for _, field_def in ipairs(DataStructDef.role_info) do
+	for _, field_def in ipairs(DataStructDef.data.role_info) do
 		repeat
 		local field_name = field_def.field
 		if not field_def.save or field_def.save == 0 then

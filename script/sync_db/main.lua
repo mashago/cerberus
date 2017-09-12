@@ -29,13 +29,21 @@ sync_db = function()
 		[_Short] = "int(11)",
 		[_Int64] = "bigint(20)",
 		[_String] = "varchar(255)",
-		[_Struct] = "blob",
+		[_Struct] = "varchar(2048)",
+
+		[_ByteArray] = "varchar(2048)",
+		[_BoolArray] = "varchar(2048)",
+		[_IntArray] = "varchar(2048)",
+		[_FloatArray] = "varchar(2048)",
+		[_ShortArray] = "varchar(2048)",
+		[_Int64Array] = "varchar(2048)",
+		[_StringArray] = "varchar(2048)",
 	}
 
 	local db_name = ServerConfig._db_name_map[DBType.GAME]
 	Log.debug("db_name=%s", db_name)
 
-	for table_name, table_def in pairs(DataStructDef) do
+	for table_name, table_def in pairs(DataStructDef.data) do
 		repeat
 		-- Log.debug("table_name=%s table_def=%s", table_name, Util.table_to_string(table_def))
 
