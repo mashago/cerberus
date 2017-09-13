@@ -4,6 +4,7 @@ local hotfix_module_names = {
   -- "login_svr.user",
   -- "bridge_svr.rpc_handler",
   -- "client.msg_handler",
+  -- "global.db.db_mgr",
 }
 
 return hotfix_module_names

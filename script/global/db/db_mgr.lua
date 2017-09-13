@@ -1,7 +1,9 @@
 
-DBMgr = {}
+DBMgr = 
+{
+	_mysql_map = {}, -- {[db_name] = mysqlmgr}
+}
 
-DBMgr._mysql_map = {} -- {[db_name] = mysqlmgr}
 
 function DBMgr.connect_to_mysql(ip, port, username, password, db_name)
 	local mysqlmgr = LuaMysqlMgr.create()
@@ -81,10 +83,10 @@ end
 -- values = {{"masha", "123456"}, {...}}
 -- return affected row nums, or negative for error
 function DBMgr.do_insert(db_name, table_name, fields, values)
-	Log.debug("db_name=%s", db_name)
-	Log.debug("table_name=%s", table_name)
-	Log.debug("fields=%s", Util.table_to_string(fields))
-	Log.debug("values=%s", Util.table_to_string(values))
+	Log.debug("DBMgr.do_insert: db_name=%s", db_name)
+	Log.debug("DBMgr.do_insert: table_name=%s", table_name)
+	Log.debug("DBMgr.do_insert: fields=%s", Util.table_to_string(fields))
+	Log.debug("DBMgr.do_insert: values=%s", Util.table_to_string(values))
 
 	local mysqlmgr = DBMgr._mysql_map[db_name] 
 	if not mysqlmgr then
@@ -105,6 +107,7 @@ function DBMgr.do_insert(db_name, table_name, fields, values)
 		sql = sql .. v
 	end
 	sql = sql .. ") VALUES "
+	Log.debug("111 sql=%s", sql)
 
 	-- handle condition
 	for k, t in ipairs(values) do
@@ -121,13 +124,16 @@ function DBMgr.do_insert(db_name, table_name, fields, values)
 			end
 			if type(v) == "string" then
 				sql = sql .. "'" .. v .. "'"
+			elseif type(v) == "table" then
+				Log.debug("x=%s", Util.serialize(v))
+				sql = sql .. "'" .. Util.serialize(v) .. "'"
 			else
 				sql = sql .. v
 			end
 		end
 		sql = sql .. ")"
 	end
-	Log.debug("sql=%s", sql)
+	Log.debug("222 sql=%s", sql)
 
 	local ret = mysqlmgr:change(sql)
 	

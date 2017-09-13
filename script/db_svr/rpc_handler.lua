@@ -110,7 +110,7 @@ end
 
 local function db_insert_one(data)
 	
-	Log.debug("db_insert: data=%s", Util.table_to_string(data))
+	Log.debug("db_insert_one: data=%s", Util.table_to_string(data))
 
 	local db_name = data.db_name
 	local table_name = data.table_name

@@ -17,4 +17,63 @@ function Role:send_msg(msg_id, msg)
 	return Net.send_msg_ext(self._mailbox_id, msg_id, self._role_id, msg)
 end
 
+function Role:load_db()
+	
+	local rpc_data = 
+	{
+		table_name = "role_info",
+		fields = {},
+		conditions = {role_id=role_id}
+	}
+	local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_game_select", rpc_data)
+	if not status then
+		Log.err("Role:load_db fail")
+		return false
+	end
+
+	if ret.result ~= ErrorCode.SUCCESS then
+		Log.err("Role:load_db error %d", ret.result)
+		return false
+	end
+
+	Log.debug("Role:load_db data=%d", Util.table_to_string(ret.data))
+
+	if #ret.data ~= 1 then
+		Log.err("Role:load_db data empty %d", ret.result)
+		return false
+	end
+
+	return ret.data
+end
+
+function Role:serialize_to_record()
+	-- memory data to db record
+	local data = {}
+	-- TODO
+
+	return data
+end
+
+function Role:init_data(record)
+	self._attr = {}
+	local attr_map = self._attr
+	for k, v in pairs(record) do
+		attr_map[k] = v
+	end
+end
+
+function Role:load_and_init_data()
+	local record = self:load_db()
+	if not record then
+		return false
+	end
+
+	self:init_data(record)
+
+	return true
+end
+
+function Role:send_module_data()
+end
+
 return Role
