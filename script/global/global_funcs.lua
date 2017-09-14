@@ -250,15 +250,6 @@ function g_funcs.get_empty_attr_list_table()
 		int64_attr_list = {},
 		string_attr_list = {},
 		struct_attr_list = {},
-
-		bytearray_attr_list = {},
-		boolarray_attr_list = {},
-		intarray_attr_list = {},
-		floatarray_attr_list = {},
-		shortarray_attr_list = {},
-		int64array_attr_list = {},
-		stringarray_attr_list = {},
-		structarray_attr_list = {},
 	}
 	return ret
 end
@@ -299,23 +290,6 @@ function g_funcs.set_attr_table(input_table, table_name, field_name, value)
 		insert_table = input_table.string_attr_list
 	elseif field_type == _Struct then
 		insert_table = input_table.struct_attr_list
-
-	elseif field_type == _ByteArray then
-		insert_table = input_table.bytearray_attr_list
-	elseif field_type == _BoolArray then
-		insert_table = input_table.boolarray_attr_list
-	elseif field_type == _IntArray then
-		insert_table = input_table.intarray_attr_list
-	elseif field_type == _FloatArray then
-		insert_table = input_table.floatarray_attr_list
-	elseif field_type == _ShortArray then
-		insert_table = input_table.shortarray_attr_list
-	elseif field_type == _Int64Array then
-		insert_table = input_table.int64array_attr_list
-	elseif field_type == _StringArray then
-		insert_table = input_table.stringarray_attr_list
-	elseif field_type == _StructArray then
-		insert_table = input_table.structarray_attr_list
 	end
 
 	table.insert(insert_table, {attr_id=attr_id, value=value})

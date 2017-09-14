@@ -26,10 +26,7 @@ function Role:load_db()
 		conditions = {role_id=role_id}
 	}
 
-	Log.debug("******** before load_db() rpc call")
 	local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_game_select", rpc_data)
-	Log.debug("Role:load_db ret=%s", Util.table_to_string(ret))
-	Log.debug("******** after load_db() rpc call")
 	if not status then
 		Log.err("Role:load_db fail")
 		return false
@@ -78,6 +75,8 @@ function Role:load_and_init_data()
 end
 
 function Role:send_module_data()
+	-- TODO send sync == 1 or 2 attr to client
+
 end
 
 return Role

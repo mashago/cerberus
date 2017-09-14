@@ -66,9 +66,8 @@ local function handle_router_role_enter_req(data, mailbox_id)
 		local scene_id = data.scene_id
 
 		-- 1. new role
-		-- 2. rpc db get role info
-		-- 3. init role attr
-		-- 4. sync to client
+		-- 2. init role attr
+		-- 3. sync to client
 		-- 5. success to router
 
 		-- 1. new role
@@ -82,11 +81,9 @@ local function handle_router_role_enter_req(data, mailbox_id)
 		end
 		
 		-- 2. init role info
-		Log.debug("******** before load_and_init_data()")
 		role:load_and_init_data()
-		Log.debug("******** after load_and_init_data()")
 
-		-- 4. sync to client
+		-- 3. sync to client
 		local msg =
 		{
 			role_id = role_id,
@@ -94,7 +91,7 @@ local function handle_router_role_enter_req(data, mailbox_id)
 		}
 		role:send_msg(MID.ROLE_ATTR_RET, msg)
 
-		-- 5. success to router
+		-- 4. success to router
 		local msg = 
 		{
 			result = ErrorCode.SUCCESS,

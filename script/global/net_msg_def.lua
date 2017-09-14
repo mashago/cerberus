@@ -46,6 +46,7 @@ MID._id_name_map =
 	[22] = "ROLE_ENTER_RET",
 	[23] = "ROLE_ATTR_RET",
 	[24] = "ROLE_ATTR_CHANGE_REQ",
+	[25] = "ROLE_ATTR_CHANGE_RET",
 
 	-- msg for server
 	[60001] = "REGISTER_SERVER_REQ",
@@ -187,13 +188,13 @@ StringArrayAttrStruct =
 StructAttrStruct = 
 {
 	{ "attr_id", _Int },
-	{ "value", _Struct },
+	{ "value", _String },
 }
 
 StructArrayAttrStruct = 
 {
 	{ "attr_id", _Int },
-	{ "value", _StructArray },
+	{ "value", _StringAttray },
 }
 
 -----------------------------------
@@ -350,15 +351,18 @@ MSG_DEF_MAP =
 		{ "int64_attr_list", _StructArray, Int64AttrStruct },
 		{ "string_attr_list", _StructArray, StringAttrStruct },
 		{ "struct_attr_list", _StructArray, StructAttrStruct },
+	},
 
-		{ "bytearray_attr_list", _StructArray, ByteArrayAttrStruct },
-		{ "boolarray_attr_list", _StructArray, BoolArrayAttrStruct },
-		{ "intarray_attr_list", _StructArray, IntArrayAttrStruct },
-		{ "floatarray_attr_list", _StructArray, FloatArrayAttrStruct },
-		{ "shortarray_attr_list", _StructArray, ShortArrayAttrStruct },
-		{ "int64array_attr_list", _StructArray, Int64ArrayAttrStruct },
-		{ "stringarray_attr_list", _StructArray, StringArrayAttrStruct },
-		{ "structarray_attr_list", _StructArray, StructArrayAttrStruct },
+	[MID.ROLE_ATTR_CHANGE_RET] =
+	{
+		{ "byte_attr_list", _StructArray, ByteAttrStruct },
+		{ "bool_attr_list", _StructArray, BoolAttrStruct },
+		{ "int_attr_list", _StructArray, IntAttrStruct },
+		{ "float_attr_list", _StructArray, FloatAttrStruct },
+		{ "short_attr_list", _StructArray, ShortAttrStruct },
+		{ "int64_attr_list", _StructArray, Int64AttrStruct },
+		{ "string_attr_list", _StructArray, StringAttrStruct },
+		{ "struct_attr_list", _StructArray, StructAttrStruct },
 	},
 
 	----------------------------------------
