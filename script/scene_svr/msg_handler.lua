@@ -82,7 +82,9 @@ local function handle_router_role_enter_req(data, mailbox_id)
 		end
 		
 		-- 2. init role info
+		Log.debug("******** before load_and_init_data()")
 		role:load_and_init_data()
+		Log.debug("******** after load_and_init_data()")
 
 		-- 4. sync to client
 		local msg =

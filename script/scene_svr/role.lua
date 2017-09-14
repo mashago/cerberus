@@ -25,7 +25,11 @@ function Role:load_db()
 		fields = {},
 		conditions = {role_id=role_id}
 	}
+
+	Log.debug("******** before load_db() rpc call")
 	local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_game_select", rpc_data)
+	Log.debug("Role:load_db ret=%s", Util.table_to_string(ret))
+	Log.debug("******** after load_db() rpc call")
 	if not status then
 		Log.err("Role:load_db fail")
 		return false
@@ -36,7 +40,7 @@ function Role:load_db()
 		return false
 	end
 
-	Log.debug("Role:load_db data=%d", Util.table_to_string(ret.data))
+	Log.debug("Role:load_db data=%s", Util.table_to_string(ret.data))
 
 	if #ret.data ~= 1 then
 		Log.err("Role:load_db data empty %d", ret.result)

@@ -89,14 +89,17 @@ function Util.serialize(obj)
 	elseif t == "string" then  
 		lua = lua .. string.format("%q", obj)  
 	elseif t == "table" then  
-		lua = lua .. "{\n"  
+		--lua = lua .. "{\n"  
+		lua = lua .. "{"  
 	for k, v in pairs(obj) do  
-		lua = lua .. "[" .. Util.serialize(k) .. "]=" .. Util.serialize(v) .. ",\n"  
+		--lua = lua .. "[" .. Util.serialize(k) .. "]=" .. Util.serialize(v) .. ",\n"  
+		lua = lua .. "[" .. Util.serialize(k) .. "]=" .. Util.serialize(v) .. ","  
 	end  
 	local metatable = getmetatable(obj)  
 		if metatable ~= nil and type(metatable.__index) == "table" then  
 		for k, v in pairs(metatable.__index) do  
-			lua = lua .. "[" .. Util.serialize(k) .. "]=" .. Util.serialize(v) .. ",\n"  
+			-- lua = lua .. "[" .. Util.serialize(k) .. "]=" .. Util.serialize(v) .. ",\n"  
+			lua = lua .. "[" .. Util.serialize(k) .. "]=" .. Util.serialize(v) .. ","  
 		end  
 	end  
 		lua = lua .. "}"  

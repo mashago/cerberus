@@ -160,7 +160,7 @@ function RpcMgr.handle_call(data, mailbox_id, msg_id)
 	local cor = coroutine.create(func)
 	local status, result = coroutine.resume(cor, param)
 	if not status or not result then
-		Log.err("RpcMgr.handle_call resume error func_name=%s", func_name)
+		Log.err("RpcMgr.handle_call resume error func_name=%s %s", func_name, result)
 		local msg =
 		{
 			result = false, 

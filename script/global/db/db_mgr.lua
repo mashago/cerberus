@@ -127,6 +127,8 @@ function DBMgr.do_insert(db_name, table_name, fields, values)
 			elseif type(v) == "table" then
 				Log.debug("x=%s", Util.serialize(v))
 				sql = sql .. "'" .. Util.serialize(v) .. "'"
+			elseif type(v) == "boolean" then
+				sql = sql .. tostring(v)
 			else
 				sql = sql .. v
 			end
