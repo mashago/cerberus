@@ -8,6 +8,7 @@ function Role:new(role_id, mailbox_id)
 
 	obj._role_id = role_id
 	obj._mailbox_id = mailbox_id -- router mailbox id
+	obj._attr = {}
 
 	return obj
 end
@@ -44,7 +45,7 @@ function Role:load_db()
 		return false
 	end
 
-	return ret.data
+	return ret.data[1]
 end
 
 function Role:serialize_to_record()
@@ -56,11 +57,20 @@ function Role:serialize_to_record()
 end
 
 function Role:init_data(record)
-	self._attr = {}
 	local attr_map = self._attr
 	for k, v in pairs(record) do
 		attr_map[k] = v
 	end
+
+	-- init not-db attr to default value
+	for _, field_cfg in ipairs(DataStructDef.data.role_info) do
+		if field_cfg.save == 0 then
+			local value = DataStructDef.func.convert_s2m(field_cfg.default, field_cfg.type)
+			attr_map[field_cfg.field] = value
+		end
+	end
+
+	Log.debug("Role:init_data attr_map=%s", Util.table_to_string(self._attr))
 end
 
 function Role:load_and_init_data()
@@ -75,8 +85,46 @@ function Role:load_and_init_data()
 end
 
 function Role:send_module_data()
-	-- TODO send sync == 1 or 2 attr to client
+	-- send sync == 1 or 2 attr to client
 
+	local attr_table = g_funcs.get_empty_attr_list_table()
+	local table_cfg = DataStructDef.data.role_info
+	for k, v in pairs(self._attr) do
+		local field_cfg = table_cfg[k]
+		if not field_cfg then
+			goto continue
+		end
+		if field_cfg.sync == 0 then
+			goto continue
+		end
+
+		local attr_id = field_cfg.id
+		local field_type = field_cfg.type
+		local insert_table = nil
+		if field_type == _Byte then
+			insert_table = attr_table.byte_attr_list
+		elseif field_type == _Bool then
+			insert_table = attr_table.bool_attr_list
+		elseif field_type == _Int then
+			insert_table = attr_table.int_attr_list
+		elseif field_type == _Float then
+			insert_table = attr_table.float_attr_list
+		elseif field_type == _Short then
+			insert_table = attr_table.short_attr_list
+		elseif field_type == _Int64 then
+			insert_table = attr_table.int64_attr_list
+		elseif field_type == _String then
+			insert_table = attr_table.string_attr_list
+		elseif field_type == _Struct then
+			insert_table = attr_table.struct_attr_list
+		end
+		table.insert(insert_table, {attr_id=attr_id, value=v})
+
+		::continue::
+	end
+	
+	Log.debug("Role:send_module_data attr_table=%s", Util.table_to_string(attr_table))
+	
 end
 
 return Role

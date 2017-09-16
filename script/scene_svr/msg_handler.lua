@@ -82,6 +82,7 @@ local function handle_router_role_enter_req(data, mailbox_id)
 		
 		-- 2. init role info
 		role:load_and_init_data()
+		role:send_module_data()
 
 		-- 3. sync to client
 		local msg =
