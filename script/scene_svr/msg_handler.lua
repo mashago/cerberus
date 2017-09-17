@@ -126,6 +126,10 @@ local function handle_invite_connect(data, mailbox_id)
 	ServiceClient.create_connect_timer()
 end
 
+local function handle_role_attr_change_req(role, data, mailbox_id)
+	Log.debug("handle_role_attr_change_req data=%s", Util.table_to_string(data))
+end
+
 local function register_msg_handler()
 	Net.add_msg_handler(MID.REGISTER_SERVER_RET, g_funcs.handle_register_server_ret)
 	Net.add_msg_handler(MID.REGISTER_SERVER_BROADCAST, g_funcs.handle_register_server_broadcast)
@@ -137,6 +141,8 @@ local function register_msg_handler()
 	Net.add_msg_handler(MID.ROUTER_ROLE_DISCONNECT, handle_router_role_disconnect)
 
 	Net.add_msg_handler(MID.INVITE_CONNECT_REQ, handle_invite_connect)
+
+	Net.add_msg_handler(MID.ROLE_ATTR_CHANGE_REQ, handle_role_attr_change_req)
 end
 
 register_msg_handler()

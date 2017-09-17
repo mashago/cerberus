@@ -254,24 +254,45 @@ function g_funcs.get_empty_attr_list_table()
 	return ret
 end
 
-function g_funcs.set_attr_table(input_table, table_name, field_name, value)
-	local table_cfg = DataStructDef.data[table_name]
-	if not table_cfg then
+function g_funcs.str_to_value(value_str, value_type)
+	-- type cast
+	if value_type == _String then
+		return value_str
+	end
+
+	if value_type == _Bool then
+		return value_str == "1" or value_str == "true"
+	end
+
+	if value_type == _Byte or value_type == _Int
+	or value_type == _Float or value_type == _Short
+	or value_type == _Int64 then
+		return tonumber(value_str)
+	end
+
+	if value_type == _Struct then
+		return Util.unserialize(value_str)
+	end
+end
+
+function g_funcs.set_attr_table(input_table, table_def, field_name, value)
+
+	local field_def = table_def[field_name]
+	if not field_def then
 		return false
 	end
 
-	local field_cfg = table_cfg[field_name]
-	if not field_cfg then
-		return false
+	local field_type = field_def.type
+
+	if type(value) == "string" then
+		value = g_funcs.str_to_value(value, field_type)
 	end
 
-	local value = DataStructDef.func.convert_type_str2mem(table_name, field_name, value)
 	if value == nil then
 		return false
 	end
 
-	local field_type = field_cfg.type
-	local attr_id = field_cfg.id
+	local attr_id = field_def.id
 
 	local insert_table = nil
 	if field_type == _Byte then
@@ -292,6 +313,9 @@ function g_funcs.set_attr_table(input_table, table_name, field_name, value)
 		insert_table = input_table.struct_attr_list
 	end
 
+	if not insert_table then
+		return false
+	end
 	table.insert(insert_table, {attr_id=attr_id, value=value})
 
 	return true

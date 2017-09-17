@@ -295,16 +295,21 @@ function cmd_handler.do_attr_change(params)
 		return
 	end
 
-	local attr_name = params[2]
-	local attr_value = params[3]
-
 	local attr_table = g_funcs.get_empty_attr_list_table()
-	g_funcs.set_attr_table(attr_table, "role_info", attr_name, attr_value)
+	local table_def = DataStructDef.data.role_info
+
+	for n=2, math.huge, 2 do
+		local attr_name = params[n]
+		local attr_value = params[n+1]
+		if not attr_name or not attr_value then
+			break
+		end
+		g_funcs.set_attr_table(attr_table, table_def, attr_name, attr_value)
+	end
 
 	Log.debug("cmd_handler.do_attr_change attr_table=%s", Util.table_to_string(attr_table))
 
-	-- send_to_login(MID.SELECT_ROLE_REQ, msg)
-
+	send_to_login(MID.ROLE_ATTR_CHANGE_REQ, msg)
 end
 
 function ccall_stdin_handler(buffer)

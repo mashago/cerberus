@@ -57,17 +57,19 @@ function Role:serialize_to_record()
 end
 
 function Role:init_data(record)
-	local attr_map = self._attr
-	for k, v in pairs(record) do
-		attr_map[k] = v
-	end
 
 	-- init not-db attr to default value
 	for _, field_cfg in ipairs(DataStructDef.data.role_info) do
 		if field_cfg.save == 0 then
-			local value = DataStructDef.func.convert_s2m(field_cfg.default, field_cfg.type)
+			local value = g_funcs.str_to_value(field_cfg.default, field_cfg.type)
 			attr_map[field_cfg.field] = value
 		end
+	end
+
+	-- init from record
+	local attr_map = self._attr
+	for k, v in pairs(record) do
+		attr_map[k] = v
 	end
 
 	Log.debug("Role:init_data attr_map=%s", Util.table_to_string(self._attr))

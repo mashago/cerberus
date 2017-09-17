@@ -42,28 +42,7 @@ function DataStructDef.func.init_cfg()
 	end
 end
 
-DataStructDef.func.init_cfg("role_info")
-
-function DataStructDef.func.convert_s2m(str_value, value_type)
-	-- type cast
-	if value_type == _String then
-		return value
-	end
-
-	if value_type == _Bool then
-		return value == "1"
-	end
-
-	if value_type == _Byte or value_type == _Int
-	or value_type == _Float or value_type == _Short
-	or value_type == _Int64 then
-		return tonumber(value)
-	end
-
-	if value_type == _Struct then
-		return Util.unserialize(value)
-	end
-end
+DataStructDef.func.init_cfg()
 
 function DataStructDef.func.convert_type_str2mem(table_name, field_name, value)
 	local table_def = DataStructDef.data[table_name]
