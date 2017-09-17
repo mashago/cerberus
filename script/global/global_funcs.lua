@@ -239,9 +239,8 @@ function g_funcs.handle_server_disconnect(data, mailbox_id, msg_id)
 	ServiceClient.remove_server(mailbox_id, data.server_id)
 end
 
-function g_funcs.get_empty_attr_list_table()
-	local ret = 
-	{
+function g_funcs.get_empty_attr_table()
+	return {
 		byte_attr_list = {},
 		bool_attr_list = {},
 		int_attr_list = {},
@@ -251,7 +250,6 @@ function g_funcs.get_empty_attr_list_table()
 		string_attr_list = {},
 		struct_attr_list = {},
 	}
-	return ret
 end
 
 function g_funcs.str_to_value(value_str, value_type)

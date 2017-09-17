@@ -58,6 +58,8 @@ end
 
 function Role:init_data(record)
 
+	local attr_map = self._attr
+
 	-- init not-db attr to default value
 	for _, field_cfg in ipairs(DataStructDef.data.role_info) do
 		if field_cfg.save == 0 then
@@ -67,7 +69,6 @@ function Role:init_data(record)
 	end
 
 	-- init from record
-	local attr_map = self._attr
 	for k, v in pairs(record) do
 		attr_map[k] = v
 	end
@@ -89,10 +90,11 @@ end
 function Role:send_module_data()
 	-- send sync == 1 or 2 attr to client
 
-	local attr_table = g_funcs.get_empty_attr_list_table()
-	local table_cfg = DataStructDef.data.role_info
+	local attr_table = g_funcs.get_empty_attr_table()
+	local table_def = DataStructDef.data.role_info
+
 	for k, v in pairs(self._attr) do
-		local field_cfg = table_cfg[k]
+		local field_cfg = table_def[k]
 		if not field_cfg then
 			goto continue
 		end
@@ -119,6 +121,7 @@ function Role:send_module_data()
 			insert_table = attr_table.string_attr_list
 		elseif field_type == _Struct then
 			insert_table = attr_table.struct_attr_list
+			v = Util.serialize(v)
 		end
 		table.insert(insert_table, {attr_id=attr_id, value=v})
 
@@ -127,6 +130,12 @@ function Role:send_module_data()
 	
 	Log.debug("Role:send_module_data attr_table=%s", Util.table_to_string(attr_table))
 	
+	local msg =
+	{
+		role_id = self._role_id,
+		attr_table = attr_table,
+	}
+	self:send_msg(MID.ROLE_ATTR_RET, msg)
 end
 
 return Role

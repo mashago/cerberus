@@ -15,7 +15,7 @@ function cmd_handler.execute(buffer)
 	
 	elseif params[1] == "pserver" then
 		cmd_handler.do_print_server_list(params)
-	elseif params[1] == "connect" then
+	elseif params[1] == "c" then
 		cmd_handler.do_connect(params)
 	elseif params[1] == "close" then
 		cmd_handler.do_close_connect(params)
@@ -92,7 +92,7 @@ function cmd_handler.do_print_server_list(params)
 end
 
 function cmd_handler.do_connect(params)
-	-- connect [login/router]
+	-- c [login/router]
 	if #params < 2 then
 		Log.warn("cmd_handler.do_connect params not enough")
 		return
@@ -295,7 +295,7 @@ function cmd_handler.do_attr_change(params)
 		return
 	end
 
-	local attr_table = g_funcs.get_empty_attr_list_table()
+	local attr_table = g_funcs.get_empty_attr_table()
 	local table_def = DataStructDef.data.role_info
 
 	for n=2, math.huge, 2 do
@@ -308,6 +308,11 @@ function cmd_handler.do_attr_change(params)
 	end
 
 	Log.debug("cmd_handler.do_attr_change attr_table=%s", Util.table_to_string(attr_table))
+
+	local msg =
+	{
+		attr_table = attr_table,
+	}
 
 	send_to_login(MID.ROLE_ATTR_CHANGE_REQ, msg)
 end

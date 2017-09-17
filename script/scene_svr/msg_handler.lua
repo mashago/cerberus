@@ -68,7 +68,7 @@ local function handle_router_role_enter_req(data, mailbox_id)
 		-- 1. new role
 		-- 2. init role attr
 		-- 3. sync to client
-		-- 5. success to router
+		-- 4. success to router
 
 		-- 1. new role
 		local role = g_role_mgr:get_role_by_id(role_id)
@@ -82,15 +82,9 @@ local function handle_router_role_enter_req(data, mailbox_id)
 		
 		-- 2. init role info
 		role:load_and_init_data()
-		role:send_module_data()
 
 		-- 3. sync to client
-		local msg =
-		{
-			role_id = role_id,
-			scene_id = scene_id,
-		}
-		role:send_msg(MID.ROLE_ATTR_RET, msg)
+		role:send_module_data()
 
 		-- 4. success to router
 		local msg = 

@@ -107,22 +107,10 @@ ByteAttrStruct =
 	{ "value", _Byte },
 }
 
-ByteArrayAttrStruct = 
-{
-	{ "attr_id", _Int },
-	{ "value", _ByteArray },
-}
-
 BoolAttrStruct = 
 {
 	{ "attr_id", _Int },
 	{ "value", _Bool },
-}
-
-BoolArrayAttrStruct = 
-{
-	{ "attr_id", _Int },
-	{ "value", _BoolArray },
 }
 
 IntAttrStruct = 
@@ -131,22 +119,10 @@ IntAttrStruct =
 	{ "value", _Int },
 }
 
-IntArrayAttrStruct = 
-{
-	{ "attr_id", _Int },
-	{ "value", _IntArray },
-}
-
 FloatAttrStruct = 
 {
 	{ "attr_id", _Int },
 	{ "value", _Float },
-}
-
-FloatArrayAttrStruct = 
-{
-	{ "attr_id", _Int },
-	{ "value", _FloatArray },
 }
 
 ShortAttrStruct = 
@@ -155,22 +131,10 @@ ShortAttrStruct =
 	{ "value", _Short },
 }
 
-ShortArrayAttrStruct = 
-{
-	{ "attr_id", _Int },
-	{ "value", _ShortArray },
-}
-
 Int64AttrStruct = 
 {
 	{ "attr_id", _Int },
 	{ "value", _Int64 },
-}
-
-Int64ArrayAttrStruct = 
-{
-	{ "attr_id", _Int },
-	{ "value", _Int64Array },
 }
 
 StringAttrStruct = 
@@ -179,22 +143,22 @@ StringAttrStruct =
 	{ "value", _String },
 }
 
-StringArrayAttrStruct = 
-{
-	{ "attr_id", _Int },
-	{ "value", _StringArray },
-}
-
 StructAttrStruct = 
 {
 	{ "attr_id", _Int },
 	{ "value", _String },
 }
 
-StructArrayAttrStruct = 
+AttrTableStruct =
 {
-	{ "attr_id", _Int },
-	{ "value", _StringAttray },
+	{ "byte_attr_list", _StructArray, ByteAttrStruct },
+	{ "bool_attr_list", _StructArray, BoolAttrStruct },
+	{ "int_attr_list", _StructArray, IntAttrStruct },
+	{ "float_attr_list", _StructArray, FloatAttrStruct },
+	{ "short_attr_list", _StructArray, ShortAttrStruct },
+	{ "int64_attr_list", _StructArray, Int64AttrStruct },
+	{ "string_attr_list", _StructArray, StringAttrStruct },
+	{ "struct_attr_list", _StructArray, StructAttrStruct },
 }
 
 -----------------------------------
@@ -338,31 +302,18 @@ MSG_DEF_MAP =
 	[MID.ROLE_ATTR_RET] =
 	{
 		{ "role_id", _Int64 },
-		{ "scene_id", _Int },
+		{ "attr_table", _Struct, AttrTableStruct },
 	},
 
 	[MID.ROLE_ATTR_CHANGE_REQ] =
 	{
-		{ "byte_attr_list", _StructArray, ByteAttrStruct },
-		{ "bool_attr_list", _StructArray, BoolAttrStruct },
-		{ "int_attr_list", _StructArray, IntAttrStruct },
-		{ "float_attr_list", _StructArray, FloatAttrStruct },
-		{ "short_attr_list", _StructArray, ShortAttrStruct },
-		{ "int64_attr_list", _StructArray, Int64AttrStruct },
-		{ "string_attr_list", _StructArray, StringAttrStruct },
-		{ "struct_attr_list", _StructArray, StructAttrStruct },
+		{ "attr_table", _Struct, AttrTableStruct },
 	},
 
 	[MID.ROLE_ATTR_CHANGE_RET] =
 	{
-		{ "byte_attr_list", _StructArray, ByteAttrStruct },
-		{ "bool_attr_list", _StructArray, BoolAttrStruct },
-		{ "int_attr_list", _StructArray, IntAttrStruct },
-		{ "float_attr_list", _StructArray, FloatAttrStruct },
-		{ "short_attr_list", _StructArray, ShortAttrStruct },
-		{ "int64_attr_list", _StructArray, Int64AttrStruct },
-		{ "string_attr_list", _StructArray, StringAttrStruct },
-		{ "struct_attr_list", _StructArray, StructAttrStruct },
+		{ "role_id", _Int64 },
+		{ "attr_table", _Struct, AttrTableStruct },
 	},
 
 	----------------------------------------
