@@ -273,25 +273,50 @@ function g_funcs.str_to_value(value_str, value_type)
 	end
 end
 
+function g_funcs.str_to_attr_value(table_def, field_name, value_str)
+
+	local field_def = table_def[field_name]
+	if not field_def then
+		return nil
+	end
+
+	local field_type = field_def.type
+	if field_type == _String then
+		return value_str
+	end
+
+	if field_type == _Bool then
+		return value_str == "1" or value_str == "true"
+	end
+
+	if field_type == _Byte or field_type == _Int
+	or field_type == _Float or field_type == _Short
+	or field_type == _Int64 then
+		return tonumber(value_str)
+	end
+
+	if field_type == _Struct then
+		return Util.unserialize(value_str)
+	end
+
+end
+
+-- set attr into attr_table, struct will convert to string
 function g_funcs.set_attr_table(input_table, table_def, field_name, value)
 
 	local field_def = table_def[field_name]
 	if not field_def then
+		Log.warn("g_funcs.set_attr_table field_def nil field_name=%s", field_name)
 		return false
 	end
 
-	local field_type = field_def.type
-
-	if type(value) == "string" then
-		value = g_funcs.str_to_value(value, field_type)
-	end
-
 	if value == nil then
+		Log.warn("g_funcs.set_attr_table value nil field_name=%s", field_name)
 		return false
 	end
 
 	local attr_id = field_def.id
-
+	local field_type = field_def.type
 	local insert_table = nil
 	if field_type == _Byte then
 		insert_table = input_table.byte_attr_list
@@ -309,14 +334,32 @@ function g_funcs.set_attr_table(input_table, table_def, field_name, value)
 		insert_table = input_table.string_attr_list
 	elseif field_type == _Struct then
 		insert_table = input_table.struct_attr_list
+		value = Util.serialize(value)
 	end
 
 	if not insert_table then
+		Log.warn("g_funcs.set_attr_table no insert table field_name=%s", field_name)
 		return false
 	end
 	table.insert(insert_table, {attr_id=attr_id, value=value})
 
 	return true
+end
+
+-- unserialize string to struct
+function g_funcs.unserialize_attr_table(attr_table)
+	local struct_attr_list = attr_table.struct_attr_list
+	if not struct_attr_list then
+		return
+	end
+
+	for _, v in ipairs(struct_attr_list) do
+		if type(v.value) == "string" then
+			v.value = Util.unserialize(v.value)
+		end
+	end
+
+	return attr_table
 end
 
 return g_funcs

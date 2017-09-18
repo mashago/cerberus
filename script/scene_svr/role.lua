@@ -61,10 +61,10 @@ function Role:init_data(record)
 	local attr_map = self._attr
 
 	-- init not-db attr to default value
-	for _, field_cfg in ipairs(DataStructDef.data.role_info) do
-		if field_cfg.save == 0 then
-			local value = g_funcs.str_to_value(field_cfg.default, field_cfg.type)
-			attr_map[field_cfg.field] = value
+	for _, field_def in ipairs(DataStructDef.data.role_info) do
+		if field_def.save == 0 then
+			local value = g_funcs.str_to_value(field_def.default, field_def.type)
+			attr_map[field_def.field] = value
 		end
 	end
 
@@ -90,50 +90,28 @@ end
 function Role:send_module_data()
 	-- send sync == 1 or 2 attr to client
 
-	local attr_table = g_funcs.get_empty_attr_table()
+	local out_attr_table = g_funcs.get_empty_attr_table()
 	local table_def = DataStructDef.data.role_info
 
-	for k, v in pairs(self._attr) do
-		local field_cfg = table_def[k]
-		if not field_cfg then
+	for field_name, value in pairs(self._attr) do
+		local field_def = table_def[field_name]
+		if not field_def then
 			goto continue
 		end
-		if field_cfg.sync == 0 then
+		if field_def.sync == 0 then
 			goto continue
 		end
 
-		local attr_id = field_cfg.id
-		local field_type = field_cfg.type
-		local insert_table = nil
-		if field_type == _Byte then
-			insert_table = attr_table.byte_attr_list
-		elseif field_type == _Bool then
-			insert_table = attr_table.bool_attr_list
-		elseif field_type == _Int then
-			insert_table = attr_table.int_attr_list
-		elseif field_type == _Float then
-			insert_table = attr_table.float_attr_list
-		elseif field_type == _Short then
-			insert_table = attr_table.short_attr_list
-		elseif field_type == _Int64 then
-			insert_table = attr_table.int64_attr_list
-		elseif field_type == _String then
-			insert_table = attr_table.string_attr_list
-		elseif field_type == _Struct then
-			insert_table = attr_table.struct_attr_list
-			v = Util.serialize(v)
-		end
-		table.insert(insert_table, {attr_id=attr_id, value=v})
-
+		g_funcs.set_attr_table(out_attr_table, table_def, field_name, value)
 		::continue::
 	end
 	
-	Log.debug("Role:send_module_data attr_table=%s", Util.table_to_string(attr_table))
+	Log.debug("Role:send_module_data out_attr_table=%s", Util.table_to_string(out_attr_table))
 	
 	local msg =
 	{
 		role_id = self._role_id,
-		attr_table = attr_table,
+		attr_table = out_attr_table,
 	}
 	self:send_msg(MID.ROLE_ATTR_RET, msg)
 end

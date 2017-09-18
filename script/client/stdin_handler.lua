@@ -295,7 +295,7 @@ function cmd_handler.do_attr_change(params)
 		return
 	end
 
-	local attr_table = g_funcs.get_empty_attr_table()
+	local out_attr_table = g_funcs.get_empty_attr_table()
 	local table_def = DataStructDef.data.role_info
 
 	for n=2, math.huge, 2 do
@@ -304,17 +304,22 @@ function cmd_handler.do_attr_change(params)
 		if not attr_name or not attr_value then
 			break
 		end
-		g_funcs.set_attr_table(attr_table, table_def, attr_name, attr_value)
+		local value = g_funcs.str_to_attr_value(table_def, attr_name, attr_value)
+		if value == nil then
+			Log.warn("cmd_handler.do_attr_change attr convert fail %s %s", attr_name, attr_value)
+			break
+		end
+		g_funcs.set_attr_table(out_attr_table, table_def, attr_name, value)
 	end
 
-	Log.debug("cmd_handler.do_attr_change attr_table=%s", Util.table_to_string(attr_table))
+	Log.debug("cmd_handler.do_attr_change out_attr_table=%s", Util.table_to_string(out_attr_table))
 
 	local msg =
 	{
-		attr_table = attr_table,
+		attr_table = out_attr_table,
 	}
 
-	send_to_login(MID.ROLE_ATTR_CHANGE_REQ, msg)
+	send_to_router(MID.ROLE_ATTR_CHANGE_REQ, msg)
 end
 
 function ccall_stdin_handler(buffer)
