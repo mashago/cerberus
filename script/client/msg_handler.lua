@@ -126,7 +126,6 @@ end
 local function handle_role_attr(data, mailbox_id, msg_id)
 	Log.debug("handle_role_attr: data=%s", Util.table_to_string(data))
 	local attr_table = data.attr_table
-	attr_table = g_funcs.unserialize_attr_table(attr_table)
 	Log.debug("handle_role_attr attr_table=%s", Util.table_to_string(attr_table))
 end
 

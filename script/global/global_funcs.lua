@@ -334,7 +334,6 @@ function g_funcs.set_attr_table(input_table, table_def, field_name, value)
 		insert_table = input_table.string_attr_list
 	elseif field_type == _Struct then
 		insert_table = input_table.struct_attr_list
-		value = Util.serialize(value)
 	end
 
 	if not insert_table then

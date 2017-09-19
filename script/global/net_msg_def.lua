@@ -8,6 +8,7 @@ _Short 			= 5
 _Int64 			= 6
 _String			= 7
 _Struct 		= 8
+_StructString 	= 9 -- only for network transfer
 
 _ByteArray 		= 11
 _BoolArray		= 12
@@ -146,7 +147,7 @@ StringAttrStruct =
 StructAttrStruct = 
 {
 	{ "attr_id", _Int },
-	{ "value", _String },
+	{ "value", _StructString },
 }
 
 AttrTableStruct =

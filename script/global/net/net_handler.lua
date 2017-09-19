@@ -54,6 +54,12 @@ function read_data_by_msgdef(msgdef, deep)
 			flag, ret[val_name] = read_data_by_msgdef(v[3], deep + 1)
 		elseif (val_type == _StructArray) then
 			flag, ret[val_name] = read_struct_array(v[3], deep + 1)
+		elseif (val_type == _StructString) then
+			flag, ret[val_name] = read_val_action[_String]()
+			if flag then
+				ret[val_name] = Util.unserialize(ret[val_name])
+			end
+
 		else
 			flag, ret[val_name] = read_val_action[val_type]()
 		end
@@ -193,7 +199,7 @@ function write_data_by_msgdef(data, msgdef, deep)
 			and val_type ~= _ShortArray and val_type ~= _IntArray
 			and val_type ~= _FloatArray and val_type ~= _Int64Array
 			and val_type ~= _BoolArray and val_type ~= _StringArray
-			and val_type ~= _Struct and val_type ~= _StructArray))
+			and val_type ~= _Struct and val_type ~= _StructArray and val_type ~= _StructString))
 		then
 			Log.warn("write_data_by_msgdef value[%s] type error type(value)=%s val_type=%d", val_name, type(value), val_type)
 			return false
@@ -203,11 +209,14 @@ function write_data_by_msgdef(data, msgdef, deep)
 			flag = write_data_by_msgdef(value, v[3], deep+1)
 		elseif (val_type == _StructArray) then
 			flag = write_struct_array(value, v[3], deep+1)
+		elseif (val_type == _StructString) then
+			value = Util.serialize(value)
+			flag = write_val_action[_String](value)
 		else
 			flag = write_val_action[val_type](value)
 		end
 		if not flag then
-			Log.warn("write_data_by_msgdef write error")
+			Log.warn("write_data_by_msgdef write error val_type=%d", val_type)
 			flag = false
 			break
 		end
