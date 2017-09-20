@@ -192,6 +192,7 @@ local function db_login_update(data)
 	return db_update(data)
 end
 
+-- will convert data by DataStructDef
 local function db_game_select(data)
 	
 	local db_name = ServerConfig._db_name_map[DBType.GAME]
@@ -227,31 +228,9 @@ local function db_game_select(data)
 	end
 	Log.debug("type_map=%s", Util.table_to_string(type_map))
 
-	local function type_cast(value, type)
-		if type == _String then
-			return value
-		end
-
-		if type == _Bool then
-			return value == "1"
-		end
-
-		if type == _Byte or type == _Int
-		or type == _Float or type == _Short
-		or type == _Int64 then
-			return tonumber(value)
-		end
-
-		if type == _Struct then
-			return Util.unserialize(value)
-		end
-
-		Log.warn("type_cast unknow type %d", type)
-		return value
-	end
 	for _, line in ipairs(ret.data) do
 		for field, value in pairs(line) do
-			line[field] = type_cast(value, type_map[field])
+			line[field] = g_funcs.str_to_value(value, type_map[field])
 		end
 	end
 

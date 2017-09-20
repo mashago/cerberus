@@ -271,6 +271,9 @@ function g_funcs.str_to_value(value_str, value_type)
 	if value_type == _Struct then
 		return Util.unserialize(value_str)
 	end
+
+	Log.err("g_funcs.str_to_value unknow type %d", value_type)
+	return value_str
 end
 
 function g_funcs.str_to_attr_value(table_def, field_name, value_str)
