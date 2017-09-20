@@ -218,6 +218,41 @@ void Logger::SendLog(int type, const char *filename, const char *funcname, int l
 	m_logPipe.Push(log_buffer);
 }
 
+void Logger::SendLogStr(int type, const char *filename, const char *funcname, int linenum, const char *content_buffer)
+{
+	if (!m_isRunning)
+	{
+		return;
+	}
+
+	// 1. new log buffer
+	// 2. sprintf log
+	// 3. push
+	
+	enum {MAX_HEADER_SIZE = 200};
+	int content_len = strlen(content_buffer);
+	int MAX_LOG_SIZE = MAX_HEADER_SIZE + content_len;
+	char *log_buffer = new char[MAX_LOG_SIZE];
+
+	time_t now_time = time(NULL);
+	char time_buffer[50];
+
+	struct tm detail;
+	localtime_r(&now_time, &detail);
+	sprintf(time_buffer, "%02d:%02d:%02d", detail.tm_hour, detail.tm_min, detail.tm_sec);
+	
+	if (linenum != 0)
+	{
+		snprintf(log_buffer, MAX_LOG_SIZE, "%s [%s] %s:%s[%d] : %s", tags[type], time_buffer, filename, funcname, linenum, content_buffer);
+	}
+	else
+	{
+		snprintf(log_buffer, MAX_LOG_SIZE, "%s [%s] : %s", tags[type], time_buffer, content_buffer);
+	}
+
+	m_logPipe.Push(log_buffer);
+}
+
 void Logger::RecvLog()
 {
 	auto log_list = m_logPipe.Pop();

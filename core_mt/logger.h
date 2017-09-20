@@ -59,6 +59,7 @@ public:
 	static Logger *Instance();
 	void Init(const char *log_file_name, bool is_print_log = true);
 	void SendLog(int type, const char *filename, const char *funcname, int linenum, const char *fmt, ...);
+	void SendLogStr(int type, const char *filename, const char *funcname, int linenum, const char *content_buffer);
 	void Stop();
 
 
@@ -83,6 +84,7 @@ private:
 #define LOG_WARN(fmt, ...) Logger::Instance()->SendLog(LOG_TYPE_WARN, __FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
 #define LOG_ERROR(fmt, ...) Logger::Instance()->SendLog(LOG_TYPE_ERROR, __FILE__, __FUNCTION__, __LINE__, fmt, ##__VA_ARGS__)
 #define LOG_RAW(type, filename, funcname, linenum, fmt, ...) Logger::Instance()->SendLog(type, filename, funcname, linenum, fmt, ##__VA_ARGS__)
+#define LOG_RAW_STRING(type, filename, funcname, linenum, str) Logger::Instance()->SendLogStr(type, filename, funcname, linenum, str)
 #define LOG_STOP() Logger::Instance()->Stop()
 
 #endif
