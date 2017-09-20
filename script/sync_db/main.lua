@@ -29,7 +29,8 @@ sync_db = function()
 		[_Short] = "int(11)",
 		[_Int64] = "bigint(20)",
 		[_String] = "varchar(255)",
-		[_Struct] = "varchar(2048)",
+		-- [_Struct] = "varchar(2048)",
+		[_Struct] = "blob",
 	}
 
 	local db_name = ServerConfig._db_name_map[DBType.GAME]
