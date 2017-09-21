@@ -29,7 +29,6 @@ sync_db = function()
 		[_Short] = "int(11)",
 		[_Int64] = "bigint(20)",
 		[_String] = "varchar(255)",
-		-- [_Struct] = "varchar(2048)",
 		[_Struct] = "blob",
 	}
 
@@ -67,7 +66,7 @@ sync_db = function()
 
 			local field_type_str = type_str_map[field_def.type]
 			local field_default = field_def.default
-			if field_default ~= '_Null' then
+			if field_default ~= '_Null' and field_def.type ~= _Struct then
 				line = line .. string.format("%s %s DEFAULT '%s'", field_name, field_type_str, field_default)
 			else
 				line = line .. string.format("%s %s", field_name, field_type_str)
@@ -119,13 +118,13 @@ sync_db = function()
 		local change_list = {}
 		for _, field_info in ipairs(desc) do
 			repeat
-			local field_name = field_info.Field
-			local field_type = field_info.Type
-			local field_default = field_info.Default
+			local db_field_name = field_info.Field
+			local db_field_type = field_info.Type
+			local db_field_default = field_info.Default
 
 			local field_def = nil
 			for __, t in ipairs(table_def) do
-				if t.field == field_name then
+				if t.field == db_field_name then
 					field_def = t
 					break
 				end
@@ -133,7 +132,7 @@ sync_db = function()
 
 			-- 3.1 drop row
 			if not field_def or field_def.save == 0 then
-				local str = string.format("DROP %s", field_name)
+				local str = string.format("DROP %s", db_field_name)
 				table.insert(change_list, str)
 				break
 			end
@@ -142,15 +141,20 @@ sync_db = function()
 			local config_field_type = type_str_map[field_def.type]
 			local config_field_default = field_def.default
 
-			if field_type == config_field_type 
-			and field_default == config_field_default then
-				break
+			if db_field_type == config_field_type then
+				if  db_field_default == config_field_default then
+					break
+				elseif db_field_type == 'blob' then
+					-- struct default is not for db
+					break
+				end
 			end
+
 			local str = nil
-			if config_field_default ~= '_Null' then
-				str = string.format("MODIFY %s %s DEFAULT '%s'", field_name, config_field_type, config_field_default)
+			if config_field_default ~= '_Null' and field_def.type == _Struct then
+				str = string.format("MODIFY %s %s DEFAULT '%s'", db_field_name, config_field_type, config_field_default)
 			else
-				str = string.format("MODIFY %s %s", field_name, config_field_type)
+				str = string.format("MODIFY %s %s", db_field_name, config_field_type)
 			end
 			table.insert(change_list, str)
 

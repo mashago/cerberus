@@ -31,8 +31,7 @@ DataStructDef.data.role_info =
 	[17] = {id=17, field='attr_short', type=_Short, save=1, default='0', sync=1},
 	[18] = {id=18, field='attr_int64', type=_Int64, save=1, default='0', sync=1},
 	[19] = {id=19, field='attr_string', type=_String, save=1, default='', sync=1},
-	-- [20] = {id=20, field='attr_struct', type=_Struct, save=1, default='{}', sync=1},
-	[20] = {id=20, field='attr_struct', type=_Struct, save=1, default='_Null', sync=1},
+	[20] = {id=20, field='attr_struct', type=_Struct, save=1, default='{}', sync=1},
 }
 
 function DataStructDef.func.init_cfg()

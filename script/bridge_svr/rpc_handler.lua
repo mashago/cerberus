@@ -44,16 +44,15 @@ local function bridge_create_role(data)
 
 	-- set default value by config
 	for _, field_def in ipairs(DataStructDef.data.role_info) do
-		repeat
 		local field_name = field_def.field
-		if not field_def.save or field_def.save == 0 then
-			break
+		if not field_def.save or field_def.save == 0 or field_def.default == '_Null' then
+			goto continue
 		end
-		local default = Util.convert_value_by_type(field_def.default, field_def.type)
+		local default = g_funcs.str_to_value(field_def.default, field_def.type)
 		role_data[field_name]=default
-		until true
+		::continue::
 	end
-	Log.debug("bridge_create_role: data=%s", Util.table_to_string(data))
+	Log.debug("bridge_create_role: role_data=%s", Util.table_to_string(role_data))
 
 	-- set other value
 	for k, v in pairs(data) do

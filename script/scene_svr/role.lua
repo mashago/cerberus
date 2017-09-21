@@ -24,7 +24,7 @@ function Role:load_db()
 	{
 		table_name = "role_info",
 		fields = {},
-		conditions = {role_id=role_id}
+		conditions = {role_id=self._role_id}
 	}
 
 	local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_game_select", rpc_data)

@@ -128,20 +128,4 @@ function Util.unserialize(lua)
 	return func()  
 end
 
-function Util.convert_value_by_type(value_str, type_enum)
-	if type_enum == _Byte or type_enum == _Int or type_enum == _Float or type_enum == _Short or type_enum == _Int64 then
-		return tonumber(value_str)
-	elseif type_enum == _Bool then
-		if value_str == 'true' then return true end
-		return false
-	elseif type_enum == _String then
-		return value_str
-	elseif type_enum == _Struct then
-		-- TODO
-		return {}
-	else
-		return nil
-	end
-end
-
 return Util
