@@ -23,9 +23,9 @@ sync_db = function()
 	local type_str_map = 
 	{
 		[_Byte] = "int(11)",
-		[_Bool] = "boolean",
+		[_Bool] = "tinyint(1)",
 		[_Int] = "int(11)",
-		[_Float] = "float(11)",
+		[_Float] = "float",
 		[_Short] = "int(11)",
 		[_Int64] = "bigint(20)",
 		[_String] = "varchar(255)",
@@ -151,7 +151,7 @@ sync_db = function()
 			end
 
 			local str = nil
-			if config_field_default ~= '_Null' and field_def.type == _Struct then
+			if config_field_default ~= '_Null' and field_def.type ~= _Struct then
 				str = string.format("MODIFY %s %s DEFAULT '%s'", db_field_name, config_field_type, config_field_default)
 			else
 				str = string.format("MODIFY %s %s", db_field_name, config_field_type)
