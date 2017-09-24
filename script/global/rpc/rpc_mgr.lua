@@ -155,6 +155,7 @@ function RpcMgr.handle_call(data, mailbox_id, msg_id)
 		return
 	end
 
+	-- handle rpc
 	-- consider rpc in call function
 	-- so use a coroutine wrap this function
 	local cor = coroutine.create(func)
