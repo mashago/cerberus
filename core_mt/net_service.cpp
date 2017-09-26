@@ -360,8 +360,8 @@ int NetService::HandleSocketRead(struct bufferevent *bev)
 {
 	// loop to handle read data
 	
-	evutil_socket_t fd = bufferevent_getfd(bev);
-	LOG_DEBUG("fd=%d", fd);
+	// evutil_socket_t fd = bufferevent_getfd(bev);
+	// LOG_DEBUG("fd=%d", fd);
 	int ret = READ_MSG_WAIT;
 	do
 	{
@@ -826,7 +826,7 @@ static void read_cb(struct bufferevent *bev, void *user_data)
 
 static void event_cb(struct bufferevent *bev, short event, void *user_data)
 {
-	LOG_DEBUG("******* event=%d", event);
+	// LOG_DEBUG("******* event=%d", event);
 	// handle other event
 	NetService *ns = (NetService *)user_data;
 	evutil_socket_t fd = bufferevent_getfd(bev);

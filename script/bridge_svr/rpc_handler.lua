@@ -1,7 +1,6 @@
 
 local function bridge_rpc_test(data)
 	
-	Log.debug("bridge_rpc_test: xxxxxxxxxxxxxx")
 	Log.debug("bridge_rpc_test: data=%s", Util.table_to_string(data))
 
 	local buff = data.buff

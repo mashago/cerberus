@@ -174,7 +174,7 @@ void LuaWorld::HandleMsg(Pluto &u)
 {
 	int64_t mailboxId = u.GetMailboxId();
 	int msgId = u.ReadMsgId();
-	LOG_DEBUG("mailboxId=%ld msgId=%d", mailboxId, msgId);
+	// LOG_DEBUG("mailboxId=%ld msgId=%d", mailboxId, msgId);
 
 	m_luanetwork->SetRecvPluto(&u);
 	lua_getglobal(m_L, "ccall_recv_msg_handler");

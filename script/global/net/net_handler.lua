@@ -97,7 +97,7 @@ end
 
 local function recv_msg_handler(mailbox_id, msg_id)
 	local ext = g_network:read_ext()
-	Log.debug("recv_msg_handler ext=%d", ext)
+	-- Log.debug("recv_msg_handler ext=%d", ext)
 	
 	local msg_handler = Net.get_msg_handler(msg_id)
 	if not msg_handler then
