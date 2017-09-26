@@ -129,12 +129,11 @@ local function recv_msg_handler(mailbox_id, msg_id)
 	end
 
 	if not RAW_MID[msg_id] and g_net_event_client_msg then
-		g_net_event_client_msg(msg_handler, data, mailbox_id, msg_id, ext)
-		-- RpcMgr.run(g_net_event_client_msg, msg_handler, data, mailbox_id, msg_id, ext)
+		-- g_net_event_client_msg(msg_handler, data, mailbox_id, msg_id, ext)
+		RpcMgr.run(g_net_event_client_msg, msg_handler, data, mailbox_id, msg_id, ext)
 	else
-		msg_handler(data, mailbox_id, msg_id, ext)
+		-- msg_handler(data, mailbox_id, msg_id, ext)
 
-		--[[
 		if msg_id == MID.REMOTE_CALL_REQ then
 			RpcMgr.handle_call(data, mailbox_id, msg_id)
 		elseif msg_id == MID.REMOTE_CALL_RET then
@@ -142,7 +141,6 @@ local function recv_msg_handler(mailbox_id, msg_id)
 		else
 			RpcMgr.run(msg_handler, data, mailbox_id, msg_id, ext)
 		end
-		--]]
 	end
 end
 

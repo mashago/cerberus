@@ -58,44 +58,39 @@ local function handle_client_test(data, mailbox_id, msg_id)
 end
 
 local function handle_router_role_enter_req(data, mailbox_id)
-	local func = function(mailbox_id, data)
-		
-		Log.debug("handle_router_role_enter_req: mailbox_id=%d data=%s", mailbox_id, Util.table_to_string(data))
+	Log.debug("handle_router_role_enter_req: mailbox_id=%d data=%s", mailbox_id, Util.table_to_string(data))
 
-		local role_id = data.role_id
-		local scene_id = data.scene_id
+	local role_id = data.role_id
+	local scene_id = data.scene_id
 
-		-- 1. new role
-		-- 2. init role attr
-		-- 3. sync to client
-		-- 4. success to router
+	-- 1. new role
+	-- 2. init role attr
+	-- 3. sync to client
+	-- 4. success to router
 
-		-- 1. new role
-		local role = g_role_mgr:get_role_by_id(role_id)
-		if not role then
-			local Role = require "scene_svr.role"
-			role = Role:new(role_id, mailbox_id)
-			g_role_mgr:add_role(role)
-		else
-			Log.debug("handle_router_role_enter_req: role already exists %d", role_id)
-		end
-		
-		-- 2. init role info
-		role:load_and_init_data()
-
-		-- 3. sync to client
-		role:send_module_data()
-
-		-- 4. success to router
-		local msg = 
-		{
-			result = ErrorCode.SUCCESS,
-			role_id = role_id,
-		}
-		local ret = Net.send_msg(mailbox_id, MID.ROUTER_ROLE_ENTER_RET, msg)
+	-- 1. new role
+	local role = g_role_mgr:get_role_by_id(role_id)
+	if not role then
+		local Role = require "scene_svr.role"
+		role = Role:new(role_id, mailbox_id)
+		g_role_mgr:add_role(role)
+	else
+		Log.debug("handle_router_role_enter_req: role already exists %d", role_id)
 	end
-	-- rpc warpper
-	RpcMgr.run(func, mailbox_id, data)
+	
+	-- 2. init role info
+	role:load_and_init_data()
+
+	-- 3. sync to client
+	role:send_module_data()
+
+	-- 4. success to router
+	local msg = 
+	{
+		result = ErrorCode.SUCCESS,
+		role_id = role_id,
+	}
+	local ret = Net.send_msg(mailbox_id, MID.ROUTER_ROLE_ENTER_RET, msg)
 
 end
 
