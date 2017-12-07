@@ -11,7 +11,9 @@ SET(TARGET_NAME Test)
 #2.include and lib
 INCLUDE_DIRECTORIES(
 .
-../core
+../core/common
+../core/net
+../core/world
 ../tinyxml
 /usr/local/include
 /usr/include

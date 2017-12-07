@@ -300,7 +300,7 @@ void thread_run(EventPipe *pipe, bool isBlockWait)
 		if (!isBlockWait)
 		{
 			LOG_DEBUG("not block wait");
-			sleep_second(1);
+			sleep(1);
 		}
 	}
 }

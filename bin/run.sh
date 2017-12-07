@@ -8,8 +8,8 @@ echo "Start Login Server..."
 ./MassNetServer -d -c ../conf/server_conf_login.xml
 
 # global cross server pack
-echo "Start Cross Scene Server..."
-./MassNetServer -d -c ../conf/server_conf_cross_scene.xml
+# echo "Start Cross Scene Server..."
+# ./MassNetServer -d -c ../conf/server_conf_cross_scene.xml
 
 # area server pack
 echo "Start DB Game Server..."
