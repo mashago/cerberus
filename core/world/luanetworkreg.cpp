@@ -4,6 +4,7 @@ extern "C"
 #include <lauxlib.h>
 #include <lualib.h>
 }
+#include "common.h"
 #include "logger.h"
 #include "pluto.h"
 #include "luaworld.h"
@@ -162,7 +163,6 @@ int luanetwork_write_byte_array(lua_State* L)
 
 	luaL_checktype(L, -1, LUA_TTABLE);
 
-	//得到table长度
 	int count = 0;
 	write_table_len(count);
 
@@ -190,7 +190,6 @@ int luanetwork_write_int_array(lua_State* L)
 
 	luaL_checktype(L, -1, LUA_TTABLE);
 
-	//得到table长度
 	int count = 0;
 	write_table_len(count);
 
@@ -218,7 +217,6 @@ int luanetwork_write_float_array(lua_State* L)
 
 	luaL_checktype(L, -1, LUA_TTABLE);
 
-	//得到table长度
 	int count = 0;
 	write_table_len(count);
 
@@ -245,7 +243,6 @@ int luanetwork_write_bool_array(lua_State* L)
 
 	luaL_checktype(L, -1, LUA_TTABLE);
 
-	//得到table长度
 	int count = 0;
 	write_table_len(count);
 
@@ -272,7 +269,6 @@ int luanetwork_write_short_array(lua_State* L)
 
 	luaL_checktype(L, -1, LUA_TTABLE);
 
-	//得到table长度
 	int count = 0;
 	write_table_len(count);
 
@@ -299,7 +295,6 @@ int luanetwork_write_int64_array(lua_State* L)
 
 	luaL_checktype(L, -1, LUA_TTABLE);
 
-	//得到table长度
 	int count = 0;
 	write_table_len(count);
 
@@ -326,7 +321,6 @@ int luanetwork_write_string_array(lua_State* L)
 
 	luaL_checktype(L, -1, LUA_TTABLE);
 
-	//得到table长度
 	int count = 0;
 	write_table_len(count);
 
@@ -373,6 +367,28 @@ int luanetwork_transfer(lua_State* L)
 }
 
 //////////////////////////////////////////////////////
+
+int luanetwork_read_msg_id(lua_State* L)
+{
+	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
+	luaL_argcheck(L, s != NULL, 1, "invalid user data");
+
+	int msg_id = (*s)->ReadMsgId();
+	lua_pushinteger(L, msg_id);
+
+	return 1;
+}
+
+int luanetwork_read_ext(lua_State* L)
+{
+	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
+	luaL_argcheck(L, s != NULL, 1, "invalid user data");
+
+	int ext = (*s)->ReadExt();
+	lua_pushinteger(L, ext);
+
+	return 1;
+}
 
 int luanetwork_read_byte(lua_State* L)
 {
@@ -472,7 +488,7 @@ int luanetwork_read_string(lua_State* L)
 	// LOG_DEBUG("out_val=%s", out_val);
 
 	lua_pushboolean(L, ret);
-	lua_pushstring(L, out_val);
+	lua_pushlstring(L, out_val, out_len);
 
 	return 2;
 }
@@ -720,7 +736,7 @@ int luanetwork_read_string_array(lua_State* L)
 		}
 
 		lua_pushinteger(L, i);
-		lua_pushstring(L, out_val);
+		lua_pushlstring(L, out_val, out_len);
 		lua_rawset(L, -3);
 	}
 
@@ -728,28 +744,6 @@ int luanetwork_read_string_array(lua_State* L)
 	lua_insert(L, -2);
 
 	return 2;
-}
-
-int luanetwork_read_msg_id(lua_State* L)
-{
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	int msg_id = (*s)->ReadMsgId();
-	lua_pushinteger(L, msg_id);
-
-	return 1;
-}
-
-int luanetwork_read_ext(lua_State* L)
-{
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	int ext = (*s)->ReadExt();
-	lua_pushinteger(L, ext);
-
-	return 1;
 }
 
 int luanetwork_connect_to(lua_State* L)
@@ -863,8 +857,6 @@ static const luaL_Reg lua_reg_member_funcs[] =
 	{ "read_int64_array", luanetwork_read_int64_array },
 	{ "read_short_array", luanetwork_read_short_array },
 	{ "read_string_array", luanetwork_read_string_array },
-
-	// { "is_read_all", luanetwork_is_read_all },
 
 	{ "connect_to", luanetwork_connect_to },
 	{ "close_mailbox", luanetwork_close_mailbox},

@@ -1,3 +1,4 @@
+#include "common.h"
 #include "logger.h"
 #include "pluto.h"
 #include "luanetwork.h"
@@ -70,7 +71,7 @@ bool LuaNetwork::WriteString(int len, const char* str)
 
 bool LuaNetwork::Send(int64_t mailboxId)
 {
-	// TODO check pluto size
+	// no need to check pluto size, if over size, write will not success
 	m_sendPluto->SetMsgLen();
 	Pluto *pu = m_sendPluto->Clone();
 	pu->SetMailboxId(mailboxId);

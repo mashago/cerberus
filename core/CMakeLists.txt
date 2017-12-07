@@ -1,15 +1,13 @@
 
 #1.define target
-#2.include
-#3.group source
-#4.create lib
-
-#1.define target
-SET(TARGET_NAME core_mt)
+SET(TARGET_NAME core)
 
 #2.include
 INCLUDE_DIRECTORIES(
 ./
+./common
+./net
+./world
 ../tinyxml
 ../lfs
 /usr/local/include/mysql

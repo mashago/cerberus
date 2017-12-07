@@ -146,7 +146,6 @@ function g_funcs.connect_to_mysql(xml_doc)
 
 		info_ele = info_ele:next_sibling_element()
 	end
-	ServiceClient.create_connect_timer()
 
 	return true
 end

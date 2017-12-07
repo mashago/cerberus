@@ -48,12 +48,12 @@ int main(int argc, char ** argv)
 	World *world = new LuaClient();
 	world->SetEventPipe(net2worldPipe, world2newPipe);
 	world->Init(0, 0, conf_file, entry_file);
-	world->Run();
+	world->Dispatch();
 
 	NetService *net = new NetService();
 	std::set<std::string> trustIpSet;
-	net->Init("", 0, trustIpSet, net2worldPipe, world2newPipe);
-	net->Service();
+	net->Init("", 0, 0, trustIpSet, net2worldPipe, world2newPipe);
+	net->Dispatch();
 
 	return 0;
 }

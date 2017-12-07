@@ -30,7 +30,7 @@ bool World::Init(int server_id, int server_type, const char *conf_file, const ch
 	return true;
 }
 
-void World::Run()
+void World::Dispatch()
 {
 	auto world_run = [](World *world)
 	{

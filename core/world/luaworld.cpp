@@ -24,6 +24,7 @@ LuaWorld::LuaWorld() : m_L(nullptr), m_luanetwork(nullptr), m_connIndex(0)
 
 LuaWorld::~LuaWorld()
 {
+	delete m_luanetwork;
 }
 
 static int logger_c(lua_State *L)
@@ -227,7 +228,7 @@ void LuaWorld::HandleTimer(void *arg)
 int64_t LuaWorld::ConnectTo(const char* ip, unsigned int port)
 {
 	EventNodeConnectToReq *node = new EventNodeConnectToReq;
-	sprintf(node->ip, "%s", ip);
+	snprintf(node->ip, sizeof(node->ip), "%s", ip);
 	node->port = port;
 	node->ext = ++m_connIndex;
 	SendEvent(node);

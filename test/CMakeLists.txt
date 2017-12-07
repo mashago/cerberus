@@ -11,7 +11,7 @@ SET(TARGET_NAME Test)
 #2.include and lib
 INCLUDE_DIRECTORIES(
 .
-../core_mt
+../core
 ../tinyxml
 /usr/local/include
 /usr/include
@@ -37,7 +37,7 @@ ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
 ELSE()
 ENDIF()
 
-SET(LOCAL_LIBRARIES "core_mt;tinyxml;lfs")
+SET(LOCAL_LIBRARIES "core;tinyxml;lfs")
 
 IF(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 	SET(LIBRARIES "lua;event;mysqlclient")

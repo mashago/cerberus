@@ -132,7 +132,7 @@ int MysqlMgr::CoreQuery(const char *sql, int len, bool is_select)
 		if (m_err == 2013 || m_err == 2006 || m_err == 8888)
 		{
 			LOG_ERROR("CoreQuery:disconnect errno=%d", m_err);
-			sleep_second(1);
+			sleep(1);
 			Reconnect();
 			reconn_count++;
 		}

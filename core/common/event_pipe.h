@@ -8,7 +8,6 @@
 #include <condition_variable>
 #include <memory>
 
-#include "common.h"
 #include "util.h"
 
 class Pluto;

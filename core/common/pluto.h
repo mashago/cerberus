@@ -3,18 +3,6 @@
 
 #include <stdint.h>
 
-enum
-{
-	MSGLEN_HEAD 	= 4,
-	MSGLEN_MSGID 	= 4, 
-	MSGLEN_EXT 		= 4, 
-
-	MSGLEN_MAX 		= 65000,
-	MSGLEN_TEXT_POS = MSGLEN_HEAD + MSGLEN_MSGID + MSGLEN_EXT,
-	
-	PLUTO_MSGLEN_HEAD 	= MSGLEN_HEAD,
-};
-
 class Mailbox;
 
 /*
@@ -58,7 +46,6 @@ public:
 	}
 
 	void ResetCursor();
-
 
 	void WriteMsgId(int msgId);
 	void WriteExt(int ext);

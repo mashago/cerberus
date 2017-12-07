@@ -25,9 +25,6 @@ public:
 	bool Send(int64_t mailboxId);
 	bool Transfer();
 
-	//当前可写字符的最大长度
-	// int can_write_string_maxlen();
-
 	void SetRecvPluto(Pluto *pu);
 	int  ReadMsgId();
 	int  ReadExt();

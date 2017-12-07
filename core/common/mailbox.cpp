@@ -28,6 +28,7 @@ Mailbox::~Mailbox()
 	if (m_recvPluto)
 	{
 		delete m_recvPluto;
+		m_recvPluto = nullptr;
 	}
 
 	// delete send pluto
@@ -100,6 +101,7 @@ int Mailbox::SendAll()
 		m_sendPos = 0;
 		m_tobeSend.pop_front();
 		delete u; // world new, net delete
+		u = nullptr;
 	}
 
 	if (!m_tobeSend.empty())
