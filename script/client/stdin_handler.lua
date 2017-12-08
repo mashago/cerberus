@@ -6,8 +6,9 @@ function cmd_handler.execute(buffer)
 	local params = Util.split_string(buffer, " ")
 	Log.debug("params=%s", Util.table_to_string(params))
 
-
-	if params[1] == "rpc" then
+	if params[1] == "help" then
+		cmd_handler.print_all_cmd()
+	elseif params[1] == "rpc" then
 		cmd_handler.do_rpc_test(params)
 	elseif params[1] == "rpcx" then
 		cmd_handler.do_rpc_testx(params)
@@ -48,6 +49,28 @@ function cmd_handler.execute(buffer)
 		Log.warn("unknow cmd")
 	end
 
+end
+
+function cmd_handler.print_all_cmd()
+
+	local words = [[
+	rpc [buffer]
+	rpcx [num]
+	c [login/router]
+	close [login/router]
+	login [username] [password] [channel_id]
+	loginx [num]
+	arealist
+	rolelist [opt area_id]
+	create [role_name] [opt area_id]
+	delete [role_id] [opt area_id]
+	select [role_id] [opt area_id]
+	enter
+	http
+	attr [attr_name] [value]
+]]
+
+	Log.info("cmd_handler.print_all_cmd()\n%s", words)
 end
 
 function cmd_handler.do_rpc_test(params)

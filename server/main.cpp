@@ -109,7 +109,7 @@ int main(int argc, char ** argv)
 	int server_type = root->IntAttribute("type");
 	const char *ip = (char*)root->Attribute("ip");
 	int port = root->IntAttribute("port");
-	int max_conn = root->IntAttribute("maxConn");
+	int max_conn = root->IntAttribute("max_conn");
 	const char *entry_file = (char*)root->Attribute("file");
 	int auto_shutdown = root->IntAttribute("auto_shutdown");
 	int no_broadcast = root->IntAttribute("no_broadcast");

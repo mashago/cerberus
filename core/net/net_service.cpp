@@ -485,7 +485,7 @@ int NetService::SocketReadMessage(struct bufferevent *bev)
 		evbuffer_drain(input, nLen);
 
 		// get msglen
-		int msgLen = (int)ntohl(*(uint32_t *)head);
+		int msgLen = *(int *)(head);
 		if (msgLen > MSGLEN_MAX)
 		{
 			// msg len over size, should kick this connection
