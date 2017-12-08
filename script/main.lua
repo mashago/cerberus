@@ -1,12 +1,7 @@
 
 package.path = package.path .. ";../script/?.lua"
 
-require "global.net_msg_def"
-require "global.init_mt"
-require "global.global_def"
-require "global.global_funcs"
-require "global.server_conf"
-require "global.data_struct_def"
+require "core.init"
 
 local function main()
 	Log.info("------------------------------")
