@@ -1,4 +1,4 @@
 
-require "global.service.service_client"
-require "global.service.service_server"
-require "global.service.service_mgr"
+require "core.service.service_client"
+require "core.service.service_server"
+require "core.service.service_mgr"
