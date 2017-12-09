@@ -63,7 +63,7 @@ public:
 	int HandleSocketClosed(evutil_socket_t fd);
 	int HandleSocketError(evutil_socket_t fd);
 	int HandleSocketConnectToSuccess(evutil_socket_t fd);
-	void HandleWorkEvent();
+	void HandleMainLoop();
 	void HandleHttpConnClose(struct evhttp_connection *http_conn);
 
 	struct HttpRequestArg
@@ -89,7 +89,7 @@ private:
 
 	int m_maxConn;
 	struct event_base *m_mainEvent;
-	struct event *m_workTimerEvent;
+	struct event *m_mainLoopEvent;
 	struct event *m_tickTimerEvent;
 	struct event *m_stdinEvent;
 	struct evconnlistener *m_evconnlistener;

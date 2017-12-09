@@ -45,14 +45,14 @@ enum READ_MSG_RESULT
 static void listen_cb(struct evconnlistener *listener, evutil_socket_t fd, struct sockaddr *sa, int socklen, void *user_data);
 static void read_cb(struct bufferevent *bev, void *user_data);
 static void event_cb(struct bufferevent *bev, short event, void *user_data);
-static void work_timer_cb(evutil_socket_t fd, short event, void *user_data);
+static void main_loop_cb(evutil_socket_t fd, short event, void *user_data);
 static void tick_timer_cb(evutil_socket_t fd, short event, void *user_data);
 static void stdin_cb(evutil_socket_t fd, short event, void *user_data);
 static void http_conn_close_cb(struct evhttp_connection *http_conn, void *user_data);
 static void http_done_cb(struct evhttp_request *http_request, void *user_data);
 
 
-NetService::NetService() : m_maxConn(0), m_mainEvent(nullptr), m_workTimerEvent(nullptr), m_tickTimerEvent(nullptr), m_stdinEvent(nullptr), m_evconnlistener(nullptr)
+NetService::NetService() : m_maxConn(0), m_mainEvent(nullptr), m_mainLoopEvent(nullptr), m_tickTimerEvent(nullptr), m_stdinEvent(nullptr), m_evconnlistener(nullptr)
 {
 }
 
@@ -82,12 +82,12 @@ int NetService::Init(const char *addr, unsigned int port, int maxConn, std::set<
 	}
 
 	// init work timer, for net_server handle logic
-	m_workTimerEvent = event_new(m_mainEvent, -1, EV_PERSIST, work_timer_cb, this);
+	m_mainLoopEvent = event_new(m_mainEvent, -1, EV_PERSIST, main_loop_cb, this);
 	struct timeval tv;
 	tv.tv_sec = 0;
 	// tv.tv_sec = 3;
 	tv.tv_usec = 50 * 1000;
-	if (event_add(m_workTimerEvent, &tv) != 0)
+	if (event_add(m_mainLoopEvent, &tv) != 0)
 	{
 		LOG_ERROR("add work timer fail");
 		return -1;
@@ -133,11 +133,11 @@ int NetService::Dispatch()
 
 	event_base_dispatch(m_mainEvent);
 
-	if (m_workTimerEvent)
+	if (m_mainLoopEvent)
 	{
-		event_del(m_workTimerEvent);
-		event_free(m_workTimerEvent);
-		m_workTimerEvent = NULL;
+		event_del(m_mainLoopEvent);
+		event_free(m_mainLoopEvent);
+		m_mainLoopEvent = NULL;
 	}
 
 	if (m_tickTimerEvent)
@@ -681,7 +681,7 @@ void NetService::HandleSendPluto()
 	}
 }
 
-void NetService::HandleWorkEvent()
+void NetService::HandleMainLoop()
 {
 	// 1. handle world event
 	// 2. handle send pluto
@@ -859,10 +859,10 @@ static void event_cb(struct bufferevent *bev, short event, void *user_data)
 	}
 }
 
-static void work_timer_cb(evutil_socket_t fd, short event, void *user_data)
+static void main_loop_cb(evutil_socket_t fd, short event, void *user_data)
 {
 	NetService *ns = (NetService *)user_data;
-	ns->HandleWorkEvent();
+	ns->HandleMainLoop();
 }
 
 // for add timer
