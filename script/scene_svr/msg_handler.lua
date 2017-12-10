@@ -111,8 +111,7 @@ local function handle_invite_connect(data, mailbox_id)
 	local register = 1
 	local invite = 0
 	local no_reconnect = 1
-	ServiceClient.add_connect_service(ip, port, server_id, server_type, register, invite, no_reconnect)
-	ServiceClient.create_connect_timer()
+	g_service_client:do_connect(ip, port, server_id, server_type, register, invite, no_reconnect)
 end
 
 local function handle_role_attr_change_req(role, data, mailbox_id)

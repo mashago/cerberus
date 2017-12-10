@@ -39,11 +39,10 @@ function g_funcs.connect_to_servers(xml_doc)
 		local invite = address_ele:int_attribute("invite")
 		local no_reconnect = address_ele:int_attribute("no_reconnect")
 		Log.info("ip=%s port=%d server_id=%d server_type=%d register=%d invite=%d no_reconnect=%d", ip, port, server_id, server_type, register, invite, no_reconnect)
-		ServiceClient.add_connect_service(ip, port, server_id, server_type, register, invite, no_reconnect)
+		g_service_client:do_connect(ip, port, server_id, server_type, register, invite, no_reconnect)
 
 		address_ele = address_ele:next_sibling_element()
 	end
-	ServiceClient.create_connect_timer()
 
 	return true
 end
@@ -213,7 +212,7 @@ function g_funcs.handle_register_server_ret(data, mailbox_id, msg_id)
 	end
 	local server_id = data.server_id
 	local server_type = data.server_type
-	ServiceClient.register_success(mailbox_id, server_id, server_type)
+	g_service_client:register_success(mailbox_id, server_id, server_type)
 
 	if server_type == ServerType.LOGIN and ServerConfig._server_type == ServerType.BRIDGE then
 		-- register area
@@ -229,13 +228,13 @@ end
 -- a common handle for MID.REGISTER_SERVER_BROADCAST
 function g_funcs.handle_register_server_broadcast(data, mailbox_id, msg_id)
 	Log.debug("handle_register_server_broadcast: data=%s", Util.table_to_string(data))
-	ServiceClient.add_server(mailbox_id, data.server_id, data.server_type, data.single_scene_list, data.from_to_scene_list, true)
+	g_service_client:add_server(mailbox_id, data.server_id, data.server_type, data.single_scene_list, data.from_to_scene_list, true)
 end
 
 -- a common handle for MID.SERVER_DISCONNECT
 function g_funcs.handle_server_disconnect(data, mailbox_id, msg_id)
 	Log.debug("handle_server_disconnect: data=%s", Util.table_to_string(data))
-	ServiceClient.remove_server(mailbox_id, data.server_id)
+	g_service_client:remove_server(mailbox_id, data.server_id)
 end
 
 function g_funcs.get_empty_attr_table()

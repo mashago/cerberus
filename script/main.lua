@@ -13,6 +13,7 @@ local function main()
 
 	ServerConfig._server_id = g_server_id
 	ServerConfig._server_type = g_server_type
+	g_service_client = ServiceClient.new()
 
 	local xml_doc = LuaTinyXMLDoc.create()
 	if not xml_doc:load_file(g_conf_file) then

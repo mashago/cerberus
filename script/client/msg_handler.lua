@@ -1,10 +1,10 @@
 
 function send_to_login(msg_id, msg)
-	ServiceClient.send_to_type_server(ServerType.LOGIN, msg_id, msg)
+	g_service_client:send_to_type_server(ServerType.LOGIN, msg_id, msg)
 end
 
 function send_to_router(msg_id, msg)
-	ServiceClient.send_to_type_server(ServerType.ROUTER, msg_id, msg)
+	g_service_client:send_to_type_server(ServerType.ROUTER, msg_id, msg)
 end
 
 ------------------------------------------------

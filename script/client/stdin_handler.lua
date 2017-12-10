@@ -142,9 +142,8 @@ function cmd_handler.do_connect(params)
 	local port = server_info.port
 	local server_id = server_info.server_id
 	local register = 0
-	ServiceClient.add_connect_service(ip, port, server_id, server_type, register)
+	g_service_client:do_connect(ip, port, server_id, server_type, register)
 
-	ServiceClient.create_connect_timer()
 end
 
 function cmd_handler.do_close_connect(params)
@@ -165,7 +164,7 @@ function cmd_handler.do_close_connect(params)
 		return
 	end
 
-	ServiceClient.close_service_by_type(server_type)
+	g_service_client:close_service_by_type(server_type)
 end
 
 function cmd_handler.do_login(params)
