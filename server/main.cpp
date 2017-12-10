@@ -147,6 +147,7 @@ int main(int argc, char ** argv)
 	if (auto_shutdown)
 	{
 		printf("******* %s auto shutdown *******\n", conf_file);
+		getchar();
 		return 0;
 	}
 	world->Dispatch();
