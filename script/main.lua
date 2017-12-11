@@ -11,17 +11,9 @@ local function main()
 	Log.info("g_entry_file=%s", g_entry_file)
 	Log.info("------------------------------")
 
-	ServerConfig._server_id = g_server_id
-	ServerConfig._server_type = g_server_type
+	g_server_conf = ServerConfig.new(g_server_id, g_server_type)
+	g_service_server = ServiceServer.new()
 	g_service_client = ServiceClient.new()
-
-	--[[
-	local xml_doc = LuaTinyXMLDoc.create()
-	if not xml_doc:load_file(g_conf_file) then
-		Log.err("tinyxml load file fail %s", g_conf_file)
-		return
-	end
-	--]]
 
 	math.randomseed(os.time())
 

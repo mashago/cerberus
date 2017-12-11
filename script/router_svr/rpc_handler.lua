@@ -50,8 +50,8 @@ local function router_select_role(data)
 	g_user_mgr:add_user(user)
 	
 	msg.result = ErrorCode.SUCCESS
-	msg.ip = ServerConfig._ip
-	msg.port = ServerConfig._port
+	msg.ip = g_server_conf._ip
+	msg.port = g_server_conf._port
 
 	return msg
 end

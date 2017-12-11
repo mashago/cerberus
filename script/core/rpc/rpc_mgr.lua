@@ -34,7 +34,7 @@ function RpcMgr.call(server_info, func_name, data)
 	RpcMgr._cur_session_id = RpcMgr._cur_session_id + 1
 	local msg = 
 	{
-		from_server_id = ServerConfig._server_id, 
+		from_server_id = g_server_conf._server_id, 
 		to_server_id = server_info._server_id, 
 		session_id = RpcMgr._cur_session_id, 
 		func_name = func_name, 
@@ -119,7 +119,7 @@ function RpcMgr.handle_call(data, mailbox_id, msg_id)
 	local func_name = data.func_name
 
 	-- transfer rpc req to to server
-	if to_server_id ~= ServerConfig._server_id then
+	if to_server_id ~= g_server_conf._server_id then
 		local server_info = ServiceMgr.get_server_by_id(to_server_id)
 		if not server_info then
 			Log.warn("RpcMgr.handle_call cannot go to to_server_id=%d", to_server_id)
@@ -208,7 +208,7 @@ function RpcMgr.handle_callback(data, mailbox_id, msg_id)
 	local to_server_id = data.to_server_id
 
 	-- transfer rpc ret to from server
-	if from_server_id ~= ServerConfig._server_id then
+	if from_server_id ~= g_server_conf._server_id then
 		local server_info = ServiceMgr.get_server_by_id(from_server_id)
 		if not server_info then
 			Log.warn("RpcMgr.handle_callback cannot go back from_server_id=%d", from_server_id)

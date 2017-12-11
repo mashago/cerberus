@@ -32,7 +32,7 @@ sync_db = function()
 		[_Struct] = "blob",
 	}
 
-	local db_name = ServerConfig._db_name_map[DBType.GAME]
+	local db_name = g_server_conf._db_name_map[DBType.GAME]
 	Log.debug("db_name=%s", db_name)
 
 	for table_name, table_def in pairs(DataStructDef.data) do

@@ -221,10 +221,10 @@ function ServiceClient:connect_to_success(mailbox_id)
 		-- need register, send register msg
 		local msg = 
 		{
-			server_id = ServerConfig._server_id,
-			server_type = ServerConfig._server_type,
-			single_scene_list = ServerConfig._single_scene_list,
-			from_to_scene_list = ServerConfig._from_to_scene_list,
+			server_id = g_server_conf._server_id,
+			server_type = g_server_conf._server_type,
+			single_scene_list = g_server_conf._single_scene_list,
+			from_to_scene_list = g_server_conf._from_to_scene_list,
 		}
 		Net.send_msg(mailbox_id, MID.REGISTER_SERVER_REQ, msg)
 	else
@@ -238,8 +238,8 @@ function ServiceClient:connect_to_success(mailbox_id)
 		-- send invite msg
 		local msg = 
 		{
-			ip = ServerConfig._ip,
-			port = ServerConfig._port,
+			ip = g_server_conf._ip,
+			port = g_server_conf._port,
 		}
 		Net.send_msg(mailbox_id, MID.INVITE_CONNECT_REQ, msg)
 	end

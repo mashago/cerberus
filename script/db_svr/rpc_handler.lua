@@ -22,7 +22,7 @@ local function db_user_login(data)
 	-- 1. insert account, if success, means register, return insert user_id
 	-- 2. select account, if not success, means password mismatch
 
-	local db_name = ServerConfig._db_name_map[DBType.LOGIN]
+	local db_name = g_server_conf._db_name_map[DBType.LOGIN]
 	local username = data.username
 	local password = data.password
 	local channel_id = data.channel_id
@@ -56,7 +56,7 @@ local function db_create_role(data)
 	
 	Log.debug("db_create_role: data=%s", Util.table_to_string(data))
 
-	local db_name = ServerConfig._db_name_map[DBType.LOGIN]
+	local db_name = g_server_conf._db_name_map[DBType.LOGIN]
 	local user_id = data.user_id
 	local area_id = data.area_id
 	local role_name = data.role_name
@@ -173,21 +173,21 @@ end
 
 local function db_login_select(data)
 	
-	local db_name = ServerConfig._db_name_map[DBType.LOGIN]
+	local db_name = g_server_conf._db_name_map[DBType.LOGIN]
 	data.db_name = db_name
 	return db_select(data)
 end
 
 local function db_login_insert_one(data)
 	
-	local db_name = ServerConfig._db_name_map[DBType.LOGIN]
+	local db_name = g_server_conf._db_name_map[DBType.LOGIN]
 	data.db_name = db_name
 	return db_insert_one(data)
 end
 
 local function db_login_update(data)
 	
-	local db_name = ServerConfig._db_name_map[DBType.LOGIN]
+	local db_name = g_server_conf._db_name_map[DBType.LOGIN]
 	data.db_name = db_name
 	return db_update(data)
 end
@@ -195,7 +195,7 @@ end
 -- will convert data by DataStructDef
 local function db_game_select(data)
 	
-	local db_name = ServerConfig._db_name_map[DBType.GAME]
+	local db_name = g_server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
 
 	local ret = db_select(data)
@@ -241,14 +241,14 @@ end
 
 local function db_game_insert_one(data)
 	
-	local db_name = ServerConfig._db_name_map[DBType.GAME]
+	local db_name = g_server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
 	return db_insert_one(data)
 end
 
 local function db_game_update(data)
 	
-	local db_name = ServerConfig._db_name_map[DBType.GAME]
+	local db_name = g_server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
 	return db_update(data)
 end
