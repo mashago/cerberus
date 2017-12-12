@@ -44,24 +44,8 @@ function ServiceClient:do_connect(ip, port, server_id, server_type, register, in
 		end
 	end
 	
-	local service_info = 
-	{
-		_server_id = server_id or 0, 
-		_server_type = server_type or 0, 
-		_ip = ip, 
-		_port = port, 
-		_register = register, -- 0 or 1, send my scene info to target service
-		_invite = invite, -- 0 or 1, invite target service connect me
-		_no_reconnect = no_reconnect, -- 0 or 1, default do reconnect
-
-		_mailbox_id = 0,
-		_connect_index = 0,
-
-		_is_connecting = false,
-		_is_connected = false,
-		_last_connect_time = 0,
-		_server_list = {}, -- {server_id1, server_id2}
-	}
+	local ServiceServerInfo = require "core.service.service_server_info"
+	local service_info = ServiceServerInfo.new(ip, port, server_id, server_type, register, invite, no_reconnect)
 	table.insert(self._service_server_info_list, service_info)
 	self:create_connect_timer()
 end
@@ -174,7 +158,7 @@ function ServiceClient:add_server(mailbox_id, server_id, server_type, single_sce
 
 	-- init server_info
 	local ServerInfo = require "core.service.server_info"
-	local server_info = ServerInfo:new(server_id, server_type, mailbox_id, single_scene_list, from_to_scene_list, is_indirect)
+	local server_info = ServerInfo.new(server_id, server_type, mailbox_id, single_scene_list, from_to_scene_list, is_indirect)
 	-- Log.debug("server_info._scene_list=%s", Util.table_to_string(server_info._scene_list))
 
 	-- add into all_server_map

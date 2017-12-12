@@ -1,39 +1,35 @@
 
-local ServerInfo = {}
+local ServerInfo = class()
 
-function ServerInfo:new(server_id, server_type, mailbox_id, single_scene_list, from_to_scene_list, is_indirect)
-	local obj = {}	
-	setmetatable(obj, self)
-	self.__index = self
+function ServerInfo:ctor(server_id, server_type, mailbox_id, single_scene_list, from_to_scene_list, is_indirect)
 
-	obj._server_id = server_id
-	obj._server_type = server_type
+	self._server_id = server_id
+	self._server_type = server_type
 
-	obj._mailbox_id = -1 -- default -1
-	obj._indirect_mailbox_id_list = {} -- indirect mailbox id
+	self._mailbox_id = -1 -- default -1
+	self._indirect_mailbox_id_list = {} -- indirect mailbox id
 
 	if not is_indirect then
-		obj._mailbox_id = mailbox_id
+		self._mailbox_id = mailbox_id
 	else
-		obj._indirect_mailbox_id_list = {mailbox_id}
+		self._indirect_mailbox_id_list = {mailbox_id}
 	end
 
-	obj._single_scene_list = single_scene_list
-	obj._from_to_scene_list = from_to_scene_list
+	self._single_scene_list = single_scene_list
+	self._from_to_scene_list = from_to_scene_list
 
-	obj._scene_list = {}
+	self._scene_list = {}
 	for _, scene_id in ipairs(single_scene_list) do
-		table.insert(obj._scene_list, scene_id)
+		table.insert(self._scene_list, scene_id)
 	end
 	for i=1, #from_to_scene_list-1, 2 do
 		local from = from_to_scene_list[i]
 		local to = from_to_scene_list[i+1]
 		for scene_id=from, to do
-			table.insert(obj._scene_list, scene_id)
+			table.insert(self._scene_list, scene_id)
 		end
 	end
 
-	return obj
 end
 
 -- get a mailbox to send msg
