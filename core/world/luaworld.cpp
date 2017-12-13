@@ -212,13 +212,14 @@ void LuaWorld::HandleHttpResponse(int64_t session_id, int response_code, const c
 	lua_call(m_L, 3, 0);
 }
 
-void LuaWorld::HandleTimer(void *arg)
+void LuaWorld::HandleTimer(void *arg, bool is_loop)
 {
 	int64_t timer_index = (int64_t)arg;
 	// LOG_DEBUG("timer_index=%ld", timer_index);
 
 	lua_getglobal(m_L, "ccall_timer_handler");
 	lua_pushinteger(m_L, timer_index);
+	lua_pushboolean(m_L, is_loop);
 	lua_call(m_L, 1, 0);
 }
 

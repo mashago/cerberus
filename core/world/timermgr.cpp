@@ -77,7 +77,7 @@ void TimerMgr::OnTimer()
 		}
 		
 		Timer timer = iter->second;
-		timer._cb_func(timer._arg); // timer may erase inside
+		timer._cb_func(timer._arg, timer._is_loop); // timer may erase inside
 
 		if (!timer._is_loop)
 		{

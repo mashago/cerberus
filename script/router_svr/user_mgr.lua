@@ -54,7 +54,7 @@ function UserMgr:online(user, mailbox_id)
 	-- re-online user, remove timer
 	local timer_index = self._offline_user_map[user_id]
 	if timer_index then
-		Timer.del_timer(timer_index)
+		g_timer:del_timer(timer_index)
 		self._offline_user_map[user_id] = nil
 	end
 end
@@ -70,7 +70,7 @@ function UserMgr:offline(user)
 		local user = self:get_user_by_id(user_id)
 		self:del_user(user)
 	end
-	local timer_index = Timer.add_timer(delete_user_interval_ms, timer_cb, user._user_id, false)
+	local timer_index = g_timer:add_timer(delete_user_interval_ms, timer_cb, user._user_id, false)
 
 end
 

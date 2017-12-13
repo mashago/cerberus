@@ -21,7 +21,7 @@ public:
 	virtual void HandleHttpResponse(int64_t session_id, int response_code, const char *content, int content_len) override;
 
 	// call from world - timermgr
-	void HandleTimer(void *arg);
+	void HandleTimer(void *arg, bool is_loop);
 
 	// call from lua
 	int64_t ConnectTo(const char* ip, unsigned int port); // return a connect index

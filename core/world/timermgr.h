@@ -15,7 +15,7 @@ class TimerMgr
 {
 public:
 	// typedef void (*TIMER_CB)(void *);
-	typedef std::function<void(void*)> TIMER_CB;
+	typedef std::function<void(void*, bool)> TIMER_CB;
 	TimerMgr();
 	~TimerMgr();
 

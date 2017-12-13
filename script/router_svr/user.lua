@@ -35,7 +35,7 @@ function User:offline()
 
 	self._mailbox_id = 0
 
-	local scene_server_info = ServiceMgr.get_server_by_id(self._scene_server_id)
+	local scene_server_info = g_service_mgr:get_server_by_id(self._scene_server_id)
 	if not scene_server_info then
 		Log.err("User:disconnect: scene server not exists scene_id=%d", self._scene_server_id)
 		return

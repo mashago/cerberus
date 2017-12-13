@@ -60,7 +60,7 @@ end
 local function handle_register_area(data, mailbox_id, msg_id)
 	Log.debug("handle_register_area: data=%s", Util.table_to_string(data))
 
-	local server_info = ServiceMgr.get_server_by_mailbox(mailbox_id)
+	local server_info = g_service_mgr:get_server_by_mailbox(mailbox_id)
 	if not server_info then
 		Log.warn("handle_register_area: unknow server mailbox_id=%d", mailbox_id)
 	end

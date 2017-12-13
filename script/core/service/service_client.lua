@@ -101,13 +101,13 @@ function ServiceClient:create_connect_timer()
 		end
 		if is_all_connected then
 			Log.debug("******* all connect *******")
-			Timer.del_timer(self._connect_timer_index)
+			g_timer:del_timer(self._connect_timer_index)
 			self._is_connect_timer_running = false
 		end
 	end
 
 	self._is_connect_timer_running = true
-	self._connect_timer_index = Timer.add_timer(self._connect_interval_ms, timer_cb, 0, true)
+	self._connect_timer_index = g_timer:add_timer(self._connect_interval_ms, timer_cb, 0, true)
 end
 
 --------------------------------------------------

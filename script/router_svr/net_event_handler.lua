@@ -34,7 +34,7 @@ function g_net_event_transfer_msg(mailbox_id, msg_id, ext)
 			return
 		end
 		
-		local scene_server_info = ServiceMgr.get_server_by_id(scene_server_id)
+		local scene_server_info = g_service_mgr:get_server_by_id(scene_server_id)
 		if not scene_server_info then
 			Log.warn("g_net_event_transfer_msg: scene server nil %d", scene_server_id)
 			return

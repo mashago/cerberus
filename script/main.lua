@@ -12,8 +12,10 @@ local function main()
 	Log.info("------------------------------")
 
 	g_server_conf = ServerConfig.new(g_server_id, g_server_type)
+	g_timer = Timer.new()
 	g_service_server = ServiceServer.new()
 	g_service_client = ServiceClient.new()
+	g_service_mgr = ServiceMgr.new()
 
 	math.randomseed(os.time())
 

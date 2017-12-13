@@ -1,7 +1,7 @@
 
-ServiceMgr = {}
+ServiceMgr = class()
 
-function ServiceMgr.get_server_by_id(server_id)
+function ServiceMgr:get_server_by_id(server_id)
 	-- search from ServiceServer first, because is all direct connect inside
 	local server_info = g_service_server:get_server_by_id(server_id)
 	if not server_info then
@@ -10,7 +10,7 @@ function ServiceMgr.get_server_by_id(server_id)
 	return server_info
 end
 
-function ServiceMgr.get_server_by_scene(scene_id)
+function ServiceMgr:get_server_by_scene(scene_id)
 	local server_info = g_service_server:get_server_by_scene(scene_id)
 	if not server_info then
 		server_info = g_service_client:get_server_by_scene(scene_id)
@@ -18,7 +18,7 @@ function ServiceMgr.get_server_by_scene(scene_id)
 	return server_info
 end
 
-function ServiceMgr.get_server_by_type(server_type, opt_key)
+function ServiceMgr:get_server_by_type(server_type, opt_key)
 	local server_info = g_service_server:get_server_by_type(server_type, opt_key)
 	if not server_info then
 		server_info = g_service_client:get_server_by_type(server_type, opt_key)
@@ -26,7 +26,7 @@ function ServiceMgr.get_server_by_type(server_type, opt_key)
 	return server_info
 end
 
-function ServiceMgr.get_server_by_mailbox(mailbox_id)
+function ServiceMgr:get_server_by_mailbox(mailbox_id)
 	local server_info = g_service_server:get_server_by_mailbox(mailbox_id)
 	if not server_info then
 		server_info = g_service_client:get_server_by_mailbox(mailbox_id)
@@ -35,13 +35,13 @@ function ServiceMgr.get_server_by_mailbox(mailbox_id)
 end
 
 
-function ServiceMgr.send_by_server_type(server_type, msg_id, data, opt_key)
+function ServiceMgr:send_by_server_type(server_type, msg_id, data, opt_key)
 	local server_info = g_service_server:get_server_by_type(server_type, opt_key)
 	if not server_info then
 		server_info = g_service_client:get_server_by_type(server_type, opt_key)
 	end
 	if not server_info then
-		Log.err("ServiceMgr.send_server_by_type nil %s %d", server_type, opt_key)
+		Log.err("ServiceMgr:send_server_by_type nil %s %d", server_type, opt_key)
 		return false
 	end
 

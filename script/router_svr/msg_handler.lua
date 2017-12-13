@@ -53,9 +53,9 @@ local function handle_role_enter(data, mailbox_id)
 
 	local scene_server_info = nil
 	if user._scene_server_id == 0 then
-		scene_server_info = ServiceMgr.get_server_by_scene(scene_id)
+		scene_server_info = g_service_mgr:get_server_by_scene(scene_id)
 	else
-		scene_server_info = ServiceMgr.get_server_by_id(user._scene_server_id)
+		scene_server_info = g_service_mgr:get_server_by_id(user._scene_server_id)
 	end
 
 	if not scene_server_info then
@@ -101,7 +101,7 @@ local function handle_router_role_enter_ret(data, mailbox_id)
 		return
 	end
 
-	local scene_server_info = ServiceMgr.get_server_by_mailbox(mailbox_id)
+	local scene_server_info = g_service_mgr:get_server_by_mailbox(mailbox_id)
 	if not scene_server_info then
 		Log.err("handle_router_role_enter_ret: cannot get server_info %d", mailbox_id)
 		msg.result = ErrorCode.SYS_ERROR
