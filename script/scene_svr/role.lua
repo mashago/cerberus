@@ -27,7 +27,7 @@ function Role:load_db()
 		conditions = {role_id=self._role_id}
 	}
 
-	local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_game_select", rpc_data)
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_game_select", rpc_data)
 	if not status then
 		Log.err("Role:load_db fail")
 		return false

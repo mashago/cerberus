@@ -82,9 +82,9 @@ local function router_check_role_online(data)
 end
 
 local function register_rpc_handler()
-	RpcMgr._all_call_func.router_rpc_test = router_rpc_test
-	RpcMgr._all_call_func.router_select_role = router_select_role
-	RpcMgr._all_call_func.router_check_role_online = router_check_role_online
+	g_rpc_mgr._all_call_func.router_rpc_test = router_rpc_test
+	g_rpc_mgr._all_call_func.router_select_role = router_select_role
+	g_rpc_mgr._all_call_func.router_check_role_online = router_check_role_online
 end
 
 register_rpc_handler()

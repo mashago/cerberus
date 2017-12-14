@@ -21,7 +21,7 @@ local function handle_rpc_test(data, mailbox_id, msg_id)
 	}
 
 	-- 1. rpc to db
-	local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_rpc_test", {buff=buff, sum=sum})
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("handle_user_login rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
@@ -37,7 +37,7 @@ local function handle_rpc_test(data, mailbox_id, msg_id)
 
 	-- 2. get bridge
 	local server_id = g_area_mgr:get_server_id(area_id)
-	local status, ret = RpcMgr.call_by_server_id(server_id, "bridge_rpc_test", {buff=buff, sum=sum})
+	local status, ret = g_rpc_mgr:call_by_server_id(server_id, "bridge_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("handle_rpc_test rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
@@ -106,7 +106,7 @@ local function handle_user_login(data, mailbox_id, msg_id)
 		password=password, 
 		channel_id=channel_id,
 	}
-	local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_user_login", rpc_data)
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_user_login", rpc_data)
 	if not status then
 		Log.err("handle_user_login rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
@@ -215,7 +215,7 @@ local function handle_role_list_req(user, data, mailbox_id, msg_id)
 			is_delete=0,
 		}
 	}
-	local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_login_select", rpc_data)
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_login_select", rpc_data)
 	if not status then
 		Log.err("handle_role_list_req rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
@@ -285,7 +285,7 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 		role_name=role_name,
 		max_role=5,
 	}
-	local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_create_role", rpc_data, user._user_id)
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_create_role", rpc_data, user._user_id)
 	if not status then
 		Log.err("handle_create_role rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
@@ -315,7 +315,7 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 		channel_id=user._channel_id, 
 		area_id=area_id, 
 	}
-	local status, ret = RpcMgr.call_by_server_id(server_id, "bridge_create_role", rpc_data)
+	local status, ret = g_rpc_mgr:call_by_server_id(server_id, "bridge_create_role", rpc_data)
 	if not status then
 		Log.err("handle_create_role rpc call fail")
 		-- delete in user_role
@@ -390,7 +390,7 @@ local function handle_delete_role(user, data, mailbox_id, msg_id)
 		user_id=user._user_id,
 		role_id=role_id,
 	}
-	local status, ret = RpcMgr.call_by_server_id(server_id, "bridge_delete_role", rpc_data)
+	local status, ret = g_rpc_mgr:call_by_server_id(server_id, "bridge_delete_role", rpc_data)
 	if not status then
 		Log.err("handle_delete_role rpc call fail")
 		msg.result = ErrorCode.DELETE_ROLE_FAIL
@@ -411,7 +411,7 @@ local function handle_delete_role(user, data, mailbox_id, msg_id)
 		fields={is_delete = 1},
 		conditions={role_id=role_id}
 	}
-	local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_login_update", rpc_data)
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_login_update", rpc_data)
 	if not status then
 		Log.err("handle_delete_role rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
@@ -489,7 +489,7 @@ local function handle_select_role(user, data, mailbox_id, msg_id)
 		user_id=user._user_id,
 		role_id=role_id,
 	}
-	local status, ret = RpcMgr.call_by_server_id(server_id, "bridge_select_role", rpc_data)
+	local status, ret = g_rpc_mgr:call_by_server_id(server_id, "bridge_select_role", rpc_data)
 	if not status then
 		Log.err("handle_select_role rpc call fail")
 		msg.result = ErrorCode.SELECT_ROLE_FAIL

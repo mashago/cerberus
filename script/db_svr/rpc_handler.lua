@@ -257,22 +257,22 @@ end
 
 local function register_rpc_handler()
 
-	RpcMgr._all_call_func.db_rpc_test = db_rpc_test
+	g_rpc_mgr._all_call_func.db_rpc_test = db_rpc_test
 
-	RpcMgr._all_call_func.db_user_login = db_user_login
-	RpcMgr._all_call_func.db_create_role = db_create_role -- call by login
+	g_rpc_mgr._all_call_func.db_user_login = db_user_login
+	g_rpc_mgr._all_call_func.db_create_role = db_create_role -- call by login
 
-	RpcMgr._all_call_func.db_select = db_select
-	RpcMgr._all_call_func.db_insert_one = db_insert_one
-	RpcMgr._all_call_func.db_update = db_update
+	g_rpc_mgr._all_call_func.db_select = db_select
+	g_rpc_mgr._all_call_func.db_insert_one = db_insert_one
+	g_rpc_mgr._all_call_func.db_update = db_update
 
-	RpcMgr._all_call_func.db_login_select = db_login_select
-	RpcMgr._all_call_func.db_login_insert_one = db_login_insert_one
-	RpcMgr._all_call_func.db_login_update = db_login_update
+	g_rpc_mgr._all_call_func.db_login_select = db_login_select
+	g_rpc_mgr._all_call_func.db_login_insert_one = db_login_insert_one
+	g_rpc_mgr._all_call_func.db_login_update = db_login_update
 
-	RpcMgr._all_call_func.db_game_select = db_game_select
-	RpcMgr._all_call_func.db_game_insert_one = db_game_insert_one
-	RpcMgr._all_call_func.db_game_update = db_game_update
+	g_rpc_mgr._all_call_func.db_game_select = db_game_select
+	g_rpc_mgr._all_call_func.db_game_insert_one = db_game_insert_one
+	g_rpc_mgr._all_call_func.db_game_update = db_game_update
 end
 
 register_rpc_handler()

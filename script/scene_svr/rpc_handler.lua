@@ -2,7 +2,7 @@
 
 local function register_rpc_handler()
 
-	local call_func_map = RpcMgr._all_call_func
+	local call_func_map = g_rpc_mgr._all_call_func
 
 	call_func_map.scene_rpc_test = function(data)
 		

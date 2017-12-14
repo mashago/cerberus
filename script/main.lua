@@ -16,6 +16,7 @@ local function main()
 	g_service_server = ServiceServer.new()
 	g_service_client = ServiceClient.new()
 	g_service_mgr = ServiceMgr.new()
+	g_rpc_mgr = RpcMgr.new()
 
 	math.randomseed(os.time())
 

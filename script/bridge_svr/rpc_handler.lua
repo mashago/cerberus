@@ -10,7 +10,7 @@ local function bridge_rpc_test(data)
 	sum = sum + 1
 
 	-- rpc to router
-	local status, ret = RpcMgr.call_by_server_type(ServerType.ROUTER, "router_rpc_test", {buff=buff, sum=sum})
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.ROUTER, "router_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("bridge_rpc_test rpc call fail")
 		return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
@@ -20,7 +20,7 @@ local function bridge_rpc_test(data)
 	sum = ret.sum
 
 	-- rpc to scene
-	local status, ret = RpcMgr.call_by_server_type(ServerType.SCENE, "scene_rpc_test", {buff=buff, sum=sum})
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.SCENE, "scene_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("bridge_rpc_test rpc call fail")
 		return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
@@ -64,7 +64,7 @@ local function bridge_create_role(data)
 		kvs = role_data,
 	}
 	Log.debug("bridge_create_role rpc_data=%s", Util.table_to_string(rpc_data))
-	local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_game_insert_one", rpc_data)
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_game_insert_one", rpc_data)
 	if not status then
 		Log.err("bridge_create_role rpc call fail")
 		return {result = ErrorCode.SYS_ERROR}
@@ -88,7 +88,7 @@ local function bridge_delete_role(data)
 		user_id = user_id,
 		role_id = role_id,
 	}
-	local status, ret = RpcMgr.call_by_server_type(ServerType.ROUTER, "router_check_role_online", rpc_data, user_id)
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.ROUTER, "router_check_role_online", rpc_data, user_id)
 	if not status then
 		Log.err("bridge_delete_role rpc router call fail")
 		return {result = ErrorCode.SYS_ERROR}
@@ -108,7 +108,7 @@ local function bridge_delete_role(data)
 		fields = {is_delete = 1},
 		conditions = {role_id=role_id}
 	}
-	local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_game_update", rpc_data)
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_game_update", rpc_data)
 	if not status then
 		Log.err("bridge_delete_role rpc call fail")
 		return {result = ErrorCode.SYS_ERROR}
@@ -137,7 +137,7 @@ local function bridge_select_role(data)
 		fields = {"scene_id"},
 		conditions = {role_id=role_id}
 	}
-	local status, ret = RpcMgr.call_by_server_type(ServerType.DB, "db_game_select", rpc_data)
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_game_select", rpc_data)
 	if not status then
 		Log.err("bridge_select_role rpc call fail")
 		return {result = ErrorCode.SYS_ERROR}
@@ -165,7 +165,7 @@ local function bridge_select_role(data)
 		scene_id=scene_id,
 		token=token,
 	}
-	local status, ret = RpcMgr.call_by_server_type(ServerType.ROUTER, "router_select_role", rpc_data, user_id)
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.ROUTER, "router_select_role", rpc_data, user_id)
 	if not status then
 		Log.err("bridge_select_role rpc call fail")
 		return {result = ErrorCode.SYS_ERROR}
@@ -189,10 +189,10 @@ end
 
 local function register_rpc_handler()
 
-	RpcMgr._all_call_func.bridge_rpc_test = bridge_rpc_test
-	RpcMgr._all_call_func.bridge_create_role = bridge_create_role
-	RpcMgr._all_call_func.bridge_delete_role = bridge_delete_role
-	RpcMgr._all_call_func.bridge_select_role = bridge_select_role
+	g_rpc_mgr._all_call_func.bridge_rpc_test = bridge_rpc_test
+	g_rpc_mgr._all_call_func.bridge_create_role = bridge_create_role
+	g_rpc_mgr._all_call_func.bridge_delete_role = bridge_delete_role
+	g_rpc_mgr._all_call_func.bridge_select_role = bridge_select_role
 
 end
 
