@@ -322,13 +322,17 @@ function cmd_handler.do_attr_change(params)
 
 	for n=2, math.huge, 2 do
 		local attr_name = params[n]
-		local attr_value = params[n+1]
-		if not attr_name or not attr_value then
+		local attr_str = params[n+1]
+		if not attr_name or not attr_str then
 			break
 		end
-		local value = g_funcs.str_to_attr_value(table_def, attr_name, attr_value)
+		local field_def = table_def[attr_name]
+		if not field_def then
+			break
+		end
+		local value = g_funcs.str_to_value(attr_str, field_def.type)
 		if value == nil then
-			Log.warn("cmd_handler.do_attr_change attr convert fail %s %s", attr_name, attr_value)
+			Log.warn("cmd_handler.do_attr_change attr convert fail %s %s", attr_name, attr_str)
 			break
 		end
 		g_funcs.set_attr_table(out_attr_table, table_def, attr_name, value)

@@ -303,34 +303,6 @@ function g_funcs.str_to_value(value_str, value_type)
 	return value_str
 end
 
-function g_funcs.str_to_attr_value(table_def, field_name, value_str)
-
-	local field_def = table_def[field_name]
-	if not field_def then
-		return nil
-	end
-
-	local field_type = field_def.type
-	if field_type == _String then
-		return value_str
-	end
-
-	if field_type == _Bool then
-		return value_str == "1" or value_str == "true"
-	end
-
-	if field_type == _Byte or field_type == _Int
-	or field_type == _Float or field_type == _Short
-	or field_type == _Int64 then
-		return tonumber(value_str)
-	end
-
-	if field_type == _Struct then
-		return Util.unserialize(value_str)
-	end
-
-end
-
 -- set attr into attr_table
 function g_funcs.set_attr_table(input_table, table_def, field_name, value)
 
@@ -373,22 +345,6 @@ function g_funcs.set_attr_table(input_table, table_def, field_name, value)
 	table.insert(insert_table, {attr_id=attr_id, value=value})
 
 	return true
-end
-
--- unserialize string to struct
-function g_funcs.unserialize_attr_table(attr_table)
-	local struct_attr_list = attr_table.struct_attr_list
-	if not struct_attr_list then
-		return
-	end
-
-	for _, v in ipairs(struct_attr_list) do
-		if type(v.value) == "string" then
-			v.value = Util.unserialize(v.value)
-		end
-	end
-
-	return attr_table
 end
 
 function g_funcs.attr_table_to_attr_map(table_def, attr_table)
