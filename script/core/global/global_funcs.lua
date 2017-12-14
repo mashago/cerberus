@@ -274,6 +274,8 @@ function g_funcs.get_empty_attr_table()
 	}
 end
 
+-- g_funcs.str_to_value("123", _Int) ==> 123
+-- g_funcs.str_to_value("{}", _Struct) ==> {}
 function g_funcs.str_to_value(value_str, value_type)
 	-- type cast
 	if value_type == _String then
@@ -329,7 +331,7 @@ function g_funcs.str_to_attr_value(table_def, field_name, value_str)
 
 end
 
--- set attr into attr_table, struct will convert to string
+-- set attr into attr_table
 function g_funcs.set_attr_table(input_table, table_def, field_name, value)
 
 	local field_def = table_def[field_name]
@@ -392,6 +394,7 @@ end
 function g_funcs.attr_table_to_attr_map(table_def, attr_table)
 	local attr_map = {}
 	for k, v in ipairs(attr_table.byte_attr_list) do
+
 	end
 	return attr_map
 end
