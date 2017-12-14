@@ -220,7 +220,7 @@ void LuaWorld::HandleTimer(void *arg, bool is_loop)
 	lua_getglobal(m_L, "ccall_timer_handler");
 	lua_pushinteger(m_L, timer_index);
 	lua_pushboolean(m_L, is_loop);
-	lua_call(m_L, 1, 0);
+	lua_call(m_L, 2, 0);
 }
 
 //////////////////////////////////////////////
