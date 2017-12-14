@@ -1,19 +1,13 @@
 
-local User = {}
+local User = class()
 
-function User:new(mailbox_id, user_id, username, channel_id)
-	local obj = {}
-	setmetatable(obj, self)
-	self.__index = self
-
-	obj._mailbox_id = mailbox_id
-	obj._user_id = user_id
-	obj._username = username
-	obj._channel_id = channel_id
-	obj._is_online = true
-	obj._role_map = {} -- {[area_id]=role_list, } role_list={{role_id=x, role_name=y},}
-
-	return obj
+function User:ctor(mailbox_id, user_id, username, channel_id)
+	self._mailbox_id = mailbox_id
+	self._user_id = user_id
+	self._username = username
+	self._channel_id = channel_id
+	self._is_online = true
+	self._role_map = {} -- {[area_id]=role_list, } role_list={{role_id=x, role_name=y},}
 end
 
 function User:is_ok()

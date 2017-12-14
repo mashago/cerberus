@@ -1,18 +1,12 @@
 
-local UserMgr = {}
+local UserMgr = class()
 
-function UserMgr:new()
-	local obj = {}
-	self.__index = self
-	setmetatable(obj, self)
+function UserMgr:ctor()
+	self._all_user_map = {} -- {[user_id]=[User], }
+	self._mailbox_user_map = {} -- {[mailbox_id]=[User], }
+	self._role_user_map = {} -- {[role_id]=[User], }
 
-	obj._all_user_map = {} -- {[user_id]=[User], }
-	obj._mailbox_user_map = {} -- {[mailbox_id]=[User], }
-	obj._role_user_map = {} -- {[role_id]=[User], }
-
-	obj._offline_user_map = {} -- {[user_id]=timer_index,}
-
-	return obj	
+	self._offline_user_map = {} -- {[user_id]=timer_index,}
 end
 
 function UserMgr:add_user(user)

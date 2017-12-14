@@ -1,16 +1,9 @@
 
-local AreaMgr = {}
+local AreaMgr = class()
 
-function AreaMgr:new()
-	local obj = {}
-	self.__index = self
-	setmetatable(obj, self)
-
-	obj._area_map = {} -- {[area_id]=[server_id], ...}
-
-	return obj
+function AreaMgr:ctor()
+	self._area_map = {} -- {[area_id]=[server_id], ...}
 end
-
 
 function AreaMgr:register_area(server_id, area_list)
 	for _, area_id in ipairs(area_list) do

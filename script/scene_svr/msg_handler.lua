@@ -72,7 +72,7 @@ local function handle_router_role_enter_req(data, mailbox_id)
 	local role = g_role_mgr:get_role_by_id(role_id)
 	if not role then
 		local Role = require "scene_svr.role"
-		role = Role:new(role_id, mailbox_id)
+		role = Role.new(role_id, mailbox_id)
 		g_role_mgr:add_role(role)
 	else
 		Log.debug("handle_router_role_enter_req: role already exists %d", role_id)
@@ -119,6 +119,7 @@ local function handle_role_attr_change_req(role, data, mailbox_id)
 	local attr_table = data.attr_table
 	Log.debug("handle_role_attr_change_req attr_table=%s", Util.table_to_string(attr_table))
 
+	role:modify_attr_table(attr_table)
 
 end
 

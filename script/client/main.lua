@@ -37,10 +37,10 @@ local function main_entry()
 	Log.info("client main_entry")
 
 	local Client = require "client.client"
-	g_client = Client:new()
+	g_client = Client.new()
 
 	local TimeCounter = require "client.time_counter"
-	g_time_counter = TimeCounter:new()
+	g_time_counter = TimeCounter.new()
 
 	require "client.msg_handler"
 	require "client.stdin_handler"

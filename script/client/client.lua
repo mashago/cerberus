@@ -1,21 +1,15 @@
 
-local Client = {}
+local Client = class()
 
-function Client:new()
-	local obj = {}
-	self.__index = self
-	setmetatable(obj, self)
-
+function Client:ctor()
 	-- assert only connect one login and one router
-	obj._server_list = {} -- {[server_type]={ip=ip, port=port, server_id=server_id},}
+	self._server_list = {} -- {[server_type]={ip=ip, port=port, server_id=server_id},}
 
-	obj._router_ip = ""
-	obj._router_port = 0
+	self._router_ip = ""
+	self._router_port = 0
 
-	obj._user_id = 0
-	obj._user_token = ""
-
-	return obj
+	self._user_id = 0
+	self._user_token = ""
 end
 
 return Client

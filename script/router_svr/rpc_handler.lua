@@ -46,7 +46,7 @@ local function router_select_role(data)
 
 	-- create user
 	local User = require "router_svr.user"
-	user = User:new(user_id, role_id, scene_id, token)
+	user = User.new(user_id, role_id, scene_id, token)
 	g_user_mgr:add_user(user)
 	
 	msg.result = ErrorCode.SUCCESS

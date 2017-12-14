@@ -237,6 +237,30 @@ function g_funcs.handle_server_disconnect(data, mailbox_id, msg_id)
 	g_service_client:remove_server(mailbox_id, data.server_id)
 end
 
+-------- for attr data and string convert
+
+--[[
+define attr container:
+attr_table = 
+{
+	byte_attr_list = {},
+	bool_attr_list = {},
+	int_attr_list = {},
+	float_attr_list = {},
+	short_attr_list = {},
+	int64_attr_list = {},
+	string_attr_list = {},
+	struct_attr_list = {},
+}
+
+attr_map = 
+{
+	role_id = 111,
+	role_name = "masha",
+	...
+}
+--]]
+
 function g_funcs.get_empty_attr_table()
 	return {
 		byte_attr_list = {},
@@ -267,6 +291,9 @@ function g_funcs.str_to_value(value_str, value_type)
 	end
 
 	if value_type == _Struct then
+		if value_str == "_Null" then
+			return {}
+		end
 		return Util.unserialize(value_str)
 	end
 
@@ -361,5 +388,14 @@ function g_funcs.unserialize_attr_table(attr_table)
 
 	return attr_table
 end
+
+function g_funcs.attr_table_to_attr_map(table_def, attr_table)
+	local attr_map = {}
+	for k, v in ipairs(attr_table.byte_attr_list) do
+	end
+	return attr_map
+end
+
+----------------
 
 return g_funcs

@@ -1,20 +1,14 @@
 
-local User = {}
+local User = class()
 
-function User:new(user_id, role_id, scene_id, token)
-	local obj = {}
-	setmetatable(obj, self)
-	self.__index = self
+function User:ctor(user_id, role_id, scene_id, token)
+	self._user_id = user_id
+	self._role_id = role_id
+	self._scene_id = scene_id
+	self._token = token
 
-	obj._user_id = user_id
-	obj._role_id = role_id
-	obj._scene_id = scene_id
-	obj._token = token
-
-	obj._scene_server_id = 0
-	obj._mailbox_id = 0
-
-	return obj
+	self._scene_server_id = 0
+	self._mailbox_id = 0
 end
 
 function User:is_online()

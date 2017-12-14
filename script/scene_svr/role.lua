@@ -1,16 +1,10 @@
 
-local Role = {}
+local Role = class()
 
-function Role:new(role_id, mailbox_id)
-	local obj = {}
-	setmetatable(obj, self)
-	self.__index = self
-
-	obj._role_id = role_id
-	obj._mailbox_id = mailbox_id -- router mailbox id
-	obj._attr = {}
-
-	return obj
+function Role:ctor(role_id, mailbox_id)
+	self._role_id = role_id
+	self._mailbox_id = mailbox_id -- router mailbox id
+	self._attr = {}
 end
 
 function Role:send_msg(msg_id, msg)
@@ -114,6 +108,25 @@ function Role:send_module_data()
 		attr_table = out_attr_table,
 	}
 	self:send_msg(MID.ROLE_ATTR_RET, msg)
+end
+
+function Role:modify_attr_table(attr_table)
+	
+	local table_def = DataStructDef.data.role_info
+	local attr_map = g_funcs.attr_table_to_attr_map(table_def, attr_table)
+	for k, v in pairs(attr_map) do
+		self._attr[k] = v
+	end
+
+	-- TODO set role need save flag, mark down attr_map
+	-- will save into db later
+
+	local msg =
+	{
+		role_id = self._role_id,
+		attr_table = attr_table,
+	}
+	role:send_msg(MID.ROLE_ATTR_CHANGE_RET, msg)
 end
 
 return Role

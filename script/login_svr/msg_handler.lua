@@ -135,7 +135,7 @@ local function handle_user_login(data, mailbox_id, msg_id)
 	Log.debug("handle_user_login: user_id=%d", user_id)
 
 	local User = require "login_svr.user"
-	local user = User:new(mailbox_id, user_id, username, channel_id)
+	local user = User.new(mailbox_id, user_id, username, channel_id)
 	if not g_user_mgr:add_user(user) then
 		Log.warn("handle_user_login duplicate login2 [%s]", username)
 		msg.result = ErrorCode.USER_LOGIN_DUPLICATE_LOGIN

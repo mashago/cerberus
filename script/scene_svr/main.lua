@@ -19,7 +19,7 @@ local function main_entry()
 	g_funcs.connect_to_servers(xml_doc)
 
 	local RoleMgr = require "scene_svr.role_mgr"
-	g_role_mgr = RoleMgr:new()
+	g_role_mgr = RoleMgr.new()
 end
 
 main_entry()

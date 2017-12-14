@@ -20,7 +20,7 @@ local function main_entry()
 	g_funcs.connect_to_servers(xml_doc)
 
 	local UserMgr = require "router_svr.user_mgr"
-	g_user_mgr = UserMgr:new()
+	g_user_mgr = UserMgr.new()
 
 end
 

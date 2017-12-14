@@ -1,15 +1,9 @@
 
-local RoleMgr = {}
+local RoleMgr = class()
 
-function RoleMgr:new()
-	local obj = {}
-	self.__index = self
-	setmetatable(obj, self)
-
-	obj._all_role_map = {} -- {[role_id]=[role], }
-	obj._mailbox_role_map = {} -- router_mailbox_id to role_id map {[mailbox_id]={role_id=true, role_id=true}, } -- 
-
-	return obj	
+function RoleMgr:ctor()
+	self._all_role_map = {} -- {[role_id]=[role], }
+	self._mailbox_role_map = {} -- router_mailbox_id to role_id map {[mailbox_id]={role_id=true, role_id=true}, } -- 
 end
 
 function RoleMgr:add_role(role)

@@ -206,7 +206,7 @@ local function db_game_select(data)
 		return ret
 	end
 
-	Log.debug("ret=%s", Util.table_to_string(ret))
+	Log.debug("db_game_select ret=%s", Util.table_to_string(ret))
 	
 	-- convert to data def type
 	local table_name = data.table_name
@@ -226,7 +226,7 @@ local function db_game_select(data)
 			end
 		end
 	end
-	Log.debug("type_map=%s", Util.table_to_string(type_map))
+	Log.debug("db_game_select type_map=%s", Util.table_to_string(type_map))
 
 	for _, line in ipairs(ret.data) do
 		for field, value in pairs(line) do
@@ -234,7 +234,7 @@ local function db_game_select(data)
 		end
 	end
 
-	Log.debug("ret2=%s", Util.table_to_string(ret))
+	Log.debug("db_game_select ret2=%s", Util.table_to_string(ret))
 	return ret
 	-- return db_select(data)
 end

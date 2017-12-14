@@ -1,15 +1,9 @@
 
 
-local TimeCounter = {}
+local TimeCounter = class()
 
-function TimeCounter:new()
-	local obj = {}
-	self.__index = self
-	setmetatable(obj, self)
-
-	obj._start_time = 0
-
-	return obj
+function TimeCounter:ctor()
+	self._start_time = 0
 end
 
 function TimeCounter:start()

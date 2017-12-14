@@ -129,6 +129,10 @@ local function handle_role_attr(data, mailbox_id, msg_id)
 	Log.debug("handle_role_attr attr_table=%s", Util.table_to_string(attr_table))
 end
 
+local function handle_role_attr_change(data, mailbox_id, msg_id)
+	Log.debug("handle_role_attr_change: data=%s", Util.table_to_string(data))
+end
+
 local function register_msg_handler()
 	Net.add_msg_handler(MID.RPC_TEST_RET, handle_rpc_test)
 
@@ -140,6 +144,7 @@ local function register_msg_handler()
 	Net.add_msg_handler(MID.SELECT_ROLE_RET, handle_select_role)
 	Net.add_msg_handler(MID.ROLE_ENTER_RET, handle_role_enter)
 	Net.add_msg_handler(MID.ROLE_ATTR_RET, handle_role_attr)
+	Net.add_msg_handler(MID.ROLE_ATTR_CHANGE_RET, handle_role_attr_change)
 end
 
 register_msg_handler()
