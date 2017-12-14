@@ -189,10 +189,10 @@ end
 
 local function register_rpc_handler()
 
-	g_rpc_mgr._all_call_func.bridge_rpc_test = bridge_rpc_test
-	g_rpc_mgr._all_call_func.bridge_create_role = bridge_create_role
-	g_rpc_mgr._all_call_func.bridge_delete_role = bridge_delete_role
-	g_rpc_mgr._all_call_func.bridge_select_role = bridge_select_role
+	g_rpc_mgr:register_func("bridge_rpc_test", bridge_rpc_test)
+	g_rpc_mgr:register_func("bridge_create_role", bridge_create_role)
+	g_rpc_mgr:register_func("bridge_delete_role", bridge_delete_role)
+	g_rpc_mgr:register_func("bridge_select_role", bridge_select_role)
 
 end
 

@@ -8,6 +8,10 @@ function RpcMgr:ctor()
 	self._origin_map = {} -- { [new_session_id] = {from_server_id=x, to_server_id=y, session_id=z} }
 end
 
+function RpcMgr:register_func(name, func)
+	self._all_call_func[name] = func
+end
+
 -- rpc warpper
 function RpcMgr:run(func, ...)
 	local cor = coroutine.create(func)
