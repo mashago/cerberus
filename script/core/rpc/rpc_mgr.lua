@@ -65,6 +65,37 @@ function RpcMgr:call_by_server_id(server_id, func_name, data)
 	return self:call(server_info, func_name, data)
 end
 
+-- async call, no yield, no callback
+-- in sync coroutine will use same way to target server
+function RpcMgr:call_nocb(server_info, func_name, data)
+	local data_str = Util.serialize(data)
+	local msg = 
+	{
+		from_server_id = g_server_conf._server_id, 
+		to_server_id = server_info._server_id, 
+		session_id = 0,
+		func_name = func_name, 
+		param = Util.serialize(data),
+	}
+
+	-- async call, will not yield
+	return server_info:send_msg(MID.REMOTE_CALL_NOCB_REQ, msg, self._cur_session_id)
+end
+
+function RpcMgr:call_nocb_by_server_type(server_type, func_name, data, opt_key)
+	local server_info = g_service_mgr:get_server_by_type(server_type, opt_key)
+	if not server_info then return false end
+	return self:call_nocb(server_info, func_name, data)
+end
+
+function RpcMgr:call_nocb_by_server_id(server_id, func_name, data)
+	local server_info = g_service_mgr:get_server_by_id(server_id)
+	if not server_info then return false end
+	return self:call_nocb(server_info, func_name, data)
+end
+
+---------------------------------------
+
 function RpcMgr:callback(session_id, result, data)
 
 	local cor = self._all_session_map[session_id]
@@ -119,26 +150,32 @@ function RpcMgr:callback(session_id, result, data)
 
 end
 
-function RpcMgr:handle_call(data, mailbox_id, msg_id)
+function RpcMgr:handle_call(data, mailbox_id, msg_id, is_nocb)
 	local from_server_id = data.from_server_id
 	local to_server_id = data.to_server_id
 	local session_id = data.session_id
 	local func_name = data.func_name
+
+	local function send_error(errno)
+		local msg =
+		{
+			result = false, 
+			from_server_id = from_server_id, 
+			to_server_id = to_server_id, 
+			session_id = session_id, 
+			param = tostring(errno),
+		}
+		Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, msg)
+	end
 
 	-- transfer rpc req to to server
 	if to_server_id ~= g_server_conf._server_id then
 		local server_info = g_service_mgr:get_server_by_id(to_server_id)
 		if not server_info then
 			Log.warn("RpcMgr:handle_call cannot go to to_server_id=%d", to_server_id)
-			local msg =
-			{
-				result = false, 
-				from_server_id = from_server_id, 
-				to_server_id = to_server_id, 
-				session_id = session_id, 
-				param = ""
-			}
-			Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, msg)
+			if not is_nocb then
+				send_error(-1)
+			end
 			return
 		end
 
@@ -150,15 +187,9 @@ function RpcMgr:handle_call(data, mailbox_id, msg_id)
 	local func = self._all_call_func[func_name]
 	if not func then
 		Log.err("RpcMgr:handle_call func not exists %s", func_name)
-		local msg =
-		{
-			result = false, 
-			from_server_id = from_server_id, 
-			to_server_id = to_server_id, 
-			session_id = session_id, 
-			param = ""
-		}
-		Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, msg)
+		if not is_nocb then
+			send_error(-1)
+		end
 		return
 	end
 
@@ -169,15 +200,9 @@ function RpcMgr:handle_call(data, mailbox_id, msg_id)
 	local status, result = coroutine.resume(cor, param)
 	if not status or not result then
 		Log.err("RpcMgr:handle_call resume error func_name=%s %s", func_name, result)
-		local msg =
-		{
-			result = false, 
-			from_server_id = from_server_id, 
-			to_server_id = to_server_id, 
-			session_id = session_id, 
-			param = ""
-		}
-		Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, msg)
+		if not is_nocb then
+			send_error(-1)
+		end
 		return
 	end
 
@@ -193,18 +218,19 @@ function RpcMgr:handle_call(data, mailbox_id, msg_id)
 		origin.to_server_id = to_server_id
 		origin.session_id = session_id
 		self._origin_map[new_session_id] = origin
-
 	else
 		-- result is a table, no rpc inside, just send back result
-		local msg =
-		{
-			result = true, 
-			from_server_id = from_server_id, 
-			to_server_id = to_server_id, 
-			session_id = session_id, 
-			param = Util.serialize(result)
-		}
-		Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, msg)
+		if not is_nocb then
+			local msg =
+			{
+				result = true, 
+				from_server_id = from_server_id, 
+				to_server_id = to_server_id, 
+				session_id = session_id, 
+				param = Util.serialize(result)
+			}
+			Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, msg)
+		end
 	end
 end
 
@@ -240,6 +266,7 @@ function RpcMgr:handle_callback(data, mailbox_id, msg_id)
 end
 
 Net.add_msg_handler(MID.REMOTE_CALL_REQ, function() Log.err("REMOTE_CALL_REQ just take place should not enter") end)
+Net.add_msg_handler(MID.REMOTE_CALL_NOCB_REQ, function() Log.err("REMOTE_CALL_NOCB_REQ just take place should not enter") end)
 Net.add_msg_handler(MID.REMOTE_CALL_RET, function() Log.err("REMOTE_CALL_RET just take place should not enter") end)
 
 return RpcMgr

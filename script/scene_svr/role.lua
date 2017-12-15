@@ -4,7 +4,12 @@ local Role = class()
 function Role:ctor(role_id, mailbox_id)
 	self._role_id = role_id
 	self._mailbox_id = mailbox_id -- router mailbox id
-	self._attr = {}
+	self._attr = {} -- {pos_x = 1, pos_y = 2, ...}
+
+	-- mark the attr need to save into db
+	self._db_change_flag = false
+	self._db_change_attr = {} -- {attr_name = value, ...}
+	self._db_save_timer_index = 0
 end
 
 function Role:send_msg(msg_id, msg)
@@ -110,23 +115,51 @@ function Role:send_module_data()
 	self:send_msg(MID.ROLE_ATTR_RET, msg)
 end
 
+function Role:db_save_timer_cb()
+end
+
+function Role:modify_attr(attr_name, value)
+
+	self._attr[attr_name] = value
+
+	-- save to _change_attr, for update to db
+	local table_def = DataStructDef.data.role_info
+	local field_def = table_def[attr_name]
+	if not field_def then
+		return
+	end
+
+	if field_def.save ~= 1 then
+		-- no need save to db
+		return
+	end
+
+	self._db_change_attr[attr_name] = value
+	if not self._db_change_flag then
+		self._db_change_flag = true
+		local timer_cb = function(role)
+			role:db_save_timer_cb()
+		end
+		self._db_save_timer_index = g_timer:add_timer(1000, timer_cb, self, false)
+	end
+end
+
 function Role:modify_attr_table(attr_table)
 	
 	local table_def = DataStructDef.data.role_info
 	local attr_map = g_funcs.attr_table_to_attr_map(table_def, attr_table)
-	for k, v in pairs(attr_map) do
-		self._attr[k] = v
-	end
+	Log.debug("Role:modify_attr_table attr_map=%s", Util.table_to_string(attr_map))
 
-	-- TODO set role need save flag, mark down attr_map
-	-- will save into db later
+	for k, v in pairs(attr_map) do
+		self:modify_attr(k, v)
+	end
 
 	local msg =
 	{
 		role_id = self._role_id,
 		attr_table = attr_table,
 	}
-	role:send_msg(MID.ROLE_ATTR_CHANGE_RET, msg)
+	self:send_msg(MID.ROLE_ATTR_CHANGE_RET, msg)
 end
 
 return Role

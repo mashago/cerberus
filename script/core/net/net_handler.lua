@@ -135,7 +135,9 @@ local function recv_msg_handler(mailbox_id, msg_id)
 		-- msg_handler(data, mailbox_id, msg_id, ext)
 
 		if msg_id == MID.REMOTE_CALL_REQ then
-			g_rpc_mgr:handle_call(data, mailbox_id, msg_id)
+			g_rpc_mgr:handle_call(data, mailbox_id, msg_id, false)
+		elseif msg_id == MID.REMOTE_CALL_NOCB_REQ then
+			g_rpc_mgr:handle_call(data, mailbox_id, msg_id, true)
 		elseif msg_id == MID.REMOTE_CALL_RET then
 			g_rpc_mgr:handle_callback(data, mailbox_id, msg_id)
 		else

@@ -347,11 +347,29 @@ function g_funcs.set_attr_table(input_table, table_def, field_name, value)
 	return true
 end
 
+-- attr_table to attr_map
 function g_funcs.attr_table_to_attr_map(table_def, attr_table)
 	local attr_map = {}
-	for k, v in ipairs(attr_table.byte_attr_list) do
 
+	local function convert(input_attr_list)
+		for _, v in ipairs(input_attr_list) do
+			local field_def = table_def[v.attr_id]
+			if not field_def then
+				goto continue
+			end
+			attr_map[field_def.field] = v.value
+			::continue::
+		end
 	end
+	convert(attr_table.byte_attr_list)
+	convert(attr_table.bool_attr_list)
+	convert(attr_table.int_attr_list)
+	convert(attr_table.float_attr_list)
+	convert(attr_table.short_attr_list)
+	convert(attr_table.int64_attr_list)
+	convert(attr_table.string_attr_list)
+	convert(attr_table.struct_attr_list)
+
 	return attr_map
 end
 

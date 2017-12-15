@@ -35,7 +35,7 @@ end
 -- get a mailbox to send msg
 -- use _mailbox_id first, it is direct connect
 -- if _mailbox_id not exists, random one from _indirect_mailbox_id_list
-function ServerInfo:get_mailbox_id()
+function ServerInfo:get_mailbox_id(opt_choose_key)
 	if self._mailbox_id ~= -1 then
 		return self._mailbox_id
 	end
@@ -45,18 +45,26 @@ function ServerInfo:get_mailbox_id()
 		return -1
 	end
 
-	local r = math.random(len)
-    local mailbox_id = self._indirect_mailbox_id_list[r]
+	local r = 0
+	if opt_choose_key then
+		r = opt_choose_key % len + 1
+	else
+		r = math.random(len)
+	end
+
+    mailbox_id = self._indirect_mailbox_id_list[r]
 	
-	return mailbox_id
+	return mailbox_id or -1
 end
 
-function ServerInfo:send_msg(msg_id, msg)
-	return self:send_msg_ext(msg_id, 0, msg)
+-- opt_choose_key for send msg to same mailbox_id
+function ServerInfo:send_msg(msg_id, msg, opt_choose_key)
+	return self:send_msg_ext(msg_id, 0, msg, opt_choose_key)
 end
 
-function ServerInfo:send_msg_ext(msg_id, ext, msg)
-	local mailbox_id = self:get_mailbox_id()
+-- opt_choose_key for send msg to same mailbox_id
+function ServerInfo:send_msg_ext(msg_id, ext, msg, opt_choose_key)
+	local mailbox_id = self:get_mailbox_id(opt_choose_key)
 	if mailbox_id == -1 then
 		Log.warn("ServerInfo:send_msg mailbox nil msg_id=%d", msg_id)
 		return false

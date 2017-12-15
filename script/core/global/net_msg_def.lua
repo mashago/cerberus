@@ -35,10 +35,11 @@ MID._id_name_map =
 	[60003] = "REGISTER_SERVER_BROADCAST",
 	[60004] = "SERVER_DISCONNECT",
 	[60005] = "REMOTE_CALL_REQ",
-	[60006] = "REMOTE_CALL_RET",
-	[60007] = "REGISTER_AREA_REQ",
-	[60008] = "REGISTER_AREA_RET",
-	[60009] = "INVITE_CONNECT_REQ",
+	[60006] = "REMOTE_CALL_NOCB_REQ",
+	[60007] = "REMOTE_CALL_RET",
+	[60008] = "REGISTER_AREA_REQ",
+	[60009] = "REGISTER_AREA_RET",
+	[60010] = "INVITE_CONNECT_REQ",
 
 	[60101] = "ROUTER_ROLE_ENTER_REQ",
 	[60102] = "ROUTER_ROLE_ENTER_RET",
@@ -337,6 +338,15 @@ MSG_DEF_MAP =
 		{ "param", _String },
 	},
 
+	[MID.REMOTE_CALL_NOCB_REQ] =
+	{
+		{ "from_server_id", _Int },
+		{ "to_server_id", _Int },
+		{ "session_id", _Int64 },
+		{ "func_name", _String },
+		{ "param", _String },
+	},
+
 	[MID.REMOTE_CALL_RET] =
 	{
 		{ "result", _Bool },
@@ -409,6 +419,7 @@ RAW_MID =
 	[MID.REGISTER_SERVER_BROADCAST] = true,
 	[MID.SERVER_DISCONNECT] = true,
 	[MID.REMOTE_CALL_REQ] = true,
+	[MID.REMOTE_CALL_NOCB_REQ] = true,
 	[MID.REMOTE_CALL_RET] = true,
 	[MID.REGISTER_AREA_REQ] = true,
 	[MID.REGISTER_AREA_RET] = true,
