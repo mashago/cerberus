@@ -2,32 +2,34 @@
 MID = {}
 MID._id_name_map = 
 {
-	-- msg for client
+	-- msg for test
 	[1] = "CLIENT_TEST",
 	[2] = "CLIENT_TEST_RET",
 	[3] = "RPC_TEST_REQ",
 	[4] = "RPC_TEST_RET",
+	[5] = "RPC_NOCB_TEST_REQ",
+	[6] = "RPC_MIX_TEST_REQ",
 
 	-- login server handle
-	[5] = "USER_LOGIN_REQ",
-	[6] = "USER_LOGIN_RET",
-	[7] = "AREA_LIST_REQ",
-	[8] = "AREA_LIST_RET",
-	[9] = "ROLE_LIST_REQ",
-	[10] = "ROLE_LIST_RET",
-	[11] = "CREATE_ROLE_REQ",
-	[12] = "CREATE_ROLE_RET",
-	[13] = "DELETE_ROLE_REQ",
-	[14] = "DELETE_ROLE_RET",
-	[15] = "SELECT_ROLE_REQ",
-	[16] = "SELECT_ROLE_RET",
+	[10005] = "USER_LOGIN_REQ",
+	[10006] = "USER_LOGIN_RET",
+	[10007] = "AREA_LIST_REQ",
+	[10008] = "AREA_LIST_RET",
+	[10009] = "ROLE_LIST_REQ",
+	[10010] = "ROLE_LIST_RET",
+	[10011] = "CREATE_ROLE_REQ",
+	[10012] = "CREATE_ROLE_RET",
+	[10013] = "DELETE_ROLE_REQ",
+	[10014] = "DELETE_ROLE_RET",
+	[10015] = "SELECT_ROLE_REQ",
+	[10016] = "SELECT_ROLE_RET",
 
 	-- router server handle
-	[21] = "ROLE_ENTER_REQ",
-	[22] = "ROLE_ENTER_RET",
-	[23] = "ROLE_ATTR_RET",
-	[24] = "ROLE_ATTR_CHANGE_REQ",
-	[25] = "ROLE_ATTR_CHANGE_RET",
+	[20021] = "ROLE_ENTER_REQ",
+	[20022] = "ROLE_ENTER_RET",
+	[20023] = "ROLE_ATTR_RET",
+	[20024] = "ROLE_ATTR_CHANGE_REQ",
+	[20025] = "ROLE_ATTR_CHANGE_RET",
 
 	-- msg for server
 	[60001] = "REGISTER_SERVER_REQ",
@@ -200,6 +202,14 @@ MSG_DEF_MAP =
 		{ "result", _Int },
 		{ "buff", _String },
 		{ "sum", _Int },
+	},
+	[MID.RPC_NOCB_TEST_REQ] =
+	{
+		{ "buff", _String },
+	},
+	[MID.RPC_MIX_TEST_REQ] =
+	{
+		{ "buff", _String },
 	},
 
 	-----------------------------------------------------------
@@ -411,6 +421,9 @@ RAW_MID =
 {
 	[MID.CLIENT_TEST] = true,
 	[MID.RPC_TEST_REQ] = true,
+	[MID.RPC_NOCB_TEST_REQ] = true,
+	[MID.RPC_MIX_TEST_REQ] = true,
+
 	[MID.USER_LOGIN_REQ] = true,
 	[MID.ROLE_ENTER_REQ] = true,
 

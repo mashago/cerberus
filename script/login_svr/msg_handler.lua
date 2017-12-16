@@ -23,7 +23,7 @@ local function handle_rpc_test(data, mailbox_id, msg_id)
 	-- 1. rpc to db
 	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_rpc_test", {buff=buff, sum=sum})
 	if not status then
-		Log.err("handle_user_login rpc call fail")
+		Log.err("handle_rpc_test rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
 		Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
 		return
@@ -54,6 +54,111 @@ local function handle_rpc_test(data, mailbox_id, msg_id)
 
 	Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
 end
+
+
+local function handle_rpc_nocb_test(data, mailbox_id, msg_id)
+	Log.debug("handle_rpc_nocb_test: data=%s", Util.table_to_string(data))
+
+	XXX_g_rpc_nocb_index = (XXX_g_rpc_nocb_index or 0) + 1
+	local buff = data.buff
+	local index = XXX_g_rpc_nocb_index
+
+	-- rpc nocb to db
+	local rpc_data =
+	{
+		buff = buff,
+		index = index,
+		sum = 1,
+	}
+	g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_rpc_nocb_test", rpc_data)
+
+	local rpc_data =
+	{
+		buff = buff,
+		index = index,
+		sum = 2,
+	}
+	g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_rpc_nocb_test", rpc_data)
+
+	-- rpc nocb to bridge
+	local area_id = 1
+	local server_id = g_area_mgr:get_server_id(area_id)
+	local rpc_data =
+	{
+		buff = buff,
+		index = index,
+		sum = 1,
+	}
+	g_rpc_mgr:call_nocb_by_server_id(server_id, "bridge_rpc_nocb_test", rpc_data)
+end
+
+local function handle_rpc_mix_test(data, mailbox_id, msg_id)
+	Log.debug("handle_rpc_mix_test: data=%s", Util.table_to_string(data))
+
+	XXX_g_rpc_nocb_index = (XXX_g_rpc_nocb_index or 0) + 1
+	local buff = data.buff
+	local index = XXX_g_rpc_nocb_index
+
+	local area_id = 1
+	local sum = 0
+
+	local msg =
+	{
+		result = ErrorCode.SUCCESS,
+		buff = "",
+		sum = 0,
+	}
+
+	-- rpc to db
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_rpc_test", {buff=buff, sum=sum})
+	if not status then
+		Log.err("handle_rpc_mix_test rpc call fail")
+		msg.result = ErrorCode.SYS_ERROR
+		Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
+		return
+	end
+	Log.debug("handle_rpc_mix_test: callback ret=%s", Util.table_to_string(ret))
+
+	buff = ret.buff
+	sum = ret.sum
+	msg.buff = buff
+	msg.sum = sum
+
+	-- rpc nocb to db
+	local rpc_data =
+	{
+		buff = buff,
+		index = index,
+		sum = 1,
+	}
+	g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_rpc_nocb_test", rpc_data)
+
+	-- rpc to bridge
+	local rpc_data =
+	{
+		buff = buff,
+		index = index,
+		sum = sum,
+	}
+	local server_id = g_area_mgr:get_server_id(area_id)
+	local status, ret = g_rpc_mgr:call_by_server_id(server_id, "bridge_rpc_mix_test", rpc_data)
+	if not status then
+		Log.err("handle_rpc_mix_test rpc call fail")
+		msg.result = ErrorCode.SYS_ERROR
+		Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
+		return
+	end
+	Log.debug("handle_rpc_mix_test: callback ret=%s", Util.table_to_string(ret))
+
+	buff = ret.buff
+	sum = ret.sum
+	msg.result = ret.result
+	msg.buff = buff
+	msg.sum = sum
+
+	Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
+end
+
 
 ------------------------------------------------------------------
 
@@ -516,6 +621,13 @@ local function handle_select_role(user, data, mailbox_id, msg_id)
 end
 
 local function register_msg_handler()
+
+	-- for test
+	Net.add_msg_handler(MID.RPC_TEST_REQ, handle_rpc_test)
+	Net.add_msg_handler(MID.RPC_NOCB_TEST_REQ, handle_rpc_nocb_test)
+	Net.add_msg_handler(MID.RPC_MIX_TEST_REQ, handle_rpc_mix_test)
+
+
 	Net.add_msg_handler(MID.REGISTER_SERVER_REQ, g_funcs.handle_register_server)
 	Net.add_msg_handler(MID.REGISTER_SERVER_RET, g_funcs.handle_register_server_ret)
 	Net.add_msg_handler(MID.REGISTER_AREA_REQ, handle_register_area)
@@ -526,8 +638,6 @@ local function register_msg_handler()
 	Net.add_msg_handler(MID.CREATE_ROLE_REQ, handle_create_role)
 	Net.add_msg_handler(MID.DELETE_ROLE_REQ, handle_delete_role)
 	Net.add_msg_handler(MID.SELECT_ROLE_REQ, handle_select_role)
-
-	Net.add_msg_handler(MID.RPC_TEST_REQ, handle_rpc_test)
 end
 
 register_msg_handler()

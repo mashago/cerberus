@@ -3,6 +3,13 @@ package.path = package.path .. ";../script/?.lua"
 
 require "core.init"
 
+local function add_debug_timer()
+	local timer_cb = function()
+		g_rpc_mgr:print()
+	end
+	g_timer:add_timer(5000, timer_cb, 0, true)
+end
+
 local function main()
 	Log.info("------------------------------")
 	Log.info("g_server_id=%d", g_server_id)
@@ -24,6 +31,10 @@ local function main()
 
 	local hotfix = require("hotfix.main")
 	hotfix.run()
+
+	if g_server_type ~= 0 then
+		-- add_debug_timer()
+	end
 end
 
 local status, msg = xpcall(main, function(msg) local msg = debug.traceback(msg, 3) return msg end)

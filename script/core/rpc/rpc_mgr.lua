@@ -1,13 +1,47 @@
 
+RPC_NOCB_SESSION_ID = -1
+
 RpcMgr = class()
 
 function RpcMgr:ctor()
 	self._cur_session_id = 0
 	self._all_session_map = {} -- {[session_id] = coroutine}
 	self._all_call_func = {} -- { func_name = function(data){return {}} }
-	self._origin_map = {} -- { [new_session_id] = {from_server_id=x, to_server_id=y, session_id=z} }
+	self._origin_route_map = {} -- { [new_session_id] = {from_server_id=x, to_server_id=y, session_id=z} }
 end
 
+function RpcMgr:print()
+	Log.warn("---- RpcMgr:print() ----")
+	local all_session_map_size = 0
+	for k, v in pairs(self._all_session_map) do
+		all_session_map_size = all_session_map_size + 1
+	end
+	local oringin_route_map_size = 0
+	for k, v in pairs(self._origin_route_map) do
+		oringin_route_map_size = oringin_route_map_size + 1
+	end
+
+	Log.warn("_cur_session_id=%s", self._cur_session_id)
+	Log.warn("all_session_map_size=%s", all_session_map_size)
+	Log.warn("oringin_route_map_size=%s", oringin_route_map_size)
+
+	Log.warn("----")
+end
+
+--[[
+if not call by nocb, MUST return a table
+e.g.
+for a normal rpc:
+g_rpc_mgr:register_func("mycb", function(data)
+	... -- logic
+	return { ... } -- return result
+end)
+for a nocb rpc:
+g_rpc_mgr:register_func("mynocb", function(data)
+	... -- logic
+	-- nil return
+end)
+--]]
 function RpcMgr:register_func(name, func)
 	self._all_call_func[name] = func
 end
@@ -73,7 +107,7 @@ function RpcMgr:call_nocb(server_info, func_name, data)
 	{
 		from_server_id = g_server_conf._server_id, 
 		to_server_id = server_info._server_id, 
-		session_id = 0,
+		session_id = RPC_NOCB_SESSION_ID,
 		func_name = func_name, 
 		param = Util.serialize(data),
 	}
@@ -95,60 +129,6 @@ function RpcMgr:call_nocb_by_server_id(server_id, func_name, data)
 end
 
 ---------------------------------------
-
-function RpcMgr:callback(session_id, result, data)
-
-	local cor = self._all_session_map[session_id]
-	if not cor then
-		Log.warn("RpcMgr:callback cor nil session_id=%d", session_id)
-		return
-	end
-	self._all_session_map[session_id] = nil	
-
-	local status, result = coroutine.resume(cor, result, data)
-	if not status then
-		Log.err("RpcMgr:callback: cor resume error %s", result)
-		return
-	end
-
-	if type(result) == "number" then
-		-- another rpc inside
-		local new_session_id = result
-		self._all_session_map[new_session_id] = cor	
-		-- if has origin data, fix to new session id
-		local origin = self._origin_map[session_id]
-		if origin then
-			self._origin_map[session_id] = nil
-			self._origin_map[new_session_id] = origin
-		end
-		return
-	end
-
-	-- rpc finish
-	-- check if this func is a rpc from otherwhere
-	local origin = self._origin_map[session_id]
-	if not origin then
-		return
-	end
-	self._origin_map[session_id] = nil
-
-	local server_info = g_service_mgr:get_server_by_id(origin.from_server_id)
-	if not server_info then
-		Log.warn("RpcMgr:callback cannot go back from_server_id=%d", origin.from_server_id)
-		return
-	end
-
-	local msg =
-	{
-		result = true, 
-		from_server_id = origin.from_server_id, 
-		to_server_id = origin.to_server_id, 
-		session_id = origin.session_id, 
-		param = Util.serialize(result)
-	}
-	server_info:send_msg(MID.REMOTE_CALL_RET, msg)
-
-end
 
 function RpcMgr:handle_call(data, mailbox_id, msg_id, is_nocb)
 	local from_server_id = data.from_server_id
@@ -179,10 +159,18 @@ function RpcMgr:handle_call(data, mailbox_id, msg_id, is_nocb)
 			return
 		end
 
-		server_info:send_msg(MID.REMOTE_CALL_REQ, data)
+		local mid = 0
+		if is_nocb then
+			mid = MID.REMOTE_CALL_NOCB_REQ
+		else
+			mid = MID.REMOTE_CALL_REQ
+		end
+		
+		server_info:send_msg(mid, data)
 		return
 	end
 
+	-- handle rpc
 	local param = Util.unserialize(data.param)
 	local func = self._all_call_func[func_name]
 	if not func then
@@ -193,45 +181,121 @@ function RpcMgr:handle_call(data, mailbox_id, msg_id, is_nocb)
 		return
 	end
 
-	-- handle rpc
 	-- consider rpc in call function
 	-- so use a coroutine wrap this function
 	local cor = coroutine.create(func)
 	local status, result = coroutine.resume(cor, param)
-	if not status or not result then
-		Log.err("RpcMgr:handle_call resume error func_name=%s %s", func_name, result)
+	if not status then
+		Log.err("RpcMgr:handle_call resume function error func_name=%s %s", func_name, result)
 		if not is_nocb then
 			send_error(-1)
 		end
 		return
 	end
 
+	-- result only can be number, table, (nil for nocb)
 	if type(result) == "number" then
 		-- has rpc inside, result is a session_id
 		-- mark down this coroutine and session_id
 		local new_session_id = result
 		self._all_session_map[new_session_id] = cor	
 
-		-- mark down the way back to caller
-		local origin = {}
-		origin.from_server_id = from_server_id
-		origin.to_server_id = to_server_id
-		origin.session_id = session_id
-		self._origin_map[new_session_id] = origin
-	else
-		-- result is a table, no rpc inside, just send back result
+		-- mark down the route back to caller
 		if not is_nocb then
-			local msg =
+			local origin_route = 
 			{
-				result = true, 
-				from_server_id = from_server_id, 
-				to_server_id = to_server_id, 
-				session_id = session_id, 
-				param = Util.serialize(result)
+				from_server_id = from_server_id,
+				to_server_id = to_server_id,
+				session_id = session_id,
+				func_name = func_name, -- only for err print
 			}
-			Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, msg)
+			self._origin_route_map[new_session_id] = origin_route
 		end
+		return
+	elseif is_nocb then
+		-- rpc nocb done
+		return
+	elseif type(result) == "table" then
+		-- result is a table, no rpc inside, just send back result
+		local msg =
+		{
+			result = true, 
+			from_server_id = from_server_id, 
+			to_server_id = to_server_id, 
+			session_id = session_id, 
+			param = Util.serialize(result)
+		}
+		Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, msg)
+		return
+	else
+		-- else is error
+		Log.err("RpcMgr:handle_call resume result error func_name=%s type(result)=%s", func_name, type(result))
+		send_error(-1)
+		return
 	end
+end
+
+
+function RpcMgr:callback(session_id, result, data)
+
+	local cor = self._all_session_map[session_id]
+	if not cor then
+		Log.warn("RpcMgr:callback cor nil session_id=%d", session_id)
+		return
+	end
+	self._all_session_map[session_id] = nil	
+
+	local status, result = coroutine.resume(cor, result, data)
+	if not status then
+		Log.err("RpcMgr:callback: cor resume error %s", result)
+		return
+	end
+
+	if type(result) == "number" then
+		-- another rpc inside
+		local new_session_id = result
+		self._all_session_map[new_session_id] = cor	
+
+		-- if has origin_route, fix to new session id
+		local origin_route = self._origin_route_map[session_id]
+		if origin_route then
+			self._origin_route_map[session_id] = nil
+			self._origin_route_map[new_session_id] = origin_route
+		end
+		return
+	end
+
+	-- rpc finish
+	-- check if this callback is a rpc from otherwhere
+	local origin_route = self._origin_route_map[session_id]
+	if not origin_route then
+		-- not from a rpc or is a rpc nocb
+		return
+	end
+	self._origin_route_map[session_id] = nil
+	assert(origin_route.session_id ~= RPC_NOCB_SESSION_ID)
+
+	local server_info = g_service_mgr:get_server_by_id(origin_route.from_server_id)
+	if not server_info then
+		Log.warn("RpcMgr:callback cannot go back from_server_id=%d", origin_route.from_server_id)
+		return
+	end
+
+	if type(result) ~= "table" then
+		Log.err("RpcMgr:callback result error func_name=%s type(result)=%s", origin_route.func_name, type(result))
+		return
+	end
+
+	local msg =
+	{
+		result = true, 
+		from_server_id = origin_route.from_server_id, 
+		to_server_id = origin_route.to_server_id, 
+		session_id = origin_route.session_id, 
+		param = Util.serialize(result)
+	}
+	server_info:send_msg(MID.REMOTE_CALL_RET, msg)
+
 end
 
 function RpcMgr:handle_callback(data, mailbox_id, msg_id)

@@ -8,10 +8,19 @@ function cmd_handler.execute(buffer)
 
 	if params[1] == "help" then
 		cmd_handler.print_all_cmd()
+
 	elseif params[1] == "rpc" then
 		cmd_handler.do_rpc_test(params)
 	elseif params[1] == "rpcx" then
 		cmd_handler.do_rpc_testx(params)
+	elseif params[1] == "rpcnocb" then
+		cmd_handler.do_rpc_nocb_test(params)
+	elseif params[1] == "rpcnocbx" then
+		cmd_handler.do_rpc_nocb_testx(params)
+	elseif params[1] == "rpcmix" then
+		cmd_handler.do_rpc_mix_test(params)
+	elseif params[1] == "rpcmixx" then
+		cmd_handler.do_rpc_mix_testx(params)
 
 	
 	elseif params[1] == "pserver" then
@@ -75,14 +84,14 @@ end
 
 function cmd_handler.do_rpc_test(params)
 	-- rpc [buff]
-	if #params ~= 2 then
-		Log.warn("cmd_handler.do_rpc_test params not enough")
-		return
+	local buff = "aaa"
+	if #params >= 2 then
+		buff = params[2]
 	end
 
 	local msg =
 	{
-		buff = params[2],
+		buff = buff,
 	}
 
 	send_to_login(MID.RPC_TEST_REQ, msg)
@@ -109,6 +118,77 @@ function cmd_handler.do_rpc_testx(params)
 	x_test_start(num)
 end
 
+function cmd_handler.do_rpc_nocb_test(params)
+	-- rpcnocb [buff]
+	local buff = "bbb"
+	if #params >= 2 then
+		buff = params[2]
+	end
+
+	local msg =
+	{
+		buff = buff,
+	}
+
+	send_to_login(MID.RPC_NOCB_TEST_REQ, msg)
+end
+
+function cmd_handler.do_rpc_nocb_testx(params)
+
+	-- rpcnocbx [num]
+	if #params ~= 2 then
+		Log.warn("cmd_handler.do_rpc_nocb_testx params not enough")
+		return
+	end
+
+	local num = tonumber(params[2])
+
+	local msg =
+	{
+		buff = "bbb"
+	}
+	for i=1, num do
+		send_to_login(MID.RPC_NOCB_TEST_REQ, msg)
+	end
+end
+
+function cmd_handler.do_rpc_mix_test(params)
+	-- rpcmix [buff]
+	local buff = "ccc"
+	if #params >= 2 then
+		buff = params[2]
+	end
+
+	local msg =
+	{
+		buff = buff,
+	}
+
+	send_to_login(MID.RPC_MIX_TEST_REQ, msg)
+end
+
+function cmd_handler.do_rpc_mix_testx(params)
+
+	-- rpcmixx [num]
+	if #params ~= 2 then
+		Log.warn("cmd_handler.do_rpc_mix_testx params not enough")
+		return
+	end
+
+	local num = tonumber(params[2])
+
+	local msg =
+	{
+		buff = "ccc"
+	}
+	for i=1, num do
+		send_to_login(MID.RPC_MIX_TEST_REQ, msg)
+	end
+
+	x_test_start(num)
+end
+
+---------------------------------------
 
 function cmd_handler.do_print_server_list(params)
 	Log.debug("cmd_handler.do_print_server_list server_list=%s", Util.table_to_string(g_client._server_list))

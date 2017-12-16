@@ -13,6 +13,29 @@ local function db_rpc_test(data)
 	return {result = ErrorCode.SUCCESS, buff=buff, sum=sum}
 end
 
+
+local function db_rpc_nocb_test(data)
+	Log.debug("db_rpc_nocb_test: data=%s", Util.table_to_string(data))
+
+	XXX_g_rpc_nocb_map = XXX_g_rpc_nocb_map or {}
+	local buff = data.buff
+	local index = data.index
+	local sum = data.sum
+
+	local last_sum = XXX_g_rpc_nocb_map[index]
+	if not node then
+		XXX_g_rpc_nocb_map[index] = sum
+		return
+	end
+
+	if sum < last_sum then
+		Log.err("db_rpc_nocb_test bug index=%d sum=%d last_sum=%d", index, sum, last_sum)
+		return
+	end
+
+	XXX_g_rpc_nocb_map[index] = sum
+end
+
 --------------------------------------------------------
 
 local function db_user_login(data)
@@ -258,6 +281,7 @@ end
 local function register_rpc_handler()
 
 	g_rpc_mgr:register_func("db_rpc_test", db_rpc_test)
+	g_rpc_mgr:register_func("db_rpc_nocb_test", db_rpc_nocb_test)
 
 	g_rpc_mgr:register_func("db_user_login", db_user_login)
 	g_rpc_mgr:register_func("db_create_role", db_create_role) -- call by login

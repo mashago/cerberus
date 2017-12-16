@@ -9,8 +9,8 @@ start "login_svr" MassNetServer.exe "../conf/server_conf_login.xml"
 
 
 :: global cross server pack
-@echo "Start Cross Scene Server..."
-start "cross_scene_svr" MassNetServer.exe "../conf/server_conf_cross_scene.xml"
+:: @echo "Start Cross Scene Server..."
+:: start "cross_scene_svr" MassNetServer.exe "../conf/server_conf_cross_scene.xml"
 
 
 :: area server pack
@@ -29,6 +29,7 @@ start "router_svr2" MassNetServer.exe "../conf/server_conf_router2.xml"
 @echo "Start Scene Server..."
 start "scene_svr" MassNetServer.exe "../conf/server_conf_scene.xml"
 
+:: client
 @echo "Start Lua Client..."
 start "client" MassNetClient.exe "../conf/client_conf.xml"
 

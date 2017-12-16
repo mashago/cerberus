@@ -2,7 +2,7 @@
 <server id = "110001" type = "1" ip = "127.0.0.1" port = "7711" max_conn = "1000" file = "router_svr/main"> 
 	<connect_to>
 		<!-- cross_svr -->
-		<address ip = "127.0.0.1" port = "7771" register = "0" invite = "1"/>
+		<!-- <address ip = "127.0.0.1" port = "7771" register = "0" invite = "1"/> -->
 	</connect_to>
 
 	<trust_ip>

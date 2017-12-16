@@ -22,12 +22,6 @@ enum E_SERVER_TYPE
 	SERVER_TYPE_CHAT 		= 9,
 };
 
-enum MSGID_TYPE
-{
-	CLIENT_TEST = 1,
-	CLIENT_TEST_RET = 2,
-};
-
 enum
 {
 	MSGLEN_HEAD 	= 4,
