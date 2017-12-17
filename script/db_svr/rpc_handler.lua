@@ -239,27 +239,27 @@ local function db_game_select(data)
 		return ret
 	end
 
+	-- pick first line to get field type
 	local type_map = {} -- [field]=type
 	local line = ret.data[1]
-	for field, value in pairs(line) do
-		for _, field_def in ipairs(table_def) do
-			if field_def.field == field then
-				type_map[field] = field_def.type
-				break
-			end
+	for field, str_value in pairs(line) do
+		local field_def = table_def[field]
+		if field_def then
+			type_map[field] = field_def.type
+		else
+			Log.warn("db_game_select unknow field %s", field)
 		end
 	end
-	Log.debug("db_game_select type_map=%s", Util.table_to_string(type_map))
 
+	-- convert data from str to value
 	for _, line in ipairs(ret.data) do
-		for field, value in pairs(line) do
-			line[field] = g_funcs.str_to_value(value, type_map[field])
+		for field, str_value in pairs(line) do
+			line[field] = g_funcs.str_to_value(str_value, type_map[field])
 		end
 	end
 
 	Log.debug("db_game_select ret2=%s", Util.table_to_string(ret))
 	return ret
-	-- return db_select(data)
 end
 
 -- TODO will convert data by DataStructDef
@@ -275,6 +275,12 @@ local function db_game_update(data)
 	
 	local db_name = g_server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
+
+	local fields = data.fields
+	local conditions = data.conditions
+
+
+
 	return db_update(data)
 end
 

@@ -277,6 +277,10 @@ end
 -- g_funcs.str_to_value("123", _Int) ==> 123
 -- g_funcs.str_to_value("{}", _Struct) ==> {}
 function g_funcs.str_to_value(value_str, value_type)
+	if not value_type then
+		Log.warn("g_funcs.str_to_value value_type nil value_str=%s", value_str)
+		return value_str
+	end
 	-- type cast
 	if value_type == _String then
 		return value_str
