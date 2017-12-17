@@ -62,20 +62,20 @@ function ServiceClient:create_connect_timer()
 		
 		local is_all_connected = true
 		for _, service_info in ipairs(self._service_server_info_list) do
-			if service_info._is_connected then
+			if service_info._connect_status == ServiceConnectStatus.CONNECTED then
 				goto continue
 			end
 
 			is_all_connected = false
 			-- not connecting, do connect
-			if not service_info._is_connecting then
+			if service_info._connect_status == ServiceConnectStatus.DISCONNECT then
 				Log.debug("connect to ip=%s port=%d", service_info._ip, service_info._port)
 				-- only return a connect_index, get mailbox_id later
 				local ret, connect_index = g_network:connect_to(service_info._ip, service_info._port)
 				Log.debug("ret=%s connect_index=%d", ret and "true" or "false", connect_index)
 				if ret then
 					service_info._connect_index = connect_index
-					service_info._is_connecting = true
+					service_info._connect_status = ServiceConnectStatus.CONNECTING
 					service_info._last_connect_time = now_time
 				else
 					Log.warn("******* connect to fail ip=%s port=%d", service_info._ip, service_info._port)
@@ -95,7 +95,7 @@ function ServiceClient:create_connect_timer()
 				end
 				g_network:close_mailbox(service_info._mailbox_id) -- will cause luaworld:HandleDisconnect
 				service_info._mailbox_id = 0 
-				service_info._is_connecting = false
+				service_info._connect_status = ServiceConnectStatus.DISCONNECT
 			end
 			::continue::
 		end
@@ -148,7 +148,16 @@ function ServiceClient:add_server(mailbox_id, server_id, server_type, single_sce
 		if not is_indirect then
 			server_info._mailbox_id = mailbox_id
 		else
-			table.insert(server_info._indirect_mailbox_id_list, mailbox_id)
+			-- randam insert
+			-- in some case, we must keep msg send order to target server, msg should not shuffle by different router
+			-- so we can get mailbox_id by get [1] in list, keep send by same router mailbox_id
+			-- in other case, we don't care the order of msg, we can get a random mailbox_id to send
+			local r = 1
+			local size = #server_info._indirect_mailbox_id_list
+			if size > 1 then
+				r = math.random(size)
+			end
+			table.insert(server_info._indirect_mailbox_id_list, r, mailbox_id)
 		end
 		
 		Log.info("ServiceClient:add_server:")
@@ -198,8 +207,7 @@ function ServiceClient:connect_to_success(mailbox_id)
 	-- of course is trust
 	Net.add_mailbox(mailbox_id, ConnType.TRUST)
 
-	service_info._is_connecting = false
-	service_info._is_connected = true
+	service_info._connect_status = ServiceConnectStatus.CONNECTED
 
 	if service_info._register == 1 then
 		-- need register, send register msg
@@ -364,8 +372,7 @@ function ServiceClient:handle_disconnect(mailbox_id)
 
 	-- set disconnect
 	service_info._mailbox_id = -1
-	service_info._is_connecting = false
-	service_info._is_connected = false
+	service_info._connect_status = ServiceConnectStatus.DISCONNECT
 
 	-- create connect timer to reconnect
 	self:create_connect_timer()
@@ -470,7 +477,10 @@ end
 
 function ServiceClient:print()
 	Log.info("************* ServiceClient ***********")
-	Log.info("_service_server_info_list=%s", Util.table_to_string(self._service_server_info_list))
+	Log.info("_service_server_info_list=")
+	for k, service_info in ipairs(self._service_server_info_list) do
+		service_info:print()
+	end
 	Log.info("_all_server_map=")
 	for k, server_info in pairs(self._all_server_map) do
 		server_info:print()

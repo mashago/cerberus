@@ -262,6 +262,7 @@ local function db_game_select(data)
 	-- return db_select(data)
 end
 
+-- TODO will convert data by DataStructDef
 local function db_game_insert_one(data)
 	
 	local db_name = g_server_conf._db_name_map[DBType.GAME]
@@ -269,6 +270,7 @@ local function db_game_insert_one(data)
 	return db_insert_one(data)
 end
 
+-- TODO will convert data by DataStructDef
 local function db_game_update(data)
 	
 	local db_name = g_server_conf._db_name_map[DBType.GAME]

@@ -13,11 +13,19 @@ function ServiceServerInfo:ctor(ip, port, server_id, server_type, register, invi
 
 	self._mailbox_id = 0
 	self._connect_index = 0
-
-	self._is_connecting = false
-	self._is_connected = false
+	self._connect_status = ServiceConnectStatus.DISCONNECT
 	self._last_connect_time = 0
-	self._server_list = {} -- {server_id1 server_id2}
+
+	self._server_list = {} -- {server_id1, server_id2}
+end
+
+function ServiceServerInfo:print()
+	Log.info("------ServiceServerInfo--------")
+	Log.info("ip=%s port=%d server_id=%d server_type=%d", self._ip, self._port, self._server_id, self._server_type)
+	Log.info("register=%d invite=%d no_reconnect=%d", self._register, self._invite, self._no_reconnect)
+	Log.info("mailbox_id=%d connect_index=%d connect_status=%d last_connect_time=%d", self._mailbox_id, self._connect_index, self._connect_status, self._last_connect_time)
+	Log.info("server_list=%s", Util.table_to_string(self._server_list))
+	Log.info("--------------")
 end
 
 return ServiceServerInfo

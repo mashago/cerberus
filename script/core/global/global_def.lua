@@ -47,6 +47,13 @@ DBType =
 	GAME  = 2,
 }
 
+ServiceConnectStatus =
+{
+	DISCONNECT 	= 1,
+	CONNECTING 	= 2,
+	CONNECTED 	= 3,
+}
+
 ErrorCode =
 {
 	SUCCESS 						= 1,

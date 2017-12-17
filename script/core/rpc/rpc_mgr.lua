@@ -101,7 +101,7 @@ end
 
 -- async call, no yield, no callback
 -- in sync coroutine will use same way to target server
-function RpcMgr:call_nocb(server_info, func_name, data)
+function RpcMgr:call_nocb(server_info, func_name, data, is_random_order)
 	local data_str = Util.serialize(data)
 	local msg = 
 	{
@@ -113,19 +113,19 @@ function RpcMgr:call_nocb(server_info, func_name, data)
 	}
 
 	-- async call, will not yield
-	return server_info:send_msg(MID.REMOTE_CALL_NOCB_REQ, msg, self._cur_session_id)
+	return server_info:send_msg(MID.REMOTE_CALL_NOCB_REQ, msg, is_random_order)
 end
 
-function RpcMgr:call_nocb_by_server_type(server_type, func_name, data, opt_key)
+function RpcMgr:call_nocb_by_server_type(server_type, func_name, data, is_random_order, opt_key)
 	local server_info = g_service_mgr:get_server_by_type(server_type, opt_key)
 	if not server_info then return false end
-	return self:call_nocb(server_info, func_name, data)
+	return self:call_nocb(server_info, func_name, data, is_random_order)
 end
 
-function RpcMgr:call_nocb_by_server_id(server_id, func_name, data)
+function RpcMgr:call_nocb_by_server_id(server_id, func_name, data, is_random_order)
 	local server_info = g_service_mgr:get_server_by_id(server_id)
 	if not server_info then return false end
-	return self:call_nocb(server_info, func_name, data)
+	return self:call_nocb(server_info, func_name, data, is_random_order)
 end
 
 ---------------------------------------

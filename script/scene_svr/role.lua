@@ -26,7 +26,7 @@ function Role:load_db()
 		conditions = {role_id=self._role_id}
 	}
 
-	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_game_select", rpc_data)
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_game_select", rpc_data, self._role_id)
 	if not status then
 		Log.err("Role:load_db fail")
 		return false
@@ -116,6 +116,30 @@ function Role:send_module_data()
 end
 
 function Role:db_save_timer_cb()
+	self._db_change_flag = false
+	self._db_save_timer_index = 0
+
+	local rpc_data = 
+	{
+		table_name = "role_info",
+		fields = self._db_change_attr,
+		conditions = {role_id=self._role_id}
+	}
+	g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_update", rpc_data, false, self._role_id)
+
+	self._db_change_attr = {}
+end
+
+function Role:active_save_db()
+	if self._db_change_flag then
+		return
+	end
+
+	self._db_change_flag = true
+	local timer_cb = function(role)
+		role:db_save_timer_cb()
+	end
+	self._db_save_timer_index = g_timer:add_timer(1000, timer_cb, self, false)
 end
 
 function Role:modify_attr(attr_name, value)
@@ -135,13 +159,7 @@ function Role:modify_attr(attr_name, value)
 	end
 
 	self._db_change_attr[attr_name] = value
-	if not self._db_change_flag then
-		self._db_change_flag = true
-		local timer_cb = function(role)
-			role:db_save_timer_cb()
-		end
-		self._db_save_timer_index = g_timer:add_timer(1000, timer_cb, self, false)
-	end
+	self:active_save_db()
 end
 
 function Role:modify_attr_table(attr_table)
