@@ -424,8 +424,13 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 	if not status then
 		Log.err("handle_create_role rpc call fail")
 		-- delete in user_role
-		local conditions = {role_id = role_id}
-		DBProxy.send_delete("login_db", "user_role", conditions, user._user_id)
+		local rpc_data =
+		{
+			table_name = "user_role",
+			conditions = {role_id = role_id},
+		}
+		g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_delete", rpc_data, true, user._user_id)
+
 		msg.result = ErrorCode.CREATE_ROLE_FAIL
 		user:send_msg(MID.CREATE_ROLE_RET, msg)
 		return

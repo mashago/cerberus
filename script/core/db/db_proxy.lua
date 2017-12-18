@@ -1,4 +1,5 @@
 
+--[[
 DBProxy = {}
 
 function DBProxy.send_delete(db_name, table_name, conditions, opt_key)
@@ -13,3 +14,4 @@ function DBProxy.send_delete(db_name, table_name, conditions, opt_key)
 end
 
 return DBProxy
+--]]

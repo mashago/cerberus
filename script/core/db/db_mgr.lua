@@ -66,7 +66,7 @@ function DBMgr.do_select(db_name, table_name, fields, conditions)
 			index = index + 1
 		end
 	end
-	Log.debug("sql=%s", sql)
+	Log.debug("final sql=%s", sql)
 
 	local ret, data = mysqlmgr:select(sql)
 	if not ret then
@@ -107,7 +107,7 @@ function DBMgr.do_insert(db_name, table_name, fields, values)
 		sql = sql .. v
 	end
 	sql = sql .. ") VALUES "
-	Log.debug("111 sql=%s", sql)
+	-- Log.debug("111 sql=%s", sql)
 
 	-- handle condition
 	for k, t in ipairs(values) do
@@ -125,7 +125,7 @@ function DBMgr.do_insert(db_name, table_name, fields, values)
 			if type(v) == "string" then
 				sql = sql .. "'" .. v .. "'"
 			elseif type(v) == "table" then
-				Log.debug("x=%s", Util.serialize(v))
+				-- Log.debug("x=%s", Util.serialize(v))
 				sql = sql .. "'" .. Util.serialize(v) .. "'"
 			elseif type(v) == "boolean" then
 				sql = sql .. tostring(v)
@@ -135,7 +135,7 @@ function DBMgr.do_insert(db_name, table_name, fields, values)
 		end
 		sql = sql .. ")"
 	end
-	Log.debug("222 sql=%s", sql)
+	Log.debug("final sql=%s", sql)
 
 	local ret = mysqlmgr:change(sql)
 	
@@ -191,7 +191,7 @@ function DBMgr.do_delete(db_name, table_name, conditions)
 
 	end
 
-	Log.debug("sql=%s", sql)
+	Log.debug("final sql=%s", sql)
 
 	local ret = mysqlmgr:change(sql)
 	
@@ -231,6 +231,9 @@ function DBMgr.do_update(db_name, table_name, fields, conditions)
 		sql = sql .. k .. "="
 		if type(v) == "string" then
 			sql = sql .. "'" .. v .. "'"
+		elseif type(v) == "table" then
+			-- if data is table, should convert to string
+			sql = sql .. "'" .. Util.serialize(v) .. "'"
 		else
 			sql = sql .. v
 		end
@@ -258,7 +261,7 @@ function DBMgr.do_update(db_name, table_name, fields, conditions)
 
 	end
 
-	Log.debug("sql=%s", sql)
+	Log.debug("final sql=%s", sql)
 
 	local ret = mysqlmgr:change(sql)
 	

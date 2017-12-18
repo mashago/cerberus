@@ -192,6 +192,30 @@ local function db_update(data)
 	return {result = ErrorCode.SUCCESS}
 end
 
+local function db_delete(data)
+	
+	Log.debug("db_delete: data=%s", Util.table_to_string(data))
+
+	local db_name = data.db_name
+	local table_name = data.table_name
+	local conditions = data.conditions
+
+	local ret = DBMgr.do_delete(db_name, table_name, conditions)
+	if ret < 0 then
+		Log.err("db_delete err db_name=%s table_name=%s conditions=%s", db_name, table_name, Util.table_to_string(conditions))
+		return {result = ErrorCode.SYS_ERROR}
+	end
+	if ret == 0 then
+		Log.warn("db_delete nothing change db_name=%s table_name=%s conditions=%s", db_name, table_name, Util.table_to_string(conditions))
+	end
+
+	Log.debug("db_delete: ret=%d", ret)
+
+	-- must return a table
+	return {result = ErrorCode.SUCCESS}
+end
+
+
 ------------------------------------------------------
 
 local function db_login_select(data)
@@ -262,7 +286,6 @@ local function db_game_select(data)
 	return ret
 end
 
--- TODO will convert data by DataStructDef
 local function db_game_insert_one(data)
 	
 	local db_name = g_server_conf._db_name_map[DBType.GAME]
@@ -270,18 +293,18 @@ local function db_game_insert_one(data)
 	return db_insert_one(data)
 end
 
--- TODO will convert data by DataStructDef
 local function db_game_update(data)
 	
 	local db_name = g_server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
-
-	local fields = data.fields
-	local conditions = data.conditions
-
-
-
 	return db_update(data)
+end
+
+local function db_game_delete(data)
+	
+	local db_name = g_server_conf._db_name_map[DBType.GAME]
+	data.db_name = db_name
+	return db_delete(data)
 end
 
 --------------------------------------------------------
@@ -297,6 +320,7 @@ local function register_rpc_handler()
 	g_rpc_mgr:register_func("db_select", db_select)
 	g_rpc_mgr:register_func("db_insert_one", db_insert_one)
 	g_rpc_mgr:register_func("db_update", db_update)
+	g_rpc_mgr:register_func("db_delete", db_delete)
 
 	g_rpc_mgr:register_func("db_login_select", db_login_select)
 	g_rpc_mgr:register_func("db_login_insert_one", db_login_insert_one)
@@ -305,6 +329,7 @@ local function register_rpc_handler()
 	g_rpc_mgr:register_func("db_game_select", db_game_select)
 	g_rpc_mgr:register_func("db_game_insert_one", db_game_insert_one)
 	g_rpc_mgr:register_func("db_game_update", db_game_update)
+	g_rpc_mgr:register_func("db_game_delete", db_game_delete)
 end
 
 register_rpc_handler()
