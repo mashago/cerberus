@@ -352,8 +352,8 @@ function g_funcs.set_attr_table(input_table, table_def, field_name, value)
 end
 
 -- attr_table to attr_map
-function g_funcs.attr_table_to_attr_map(table_def, attr_table)
-	local attr_map = {}
+function g_funcs.attr_table_to_attr_map(table_def, attr_table, out_map)
+	local attr_map = out_map or {}
 
 	local function convert(input_attr_list)
 		for _, v in ipairs(input_attr_list) do

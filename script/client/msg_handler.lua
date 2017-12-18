@@ -125,12 +125,24 @@ end
 
 local function handle_role_attr(data, mailbox_id, msg_id)
 	Log.debug("handle_role_attr: data=%s", Util.table_to_string(data))
+
+	local role_id = data.role_id
 	local attr_table = data.attr_table
-	Log.debug("handle_role_attr attr_table=%s", Util.table_to_string(attr_table))
+
+	local Role = require "client.role"
+	g_role = Role.new(role_id)
+	g_role:init_data(attr_table)
+	g_role:print()
 end
 
 local function handle_role_attr_change(data, mailbox_id, msg_id)
 	Log.debug("handle_role_attr_change: data=%s", Util.table_to_string(data))
+	
+	local attr_table = data.attr_table
+	if g_role then
+		g_role:update_data(attr_table)
+		g_role:print()
+	end
 end
 
 local function register_msg_handler()

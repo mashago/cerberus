@@ -53,6 +53,8 @@ function cmd_handler.execute(buffer)
 
 	elseif params[1] == "attr" then
 		cmd_handler.do_attr_change(params)
+	elseif params[1] == "roleprint" then
+		cmd_handler.do_role_print(params)
 	
 	else
 		Log.warn("unknow cmd")
@@ -426,6 +428,15 @@ function cmd_handler.do_attr_change(params)
 	}
 
 	send_to_router(MID.ROLE_ATTR_CHANGE_REQ, msg)
+end
+
+function cmd_handler.do_role_print(params)
+	-- roleprint
+	if not g_role then
+		Log.warn("cmd_handler.do_role_print g_role nil")
+		return
+	end
+	g_role:print()
 end
 
 function ccall_stdin_handler(buffer)
