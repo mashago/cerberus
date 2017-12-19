@@ -7,9 +7,8 @@ function Role:ctor(role_id, mailbox_id)
 	self._attr = {} -- {pos_x = 1, pos_y = 2, ...}
 
 	-- mark the attr need to save into db
-	self._db_change_flag = false
+	self._db_save_timer_index = 0 -- > 0 means need save
 	self._db_change_attr = {} -- {attr_name = value, ...}
-	self._db_save_timer_index = 0
 end
 
 function Role:send_msg(msg_id, msg)
@@ -115,8 +114,16 @@ function Role:send_module_data()
 	self:send_msg(MID.ROLE_ATTR_RET, msg)
 end
 
-function Role:db_save_timer_cb()
-	self._db_change_flag = false
+function Role:db_save(is_timeout)
+	local timer_index = self._db_save_timer_index
+	if timer_index == 0 then
+		-- nothing change
+		return
+	end
+
+	if not is_timeout then
+		g_timer:del_timer(timer_index)
+	end
 	self._db_save_timer_index = 0
 
 	local rpc_data = 
@@ -131,15 +138,16 @@ function Role:db_save_timer_cb()
 end
 
 function Role:active_save_db()
-	if self._db_change_flag then
+	if self._db_save_timer_index > 0 then
 		return
 	end
 
-	self._db_change_flag = true
 	local timer_cb = function(role)
-		role:db_save_timer_cb()
+		role:db_save(true)
 	end
-	self._db_save_timer_index = g_timer:add_timer(1000, timer_cb, self, false)
+
+	local ROLE_DB_SAVE_INTERVAL = 10000 -- ms
+	self._db_save_timer_index = g_timer:add_timer(ROLE_DB_SAVE_INTERVAL, timer_cb, self, false)
 end
 
 function Role:modify_attr(attr_name, value)
@@ -178,6 +186,13 @@ function Role:modify_attr_table(attr_table)
 		attr_table = attr_table,
 	}
 	self:send_msg(MID.ROLE_ATTR_CHANGE_RET, msg)
+end
+
+function Role:on_disconnect()
+	-- save db
+	self:db_save()
+
+	g_role_mgr:del_role(self)
 end
 
 return Role

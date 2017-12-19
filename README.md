@@ -8,7 +8,7 @@ Main framework:
 ![main](pictures/MassNet-main.png)
 
 Server core:  
-![main](pictures/MassNet-core.png)
+![core](pictures/MassNet-core.png)
 
 ## Depend
 
