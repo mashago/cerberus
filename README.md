@@ -1,26 +1,26 @@
 ### MassNet
 
-MassNet is a simple game server framework, build by C++ and lua, config use xml
+MassNet is a simple game server framework, build by C++ and lua, config use xml.
 
 #### Topology
 
-main framework:
+Main framework:  
 ![main](pictures/MassNet-main.png)
 
-server core:
+Server core:  
 ![main](pictures/MassNet-core.png)
 
 #### Depend
 
-CMake
-Lua 5.2 or 5.3
-Libevent 2
-Mysql Connector C
-Tinyxml2
-Lfs
+CMake  
+Lua 5.2 or 5.3  
+Libevent 2  
+Mysql Connector C  
+Tinyxml2  
+Lfs  
 
-win64 Libs in https://github.com/mashago/Libs, please copy to $PROJECT_DIR
-copy libmysql.dll to $PROJECT_DIR/bin when build as debug project in win64
+win64 Libs in [here](https://github.com/mashago/Libs), please copy dir 'lib' and 'include' to $PROJECT_DIR.  
+copy libmysql.dll to $PROJECT_DIR/bin when build as debug project in win64.
 
 #### Build
 
@@ -36,10 +36,10 @@ copy libmysql.dll to $PROJECT_DIR/bin when build as debug project in win64
 2. startup server
 `./run.sh`
 3. run client
-`./run_client`
+`./run_client.sh`
 
 #### Test
-in MassNetClient, enter 'help'
+In MassNetClient, enter 'help'.
 
 
 
