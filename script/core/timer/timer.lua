@@ -11,10 +11,14 @@ function Timer:add_timer(ms, cb_func, arg, is_loop)
 		return false
 	end
 	self._timer_index_map[timer_index] = { cb_func, arg }
-	return timer_index, ret
+	return timer_index
 end
 
 function Timer:del_timer(timer_index)
+	if not timer_index or type(timer_index) ~= 'number' then
+		Log.err("Timer:del_timer timer_index err %s", type(timer_index))
+		return false
+	end
 	self._timer_index_map[timer_index] = nil
 	return del_timer_c(g_luaworld_ptr, timer_index)
 end

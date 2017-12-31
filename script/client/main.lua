@@ -56,4 +56,4 @@ local function main_entry()
 	load_server_list(xml_doc)
 end
 
-main_entry()
+return main_entry

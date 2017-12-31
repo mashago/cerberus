@@ -1,9 +1,9 @@
 
-require "login_svr.net_event_handler"
 
 local function main_entry()
 	Log.info("login_svr main_entry")
 
+	require "login_svr.net_event_handler"
 	require "login_svr.msg_handler"
 
 	local xml_doc = LuaTinyXMLDoc.create()
@@ -23,4 +23,4 @@ local function main_entry()
 
 end
 
-main_entry()
+return main_entry

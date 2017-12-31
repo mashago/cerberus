@@ -1,9 +1,9 @@
 
-require "scene_svr.net_event_handler"
 
 local function main_entry()
 	Log.info("scene_svr main_entry")
 
+	require "scene_svr.net_event_handler"
 	require "scene_svr.msg_handler"
 	require "scene_svr.rpc_handler"
 
@@ -22,4 +22,4 @@ local function main_entry()
 	g_role_mgr = RoleMgr.new()
 end
 
-main_entry()
+return main_entry

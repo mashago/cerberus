@@ -1,6 +1,11 @@
 
 g_funcs = {}
 
+function g_funcs.debug_timer_cb()
+	-- Log.debug("********* g_funcs.debug_timer_cb")
+	-- g_rpc_mgr:print()
+end
+
 function g_funcs.load_address(xml_doc)
 	local root_ele = xml_doc:first_child_element()
 	if not root_ele then
@@ -38,8 +43,9 @@ function g_funcs.connect_to_servers(xml_doc)
 		local register = address_ele:int_attribute("register")
 		local invite = address_ele:int_attribute("invite")
 		local no_reconnect = address_ele:int_attribute("no_reconnect")
-		Log.info("ip=%s port=%d server_id=%d server_type=%d register=%d invite=%d no_reconnect=%d", ip, port, server_id, server_type, register, invite, no_reconnect)
-		g_service_client:do_connect(ip, port, server_id, server_type, register, invite, no_reconnect)
+		local no_delay = address_ele:int_attribute("no_delay")
+		Log.info("ip=%s port=%d server_id=%d server_type=%d register=%d invite=%d no_reconnect=%d no_delay=%d", ip, port, server_id, server_type, register, invite, no_reconnect, no_delay)
+		g_service_client:do_connect(ip, port, server_id, server_type, register, invite, no_reconnect, no_delay)
 
 		address_ele = address_ele:next_sibling_element()
 	end

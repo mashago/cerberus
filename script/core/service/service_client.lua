@@ -17,7 +17,7 @@ function ServiceClient:ctor()
 	-- {scene_id = {server_id, server_id, ...}
 	self._scene_server_map = {}
 
-	self._is_connect_timer_running = false
+	self._connect_timer_index = 0
 	self._connect_interval_ms = 2000
 end
 
@@ -30,12 +30,13 @@ function ServiceClient:is_service_server(mailbox_id)
 	return false
 end
 
-function ServiceClient:do_connect(ip, port, server_id, server_type, register, invite, no_reconnect)
+function ServiceClient:do_connect(ip, port, server_id, server_type, register, invite, no_reconnect, no_delay)
 	-- check duplicate connect service
 	
 	register = register or 0
 	invite = invite or 0
 	no_reconnect = no_reconnect or 0
+	no_delay = no_delay or 0
 
 	for k, v in ipairs(self._service_server_info_list) do
 		if v._ip == ip and v.port == port then
@@ -47,66 +48,89 @@ function ServiceClient:do_connect(ip, port, server_id, server_type, register, in
 	local ServiceServerInfo = require "core.service.service_server_info"
 	local service_info = ServiceServerInfo.new(ip, port, server_id, server_type, register, invite, no_reconnect)
 	table.insert(self._service_server_info_list, service_info)
-	self:create_connect_timer()
+	if no_delay == 1 then
+		self:connect_immediately()
+	else
+		self:create_connect_timer()
+	end
+end
+
+function ServiceClient:_connect_core()
+
+	Log.debug("ServiceClient:_connect_core")
+	-- Log.debug("handle_client_test: self._service_server_info_list=%s", Util.table_to_string(self._service_server_info_list))
+	local now_time = os.time()
+	
+	local is_all_connected = true
+	for _, service_info in ipairs(self._service_server_info_list) do
+		if service_info._connect_status == ServiceConnectStatus.CONNECTED then
+			goto continue
+		end
+
+		is_all_connected = false
+		-- not connecting, do connect
+		if service_info._connect_status == ServiceConnectStatus.DISCONNECT then
+			Log.debug("connect to ip=%s port=%d", service_info._ip, service_info._port)
+			-- only return a connect_index, get mailbox_id later
+			local ret, connect_index = g_network:connect_to(service_info._ip, service_info._port)
+			Log.debug("ret=%s connect_index=%d", ret and "true" or "false", connect_index)
+			if ret then
+				service_info._connect_index = connect_index
+				service_info._connect_status = ServiceConnectStatus.CONNECTING
+				service_info._last_connect_time = now_time
+			else
+				Log.warn("******* connect to fail ip=%s port=%d", service_info._ip, service_info._port)
+			end
+			goto continue
+		end
+
+		-- connecting, check timeout
+		Log.debug("connecting mailbox_id=%d connect_index=%d ip=%s port=%d", service_info._mailbox_id, service_info._connect_index, service_info._ip, service_info._port)
+		if now_time - service_info._last_connect_time > 5 then
+			-- connect time too long, close this connect
+			Log.warn("!!!!!!! connecting timeout mailbox_id=%d ip=%s port=%d", service_info._mailbox_id, service_info._ip, service_info._port)
+			if service_info._mailbox_id == 0 then
+				-- not recv ConnectToRet event, something go wrong
+				Log.err("!!!!!!! connecting timeout and not recv connect to ret event ip=%s port=%d", service_info._ip, service_info._port)
+				goto continue
+			end
+			g_network:close_mailbox(service_info._mailbox_id) -- will cause luaworld:HandleDisconnect
+			service_info._mailbox_id = 0 
+			service_info._connect_status = ServiceConnectStatus.DISCONNECT
+		end
+		::continue::
+	end
+	if is_all_connected then
+		Log.debug("******* all connect *******")
+		if self._connect_timer_index ~= 0 then
+			g_timer:del_timer(self._connect_timer_index)
+			self._connect_timer_index = 0
+		end
+	end
+end
+
+function ServiceClient:connect_immediately()
+	if self._connect_timer_index ~= 0 then
+		return
+	end
+	-- do a connect now
+	self:_connect_core()
+
+	-- add timer for connect fail
+	local function timer_cb()
+		self:_connect_core()
+	end
+	self._connect_timer_index = g_timer:add_timer(self._connect_interval_ms, timer_cb, 0, true)
 end
 
 function ServiceClient:create_connect_timer()
-	if self._is_connect_timer_running then
+	if self._connect_timer_index ~= 0 then
 		return
 	end
 
-	local function timer_cb(arg)
-		Log.debug("ServiceClient timer_cb")
-		-- Log.debug("handle_client_test: self._service_server_info_list=%s", Util.table_to_string(self._service_server_info_list))
-		local now_time = os.time()
-		
-		local is_all_connected = true
-		for _, service_info in ipairs(self._service_server_info_list) do
-			if service_info._connect_status == ServiceConnectStatus.CONNECTED then
-				goto continue
-			end
-
-			is_all_connected = false
-			-- not connecting, do connect
-			if service_info._connect_status == ServiceConnectStatus.DISCONNECT then
-				Log.debug("connect to ip=%s port=%d", service_info._ip, service_info._port)
-				-- only return a connect_index, get mailbox_id later
-				local ret, connect_index = g_network:connect_to(service_info._ip, service_info._port)
-				Log.debug("ret=%s connect_index=%d", ret and "true" or "false", connect_index)
-				if ret then
-					service_info._connect_index = connect_index
-					service_info._connect_status = ServiceConnectStatus.CONNECTING
-					service_info._last_connect_time = now_time
-				else
-					Log.warn("******* connect to fail ip=%s port=%d", service_info._ip, service_info._port)
-				end
-				goto continue
-			end
-
-			-- connecting, check timeout
-			Log.debug("connecting mailbox_id=%d connect_index=%d ip=%s port=%d", service_info._mailbox_id, service_info._connect_index, service_info._ip, service_info._port)
-			if now_time - service_info._last_connect_time > 5 then
-				-- connect time too long, close this connect
-				Log.warn("!!!!!!! connecting timeout mailbox_id=%d ip=%s port=%d", service_info._mailbox_id, service_info._ip, service_info._port)
-				if service_info._mailbox_id == 0 then
-					-- not recv ConnectToRet event, something go wrong
-					Log.err("!!!!!!! connecting timeout and not recv connect to ret event ip=%s port=%d", service_info._ip, service_info._port)
-					goto continue
-				end
-				g_network:close_mailbox(service_info._mailbox_id) -- will cause luaworld:HandleDisconnect
-				service_info._mailbox_id = 0 
-				service_info._connect_status = ServiceConnectStatus.DISCONNECT
-			end
-			::continue::
-		end
-		if is_all_connected then
-			Log.debug("******* all connect *******")
-			g_timer:del_timer(self._connect_timer_index)
-			self._is_connect_timer_running = false
-		end
+	local function timer_cb()
+		self:_connect_core()
 	end
-
-	self._is_connect_timer_running = true
 	self._connect_timer_index = g_timer:add_timer(self._connect_interval_ms, timer_cb, 0, true)
 end
 

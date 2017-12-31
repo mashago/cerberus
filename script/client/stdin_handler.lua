@@ -6,7 +6,10 @@ function cmd_handler.execute(buffer)
 	local params = Util.split_string(buffer, " ")
 	Log.debug("params=%s", Util.table_to_string(params))
 
-	if params[1] == "help" then
+	if params[1] == "test" then
+		cmd_handler.do_test(params)
+
+	elseif params[1] == "help" then
 		cmd_handler.print_all_cmd()
 
 	elseif params[1] == "rpc" then
@@ -59,6 +62,113 @@ function cmd_handler.execute(buffer)
 	else
 		Log.warn("unknow cmd")
 	end
+
+end
+
+function cmd_handler.test3_cb()
+	-- Log.warn("xxxxxxx cmd_handler test3_cb\n")
+	Log.warn("xxxxxxx cmd_handler test3_cb xxxxxxx\n")
+end
+
+function cmd_handler.test3_cb2()
+	-- Log.warn("@@@@@@@ cmd_handler test3_cb2\n")
+	Log.warn("@@@@@@@ cmd_handler test3_cb2 @@@@@@@\n")
+end
+
+function cmd_handler.test3_cb3()
+	-- Log.warn("******* cmd_handler test3_cb3\n")
+	Log.warn("******* cmd_handler test3_cb3 *******\n")
+end
+
+local tmp_local_x = 100
+local tmp_local_x2 = tmp_local_x2 or 200
+tmp_global_y = 300
+tmp_global_y2 = tmp_global_y2 or 400 -- if want to keep global after hotfix, must use "g_var = g_var or x", if want to update global var, just use 'g_var = x'
+
+local test3_timer_index_list = {}
+
+function cmd_handler.do_test(params)
+
+	-- test [n]
+	if #params < 2 then
+		Log.warn("cmd_handler.do_test params not enough")
+		return
+	end
+
+	local testn = tonumber(params[2]) or 1
+
+	local last_params = {}
+	if table.move then
+		table.move(params, 3, #params, 1, last_params)
+	else
+		for i=1, #params-2 do
+			last_params[i] = params[i+2]
+		end
+	end
+
+	local switch =
+	{
+		[1] = function(last_params)
+			Log.debug("tmp_local_x=%d", tmp_local_x)
+			Log.debug("tmp_local_x2=%d", tmp_local_x2)
+			Log.debug("tmp_global_y=%d", tmp_global_y)
+			Log.debug("tmp_global_y2=%d", tmp_global_y2)
+		end,
+
+		[2] = function(last_params)
+			tmp_local_x = tmp_local_x + 1
+			tmp_local_x2 = tmp_local_x2 + 1
+			tmp_global_y = tmp_global_y + 1
+			tmp_global_y2 = tmp_global_y2 + 1
+		end,
+
+		[3] = function(last_params)
+			-- test hotfix timer cb
+			
+			if next(test3_timer_index_list) then
+				Log.debug("delete test3 timer")
+				for k, v in ipairs(test3_timer_index_list) do
+					g_timer:del_timer(v)
+				end
+				test3_timer_index_list = {}
+				return
+			end
+
+			-- closure cb
+			-- cannot hotfix
+			local timer_cb = function()
+				-- Log.warn("####### test3 closure cb\n")
+				Log.warn("####### test3 closure cb #######\n")
+			end
+			table.insert(test3_timer_index_list, g_timer:add_timer(5 * 1000, timer_cb, 0, true))
+
+			-- closure cb call obj function
+			-- closure cannot hotfix, obj function can hotfix
+			local timer_cb2 = function()
+				-- Log.warn("&&&&&&& test3 call obj function")
+				Log.warn("&&&&&&& test3 call obj function &&&&&&&")
+				Log.warn("cmd_handler=%s cmd_handler.test3_cb=%s", cmd_handler, cmd_handler.test3_cb)
+				cmd_handler.test3_cb()
+			end
+			table.insert(test3_timer_index_list, g_timer:add_timer(5 * 1000, timer_cb2, 0, true))
+
+			-- obj cb
+			-- can hotfix
+			table.insert(test3_timer_index_list, g_timer:add_timer(5 * 1000, cmd_handler.test3_cb2, 0, true))
+
+			local timer_cb3 = cmd_handler.test3_cb3
+			table.insert(test3_timer_index_list, g_timer:add_timer(5 * 1000, timer_cb3, 0, true))
+
+		end,
+	}
+
+	local func = switch[testn]
+	if not func then
+		Log.warn("cmd_handler.do_test no such test function %d", testn)
+		return
+	end
+
+	func(last_params)
 
 end
 
@@ -224,7 +334,10 @@ function cmd_handler.do_connect(params)
 	local port = server_info.port
 	local server_id = server_info.server_id
 	local register = 0
-	g_service_client:do_connect(ip, port, server_id, server_type, register)
+	local no_reconnect = 0
+	local invite = 0
+	local no_delay = 1
+	g_service_client:do_connect(ip, port, server_id, server_type, register, invite, no_reconnect, no_delay)
 
 end
 

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<server id = "410001" type = "4" ip = "127.0.0.1" port = "7741" max_conn = "1000" file = "bridge_svr/main"> 
+<server id = "410001" type = "4" ip = "127.0.0.1" port = "7741" max_conn = "1000" file = "bridge_svr.main"> 
 
 	<area_list>
 		<area id = "1"/>

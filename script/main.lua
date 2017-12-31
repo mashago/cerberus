@@ -5,7 +5,7 @@ require "core.init"
 
 local function add_debug_timer()
 	local timer_cb = function()
-		g_rpc_mgr:print()
+		g_funcs.debug_timer_cb()
 	end
 	g_timer:add_timer(5000, timer_cb, 0, true)
 end
@@ -27,14 +27,13 @@ local function main()
 
 	math.randomseed(os.time())
 
-	require(g_entry_file)
+	local main_entry = require(g_entry_file)
+	main_entry()
 
 	local hotfix = require("hotfix.main")
 	hotfix.run()
 
-	if g_server_type ~= 0 then
-		-- add_debug_timer()
-	end
+	add_debug_timer()
 end
 
 local status, msg = xpcall(main, function(msg) local msg = debug.traceback(msg, 3) return msg end)

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<server id = "0" type = "0" ip = "127.0.0.1" port = "0" file = "sync_db/main" auto_shutdown = "1"> 
+<server id = "0" type = "0" ip = "127.0.0.1" port = "0" file = "sync_db.main" auto_shutdown = "1"> 
 
 	<mysql>
 		<info ip = "127.0.0.1" port = "3306" username = "testmn" password = "123456" db_name = "mn_game_db" db_type = "2" db_suffix = "1"/>

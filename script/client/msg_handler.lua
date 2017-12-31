@@ -9,11 +9,11 @@ end
 
 ------------------------------------------------
 
-g_x_test_num = -1 -- x test end
-g_x_test_total_num = 0
-g_x_test_start_time = 0
-g_x_test_total_time = 0
-g_x_test_min_time = 0
+g_x_test_num = g_x_test_num or -1 -- x test end
+g_x_test_total_num = g_x_test_total_num or 0
+g_x_test_start_time = g_x_test_start_time or 0
+g_x_test_total_time = g_x_test_total_time or 0
+g_x_test_min_time = g_x_test_min_time or 0
 
 function x_test_start(num)
 	g_x_test_num = num

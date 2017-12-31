@@ -1,7 +1,6 @@
 
 
 local function db_rpc_test(data)
-	
 	Log.debug("db_rpc_test: data=%s", Util.table_to_string(data))
 
 	local buff = data.buff

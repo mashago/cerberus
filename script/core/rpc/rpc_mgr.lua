@@ -43,6 +43,9 @@ g_rpc_mgr:register_func("mynocb", function(data)
 end)
 --]]
 function RpcMgr:register_func(name, func)
+	if self._all_call_func[name] then
+		Log.warn("RpcMgr:register_func duplicate register name=%s", name)
+	end
 	self._all_call_func[name] = func
 end
 

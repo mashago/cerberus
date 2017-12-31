@@ -40,7 +40,7 @@ end
 function Net.add_msg_handler(msg_id, func)
 	local f = Net._msg_handler_map[msg_id]
 	if f then
-		print("Net.add_msg_handler duplicate ", msg_id)
+		Log.warn("Net.add_msg_handler duplicate %d", msg_id)
 	end
 	Net._msg_handler_map[msg_id] = func
 end

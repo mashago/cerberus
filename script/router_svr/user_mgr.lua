@@ -53,18 +53,25 @@ function UserMgr:online(user, mailbox_id)
 	end
 end
 
+function UserMgr:offline_timer_cb(user_id)
+	Log.debug("UserMgr:offline_timer_cb delete offline user %d", user_id)
+	self._offline_user_map[user_id] = nil
+	local user = self:get_user_by_id(user_id)
+	self:del_user(user)
+end
+
 function UserMgr:offline(user)
+	local user_id = user._user_id
 	self._mailbox_user_map[user._mailbox_id] = nil
 	user:offline()
+
 	-- add timer to delete user
-	local delete_user_interval_ms = 300 * 1000
+	-- local delete_user_interval_ms = 300 * 1000
+	local delete_user_interval_ms = 10 * 1000
 	local timer_cb = function(user_id)
-		Log.debug("UserMgr:offline delete offline user %d", user_id)
-		self._offline_user_map[user_id] = nil
-		local user = self:get_user_by_id(user_id)
-		self:del_user(user)
+		self:offline_timer_cb(user_id)
 	end
-	local timer_index = g_timer:add_timer(delete_user_interval_ms, timer_cb, user._user_id, false)
+	self._offline_user_map[user_id] = g_timer:add_timer(delete_user_interval_ms, timer_cb, user_id, false)
 
 end
 

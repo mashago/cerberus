@@ -275,4 +275,4 @@ sync_db = function()
 	return true
 end
 
-main_entry()
+return main_entry

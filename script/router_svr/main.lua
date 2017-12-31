@@ -1,9 +1,9 @@
 
-require "router_svr.net_event_handler"
 
 local function main_entry()
 	Log.info("router_svr main_entry")
 
+	require "router_svr.net_event_handler"
 	require "router_svr.msg_handler"
 	require "router_svr.rpc_handler"
 
@@ -24,4 +24,4 @@ local function main_entry()
 
 end
 
-main_entry()
+return main_entry

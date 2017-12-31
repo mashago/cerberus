@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<server id = "110002" type = "1" ip = "127.0.0.1" port = "7712" max_conn = "1000" file = "router_svr/main"> 
+<server id = "110002" type = "1" ip = "127.0.0.1" port = "7712" max_conn = "1000" file = "router_svr.main"> 
 	<connect_to>
 		<!-- cross_svr -->
 		<!-- <address ip = "127.0.0.1" port = "7771" register = "0" invite = "1"/> -->

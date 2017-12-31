@@ -122,6 +122,7 @@ function Role:db_save(is_timeout)
 	end
 
 	if not is_timeout then
+		-- not timeout, may cause by role disconnect, must delete save db timer
 		g_timer:del_timer(timer_index)
 	end
 	self._db_save_timer_index = 0
@@ -190,7 +191,7 @@ end
 
 function Role:on_disconnect()
 	-- save db
-	self:db_save()
+	self:db_save(false)
 
 	g_role_mgr:del_role(self)
 end

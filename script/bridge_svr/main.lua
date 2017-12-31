@@ -20,4 +20,4 @@ local function main_entry()
 
 end
 
-main_entry()
+return main_entry
