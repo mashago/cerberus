@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<server id = "410001" type = "4" ip = "127.0.0.1" port = "7741" max_conn = "1000" file = "bridge_svr.main"> 
+<server id = "41" type = "4" ip = "127.0.0.1" port = "60103" max_conn = "1000" file = "bridge_svr.main"> 
 
 	<area_list>
 		<area id = "1"/>
@@ -13,12 +13,6 @@
 
 	<connect_to>
 		<!-- login_svr -->
-		<address ip = "127.0.0.1" port = "7751" register = "1"/>
-		<!-- router_svr -->
-		<address ip = "127.0.0.1" port = "7711" register = "1"/>
-		<address ip = "127.0.0.1" port = "7712" register = "1"/>
-
-		<!-- db_svr -->
-		<address ip = "127.0.0.1" port = "7731" register = "1"/>
+		<address ip = "127.0.0.1" port = "60001" register = "1"/>
 	</connect_to>
 </server>

@@ -32,16 +32,20 @@ MID._id_name_map =
 	[20025] = "ROLE_ATTR_CHANGE_RET",
 
 	-- msg for server
+	-- about master_svr
 	[60001] = "REGISTER_SERVER_REQ",
 	[60002] = "REGISTER_SERVER_RET",
 	[60003] = "REGISTER_SERVER_BROADCAST",
-	[60004] = "SERVER_DISCONNECT",
-	[60005] = "REMOTE_CALL_REQ",
-	[60006] = "REMOTE_CALL_NOCB_REQ",
-	[60007] = "REMOTE_CALL_RET",
-	[60008] = "REGISTER_AREA_REQ",
-	[60009] = "REGISTER_AREA_RET",
-	[60010] = "INVITE_CONNECT_REQ",
+	
+	[60004] = "SHAKE_HAND_REQ",
+	[60005] = "SHAKE_HAND_RET",
+
+	[60006] = "REMOTE_CALL_REQ",
+	[60007] = "REMOTE_CALL_NOCB_REQ",
+	[60008] = "REMOTE_CALL_RET",
+	[60009] = "REGISTER_AREA_REQ",
+	[60010] = "REGISTER_AREA_RET",
+	[60011] = "INVITE_CONNECT_REQ",
 
 	[60101] = "ROUTER_ROLE_ENTER_REQ",
 	[60102] = "ROUTER_ROLE_ENTER_RET",
@@ -316,6 +320,8 @@ MSG_DEF_MAP =
 		{ "server_type", _Int },
 		{ "single_scene_list", _IntArray },
 		{ "from_to_scene_list", _IntArray },
+		{ "ip", _String },
+		{ "port", _Short },
 	},
 
 	[MID.REGISTER_SERVER_RET] =
@@ -327,16 +333,28 @@ MSG_DEF_MAP =
 
 	[MID.REGISTER_SERVER_BROADCAST] =
 	{
+		{ "ip", _String },
+		{ "port", _Short },
+	},
+
+
+	[MID.SHAKE_HAND_REQ] =
+	{
 		{ "server_id", _Int },
 		{ "server_type", _Int },
 		{ "single_scene_list", _IntArray },
 		{ "from_to_scene_list", _IntArray },
 	},
 
-	[MID.SERVER_DISCONNECT] =
+	[MID.SHAKE_HAND_RET] =
 	{
 		{ "server_id", _Int },
+		{ "server_type", _Int },
+		{ "single_scene_list", _IntArray },
+		{ "from_to_scene_list", _IntArray },
 	},
+
+
 
 
 	[MID.REMOTE_CALL_REQ] =
@@ -430,6 +448,7 @@ RAW_MID =
 	[MID.REGISTER_SERVER_REQ] = true,
 	[MID.REGISTER_SERVER_RET] = true,
 	[MID.REGISTER_SERVER_BROADCAST] = true,
+
 	[MID.SERVER_DISCONNECT] = true,
 	[MID.REMOTE_CALL_REQ] = true,
 	[MID.REMOTE_CALL_NOCB_REQ] = true,
