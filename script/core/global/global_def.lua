@@ -23,15 +23,16 @@ _StructArray 	= 18
 ServerType =
 {
 	NULL 			= 0,
-	ROUTER 			= 1,
-	SCENE 			= 2,
-	DB 				= 3,
+	LOGIN 			= 1,
+	DB 				= 2,
+
+	MASTER			= 3,
 	BRIDGE 			= 4,
-	LOGIN 			= 5,
-	PUBLIC 			= 6,
-	CROSS_SCENE		= 7,
-	PAY 			= 8,
-	CHAT 			= 9,
+	GATE 			= 5,
+	BASE 			= 6,
+	CELL 			= 7,
+	PUBLIC 			= 8,
+
 }
 
 ConnType =
