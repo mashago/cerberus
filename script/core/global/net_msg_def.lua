@@ -37,15 +37,16 @@ MID._id_name_map =
 	[60002] = "REGISTER_SERVER_RET",
 	[60003] = "REGISTER_SERVER_BROADCAST",
 	
-	[60004] = "SHAKE_HAND_REQ",
+	[60004] = "SHAKE_HAND_REQ", -- after connect to success, send this
 	[60005] = "SHAKE_HAND_RET",
+	[60006] = "SHAKE_HAND_INVITE",
 
-	[60006] = "REMOTE_CALL_REQ",
-	[60007] = "REMOTE_CALL_NOCB_REQ",
-	[60008] = "REMOTE_CALL_RET",
-	[60009] = "REGISTER_AREA_REQ",
-	[60010] = "REGISTER_AREA_RET",
-	[60011] = "INVITE_CONNECT_REQ",
+	[60007] = "REMOTE_CALL_REQ",
+	[60008] = "REMOTE_CALL_NOCB_REQ",
+	[60009] = "REMOTE_CALL_RET",
+	[60010] = "REGISTER_AREA_REQ",
+	[60011] = "REGISTER_AREA_RET",
+	[60012] = "INVITE_CONNECT_REQ",
 
 	[60101] = "ROUTER_ROLE_ENTER_REQ",
 	[60102] = "ROUTER_ROLE_ENTER_RET",
@@ -85,6 +86,12 @@ RoleListStruct =
 {
 	{ "role_id", _Int64 },
 	{ "role_name", _String },
+}
+
+ServerAddrStruct =
+{
+	{ "ip", _String },
+	{ "port", _Int },
 }
 
 -----------------------------------
@@ -344,6 +351,8 @@ MSG_DEF_MAP =
 		{ "server_type", _Int },
 		{ "single_scene_list", _IntArray },
 		{ "from_to_scene_list", _IntArray },
+		{ "ip", _String },
+		{ "port", _Int },
 	},
 
 	[MID.SHAKE_HAND_RET] =
@@ -352,6 +361,11 @@ MSG_DEF_MAP =
 		{ "server_type", _Int },
 		{ "single_scene_list", _IntArray },
 		{ "from_to_scene_list", _IntArray },
+	},
+
+	[MID.SHAKE_HAND_INVITE] =
+	{
+		{ "server_list", _StructArray, ServerAddrStruct },
 	},
 
 

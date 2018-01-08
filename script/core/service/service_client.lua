@@ -278,6 +278,23 @@ function ServiceClient:register_success(mailbox_id, server_id, server_type)
 	self:print()
 end
 
+function ServiceClient:shake_hand_success(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
+	local service_info = self:get_service(mailbox_id)
+	if not service_info then
+		Log.err("ServiceClient:register_success service nil %d %d %d", server_id, server_type)
+		return
+	end
+
+	service_info._server_id = server_id
+	service_info._server_type = server_type
+
+	-- add service as a server too
+	self:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list, false)
+
+	Log.info("ServiceClient:register_success:")
+	self:print()
+end
+
 function ServiceClient:_remove_server_core(mailbox_id, server_id)
 
 	-- 1. server_info remove service mailbox

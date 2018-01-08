@@ -17,9 +17,9 @@ function ServerMgr:ctor()
 end
 
 -- when other server connect to master server, send REGISTER_SERVER_REQ, will call this function
--- should broadcast new server info to other server, therefore other server will connect to new server. new server will push back into server list
+-- will invite new server connect to forward other server, so send other server addr to new server. and new server will push back into server list
 -- if server disconnect, will not remove from server list, just set mailbox_id = 0
-function ServerMgr:server_register(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list, ip, port)
+function ServerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list, ip, port)
 
 	
 	local msg = 
@@ -27,45 +27,78 @@ function ServerMgr:server_register(mailbox_id, server_id, server_type, single_sc
 		result = ErrorCode.SUCCESS,
 		server_id = g_server_conf._server_id,
 		server_type = g_server_conf._server_type,
+		single_scene_list = g_server_conf._single_scene_list
+		from_to_scene_list = g_server_conf._from_to_scene_list,
 	}
 
 	-- check if exists same server_id
-	local is_reconnect = false
-	for _, node in ipairs(self._register_server_list) do
-		if node.server_id == server_id then
-			-- duplicate server_id
-			if node.mailbox_id ~= 0 then
-				Log.err("ServerMgr:server_register duplicate server_id register %d", server_id)
-				msg.result = ErrorCode.REGISTER_SERVER_DUPLICATE
-				Net.send_msg(mailbox_id, MID.REGISTER_SERVER_RET, msg)
-				return false
-			end
-
-			-- server reconnect
-			node.mailbox_id = mailbox_id
-			is_reconnect = true
-		end
-
-		-- send behind server address to reconnect server
-		if is_reconnect then
-			Net.send_msg(mailbox_id, MID.REGISTER_SERVER_BROADCAST, 
+	local reconn_server_index = 0
+	local server_list = {}
+	for index, node in ipairs(self._register_server_list) do
+		if node.server_id ~= server_id then
+			table.insert(server_list, 
 			{
 				ip = node.ip,
 				port = node.port,
 			})
+			goto continue
 		end
 
+		-- duplicate server_id
+		if node.mailbox_id ~= 0 then
+			Log.err("ServerMgr:shake_hand duplicate server_id register %d", server_id)
+			msg.result = ErrorCode.SHAKE_HAND_FAIL
+			Net.send_msg(mailbox_id, MID.SHAKE_HAND_RET, msg)
+			return false
+		end
+
+		-- server reconnect
+		node.mailbox_id = mailbox_id
+		reconn_server_index = index
+		break
+
+		::continue::
 	end
 
-	-- broadcast to before server, let them connect to new server
+	Net.send_msg(mailbox_id, MID.SHAKE_HAND_RET, msg)
+
+	-- shake hand server is reconnect server
+	if reconn_server_index > 0 then
+		-- send before server_list to reconnect server
+		local msg =
+		{
+			server_list = server_list
+		}
+		Net.send_msg(mailbox_id, MID.SHAKE_HAND_INVITE, msg)
+
+		-- send reconnect server addr to behind server
+		for i=reconn_server_index+1, #self._register_server_list do
+			local node = self._register_server_list[i]
+			if node.mailbox_id > 0 then
+				Net.send_msg(node.mailbox_id, MID.SHAKE_HAND_INVITE,
+				{
+					ip = ip,
+					port = port,
+				})
+			end
+		end
+		return
+	end
+
+	-- shake hand server is new server
+	-- invite new server to connect them
 	local msg = 
 	{
-		ip = ip,
-		port = port,
+		server_list = {}
 	}
 	for _, node in ipairs(self._register_server_list) do
-		Net.send_msg(node.mailbox_id, MID.REGISTER_SERVER_BROADCAST, msg)
+		table.insert(msg.server_list, 
+		{
+			ip = node.ip,
+			port = node.port,
+		})
 	end
+	Net.send_msg(mailbox_id, MID.SHAKE_HAND_INVITE, msg)
 
 	-- push back into server list
 	local node = 

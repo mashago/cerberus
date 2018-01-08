@@ -231,6 +231,7 @@ function g_funcs.handle_register_server_ret(data, mailbox_id, msg_id)
 	end
 end
 
+
 -- a common handle for MID.REGISTER_SERVER_BROADCAST
 function g_funcs.handle_register_server_broadcast(data, mailbox_id, msg_id)
 	Log.debug("handle_register_server_broadcast: data=%s", Util.table_to_string(data))
@@ -242,6 +243,68 @@ function g_funcs.handle_server_disconnect(data, mailbox_id, msg_id)
 	Log.debug("handle_server_disconnect: data=%s", Util.table_to_string(data))
 	g_service_client:remove_server(mailbox_id, data.server_id)
 end
+
+
+-- about shake hand
+-- a common handle for MID.SHAKE_HAND_REQ
+function g_funcs.handle_shake_hand_req(data, mailbox_id)
+
+	local msg = 
+	{
+		result = ErrorCode.SUCCESS,
+		server_id = g_server_conf._server_id,
+		server_type = g_server_conf._server_type,
+		single_scene_list = g_server_conf._single_scene_list
+		from_to_scene_list = g_server_conf._from_to_scene_list,
+	}
+
+	-- add server
+	local new_server_info = g_service_server:add_server(mailbox_id, data.server_id, data.server_type, data.single_scene_list, data.from_to_scene_list)
+	if not new_server_info then
+		msg.result = ErrorCode.SHAKE_HAND_FAIL
+		Net.send_msg(mailbox_id, MID.SHAKE_HAND_RET, msg)
+		return
+	end
+
+	new_server_info:send_msg(MID.SHAKE_HAND_RET, msg)
+end
+
+-- a common handle for MID.SHAKE_HAND_RET
+function g_funcs.handle_shake_hand_ret(data, mailbox_id)
+	if data.result ~= ErrorCode.SUCCESS then
+		Log.err("handle_shake_hand_ret: fail %d", data.result)
+		return
+	end
+	local server_id = data.server_id
+	local server_type = data.server_type
+	local single_scene_list = data.single_scene_list
+	local from_to_scene_list = data.from_to_scene_list
+
+	g_service_client:shake_hand_success(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
+
+	if server_type == ServerType.LOGIN and g_server_conf._server_type == ServerType.BRIDGE then
+		-- register area
+		local msg = 
+		{
+			area_list = g_server_conf._area_list,
+		}
+
+		Net.send_msg(mailbox_id, MID.REGISTER_AREA_REQ, msg)
+	end
+end
+
+-- a common handle for MID.SHAKE_HAND_INVITE
+function g_funcs.handle_shake_hand_invite(data, mailbox_id)
+	local ip = data.ip
+	local port = data.port
+	local server_id = 0
+	local server_type = 0
+	local register = 1
+	local invite = 0
+	local no_reconnect = 0
+	g_service_client:do_connect(ip, port, server_id, server_type, register, invite, no_reconnect)
+end
+--
 
 -------- for attr data and string convert
 

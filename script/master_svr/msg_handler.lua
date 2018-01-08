@@ -1,5 +1,5 @@
 
-local function handle_register_server(data, mailbox_id)
+local function handle_shake_hand(data, mailbox_id)
 
 	local server_id = data.server_id
 	local server_type = data.server_type
@@ -8,13 +8,12 @@ local function handle_register_server(data, mailbox_id)
 	local ip = data.ip
 	local port = data.port
 
-	g_server_mgr:server_register(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list, ip, port)
+	g_server_mgr:shake_hand(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list, ip, port)
 
 end
 
-
 local function register_msg_handler()
-	Net.add_msg_handler(MID.REGISTER_SERVER_REQ, handle_register_server)
+	Net.add_msg_handler(MID.SHAKE_HAND_REQ, handle_shake_hand)
 
 end
 
