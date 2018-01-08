@@ -96,16 +96,6 @@ function ServiceServer:handle_disconnect(mailbox_id)
 	local disconnect_server_id = server_info._server_id
 	self:remove_server(server_info)
 
-	if not g_server_conf._no_broadcast then
-		for _, server_info in pairs(self._all_server_map) do
-			local msg =
-			{
-				server_id = disconnect_server_id
-			}
-			server_info:send_msg(MID.SERVER_DISCONNECT, msg)
-		end
-	end
-
 	Log.debug("ServiceServer:handle_disconnect:")
 	self:print()
 end

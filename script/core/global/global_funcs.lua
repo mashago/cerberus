@@ -179,34 +179,6 @@ function g_funcs.handle_register_server(data, mailbox_id, msg_id)
 	end
 
 	new_server_info:send_msg(MID.REGISTER_SERVER_RET, msg)
-
-	-- broadcast
-	if g_server_conf._no_broadcast then
-		return
-	end
-
-	for server_id, server_info in pairs(g_service_server._all_server_map) do
-		if server_id ~= data.server_id then
-			local msg = 
-			{
-				server_id = data.server_id,
-				server_type = data.server_type,
-				single_scene_list = data.single_scene_list,
-				from_to_scene_list = data.from_to_scene_list,
-			}
-			server_info:send_msg(MID.REGISTER_SERVER_BROADCAST, msg)
-
-			local msg = 
-			{
-				server_id = server_info._server_id,
-				server_type = server_info._server_type,
-				single_scene_list = server_info._single_scene_list,
-				from_to_scene_list = server_info._from_to_scene_list,
-			}
-			new_server_info:send_msg(MID.REGISTER_SERVER_BROADCAST, msg)
-		end
-	end
-
 end
 
 -- a common handle for MID.REGISTER_SERVER_RET
@@ -230,20 +202,6 @@ function g_funcs.handle_register_server_ret(data, mailbox_id, msg_id)
 		Net.send_msg(mailbox_id, MID.REGISTER_AREA_REQ, msg)
 	end
 end
-
-
--- a common handle for MID.REGISTER_SERVER_BROADCAST
-function g_funcs.handle_register_server_broadcast(data, mailbox_id, msg_id)
-	Log.debug("handle_register_server_broadcast: data=%s", Util.table_to_string(data))
-	g_service_client:add_server(mailbox_id, data.server_id, data.server_type, data.single_scene_list, data.from_to_scene_list, true)
-end
-
--- a common handle for MID.SERVER_DISCONNECT
-function g_funcs.handle_server_disconnect(data, mailbox_id, msg_id)
-	Log.debug("handle_server_disconnect: data=%s", Util.table_to_string(data))
-	g_service_client:remove_server(mailbox_id, data.server_id)
-end
-
 
 -- about shake hand
 -- a common handle for MID.SHAKE_HAND_REQ

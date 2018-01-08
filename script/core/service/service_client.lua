@@ -145,53 +145,17 @@ function ServiceClient:get_service(mailbox_id)
 	return nil
 end
 
--- if server is with direct connection, is_indirect is false, like scene to router
--- if server is add by broadcast, is_indirect is true, like briedge to scene
-function ServiceClient:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list, is_indirect)
+function ServiceClient:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
 
-	-- service server add server
-	local service_info = self:get_service(mailbox_id)
-	if service_info then
-		table.insert(service_info._server_list, server_id)
-	end
-
-	-- if exists in all_server_map, means add by other service server, just update _mailbox_id or _indirect_mailbox_id_list
 	local server_info = self._all_server_map[server_id]
 	if server_info then
-		if not is_indirect and server_info._mailbox_id ~= -1 then
-			Log.err("ServiceClient:add_server duplicate set mailbox_id server_id=%d", server_id)
-			return
-		end
-		for k, v in ipairs(server_info._indirect_mailbox_id_list) do
-			if v == mailbox_id then
-				Log.err("ServiceClient:add_server duplicate set indirect_mailbox_id server_id=%d", server_id)
-				return
-			end
-		end
-
-		if not is_indirect then
-			server_info._mailbox_id = mailbox_id
-		else
-			-- randam insert
-			-- in some case, we must keep msg send order to target server, msg should not shuffle by different router
-			-- so we can get mailbox_id by get [1] in list, keep send by same router mailbox_id
-			-- in other case, we don't care the order of msg, we can get a random mailbox_id to send
-			local r = 1
-			local size = #server_info._indirect_mailbox_id_list
-			if size > 1 then
-				r = math.random(size)
-			end
-			table.insert(server_info._indirect_mailbox_id_list, r, mailbox_id)
-		end
-		
-		Log.info("ServiceClient:add_server:")
-		self:print()
+		Log.err("ServiceClient:add_server duplicate server_id=%d", server_id)
 		return
 	end
 
 	-- init server_info
 	local ServerInfo = require "core.service.server_info"
-	local server_info = ServerInfo.new(server_id, server_type, mailbox_id, single_scene_list, from_to_scene_list, is_indirect)
+	server_info = ServerInfo.new(server_id, server_type, mailbox_id, single_scene_list, from_to_scene_list)
 	-- Log.debug("server_info._scene_list=%s", Util.table_to_string(server_info._scene_list))
 
 	-- add into all_server_map
@@ -272,7 +236,7 @@ function ServiceClient:register_success(mailbox_id, server_id, server_type)
 	service_info._server_type = server_type
 
 	-- add service as a server too
-	self:add_server(mailbox_id, server_id, server_type, {}, {}, false)
+	self:add_server(mailbox_id, server_id, server_type, {}, {})
 
 	Log.info("ServiceClient:register_success:")
 	self:print()
@@ -289,7 +253,7 @@ function ServiceClient:shake_hand_success(mailbox_id, server_id, server_type, si
 	service_info._server_type = server_type
 
 	-- add service as a server too
-	self:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list, false)
+	self:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
 
 	Log.info("ServiceClient:register_success:")
 	self:print()
@@ -305,21 +269,6 @@ function ServiceClient:_remove_server_core(mailbox_id, server_id)
 	local server_info = self._all_server_map[server_id]
 	if not server_info then
 		Log.err("ServiceClient:_remove_server_core server nil server_id=%d", server_id)
-		return
-	end
-
-	for i=#server_info._indirect_mailbox_id_list, 1, -1 do
-		if server_info._indirect_mailbox_id_list[i] == mailbox_id then
-			table.remove(server_info._indirect_mailbox_id_list, i)
-		end
-	end
-
-	if server_info._mailbox_id == mailbox_id then
-		server_info._mailbox_id = -1
-	end
-	
-	if server_info._mailbox_id ~= -1 or #server_info._indirect_mailbox_id_list > 0 then
-		-- still has service connect to this server, do nothing
 		return
 	end
 
@@ -358,23 +307,13 @@ end
 
 function ServiceClient:remove_server(mailbox_id, server_id)
 
-	-- 1. service_info remove server_id in server_list
-	-- 2. remove server core
 
 	local service_info = self:get_service(mailbox_id)
 	if not service_info then
 		Log.err("ServiceClient:remove_server service nil mailbox_id=%d", mailbox_id)
 		return
 	end
-	
-	-- 1. service_info remove server_id in server_list
-	for i=#service_info._server_list, 1, -1 do
-		if service_info._server_list[i] == server_id then
-			table.remove(service_info._server_list, i)
-		end
-	end
 
-	-- 2. remove server core
 	self._remove_server_core(mailbox_id, server_id)
 
 	Log.info("ServiceClient:remove_server:")
@@ -390,11 +329,7 @@ function ServiceClient:handle_disconnect(mailbox_id)
 		return
 	end
 
-	-- remove those server which connect to the service
-	for _, server_id in ipairs(service_info._server_list) do
-		self._remove_server_core(mailbox_id, server_id)
-	end
-	service_info._server_list = {}
+	self._remove_server_core(mailbox_id, service_info._server_id)
 
 	if service_info._no_reconnect == 1 then
 		Log.info("ServiceClient:handle_disconnect remove closing service %d", mailbox_id)

@@ -2,7 +2,6 @@
 ServiceMgr = class()
 
 function ServiceMgr:get_server_by_id(server_id)
-	-- search from ServiceServer first, because is all direct connect inside
 	local server_info = g_service_server:get_server_by_id(server_id)
 	if not server_info then
 		server_info = g_service_client:get_server_by_id(server_id)
