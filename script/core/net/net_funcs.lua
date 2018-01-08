@@ -49,8 +49,14 @@ function Net.get_msg_handler(msg_id)
 	return Net._msg_handler_map[msg_id]
 end
 
-function Net.add_mailbox(mailbox_id, conn_type)
-	Net._all_mailbox[mailbox_id] = {mailbox_id=mailbox_id, conn_type=conn_type}
+function Net.add_mailbox(mailbox_id, conn_type, ip, port)
+	Net._all_mailbox[mailbox_id] = 
+	{
+		mailbox_id = mailbox_id, 
+		conn_type = conn_type,
+		ip = ip,
+		port = port,
+	}
 end
 
 function Net.get_mailbox(mailbox_id)

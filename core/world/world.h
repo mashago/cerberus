@@ -18,7 +18,7 @@ public:
 	virtual bool Init(int server_id, int server_type, const char *conf_file, const char * entry_file);
 	void Dispatch();
 
-	virtual void HandleNewConnection(int64_t mailboxId, int32_t connType) = 0;
+	virtual void HandleNewConnection(int64_t mailboxId, int32_t connType, const char *ip, int port) = 0;
 	virtual void HandleConnectToSuccess(int64_t mailboxId) = 0;
 	virtual void HandleDisconnect(int64_t mailboxId) = 0;
 	virtual void HandleMsg(Pluto &u) = 0;

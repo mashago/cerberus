@@ -40,6 +40,8 @@ struct EventNodeNewConnection : public EventNode
 	}
 	int64_t mailboxId;
 	int32_t connType;
+	char ip[50];	
+	int port;
 };
 
 struct EventNodeConnectToSuccess : public EventNode
