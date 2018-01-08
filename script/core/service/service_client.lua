@@ -30,11 +30,10 @@ function ServiceClient:is_service_server(mailbox_id)
 	return false
 end
 
-function ServiceClient:do_connect(ip, port, server_id, server_type, register, invite, no_reconnect, no_delay)
+function ServiceClient:do_connect(ip, port, server_id, server_type, register, no_reconnect, no_delay)
 	-- check duplicate connect service
 	
 	register = register or 0
-	invite = invite or 0
 	no_reconnect = no_reconnect or 0
 	no_delay = no_delay or 0
 
@@ -46,7 +45,7 @@ function ServiceClient:do_connect(ip, port, server_id, server_type, register, in
 	end
 	
 	local ServiceServerInfo = require "core.service.service_server_info"
-	local service_info = ServiceServerInfo.new(ip, port, server_id, server_type, register, invite, no_reconnect)
+	local service_info = ServiceServerInfo.new(ip, port, server_id, server_type, register, no_reconnect)
 	table.insert(self._service_server_info_list, service_info)
 	if no_delay == 1 then
 		self:connect_immediately()
@@ -212,16 +211,6 @@ function ServiceClient:connect_to_success(mailbox_id)
 		self:add_server(mailbox_id, service_info._server_id, service_info._server_type, {}, {}, false)
 		Log.info("ServiceClient:connect_to_success:")
 		self:print()
-	end
-
-	if service_info._invite == 1 then
-		-- send invite msg
-		local msg = 
-		{
-			ip = g_server_conf._ip,
-			port = g_server_conf._port,
-		}
-		Net.send_msg(mailbox_id, MID.INVITE_CONNECT_REQ, msg)
 	end
 end
 

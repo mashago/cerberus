@@ -102,18 +102,6 @@ local function handle_router_role_disconnect(role, data, mailbox_id)
 
 end
 
-local function handle_invite_connect(data, mailbox_id)
-	Log.debug("handle_invite_connect data=%s", Util.table_to_string(data))
-	local ip = data.ip
-	local port = data.port
-	local server_id = 0
-	local server_type = 0
-	local register = 1
-	local invite = 0
-	local no_reconnect = 1
-	g_service_client:do_connect(ip, port, server_id, server_type, register, invite, no_reconnect)
-end
-
 local function handle_role_attr_change_req(role, data, mailbox_id)
 	Log.debug("handle_role_attr_change_req data=%s", Util.table_to_string(data))
 	local attr_table = data.attr_table
@@ -133,7 +121,6 @@ local function register_msg_handler()
 	Net.add_msg_handler(MID.ROUTER_ROLE_ENTER_REQ, handle_router_role_enter_req)
 	Net.add_msg_handler(MID.ROUTER_ROLE_DISCONNECT, handle_router_role_disconnect)
 
-	Net.add_msg_handler(MID.INVITE_CONNECT_REQ, handle_invite_connect)
 
 	Net.add_msg_handler(MID.ROLE_ATTR_CHANGE_REQ, handle_role_attr_change_req)
 end

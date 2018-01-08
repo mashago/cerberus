@@ -41,11 +41,10 @@ function g_funcs.connect_to_servers(xml_doc)
 		local server_id = address_ele:int_attribute("id")
 		local server_type = address_ele:int_attribute("type")
 		local register = address_ele:int_attribute("register")
-		local invite = address_ele:int_attribute("invite")
 		local no_reconnect = address_ele:int_attribute("no_reconnect")
 		local no_delay = address_ele:int_attribute("no_delay")
-		Log.info("ip=%s port=%d server_id=%d server_type=%d register=%d invite=%d no_reconnect=%d no_delay=%d", ip, port, server_id, server_type, register, invite, no_reconnect, no_delay)
-		g_service_client:do_connect(ip, port, server_id, server_type, register, invite, no_reconnect, no_delay)
+		Log.info("ip=%s port=%d server_id=%d server_type=%d register=%d no_reconnect=%d no_delay=%d", ip, port, server_id, server_type, register, no_reconnect, no_delay)
+		g_service_client:do_connect(ip, port, server_id, server_type, register, no_reconnect, no_delay)
 
 		address_ele = address_ele:next_sibling_element()
 	end
@@ -155,6 +154,7 @@ function g_funcs.connect_to_mysql(xml_doc)
 	return true
 end
 
+--[[
 -- a common handle for MID.REGISTER_SERVER_REQ
 function g_funcs.handle_register_server(data, mailbox_id, msg_id)
 	Log.debug("handle_register_server: data=%s", Util.table_to_string(data))
@@ -202,6 +202,7 @@ function g_funcs.handle_register_server_ret(data, mailbox_id, msg_id)
 		Net.send_msg(mailbox_id, MID.REGISTER_AREA_REQ, msg)
 	end
 end
+--]]
 
 -- about shake hand
 -- a common handle for MID.SHAKE_HAND_REQ
@@ -258,9 +259,8 @@ function g_funcs.handle_shake_hand_invite(data, mailbox_id)
 	local server_id = 0
 	local server_type = 0
 	local register = 1
-	local invite = 0
 	local no_reconnect = 0
-	g_service_client:do_connect(ip, port, server_id, server_type, register, invite, no_reconnect)
+	g_service_client:do_connect(ip, port, server_id, server_type, register, no_reconnect)
 end
 --
 

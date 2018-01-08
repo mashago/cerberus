@@ -104,7 +104,7 @@ end
 
 -- async call, no yield, no callback
 -- in sync coroutine will use same way to target server
-function RpcMgr:call_nocb(server_info, func_name, data, is_random_order)
+function RpcMgr:call_nocb(server_info, func_name, data)
 	local data_str = Util.serialize(data)
 	local msg = 
 	{
@@ -116,19 +116,19 @@ function RpcMgr:call_nocb(server_info, func_name, data, is_random_order)
 	}
 
 	-- async call, will not yield
-	return server_info:send_msg(MID.REMOTE_CALL_NOCB_REQ, msg, is_random_order)
+	return server_info:send_msg(MID.REMOTE_CALL_NOCB_REQ, msg)
 end
 
-function RpcMgr:call_nocb_by_server_type(server_type, func_name, data, is_random_order, opt_key)
+function RpcMgr:call_nocb_by_server_type(server_type, func_name, data, opt_key)
 	local server_info = g_service_mgr:get_server_by_type(server_type, opt_key)
 	if not server_info then return false end
-	return self:call_nocb(server_info, func_name, data, is_random_order)
+	return self:call_nocb(server_info, func_name, data)
 end
 
-function RpcMgr:call_nocb_by_server_id(server_id, func_name, data, is_random_order)
+function RpcMgr:call_nocb_by_server_id(server_id, func_name, data)
 	local server_info = g_service_mgr:get_server_by_id(server_id)
 	if not server_info then return false end
-	return self:call_nocb(server_info, func_name, data, is_random_order)
+	return self:call_nocb(server_info, func_name, data)
 end
 
 ---------------------------------------
@@ -151,8 +151,16 @@ function RpcMgr:handle_call(data, mailbox_id, msg_id, is_nocb)
 		Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, msg)
 	end
 
-	-- transfer rpc req to to server
+	-- server_id mismatch
 	if to_server_id ~= g_server_conf._server_id then
+		Log.err("RpcMgr:handle_call server_id mismatch to_server_id=%d local_server_id=%d", to_server_id, g_server_conf._server_id)
+		if not is_nocb then
+			send_error(-1)
+		end
+		return
+
+		--[[
+		-- transfer rpc req to to server
 		local server_info = g_service_mgr:get_server_by_id(to_server_id)
 		if not server_info then
 			Log.warn("RpcMgr:handle_call cannot go to to_server_id=%d", to_server_id)
@@ -171,6 +179,7 @@ function RpcMgr:handle_call(data, mailbox_id, msg_id, is_nocb)
 		
 		server_info:send_msg(mid, data)
 		return
+		--]]
 	end
 
 	-- handle rpc
@@ -307,8 +316,12 @@ function RpcMgr:handle_callback(data, mailbox_id, msg_id)
 	local from_server_id = data.from_server_id
 	local to_server_id = data.to_server_id
 
-	-- transfer rpc ret to from server
+	-- server_id mismatch
 	if from_server_id ~= g_server_conf._server_id then
+		Log.err("RpcMgr:handle_callback server_id mismatch from_server_id=%d local_server_id=%d", from_server_id, g_server_conf._server_id)
+		return
+		--[[
+		-- transfer rpc ret to from server
 		local server_info = g_service_mgr:get_server_by_id(from_server_id)
 		if not server_info then
 			Log.warn("RpcMgr.handle_callback cannot go back from_server_id=%d", from_server_id)
@@ -325,6 +338,7 @@ function RpcMgr:handle_callback(data, mailbox_id, msg_id)
 		}
 		server_info:send_msg(MID.REMOTE_CALL_RET, msg)
 		return
+		--]]
 	end
 
 	local param = Util.unserialize(data.param)

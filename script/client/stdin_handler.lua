@@ -335,9 +335,8 @@ function cmd_handler.do_connect(params)
 	local server_id = server_info.server_id
 	local register = 0
 	local no_reconnect = 0
-	local invite = 0
 	local no_delay = 1
-	g_service_client:do_connect(ip, port, server_id, server_type, register, invite, no_reconnect, no_delay)
+	g_service_client:do_connect(ip, port, server_id, server_type, register, no_reconnect, no_delay)
 
 end
 
