@@ -15,7 +15,7 @@ LuaClient::~LuaClient()
 {
 }
 
-void LuaClient::HandleNewConnection(int64_t mailboxId, int32_t connType)
+void LuaClient::HandleNewConnection(int64_t mailboxId, int32_t connType, const char *ip, int port)
 {
 	// do nothing
 }

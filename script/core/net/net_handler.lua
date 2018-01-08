@@ -336,9 +336,9 @@ function ccall_connect_to_success_handler(mailbox_id)
 	end
 end
 
-function ccall_new_connection(mailbox_id, conn_type)
+function ccall_new_connection(mailbox_id, conn_type, ip, port)
 	mailbox_id = math.floor(mailbox_id)
-	Log.info("ccall_new_connection mailbox_id=%d conn_type=%d", mailbox_id, conn_type)
+	Log.info("ccall_new_connection mailbox_id=%d conn_type=%d ip=%s, port=%d", mailbox_id, conn_type, ip, port)
 
 	local function error_handler(msg, mailbox_id)
 		local msg = debug.traceback(msg, 3)
@@ -348,7 +348,7 @@ function ccall_new_connection(mailbox_id, conn_type)
 	
 	local status, msg = xpcall(Net.add_mailbox
 	, function(msg) return error_handler(msg, mailbox_id) end
-	, mailbox_id, conn_type)
+	, mailbox_id, conn_type, ip, port)
 
 	if not status then
 		Log.err(msg)

@@ -412,6 +412,8 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 	EventNodeNewConnection *node = new EventNodeNewConnection();
 	node->mailboxId = pmb->GetMailboxId();
 	node->connType = connType;
+	snprintf(node->ip, sizeof(node->ip), "%s", clientHost);
+	node->port = clientPort;
 	SendEvent(node);
 
 	return 0;
