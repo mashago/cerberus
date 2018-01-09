@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo "Start Master Server..."
+./MassNetServer -d -c ../conf/server_conf_master.xml
+
 echo "Start DB Game Server..."
 ./MassNetServer -d -c ../conf/server_conf_db_game.xml
 

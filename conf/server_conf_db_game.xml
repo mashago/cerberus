@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<server id = "21" type = "2" ip = "127.0.0.1" port = "60102" max_conn = "1000" file = "db_svr.main"> 
-	<connect_to>
-	</connect_to>
-
-	<register_broadcast>0</register_broadcast>
+<server id = "201" type = "2" ip = "127.0.0.1" port = "60106" max_conn = "1000" file = "db_svr.main"> 
 
 	<trust_ip>
 		<address ip = "127.0.0.1"/>
 	</trust_ip>
+
+	<connect_to>
+		<!-- master_svr -->
+		<address ip = "127.0.0.1" port = "60101" register = "1"/>
+	</connect_to>
 
 	<mysql>
 		<info ip = "127.0.0.1" port = "3306" username = "testmn" password = "123456" db_name = "mn_login_db" db_type = "1"/>

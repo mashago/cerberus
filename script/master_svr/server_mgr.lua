@@ -16,7 +16,7 @@ function ServerMgr:ctor()
 
 end
 
--- when other server connect to master server, send REGISTER_SERVER_REQ, will call this function
+-- when other server connect to master server, send SHAKE_HAND_REQ, will call this function
 -- will invite new server connect to forward other server, so send other server addr to new server. and new server will push back into server list
 -- if server disconnect, will not remove from server list, just set mailbox_id = 0
 function ServerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list, ip, port)

@@ -1,5 +1,8 @@
 @echo off
 
+@echo "Start Master Server..."
+start "master_svr" MassNetServer.exe "../conf/server_conf_master.xml"
+
 @echo "Start DB Game Server..."
 start "db_game_svr" MassNetServer.exe "../conf/server_conf_db_game.xml"
 

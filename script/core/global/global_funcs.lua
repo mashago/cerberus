@@ -171,7 +171,7 @@ function g_funcs.handle_shake_hand_req(data, mailbox_id)
 		result = ErrorCode.SUCCESS,
 		server_id = g_server_conf._server_id,
 		server_type = g_server_conf._server_type,
-		single_scene_list = g_server_conf._single_scene_list
+		single_scene_list = g_server_conf._single_scene_list,
 		from_to_scene_list = g_server_conf._from_to_scene_list,
 	}
 
@@ -188,6 +188,7 @@ end
 
 -- a common handle for MID.SHAKE_HAND_RET
 function g_funcs.handle_shake_hand_ret(data, mailbox_id)
+	Log.debug("g_funcs.handle_shake_hand_ret data=%s", Util.table_to_string(data))
 	if data.result ~= ErrorCode.SUCCESS then
 		Log.err("handle_shake_hand_ret: fail %d", data.result)
 		return

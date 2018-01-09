@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<server id = "110001" type = "1" ip = "127.0.0.1" port = "7711" max_conn = "1000" file = "router_svr.main"> 
-	<connect_to>
-		<!-- cross_svr -->
-		<!-- <address ip = "127.0.0.1" port = "7771" register = "0" invite = "1"/> -->
-	</connect_to>
-
+<server id = "501" type = "5" ip = "127.0.0.1" port = "60103" max_conn = "1000" file = "router_svr.main"> 
 	<trust_ip>
 		<address ip = "127.0.0.1"/>
 	</trust_ip>
+
+	<connect_to>
+		<!-- master_svr -->
+		<address ip = "127.0.0.1" port = "60101" register = "1"/>
+	</connect_to>
 </server>
