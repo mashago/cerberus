@@ -429,7 +429,7 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 			table_name = "user_role",
 			conditions = {role_id = role_id},
 		}
-		g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_delete", rpc_data, true, user._user_id)
+		g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_delete", rpc_data, user._user_id)
 
 		msg.result = ErrorCode.CREATE_ROLE_FAIL
 		user:send_msg(MID.CREATE_ROLE_RET, msg)
@@ -632,9 +632,9 @@ local function register_msg_handler()
 	Net.add_msg_handler(MID.RPC_NOCB_TEST_REQ, handle_rpc_nocb_test)
 	Net.add_msg_handler(MID.RPC_MIX_TEST_REQ, handle_rpc_mix_test)
 
+	Net.add_msg_handler(MID.SHAKE_HAND_REQ, g_funcs.handle_shake_hand_req)
+	Net.add_msg_handler(MID.SHAKE_HAND_RET, g_funcs.handle_shake_hand_ret)
 
-	Net.add_msg_handler(MID.REGISTER_SERVER_REQ, g_funcs.handle_register_server)
-	Net.add_msg_handler(MID.REGISTER_SERVER_RET, g_funcs.handle_register_server_ret)
 	Net.add_msg_handler(MID.REGISTER_AREA_REQ, handle_register_area)
 
 	Net.add_msg_handler(MID.USER_LOGIN_REQ, handle_user_login)

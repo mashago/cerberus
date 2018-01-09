@@ -149,7 +149,7 @@ function ServiceClient:add_server(mailbox_id, server_id, server_type, single_sce
 	local server_info = self._all_server_map[server_id]
 	if server_info then
 		Log.err("ServiceClient:add_server duplicate server_id=%d", server_id)
-		return
+		return nil
 	end
 
 	-- init server_info
@@ -172,6 +172,8 @@ function ServiceClient:add_server(mailbox_id, server_id, server_type, single_sce
 
 	Log.info("ServiceClient:add_server:")
 	self:print()
+
+	return server_info
 end
 
 function ServiceClient:connect_to_ret(connect_index, mailbox_id)
@@ -197,38 +199,25 @@ function ServiceClient:connect_to_success(mailbox_id)
 	service_info._connect_status = ServiceConnectStatus.CONNECTED
 
 	if service_info._register == 1 then
-		-- need register, send register msg
+		-- send shake hand
 		local msg = 
 		{
 			server_id = g_server_conf._server_id,
 			server_type = g_server_conf._server_type,
 			single_scene_list = g_server_conf._single_scene_list,
 			from_to_scene_list = g_server_conf._from_to_scene_list,
+			ip = g_server_conf._ip,
+			port = g_server_conf._port,
 		}
-		Net.send_msg(mailbox_id, MID.REGISTER_SERVER_REQ, msg)
+		Net.send_msg(mailbox_id, MID.SHAKE_HAND_REQ, msg)
 	else
 		-- no register, add server by service
-		self:add_server(mailbox_id, service_info._server_id, service_info._server_type, {}, {}, false)
+		-- only use by client
+		Log.debug("ServiceClient:connect_to_success mailbox_id=%d server_id=%d server_type=%d", service_info._server_id, service_info._server_type)
+		self:add_server(mailbox_id, service_info._server_id, service_info._server_type, {}, {})
 		Log.info("ServiceClient:connect_to_success:")
 		self:print()
 	end
-end
-
-function ServiceClient:register_success(mailbox_id, server_id, server_type)
-	local service_info = self:get_service(mailbox_id)
-	if not service_info then
-		Log.err("ServiceClient:register_success service nil %d %d %d", server_id, server_type)
-		return
-	end
-
-	service_info._server_id = server_id
-	service_info._server_type = server_type
-
-	-- add service as a server too
-	self:add_server(mailbox_id, server_id, server_type, {}, {})
-
-	Log.info("ServiceClient:register_success:")
-	self:print()
 end
 
 function ServiceClient:shake_hand_success(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)

@@ -28,9 +28,14 @@ ServerType =
 
 	MASTER			= 3,
 	BRIDGE 			= 4,
-	GATE 			= 5,
-	BASE 			= 6,
-	CELL 			= 7,
+	-- GATE 			= 5,
+	ROUTER 			= 5, -- TODO rename 
+
+	-- BASE 			= 6,
+	SCENE 			= 6, -- TODO rename
+
+	--CELL 			= 7,
+
 	PUBLIC 			= 8,
 
 }

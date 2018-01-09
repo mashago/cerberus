@@ -154,59 +154,17 @@ function g_funcs.connect_to_mysql(xml_doc)
 	return true
 end
 
---[[
--- a common handle for MID.REGISTER_SERVER_REQ
-function g_funcs.handle_register_server(data, mailbox_id, msg_id)
-	Log.debug("handle_register_server: data=%s", Util.table_to_string(data))
-
-	-- add into server list
-	-- send other server list to server
-	-- broadcast to other server
-
-	local msg = 
-	{
-		result = ErrorCode.SUCCESS,
-		server_id = g_server_conf._server_id,
-		server_type = g_server_conf._server_type,
-	}
-
-	-- add server
-	local new_server_info = g_service_server:add_server(mailbox_id, data.server_id, data.server_type, data.single_scene_list, data.from_to_scene_list)
-	if not new_server_info then
-		msg.result = ErrorCode.REGISTER_SERVER_FAIL
-		Net.send_msg(mailbox_id, MID.REGISTER_SERVER_RET, msg)
-		return
-	end
-
-	new_server_info:send_msg(MID.REGISTER_SERVER_RET, msg)
-end
-
--- a common handle for MID.REGISTER_SERVER_RET
-function g_funcs.handle_register_server_ret(data, mailbox_id, msg_id)
-	Log.debug("handle_register_server_ret: data=%s", Util.table_to_string(data))
-	if data.result ~= ErrorCode.SUCCESS then
-		Log.err("handle_register_server_ret: register fail %d", data.result)
-		return
-	end
-	local server_id = data.server_id
-	local server_type = data.server_type
-	g_service_client:register_success(mailbox_id, server_id, server_type)
-
-	if server_type == ServerType.LOGIN and g_server_conf._server_type == ServerType.BRIDGE then
-		-- register area
-		local msg = 
-		{
-			area_list = g_server_conf._area_list,
-		}
-
-		Net.send_msg(mailbox_id, MID.REGISTER_AREA_REQ, msg)
-	end
-end
---]]
-
 -- about shake hand
 -- a common handle for MID.SHAKE_HAND_REQ
+-- master server NOT use this function
 function g_funcs.handle_shake_hand_req(data, mailbox_id)
+
+	local server_id = data.server_id
+	local server_type = data.server_type
+	local single_scene_list = data.single_scene_list
+	local from_to_scene_list = data.from_to_scene_list
+	local ip = data.ip -- will ignore
+	local port = data.port -- will ignore
 
 	local msg = 
 	{
@@ -218,7 +176,7 @@ function g_funcs.handle_shake_hand_req(data, mailbox_id)
 	}
 
 	-- add server
-	local new_server_info = g_service_server:add_server(mailbox_id, data.server_id, data.server_type, data.single_scene_list, data.from_to_scene_list)
+	local new_server_info = g_service_server:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
 	if not new_server_info then
 		msg.result = ErrorCode.SHAKE_HAND_FAIL
 		Net.send_msg(mailbox_id, MID.SHAKE_HAND_RET, msg)

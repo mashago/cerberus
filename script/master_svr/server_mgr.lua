@@ -31,6 +31,14 @@ function ServerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_l
 		from_to_scene_list = g_server_conf._from_to_scene_list,
 	}
 
+	-- add server
+	local new_server_info = g_service_server:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
+	if not new_server_info then
+		msg.result = ErrorCode.SHAKE_HAND_FAIL
+		Net.send_msg(mailbox_id, MID.SHAKE_HAND_RET, msg)
+		return false
+	end
+
 	-- check if exists same server_id
 	local reconn_server_index = 0
 	local server_list = {}
@@ -82,7 +90,7 @@ function ServerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_l
 				})
 			end
 		end
-		return
+		return true
 	end
 
 	-- shake hand server is new server

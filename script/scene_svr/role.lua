@@ -133,7 +133,7 @@ function Role:db_save(is_timeout)
 		fields = self._db_change_attr,
 		conditions = {role_id=self._role_id}
 	}
-	g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_update", rpc_data, false, self._role_id)
+	g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_update", rpc_data, self._role_id)
 
 	self._db_change_attr = {}
 end

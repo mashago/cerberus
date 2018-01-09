@@ -33,9 +33,6 @@ MID._id_name_map =
 
 	-- msg for server
 	-- about master_svr
-	[60001] = "REGISTER_SERVER_REQ",
-	[60002] = "REGISTER_SERVER_RET",
-	[60003] = "REGISTER_SERVER_BROADCAST",
 	
 	[60004] = "SHAKE_HAND_REQ", -- after connect to success, send this
 	[60005] = "SHAKE_HAND_RET",
@@ -44,6 +41,7 @@ MID._id_name_map =
 	[60007] = "REMOTE_CALL_REQ",
 	[60008] = "REMOTE_CALL_NOCB_REQ",
 	[60009] = "REMOTE_CALL_RET",
+
 	[60010] = "REGISTER_AREA_REQ",
 	[60011] = "REGISTER_AREA_RET",
 	[60012] = "INVITE_CONNECT_REQ",
@@ -321,30 +319,6 @@ MSG_DEF_MAP =
 
 	----------------------------------------
 
-	[MID.REGISTER_SERVER_REQ] =
-	{
-		{ "server_id", _Int },
-		{ "server_type", _Int },
-		{ "single_scene_list", _IntArray },
-		{ "from_to_scene_list", _IntArray },
-		{ "ip", _String },
-		{ "port", _Short },
-	},
-
-	[MID.REGISTER_SERVER_RET] =
-	{
-		{ "result", _Int },
-		{ "server_id", _Int },
-		{ "server_type", _Int },
-	},
-
-	[MID.REGISTER_SERVER_BROADCAST] =
-	{
-		{ "ip", _String },
-		{ "port", _Short },
-	},
-
-
 	[MID.SHAKE_HAND_REQ] =
 	{
 		{ "server_id", _Int },
@@ -367,8 +341,6 @@ MSG_DEF_MAP =
 	{
 		{ "server_list", _StructArray, ServerAddrStruct },
 	},
-
-
 
 
 	[MID.REMOTE_CALL_REQ] =
@@ -456,14 +428,13 @@ RAW_MID =
 	[MID.RPC_NOCB_TEST_REQ] = true,
 	[MID.RPC_MIX_TEST_REQ] = true,
 
+	[MID.SHAKE_HAND_REQ] = true,
+	[MID.SHAKE_HAND_RET] = true,
+	[MID.SHAKE_HAND_INVITE] = true,
+
 	[MID.USER_LOGIN_REQ] = true,
 	[MID.ROLE_ENTER_REQ] = true,
 
-	[MID.REGISTER_SERVER_REQ] = true,
-	[MID.REGISTER_SERVER_RET] = true,
-	[MID.REGISTER_SERVER_BROADCAST] = true,
-
-	[MID.SERVER_DISCONNECT] = true,
 	[MID.REMOTE_CALL_REQ] = true,
 	[MID.REMOTE_CALL_NOCB_REQ] = true,
 	[MID.REMOTE_CALL_RET] = true,
@@ -479,10 +450,6 @@ RAW_MID =
 -- handle these msg which only from trust mailbox
 TRUST_MID =
 {
-	[MID.REGISTER_SERVER_REQ] = true,
-	[MID.REGISTER_SERVER_RET] = true,
-	[MID.REGISTER_SERVER_BROADCAST] = true,
-	[MID.SERVER_DISCONNECT] = true,
 	[MID.REMOTE_CALL_REQ] = true,
 	[MID.REMOTE_CALL_RET] = true,
 	[MID.REGISTER_AREA_REQ] = true,
