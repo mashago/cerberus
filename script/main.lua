@@ -18,7 +18,15 @@ local function main()
 	Log.info("g_entry_file=%s", g_entry_file)
 	Log.info("------------------------------")
 
+
+	local xml_doc = LuaTinyXMLDoc.create()
+	if not xml_doc:load_file(g_conf_file) then
+		Log.err("tinyxml load file fail %s", g_conf_file)
+		return
+	end
 	g_server_conf = ServerConfig.new(g_server_id, g_server_type)
+	g_funcs.load_address(xml_doc)
+
 	g_timer = Timer.new()
 	g_service_server = ServiceServer.new()
 	g_service_client = ServiceClient.new()

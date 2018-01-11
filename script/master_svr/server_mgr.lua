@@ -27,7 +27,7 @@ function ServerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_l
 		result = ErrorCode.SUCCESS,
 		server_id = g_server_conf._server_id,
 		server_type = g_server_conf._server_type,
-		single_scene_list = g_server_conf._single_scene_list
+		single_scene_list = g_server_conf._single_scene_list,
 		from_to_scene_list = g_server_conf._from_to_scene_list,
 	}
 

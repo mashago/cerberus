@@ -158,6 +158,7 @@ end
 -- a common handle for MID.SHAKE_HAND_REQ
 -- master server NOT use this function
 function g_funcs.handle_shake_hand_req(data, mailbox_id)
+	Log.debug("g_funcs.handle_shake_hand_req data=%s", Util.table_to_string(data))
 
 	local server_id = data.server_id
 	local server_type = data.server_type
@@ -178,11 +179,13 @@ function g_funcs.handle_shake_hand_req(data, mailbox_id)
 	-- add server
 	local new_server_info = g_service_server:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
 	if not new_server_info then
+		Log.warning("g_funcs.handle_shake_hand_req add_server fail server_id=%d server_type=%d", server_id, server_type)
 		msg.result = ErrorCode.SHAKE_HAND_FAIL
 		Net.send_msg(mailbox_id, MID.SHAKE_HAND_RET, msg)
 		return
 	end
 
+	Log.debug("msg=%s", Util.table_to_string(msg))
 	new_server_info:send_msg(MID.SHAKE_HAND_RET, msg)
 end
 
@@ -213,13 +216,17 @@ end
 
 -- a common handle for MID.SHAKE_HAND_INVITE
 function g_funcs.handle_shake_hand_invite(data, mailbox_id)
-	local ip = data.ip
-	local port = data.port
-	local server_id = 0
-	local server_type = 0
-	local register = 1
-	local no_reconnect = 0
-	g_service_client:do_connect(ip, port, server_id, server_type, register, no_reconnect)
+	Log.debug("g_funcs.handle_shake_hand_invite data=%s", Util.table_to_string(data))
+	for k, v in ipairs(data) do
+		local ip = v.ip
+		local port = v.port
+		local server_id = 0
+		local server_type = 0
+		local register = 1
+		local no_reconnect = 0
+		
+		g_service_client:do_connect(ip, port, server_id, server_type, register, no_reconnect)
+	end
 end
 --
 

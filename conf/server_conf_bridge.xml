@@ -13,7 +13,7 @@
 
 	<connect_to>
 		<!-- login_svr -->
-		<address ip = "127.0.0.1" port = "60001" register = "1"/>
+		<!-- <address ip = "127.0.0.1" port = "60001" register = "1"/> -->
 		<!-- master_svr -->
 		<address ip = "127.0.0.1" port = "60101" register = "1"/>
 	</connect_to>

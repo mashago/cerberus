@@ -331,6 +331,7 @@ MSG_DEF_MAP =
 
 	[MID.SHAKE_HAND_RET] =
 	{
+		{ "result", _Int },
 		{ "server_id", _Int },
 		{ "server_type", _Int },
 		{ "single_scene_list", _IntArray },
