@@ -33,10 +33,12 @@ local function main()
 	g_service_mgr = ServiceMgr.new()
 	g_rpc_mgr = RpcMgr.new()
 
+	g_funcs.connect_to_servers(xml_doc)
+
 	math.randomseed(os.time())
 
 	local main_entry = require(g_entry_file)
-	main_entry()
+	main_entry(xml_doc)
 
 	local hotfix = require("hotfix.main")
 	hotfix.run()

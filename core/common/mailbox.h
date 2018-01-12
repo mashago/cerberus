@@ -10,7 +10,7 @@ class Pluto;
 class Mailbox
 {
 public:
-	Mailbox(E_CONN_TYPE type);
+	Mailbox();
 	~Mailbox();
 
 	int GetFd()
@@ -54,16 +54,10 @@ public:
 		return m_bDeleteFlag;
 	}
 
-	E_CONN_TYPE GetConnType()
-	{
-		return m_fdType;
-	}
-
 	void PushSendPluto(Pluto *u);
 	int SendAll();
 
 private:
-	E_CONN_TYPE m_fdType;
 	int m_fd;
 	int64_t m_mailboxId;
 	Pluto *m_recvPluto;

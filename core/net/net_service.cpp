@@ -61,10 +61,9 @@ NetService::~NetService()
 }
 
 
-int NetService::Init(const char *addr, unsigned int port, int maxConn, std::set<std::string> &trustIpSet, EventPipe *net2worldPipe, EventPipe *world2netPipe)
+int NetService::Init(const char *addr, unsigned int port, int maxConn, EventPipe *net2worldPipe, EventPipe *world2netPipe)
 {
 	m_maxConn = maxConn;
-	m_trustIpSet = trustIpSet;
 
 	// new event_base
 	m_mainEvent = event_base_new();
@@ -199,7 +198,7 @@ int64_t NetService::ConnectTo(const char *addr, unsigned int port)
 	// evutil_make_socket_nonblocking(fd); // already set non-block in bufferevent_socket_connect()
 
 	// new mailbox
-	Mailbox *pmb = NewMailbox(fd, E_CONN_TYPE::CONN_TYPE_TRUST);
+	Mailbox *pmb = NewMailbox(fd);
 	if (!pmb)
 	{
 		LOG_ERROR("mailbox null fd=%d", fd);
@@ -241,9 +240,9 @@ bool NetService::Listen(const char *addr, unsigned int port)
 
 ////////////////// mainbox function start [
 
-Mailbox * NetService::NewMailbox(int fd, E_CONN_TYPE connType)
+Mailbox * NetService::NewMailbox(int fd)
 {
-	Mailbox *pmb = new Mailbox(connType);
+	Mailbox *pmb = new Mailbox();
 	if (!pmb)
 	{
 		return nullptr;
@@ -371,15 +370,7 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 		return -1;
 	}
 
-	// check connection is trust
-	E_CONN_TYPE connType = E_CONN_TYPE::CONN_TYPE_UNTRUST;
 	std::string ip(clientHost);
-
-	auto iter = m_trustIpSet.find(ip);
-	if (iter != m_trustIpSet.end())
-	{
-		connType = E_CONN_TYPE::CONN_TYPE_TRUST;
-	}
 	
 	// TODO check connection is valid
 
@@ -399,7 +390,7 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 	bufferevent_enable(bev, EV_READ); // XXX consider set EV_PERSIST ?
 	
 	// new mailbox
-	Mailbox *pmb = NewMailbox(fd, connType);
+	Mailbox *pmb = NewMailbox(fd);
 	if (!pmb)
 	{
 		LOG_ERROR("mailbox null fd=%d", fd);
@@ -411,7 +402,6 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 	// send to world
 	EventNodeNewConnection *node = new EventNodeNewConnection();
 	node->mailboxId = pmb->GetMailboxId();
-	node->connType = connType;
 	snprintf(node->ip, sizeof(node->ip), "%s", clientHost);
 	node->port = clientPort;
 	SendEvent(node);

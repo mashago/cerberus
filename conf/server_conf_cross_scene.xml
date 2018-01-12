@@ -7,8 +7,4 @@
 	<connect_to>
 		<!-- TODO connect to cross db -->
 	</connect_to>
-
-	<trust_ip>
-		<address ip = "127.0.0.1"/>
-	</trust_ip>
 </server>

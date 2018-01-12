@@ -51,8 +51,7 @@ int main(int argc, char ** argv)
 	world->Dispatch();
 
 	NetService *net = new NetService();
-	std::set<std::string> trustIpSet;
-	net->Init("", 0, 0, trustIpSet, net2worldPipe, world2newPipe);
+	net->Init("", 0, 0, net2worldPipe, world2newPipe);
 	net->Dispatch();
 
 	return 0;

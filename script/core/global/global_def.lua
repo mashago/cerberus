@@ -40,9 +40,13 @@ ServerType =
 
 }
 
+TrustIPList =
+{
+	["127.0.0.1"] = true,
+}
+
 ConnType =
 {
-	NULL 	= 0,
 	UNTRUST = 1,
 	TRUST 	= 2,
 }

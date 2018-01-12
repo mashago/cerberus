@@ -13,9 +13,4 @@
 		<address ip = "127.0.0.1" port = "7713"/>
 	</connect_to>
 
-	<trust_ip>
-		<address ip = "127.0.0.1"/>
-		<address ip = "192.168.1.1"/>
-	</trust_ip>
-
 </server>

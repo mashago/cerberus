@@ -30,20 +30,6 @@ int test0()
 	LOG_DEBUG("server_id=%d server_type=%d ip=%s port=%d entry_file=%s"
 	, server_id, server_type, ip, port, entry_file);
 
-	std::set<std::string> trustIpSet;
-	tinyxml2::XMLElement *trust_ip = root->FirstChildElement("trust_ip");
-	if (trust_ip)
-	{
-		tinyxml2::XMLElement *addr = trust_ip->FirstChildElement("address");
-		while (addr)
-		{
-			const char *ip = (char *)addr->Attribute("ip");
-			LOG_DEBUG("trust ip=%s", ip);
-			trustIpSet.insert(ip);
-			addr = addr->NextSiblingElement();
-		}
-	}
-
 	return 0;
 }
 
@@ -262,7 +248,7 @@ void thread_run(EventPipe *pipe, bool isBlockWait)
 				case EVENT_TYPE::EVENT_TYPE_NEW_CONNECTION:
 				{
 					const EventNodeNewConnection &real_node = (EventNodeNewConnection&)node;
-					LOG_DEBUG("mailboxId=%ld connType=%d", real_node.mailboxId, real_node.connType);
+					LOG_DEBUG("mailboxId=%ld", real_node.mailboxId);
 					break;
 				}
 				case EVENT_TYPE::EVENT_TYPE_CONNECT_TO_SUCCESS:
@@ -320,7 +306,6 @@ int test2()
 		{
 			EventNodeNewConnection *node = new EventNodeNewConnection;
 			node->mailboxId = 1;
-			node->connType = E_CONN_TYPE::CONN_TYPE_TRUST;
 			pipe->Push(node);
 		}
 		{

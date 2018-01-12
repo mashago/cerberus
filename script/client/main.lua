@@ -33,7 +33,7 @@ local function load_server_list(xml_doc)
 	end
 end
 
-local function main_entry()
+local function main_entry(xml_doc)
 	Log.info("client main_entry")
 
 	local Client = require "client.client"
@@ -44,14 +44,6 @@ local function main_entry()
 
 	require "client.msg_handler"
 	require "client.stdin_handler"
-
-	local xml_doc = LuaTinyXMLDoc.create()
-	if not xml_doc:load_file(g_conf_file) then
-		Log.err("tinyxml load file fail %s", g_conf_file)
-		return
-	end
-
-	g_funcs.connect_to_servers(xml_doc)
 
 	load_server_list(xml_doc)
 end

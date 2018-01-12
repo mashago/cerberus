@@ -143,16 +143,15 @@ bool LuaWorld::Init(int server_id, int server_type, const char *conf_file, const
 	return true;
 }
 
-void LuaWorld::HandleNewConnection(int64_t mailboxId, int32_t connType, const char *ip, int port)
+void LuaWorld::HandleNewConnection(int64_t mailboxId, const char *ip, int port)
 {
-	LOG_DEBUG("mailboxId=%ld connType=%d ip=%s port=%d", mailboxId, connType, ip, port);
+	LOG_DEBUG("mailboxId=%ld ip=%s port=%d", mailboxId, ip, port);
 
 	lua_getglobal(m_L, "ccall_new_connection");
 	lua_pushnumber(m_L, mailboxId);
-	lua_pushinteger(m_L, connType);
 	lua_pushstring(m_L, ip);
 	lua_pushinteger(m_L, port);
-	lua_call(m_L, 4, 0);
+	lua_call(m_L, 3, 0);
 }
 
 void LuaWorld::HandleDisconnect(int64_t mailboxId)

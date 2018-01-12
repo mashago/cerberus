@@ -50,7 +50,7 @@ public:
 	NetService();
 	~NetService();
 
-	int Init(const char *addr, unsigned int port, int maxConn, std::set<std::string> &trustIpSet, EventPipe *net2worldPipe, EventPipe *world2netPipe);
+	int Init(const char *addr, unsigned int port, int maxConn, EventPipe *net2worldPipe, EventPipe *world2netPipe);
 	int Dispatch();
 
 	// return >= 0 as mailboxId, < 0 as error
@@ -74,7 +74,7 @@ public:
 
 private:
 
-	Mailbox *NewMailbox(int fd, E_CONN_TYPE type);
+	Mailbox *NewMailbox(int fd);
 	Mailbox *GetMailboxByFd(int fd);
 	Mailbox *GetMailboxByMailboxId(int64_t mailboxId);
 	void CloseMailbox(Mailbox *pmb);
@@ -99,7 +99,6 @@ private:
 	std::list<Mailbox *> m_delMailboxs;
 	std::set<Mailbox *> m_sendMailboxs;
 
-	std::set<std::string> m_trustIpSet;
 	EventPipe *m_net2worldPipe;
 	EventPipe *m_world2netPipe;
 

@@ -13,7 +13,7 @@ public:
 
 	virtual bool Init(int server_id, int server_type, const char *conf_file, const char *entry_file) override;
 
-	virtual void HandleNewConnection(int64_t mailboxId, int32_t connType, const char *ip, int port) override;
+	virtual void HandleNewConnection(int64_t mailboxId, const char *ip, int port) override;
 	virtual void HandleConnectToSuccess(int64_t mailboxId) override;
 	virtual void HandleDisconnect(int64_t mailboxId) override;
 	virtual void HandleMsg(Pluto &u) override;

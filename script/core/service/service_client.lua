@@ -62,6 +62,7 @@ function ServiceClient:_connect_core()
 	
 	local is_all_connected = true
 	for _, service_info in ipairs(self._service_server_info_list) do
+		Log.debug("ServiceClient:_connect_core server_info ip=%s port=%d connect_status=%d", service_info._ip, service_info._port, service_info._connect_status)
 		if service_info._connect_status == ServiceConnectStatus.CONNECTED then
 			goto continue
 		end
@@ -194,7 +195,7 @@ function ServiceClient:connect_to_success(mailbox_id)
 		return
 	end
 	-- of course is trust
-	Net.add_mailbox(mailbox_id, ConnType.TRUST)
+	Net.add_mailbox(mailbox_id, service_info._ip, service_info._port)
 
 	service_info._connect_status = ServiceConnectStatus.CONNECTED
 

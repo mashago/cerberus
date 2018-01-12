@@ -1,11 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <server id = "301" type = "3" ip = "127.0.0.1" port = "60101" max_conn = "1000" file = "master_svr.main"> 
 
-	<trust_ip>
-		<address ip = "127.0.0.1"/>
-	</trust_ip>
-
-	<connect_to>
-	</connect_to>
-
 </server>

@@ -1,7 +1,7 @@
 
 Net = {}
 Net._msg_handler_map = {}
-Net._all_mailbox = {} -- {mailbox_id=x, conn_type=y}
+Net._all_mailbox = {} -- {{mailbox_id=x, conn_type=x, ip=x, port=x}, }
 
 function Net.send_msg_ext(mailbox_id, msg_id, ext, data)
 	-- Log.debug("Net.send_msg_ext msgdef mailbox_id=%d msg_id=%d ext=%d", mailbox_id, msg_id, ext)
@@ -49,7 +49,11 @@ function Net.get_msg_handler(msg_id)
 	return Net._msg_handler_map[msg_id]
 end
 
-function Net.add_mailbox(mailbox_id, conn_type, ip, port)
+function Net.add_mailbox(mailbox_id, ip, port)
+	local conn_type = ConnType.UNTRUST
+	if TrustIPList[ip] then
+		conn_type = ConnType.TRUST
+	end
 	Net._all_mailbox[mailbox_id] = 
 	{
 		mailbox_id = mailbox_id, 

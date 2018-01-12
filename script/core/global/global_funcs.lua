@@ -24,13 +24,13 @@ end
 function g_funcs.connect_to_servers(xml_doc)
 	local root_ele = xml_doc:first_child_element()
 	if not root_ele then
-		Log.err("tinyxml root_ele nil %s", g_conf_file)
+		Log.err("g_funcs.connect_to_servers tinyxml root_ele nil %s", g_conf_file)
 		return false
 	end
 
 	local connect_to_ele = root_ele:first_child_element("connect_to")
 	if not connect_to_ele then
-		Log.err("tinyxml connect_to_ele nil %s", g_conf_file)
+		Log.info("g_funcs.connect_to_servers tinyxml connect_to_ele nil %s", g_conf_file)
 		return false
 	end
 
@@ -43,7 +43,7 @@ function g_funcs.connect_to_servers(xml_doc)
 		local register = address_ele:int_attribute("register")
 		local no_reconnect = address_ele:int_attribute("no_reconnect")
 		local no_delay = address_ele:int_attribute("no_delay")
-		Log.info("ip=%s port=%d server_id=%d server_type=%d register=%d no_reconnect=%d no_delay=%d", ip, port, server_id, server_type, register, no_reconnect, no_delay)
+		Log.info("g_funcs.connect_to_servers ip=%s port=%d server_id=%d server_type=%d register=%d no_reconnect=%d no_delay=%d", ip, port, server_id, server_type, register, no_reconnect, no_delay)
 		g_service_client:do_connect(ip, port, server_id, server_type, register, no_reconnect, no_delay)
 
 		address_ele = address_ele:next_sibling_element()
@@ -217,7 +217,7 @@ end
 -- a common handle for MID.SHAKE_HAND_INVITE
 function g_funcs.handle_shake_hand_invite(data, mailbox_id)
 	Log.debug("g_funcs.handle_shake_hand_invite data=%s", Util.table_to_string(data))
-	for k, v in ipairs(data) do
+	for k, v in ipairs(data.server_list) do
 		local ip = v.ip
 		local port = v.port
 		local server_id = 0

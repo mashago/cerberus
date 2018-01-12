@@ -55,7 +55,7 @@ void World::HandleEvent(const EventNode &node)
 		case EVENT_TYPE::EVENT_TYPE_NEW_CONNECTION:
 		{
 			const EventNodeNewConnection &real_node = (EventNodeNewConnection&)node;
-			HandleNewConnection(real_node.mailboxId, real_node.connType, real_node.ip, real_node.port);
+			HandleNewConnection(real_node.mailboxId, real_node.ip, real_node.port);
 			break;
 		}
 		case EVENT_TYPE::EVENT_TYPE_CONNECT_TO_SUCCESS:

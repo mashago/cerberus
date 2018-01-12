@@ -117,19 +117,6 @@ int main(int argc, char ** argv)
 
 	printf("server_id=%d server_type=%d ip=%s port=%d max_conn=%d entry_file=%s auto_shutdown=%d no_broadcast=%d\n"
 	, server_id, server_type, ip, port, max_conn, entry_file, auto_shutdown, no_broadcast);
-
-	std::set<std::string> trustIpSet;
-	tinyxml2::XMLElement *trust_ip = root->FirstChildElement("trust_ip");
-	if (trust_ip)
-	{
-		tinyxml2::XMLElement *addr = trust_ip->FirstChildElement("address");
-		while (addr)
-		{
-			const char *ip = (char *)addr->Attribute("ip");
-			trustIpSet.insert(ip);
-			addr = addr->NextSiblingElement();
-		}
-	}
 	//
 
 	char log_file_name[100];
@@ -153,7 +140,7 @@ int main(int argc, char ** argv)
 	world->Dispatch();
 
 	NetService *net = new NetService();
-	net->Init(ip, port, max_conn, trustIpSet, net2worldPipe, world2newPipe);
+	net->Init(ip, port, max_conn, net2worldPipe, world2newPipe);
 	net->Dispatch();
 
 	return 0;

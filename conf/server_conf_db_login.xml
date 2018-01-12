@@ -3,10 +3,6 @@
 	<connect_to>
 	</connect_to>
 
-	<trust_ip>
-		<address ip = "127.0.0.1"/>
-	</trust_ip>
-
 	<mysql>
 		<info ip = "127.0.0.1" port = "3306" username = "testmn" password = "123456" db_name = "mn_login_db" db_type = "1"/>
 	</mysql>

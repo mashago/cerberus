@@ -95,18 +95,20 @@ function ServerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_l
 
 	-- shake hand server is new server
 	-- invite new server to connect them
-	local msg = 
-	{
-		server_list = {}
-	}
-	for _, node in ipairs(self._register_server_list) do
-		table.insert(msg.server_list, 
+	if #self._register_server_list > 0 then
+		local msg = 
 		{
-			ip = node.ip,
-			port = node.port,
-		})
+			server_list = {}
+		}
+		for _, node in ipairs(self._register_server_list) do
+			table.insert(msg.server_list, 
+			{
+				ip = node.ip,
+				port = node.port,
+			})
+		end
+		Net.send_msg(mailbox_id, MID.SHAKE_HAND_INVITE, msg)
 	end
-	Net.send_msg(mailbox_id, MID.SHAKE_HAND_INVITE, msg)
 
 	-- push back into server list
 	local node = 
