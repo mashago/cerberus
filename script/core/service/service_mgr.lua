@@ -70,10 +70,10 @@ function ServiceMgr:_connect_core()
 		is_all_connected = false
 		-- not connecting, do connect
 		if conn_info._connect_status == ServiceConnectStatus.DISCONNECT then
-			Log.debug("connect to ip=%s port=%d", conn_info._ip, conn_info._port)
+			-- Log.debug("ServiceMgr:_connect_core ip=%s port=%d", conn_info._ip, conn_info._port)
 			-- only return a connect_index, get mailbox_id later
 			local ret, connect_index = g_network:connect_to(conn_info._ip, conn_info._port)
-			Log.debug("ret=%s connect_index=%d", ret and "true" or "false", connect_index)
+			-- Log.debug("ServiceMgr:_connect_core ret=%s connect_index=%d", ret and "true" or "false", connect_index)
 			if ret then
 				conn_info._connect_index = connect_index
 				conn_info._connect_status = ServiceConnectStatus.CONNECTING
@@ -255,7 +255,7 @@ function ServiceMgr:connect_to_success(mailbox_id)
 	else
 		-- no_shakehand, add server by service
 		-- only use by client
-		Log.debug("ServiceMgr:connect_to_success mailbox_id=%d server_id=%d server_type=%d", conn_info._server_id, conn_info._server_type)
+		Log.debug("ServiceMgr:connect_to_success mailbox_id=%d server_id=%d server_type=%d", mailbox_id, conn_info._server_id, conn_info._server_type)
 		self:add_server(mailbox_id, conn_info._server_id, conn_info._server_type, {}, {})
 		Log.info("ServiceMgr:connect_to_success:")
 		self:print()
