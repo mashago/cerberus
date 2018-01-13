@@ -9,7 +9,7 @@ end
 function g_funcs.load_address(xml_doc)
 	local root_ele = xml_doc:first_child_element()
 	if not root_ele then
-		Log.err("tinyxml root_ele nil %s", g_conf_file)
+		Log.err("g_funcs.load_address tinyxml root_ele nil %s", g_conf_file)
 		return false
 	end
 
@@ -55,7 +55,7 @@ end
 function g_funcs.load_scene(xml_doc)
 	local root_ele = xml_doc:first_child_element()
 	if not root_ele then
-		Log.err("tinyxml root_ele nil %s", g_conf_file)
+		Log.err("g_funcs.load_scene tinyxml root_ele nil %s", g_conf_file)
 		return false
 	end
 
@@ -71,7 +71,7 @@ function g_funcs.load_scene(xml_doc)
 		local single = scene_ele:int_attribute("single")
 		local from = scene_ele:int_attribute("from")
 		local to = scene_ele:int_attribute("to")
-		Log.debug("single=%d from=%d to=%d", single, from, to)
+		Log.debug("g_funcs.load_scene single=%d from=%d to=%d", single, from, to)
 
 		if single > 0 then
 			g_server_conf:add_single_scene(single)
@@ -89,23 +89,23 @@ end
 function g_funcs.load_area(xml_doc)
 	local root_ele = xml_doc:first_child_element()
 	if not root_ele then
-		Log.err("tinyxml root_ele nil %s", g_conf_file)
+		Log.err("g_funcs.load_area tinyxml root_ele nil %s", g_conf_file)
 		return false
 	end
 
 	local area_list_ele = root_ele:first_child_element("area_list")
 	if not area_list_ele then
-		Log.err("tinyxml area_list_ele nil %s", g_conf_file)
+		Log.err("g_funcs.load_area tinyxml area_list_ele nil %s", g_conf_file)
 		return false
 	end
 
 	local area_ele = area_list_ele:first_child_element("area")
 	while area_ele do
-		local id = area_ele:int_attribute("id")
-		Log.debug("id=%d", id)
+		local area_id = area_ele:int_attribute("id")
+		Log.debug("g_funcs.load_area area_id=%d", area_id)
 
-		if id > 0 then
-			g_server_conf:add_area(id)
+		if area_id > 0 then
+			g_server_conf:add_area(area_id)
 		end
 		area_ele = area_ele:next_sibling_element()
 	end
@@ -116,13 +116,13 @@ end
 function g_funcs.connect_to_mysql(xml_doc)
 	local root_ele = xml_doc:first_child_element()
 	if not root_ele then
-		Log.err("tinyxml root_ele nil %s", g_conf_file)
+		Log.err("g_funcs.connect_to_mysql tinyxml root_ele nil %s", g_conf_file)
 		return false
 	end
 
 	local mysql_ele = root_ele:first_child_element("mysql")
 	if not mysql_ele then
-		Log.err("tinyxml mysql_ele nil %s", g_conf_file)
+		Log.err("g_funcs.connect_to_mysql tinyxml mysql_ele nil %s", g_conf_file)
 		return false
 	end
 
@@ -135,10 +135,10 @@ function g_funcs.connect_to_mysql(xml_doc)
 		local db_name = info_ele:string_attribute("db_name")
 		local db_type = info_ele:int_attribute("db_type")
 		local db_suffix = info_ele:string_attribute("db_suffix") or ""
-		Log.info("ip=%s port=%d username=%s password=%s db_name=%s db_type=%d db_suffix=%s", ip, port, username, password, db_name, db_type, db_suffix)
+		Log.info("g_funcs.connect_to_mysql ip=%s port=%d username=%s password=%s db_name=%s db_type=%d db_suffix=%s", ip, port, username, password, db_name, db_type, db_suffix)
 
 		local real_db_name = db_name .. db_suffix
-		Log.info("real_db_name=%s", real_db_name)
+		Log.info("g_funcs.connect_to_mysql real_db_name=%s", real_db_name)
 
 		-- core logic
 		local ret = DBMgr.connect_to_mysql(ip, port, username, password, real_db_name)
@@ -177,15 +177,19 @@ function g_funcs.handle_shake_hand_req(data, mailbox_id)
 	}
 
 	-- add server
-	local new_server_info = g_service_mgr:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
-	if not new_server_info then
+	local server_info = g_service_mgr:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
+	if not server_info then
 		Log.warning("g_funcs.handle_shake_hand_req add_server fail server_id=%d server_type=%d", server_id, server_type)
 		msg.result = ErrorCode.SHAKE_HAND_FAIL
 		Net.send_msg(mailbox_id, MID.SHAKE_HAND_RET, msg)
 		return
 	end
 
-	new_server_info:send_msg(MID.SHAKE_HAND_RET, msg)
+	server_info:send_msg(MID.SHAKE_HAND_RET, msg)
+
+	if g_net_event_server_connect then
+		g_net_event_server_connect(server_id)
+	end
 end
 
 -- a common handle for MID.SHAKE_HAND_RET
@@ -200,16 +204,14 @@ function g_funcs.handle_shake_hand_ret(data, mailbox_id)
 	local single_scene_list = data.single_scene_list
 	local from_to_scene_list = data.from_to_scene_list
 
-	g_service_mgr:shake_hand_success(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
+	local ret = g_service_mgr:shake_hand_success(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
 
-	if server_type == ServerType.LOGIN and g_server_conf._server_type == ServerType.BRIDGE then
-		-- register area
-		local msg = 
-		{
-			area_list = g_server_conf._area_list,
-		}
+	if not ret then
+		return
+	end
 
-		Net.send_msg(mailbox_id, MID.REGISTER_AREA_REQ, msg)
+	if g_net_event_server_connect then
+		g_net_event_server_connect(server_id)
 	end
 end
 

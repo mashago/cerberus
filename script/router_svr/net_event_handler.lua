@@ -1,8 +1,4 @@
 
-function g_net_event_server_disconnect(server_id)
-	
-end
-
 function g_net_event_client_disconnect(mailbox_id)
 	-- get user by mailbox_id
 	local user = g_user_mgr:get_user_by_mailbox(mailbox_id)

@@ -266,17 +266,21 @@ function ServiceMgr:shake_hand_success(mailbox_id, server_id, server_type, singl
 	local conn_info = self:get_conn_info(mailbox_id)
 	if not conn_info then
 		Log.err("ServiceMgr:shake_hand_success service nil %d %d %d", server_id, server_type)
-		return
+		return false
+	end
+
+	local server_info = self:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
+	if not server_info then
+		return false
 	end
 
 	conn_info._server_id = server_id
 	conn_info._server_type = server_type
 
-	-- add service as a server too
-	self:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
-
 	Log.info("ServiceMgr:shake_hand_success:")
 	self:print()
+
+	return true
 end
 
 function ServiceMgr:handle_disconnect(mailbox_id)
