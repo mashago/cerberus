@@ -5,7 +5,7 @@
 
 	<connect_to>
 		<!-- db_svr -->
-		<address ip = "127.0.0.1" port = "60002" register = "1"/>
+		<address ip = "127.0.0.1" port = "60002"/>
 	</connect_to>
 
 	<trust_ip>

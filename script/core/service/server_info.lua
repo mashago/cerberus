@@ -53,11 +53,10 @@ function ServerInfo:transfer_msg(ext)
 end
 
 function ServerInfo:print()
-	Log.info("------ServerInfo--------")
-	Log.info("ServerInfo _server_id=%d _server_type=%d _mailbox_id=%d", self._server_id, self._server_type, self._mailbox_id)
-	Log.info("ServerInfo._single_scene_list=%s", Util.table_to_string(self._single_scene_list))
-	Log.info("ServerInfo._from_to_scene_list=%s", Util.table_to_string(self._from_to_scene_list))
-	Log.info("--------------")
+	Log.info("ServerInfo:print _server_id=%d _server_type=%d _mailbox_id=%d _single_scene_list=[%s] _from_to_scene_list=[%s]"
+	, self._server_id, self._server_type, self._mailbox_id
+	, table.concat(self._single_scene_list, ",")
+	, table.concat(self._from_to_scene_list, ","))
 end
 
 return ServerInfo

@@ -32,7 +32,7 @@ function ServerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_l
 	}
 
 	-- add server
-	local new_server_info = g_service_server:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
+	local new_server_info = g_service_mgr:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
 	if not new_server_info then
 		msg.result = ErrorCode.SHAKE_HAND_FAIL
 		Net.send_msg(mailbox_id, MID.SHAKE_HAND_RET, msg)
@@ -80,16 +80,24 @@ function ServerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_l
 		Net.send_msg(mailbox_id, MID.SHAKE_HAND_INVITE, msg)
 
 		-- send reconnect server addr to behind server
-		for i=reconn_server_index+1, #self._register_server_list do
-			local node = self._register_server_list[i]
-			if node.mailbox_id > 0 then
-				Net.send_msg(node.mailbox_id, MID.SHAKE_HAND_INVITE,
+
+		local msg = 
+		{
+			server_list =
+			{
 				{
 					ip = ip,
 					port = port,
-				})
+				}
+			}
+		}
+		for i=reconn_server_index+1, #self._register_server_list do
+			local node = self._register_server_list[i]
+			if node.mailbox_id > 0 then
+				Net.send_msg(node.mailbox_id, MID.SHAKE_HAND_INVITE, msg)
 			end
 		end
+		self:print()
 		return true
 	end
 
@@ -123,6 +131,7 @@ function ServerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_l
 	}
 	table.insert(self._register_server_list, node)
 	
+	self:print()
 	return true
 end
 
@@ -133,6 +142,16 @@ function ServerMgr:server_disconnect(server_id)
 			break
 		end
 	end
+	self:print()
+end
+
+function ServerMgr:print()
+	Log.info("\n####### ServerMgr:print #######")
+	for k, v in ipairs(self._register_server_list) do
+		Log.info("[%d] mailbox_id=%d server_id=%d server_type=%d single_scene_list=[%s] from_to_scene_list=[%s] ip=%s port=%d"
+		, k, v.mailbox_id, v.server_id, v.server_type, table.concat(v.single_scene_list, ","), table.concat(v.from_to_scene_list, ","), v.ip, v.port)
+	end
+	Log.info("#######\n")
 end
 
 return ServerMgr

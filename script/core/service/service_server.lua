@@ -13,7 +13,7 @@ function ServiceServer:ctor()
 	self._scene_server_map = {}
 end
 
-function ServiceServer:is_service_client(mailbox_id)
+function ServiceServer:is_server(mailbox_id)
 	for server_id, server_info in pairs(self._all_server_map) do
 		if server_info._mailbox_id == mailbox_id then
 			return true
@@ -27,7 +27,7 @@ function ServiceServer:add_server(mailbox_id, server_id, server_type, single_sce
 	local server_info = self._all_server_map[server_id]
 	if server_info then
 		-- if exists in all_server_map, duplicate add
-		Log.err("ServiceServer:add_server already add mailbox_id=%d server_id=%d", mailbox_id, server_id)
+		Log.err("ServiceServer:add_server duplicate add mailbox_id=%d server_id=%d", mailbox_id, server_id)
 		return nil
 	end
 
@@ -65,6 +65,7 @@ function ServiceServer:remove_server(server_info)
 		end
 	end
 	if #type_server_list == 0 then
+		-- no more type server, clean up
 		self._type_server_map[server_info._server_type] = nil
 	end
 	
@@ -78,6 +79,7 @@ function ServiceServer:remove_server(server_info)
 			end
 		end
 		if #scene_server_list == 0 then
+			-- no more scene server, clean up
 			self._scene_server_map[scene_id] = nil
 		end
 	end
@@ -118,6 +120,16 @@ function ServiceServer:get_server_by_scene(scene_id)
 	return self:get_server_by_id(server_id)
 end
 
+function ServiceServer:get_server_by_mailbox(mailbox_id)
+	for server_id, server_info in pairs(self._all_server_map) do
+		if server_info._mailbox_id == mailbox_id then
+			return server_info
+		end
+	end
+
+	return nil
+end
+
 -- same opt_key(number) will get same server, or just do random to get
 function ServiceServer:get_server_by_type(server_type, opt_key)
 	
@@ -139,25 +151,15 @@ function ServiceServer:get_server_by_type(server_type, opt_key)
 	return self:get_server_by_id(server_id)
 end
 
-function ServiceServer:get_server_by_mailbox(mailbox_id)
-	for server_id, server_info in pairs(self._all_server_map) do
-		if server_info._mailbox_id == mailbox_id then
-			return server_info
-		end
-	end
-
-	return nil
-end
-
 function ServiceServer:print()
-	Log.info("############# ServiceServer ###########")
+	Log.info("\n####### ServiceServer #######")
 	Log.info("_all_server_map=")
 	for k, server_info in pairs(self._all_server_map) do
 		server_info:print()
 	end
 	Log.info("_type_server_map=%s", Util.table_to_string(self._type_server_map))
 	Log.info("_scene_server_map=%s", Util.table_to_string(self._scene_server_map))
-	Log.info("#######################################")
+	Log.info("#######\n")
 end
 
 return ServiceServer

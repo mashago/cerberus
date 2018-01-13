@@ -2,6 +2,6 @@
 <server id = "501" type = "5" ip = "127.0.0.1" port = "60103" max_conn = "1000" file = "router_svr.main"> 
 	<connect_to>
 		<!-- master_svr -->
-		<address ip = "127.0.0.1" port = "60101" register = "1"/>
+		<address ip = "127.0.0.1" port = "60101"/>
 	</connect_to>
 </server>

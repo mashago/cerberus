@@ -28,8 +28,6 @@ local function main()
 	g_funcs.load_address(xml_doc)
 
 	g_timer = Timer.new()
-	g_service_server = ServiceServer.new()
-	g_service_client = ServiceClient.new()
 	g_service_mgr = ServiceMgr.new()
 	g_rpc_mgr = RpcMgr.new()
 

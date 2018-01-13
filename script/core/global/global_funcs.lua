@@ -40,11 +40,11 @@ function g_funcs.connect_to_servers(xml_doc)
 		local port = address_ele:int_attribute("port")
 		local server_id = address_ele:int_attribute("id")
 		local server_type = address_ele:int_attribute("type")
-		local register = address_ele:int_attribute("register")
+		local no_shakehand = address_ele:int_attribute("no_shakehand")
 		local no_reconnect = address_ele:int_attribute("no_reconnect")
 		local no_delay = address_ele:int_attribute("no_delay")
-		Log.info("g_funcs.connect_to_servers ip=%s port=%d server_id=%d server_type=%d register=%d no_reconnect=%d no_delay=%d", ip, port, server_id, server_type, register, no_reconnect, no_delay)
-		g_service_client:do_connect(ip, port, server_id, server_type, register, no_reconnect, no_delay)
+		Log.info("g_funcs.connect_to_servers ip=%s port=%d server_id=%d server_type=%d no_shakehand=%d no_reconnect=%d no_delay=%d", ip, port, server_id, server_type, no_shakehand, no_reconnect, no_delay)
+		g_service_mgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect, no_delay)
 
 		address_ele = address_ele:next_sibling_element()
 	end
@@ -177,7 +177,7 @@ function g_funcs.handle_shake_hand_req(data, mailbox_id)
 	}
 
 	-- add server
-	local new_server_info = g_service_server:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
+	local new_server_info = g_service_mgr:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
 	if not new_server_info then
 		Log.warning("g_funcs.handle_shake_hand_req add_server fail server_id=%d server_type=%d", server_id, server_type)
 		msg.result = ErrorCode.SHAKE_HAND_FAIL
@@ -185,7 +185,6 @@ function g_funcs.handle_shake_hand_req(data, mailbox_id)
 		return
 	end
 
-	Log.debug("msg=%s", Util.table_to_string(msg))
 	new_server_info:send_msg(MID.SHAKE_HAND_RET, msg)
 end
 
@@ -201,7 +200,7 @@ function g_funcs.handle_shake_hand_ret(data, mailbox_id)
 	local single_scene_list = data.single_scene_list
 	local from_to_scene_list = data.from_to_scene_list
 
-	g_service_client:shake_hand_success(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
+	g_service_mgr:shake_hand_success(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
 
 	if server_type == ServerType.LOGIN and g_server_conf._server_type == ServerType.BRIDGE then
 		-- register area
@@ -222,10 +221,10 @@ function g_funcs.handle_shake_hand_invite(data, mailbox_id)
 		local port = v.port
 		local server_id = 0
 		local server_type = 0
-		local register = 1
+		local no_shakehand = 0
 		local no_reconnect = 0
 		
-		g_service_client:do_connect(ip, port, server_id, server_type, register, no_reconnect)
+		g_service_mgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect)
 	end
 end
 --

@@ -333,10 +333,10 @@ function cmd_handler.do_connect(params)
 	local ip = server_info.ip
 	local port = server_info.port
 	local server_id = server_info.server_id
-	local register = 0
+	local no_shakehand = 1
 	local no_reconnect = 0
 	local no_delay = 1
-	g_service_client:do_connect(ip, port, server_id, server_type, register, no_reconnect, no_delay)
+	g_service_mgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect, no_delay)
 
 end
 
@@ -358,7 +358,7 @@ function cmd_handler.do_close_connect(params)
 		return
 	end
 
-	g_service_client:close_service_by_type(server_type)
+	g_service_mgr:close_connection_by_type(server_type)
 end
 
 function cmd_handler.do_login(params)
