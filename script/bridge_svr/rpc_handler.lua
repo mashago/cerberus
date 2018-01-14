@@ -9,8 +9,8 @@ local function bridge_rpc_test(data)
 	buff = buff .. "2"
 	sum = sum + 1
 
-	-- rpc to router
-	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.ROUTER, "router_rpc_test", {buff=buff, sum=sum})
+	-- rpc to gate
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.GATE, "gate_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("bridge_rpc_test rpc call fail")
 		return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
@@ -39,14 +39,14 @@ local function bridge_rpc_nocb_test(data)
 	local buff = data.buff
 	local index = data.index
 
-	-- rpc nocb to router
+	-- rpc nocb to gate
 	local rpc_data =
 	{
 		buff = buff,
 		index = index,
 		sum = 1,
 	}
-	g_rpc_mgr:call_nocb_by_server_type(ServerType.ROUTER, "router_rpc_nocb_test", rpc_data)
+	g_rpc_mgr:call_nocb_by_server_type(ServerType.GATE, "gate_rpc_nocb_test", rpc_data)
 
 	local rpc_data =
 	{
@@ -54,7 +54,7 @@ local function bridge_rpc_nocb_test(data)
 		index = index,
 		sum = 2,
 	}
-	g_rpc_mgr:call_nocb_by_server_type(ServerType.ROUTER, "router_rpc_nocb_test", rpc_data)
+	g_rpc_mgr:call_nocb_by_server_type(ServerType.GATE, "gate_rpc_nocb_test", rpc_data)
 
 	-- rpc nocb to scene
 	local server_info = g_service_mgr:get_server_by_type(ServerType.SCENE)
@@ -93,8 +93,8 @@ local function bridge_rpc_mix_test(data)
 	buff = buff .. "2"
 	sum = sum + 1
 
-	-- rpc to router
-	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.ROUTER, "router_rpc_test", {buff=buff, sum=sum})
+	-- rpc to gate
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.GATE, "gate_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("bridge_rpc_mix_test rpc call fail")
 		return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
@@ -103,14 +103,14 @@ local function bridge_rpc_mix_test(data)
 	buff = ret.buff
 	sum = ret.sum
 
-	-- rpc nocb router
+	-- rpc nocb gate
 	local rpc_data =
 	{
 		buff = buff,
 		index = index,
 		sum = 1,
 	}
-	g_rpc_mgr:call_nocb_by_server_type(ServerType.ROUTER, "router_rpc_nocb_test", rpc_data)
+	g_rpc_mgr:call_nocb_by_server_type(ServerType.GATE, "gate_rpc_nocb_test", rpc_data)
 
 	local rpc_data =
 	{
@@ -118,7 +118,7 @@ local function bridge_rpc_mix_test(data)
 		index = index,
 		sum = 2,
 	}
-	g_rpc_mgr:call_nocb_by_server_type(ServerType.ROUTER, "router_rpc_nocb_test", rpc_data)
+	g_rpc_mgr:call_nocb_by_server_type(ServerType.GATE, "gate_rpc_nocb_test", rpc_data)
 
 
 	local server_info = g_service_mgr:get_server_by_type(ServerType.SCENE)
@@ -214,15 +214,15 @@ local function bridge_delete_role(data)
 		user_id = user_id,
 		role_id = role_id,
 	}
-	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.ROUTER, "router_check_role_online", rpc_data, user_id)
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.GATE, "gate_check_role_online", rpc_data, user_id)
 	if not status then
-		Log.err("bridge_delete_role rpc router call fail")
+		Log.err("bridge_delete_role rpc gate call fail")
 		return {result = ErrorCode.SYS_ERROR}
 	end
 	Log.debug("bridge_delete_role: callback ret=%s", Util.table_to_string(ret))
 
 	if ret.is_online == true then
-		-- role online in router
+		-- role online in gate
 		Log.warn("bridge_delete_role: role online %d %d", user_id, role_id)
 		return {result = ErrorCode.DELETE_ROLE_ONLINE}
 	end
@@ -251,7 +251,7 @@ local function bridge_select_role(data)
 
 	-- 1. load scene_id from db
 	-- 2. create a token
-	-- 3. choose a router by user_id
+	-- 3. choose a gate by user_id
 
 	local user_id = data.user_id
 	local role_id = data.role_id
@@ -291,7 +291,7 @@ local function bridge_select_role(data)
 		scene_id=scene_id,
 		token=token,
 	}
-	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.ROUTER, "router_select_role", rpc_data, user_id)
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.GATE, "gate_select_role", rpc_data, user_id)
 	if not status then
 		Log.err("bridge_select_role rpc call fail")
 		return {result = ErrorCode.SYS_ERROR}

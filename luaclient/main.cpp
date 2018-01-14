@@ -35,11 +35,17 @@ int main(int argc, char ** argv)
 	tinyxml2::XMLElement *root = doc.FirstChildElement();
 	const char *ip = (char*)root->Attribute("ip");
 	int port = root->IntAttribute("port");
-	const char *entry_file = (char*)root->Attribute("file");
-	printf("ip=%s port=%d entry_file=%s\n", ip, port, entry_file);
+	const char *entry_path = (char*)root->Attribute("path");
+	printf("ip=%s port=%d entry_path=%s\n", ip, port, entry_path);
+
+	if (!strcmp(entry_path, ""))
+	{
+		printf("entry_path error\n");
+		return 0;
+	}
 	//
 
-	LOG_INIT("client", true);
+	LOG_INIT(entry_path, true);
 
 	// init msg pipe
 	EventPipe *net2worldPipe = new EventPipe();
@@ -47,7 +53,7 @@ int main(int argc, char ** argv)
 
 	World *world = new LuaClient();
 	world->SetEventPipe(net2worldPipe, world2newPipe);
-	world->Init(0, 0, conf_file, entry_file);
+	world->Init(0, 0, conf_file, entry_path);
 	world->Dispatch();
 
 	NetService *net = new NetService();

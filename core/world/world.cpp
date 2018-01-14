@@ -25,7 +25,7 @@ void World::SetEventPipe(EventPipe *net2worldPipe, EventPipe *world2netPipe)
 	m_world2netPipe = world2netPipe;
 }
 
-bool World::Init(int server_id, int server_type, const char *conf_file, const char *entry_file)
+bool World::Init(int server_id, int server_type, const char *conf_file, const char *entry_path)
 {
 	return true;
 }

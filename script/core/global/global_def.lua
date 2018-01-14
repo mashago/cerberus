@@ -28,8 +28,7 @@ ServerType =
 
 	MASTER			= 3,
 	BRIDGE 			= 4,
-	-- GATE 			= 5,
-	ROUTER 			= 5, -- TODO rename 
+	GATE 			= 5,
 
 	-- BASE 			= 6,
 	SCENE 			= 6, -- TODO rename

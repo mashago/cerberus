@@ -19,21 +19,6 @@ extern "C"
 #include "tinyxml2.h"
 #include "event_pipe.h"
 
-// for log file name
-static const char *SERVER_NAME_ARRAY[] =
-{
-	"null"
-,	"router_svr"
-,	"scene_svr"
-,	"db_svr"
-,	"bridge_svr"
-,	"login_svr"
-,	"public_svr"
-,	"cross_svr"
-,	"pay_svr"
-,	"chat_svr"
-};
-
 #ifndef WIN32
 // copy from redis
 void daemonize(void)
@@ -110,17 +95,22 @@ int main(int argc, char ** argv)
 	const char *ip = (char*)root->Attribute("ip");
 	int port = root->IntAttribute("port");
 	int max_conn = root->IntAttribute("max_conn");
-	const char *entry_file = (char*)root->Attribute("file");
+	const char *entry_path = (char*)root->Attribute("path");
 	int auto_shutdown = root->IntAttribute("auto_shutdown");
 	int no_broadcast = root->IntAttribute("no_broadcast");
 
 
-	printf("server_id=%d server_type=%d ip=%s port=%d max_conn=%d entry_file=%s auto_shutdown=%d no_broadcast=%d\n"
-	, server_id, server_type, ip, port, max_conn, entry_file, auto_shutdown, no_broadcast);
+	printf("server_id=%d server_type=%d ip=%s port=%d max_conn=%d entry_path=%s auto_shutdown=%d no_broadcast=%d\n"
+	, server_id, server_type, ip, port, max_conn, entry_path, auto_shutdown, no_broadcast);
+	if (!strcmp(entry_path, ""))
+	{
+		printf("entry_path error\n");
+		return 0;
+	}
 	//
 
 	char log_file_name[100];
-	sprintf(log_file_name, "%s%d", SERVER_NAME_ARRAY[server_type], server_id);
+	sprintf(log_file_name, "%s%d", entry_path, server_id);
 	LOG_INIT(log_file_name, true);
 
 	// init msg pipe
@@ -129,7 +119,7 @@ int main(int argc, char ** argv)
 
 	World *world = new LuaWorld();
 	world->SetEventPipe(net2worldPipe, world2newPipe);
-	world->Init(server_id, server_type, conf_file, entry_file);
+	world->Init(server_id, server_type, conf_file, entry_path);
 
 	if (auto_shutdown)
 	{

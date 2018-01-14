@@ -15,7 +15,7 @@ public:
 	virtual ~World();
 
 	void SetEventPipe(EventPipe *net2worldPipe, EventPipe *world2netPipe);
-	virtual bool Init(int server_id, int server_type, const char *conf_file, const char * entry_file);
+	virtual bool Init(int server_id, int server_type, const char *conf_file, const char * entry_path);
 	void Dispatch();
 
 	virtual void HandleNewConnection(int64_t mailboxId, const char *ip, int port) = 0;

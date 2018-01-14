@@ -76,18 +76,18 @@ local function handle_role_enter(data, mailbox_id)
 		role_id = role_id,
 		scene_id = scene_id,	
 	}
-	scene_server_info:send_msg(MID.ROUTER_ROLE_ENTER_REQ, msg)
+	scene_server_info:send_msg(MID.GATE_ROLE_ENTER_REQ, msg)
 
 end
 
-local function handle_router_role_enter_ret(data, mailbox_id)
-	Log.debug("handle_router_role_enter_ret: data=%s", Util.table_to_string(data))	
+local function handle_gate_role_enter_ret(data, mailbox_id)
+	Log.debug("handle_gate_role_enter_ret: data=%s", Util.table_to_string(data))	
 	
 	local result = data.result
 	local role_id = data.role_id
 	local user = g_user_mgr:get_user_by_role_id(role_id)
 	if not user then
-		Log.warn("handle_router_role_enter_ret: user nil role_id=%d", role_id)
+		Log.warn("handle_gate_role_enter_ret: user nil role_id=%d", role_id)
 		return
 	end
 
@@ -103,7 +103,7 @@ local function handle_router_role_enter_ret(data, mailbox_id)
 
 	local scene_server_info = g_service_mgr:get_server_by_mailbox(mailbox_id)
 	if not scene_server_info then
-		Log.err("handle_router_role_enter_ret: cannot get server_info %d", mailbox_id)
+		Log.err("handle_gate_role_enter_ret: cannot get server_info %d", mailbox_id)
 		msg.result = ErrorCode.SYS_ERROR
 		user:send_msg(MID.ROLE_ENTER_RET, msg)
 		return
@@ -121,7 +121,7 @@ local function register_msg_handler()
 	Net.add_msg_handler(MID.SHAKE_HAND_INVITE, g_funcs.handle_shake_hand_invite)
 
 	Net.add_msg_handler(MID.ROLE_ENTER_REQ, handle_role_enter)
-	Net.add_msg_handler(MID.ROUTER_ROLE_ENTER_RET, handle_router_role_enter_ret)
+	Net.add_msg_handler(MID.GATE_ROLE_ENTER_RET, handle_gate_role_enter_ret)
 end
 
 register_msg_handler()

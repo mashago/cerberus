@@ -177,8 +177,8 @@ function cmd_handler.print_all_cmd()
 	local words = [[
 	rpc [buffer]
 	rpcx [num]
-	c [login/router]
-	close [login/router]
+	c [login/gate]
+	close [login/gate]
 	login [username] [password] [channel_id]
 	loginx [num]
 	arealist
@@ -307,7 +307,7 @@ function cmd_handler.do_print_server_list(params)
 end
 
 function cmd_handler.do_connect(params)
-	-- c [login/router]
+	-- c [login/gate]
 	if #params < 2 then
 		Log.warn("cmd_handler.do_connect params not enough")
 		return
@@ -316,8 +316,8 @@ function cmd_handler.do_connect(params)
 	local server_type = nil
 	if params[2] == "login" then
 		server_type = ServerType.LOGIN
-	elseif params[2] == "router" then
-		server_type = ServerType.ROUTER
+	elseif params[2] == "gate" then
+		server_type = ServerType.GATE
 	end
 	if not server_type then
 		Log.warn("cmd_handler.do_connect server type nil")
@@ -341,7 +341,7 @@ function cmd_handler.do_connect(params)
 end
 
 function cmd_handler.do_close_connect(params)
-	-- close [login/router]
+	-- close [login/gate]
 	if #params < 2 then
 		Log.warn("cmd_handler.do_close_connect params not enough")
 		return
@@ -350,8 +350,8 @@ function cmd_handler.do_close_connect(params)
 	local server_type = nil
 	if params[2] == "login" then
 		server_type = ServerType.LOGIN
-	elseif params[2] == "router" then
-		server_type = ServerType.ROUTER
+	elseif params[2] == "gate" then
+		server_type = ServerType.GATE
 	end
 	if not server_type then
 		Log.warn("cmd_handler.do_close_connect no such service")
@@ -489,7 +489,7 @@ function cmd_handler.do_enter(params)
 		token = g_client._user_token,
 	}
 
-	send_to_router(MID.ROLE_ENTER_REQ, msg)
+	send_to_gate(MID.ROLE_ENTER_REQ, msg)
 
 	g_time_counter:start()
 end
@@ -539,7 +539,7 @@ function cmd_handler.do_attr_change(params)
 		attr_table = out_attr_table,
 	}
 
-	send_to_router(MID.ROLE_ATTR_CHANGE_REQ, msg)
+	send_to_gate(MID.ROLE_ATTR_CHANGE_REQ, msg)
 end
 
 function cmd_handler.do_role_print(params)

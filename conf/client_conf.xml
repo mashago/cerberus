@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<server id = "0" type = "0" ip = "127.0.0.1" port = "0" file = "client.main"> 
+<server id = "0" type = "0" ip = "127.0.0.1" port = "0" path = "client"> 
 
 	<connect_to>
 	</connect_to>

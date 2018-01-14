@@ -24,7 +24,7 @@ MID._id_name_map =
 	[10015] = "SELECT_ROLE_REQ",
 	[10016] = "SELECT_ROLE_RET",
 
-	-- router server handle
+	-- gate server handle
 	[20021] = "ROLE_ENTER_REQ",
 	[20022] = "ROLE_ENTER_RET",
 	[20023] = "ROLE_ATTR_RET",
@@ -44,11 +44,10 @@ MID._id_name_map =
 
 	[60010] = "REGISTER_AREA_REQ",
 	[60011] = "REGISTER_AREA_RET",
-	[60012] = "INVITE_CONNECT_REQ",
 
-	[60101] = "ROUTER_ROLE_ENTER_REQ",
-	[60102] = "ROUTER_ROLE_ENTER_RET",
-	[60103] = "ROUTER_ROLE_DISCONNECT",
+	[60101] = "GATE_ROLE_ENTER_REQ",
+	[60102] = "GATE_ROLE_ENTER_RET",
+	[60103] = "GATE_ROLE_DISCONNECT",
 
 	-- msg for db
 	[70001] = "DB_INSERT",
@@ -381,24 +380,18 @@ MSG_DEF_MAP =
 		{ "result", _Int },
 	},
 
-	[MID.INVITE_CONNECT_REQ] =
-	{
-		{ "ip", _String },
-		{ "port", _Int },
-	},
-
-	[MID.ROUTER_ROLE_ENTER_REQ] =
+	[MID.GATE_ROLE_ENTER_REQ] =
 	{
 		{ "role_id", _Int64 },
 		{ "scene_id", _Int },
 	},
-	[MID.ROUTER_ROLE_ENTER_RET] =
+	[MID.GATE_ROLE_ENTER_RET] =
 	{
 		{ "result", _Int },
 		{ "role_id", _Int64 },
 	},
 
-	[MID.ROUTER_ROLE_DISCONNECT] =
+	[MID.GATE_ROLE_DISCONNECT] =
 	{
 	},
 
@@ -441,10 +434,9 @@ RAW_MID =
 	[MID.REMOTE_CALL_RET] = true,
 	[MID.REGISTER_AREA_REQ] = true,
 	[MID.REGISTER_AREA_RET] = true,
-	[MID.INVITE_CONNECT_REQ] = true,
 
-	[MID.ROUTER_ROLE_ENTER_REQ] = true,
-	[MID.ROUTER_ROLE_ENTER_RET] = true,
+	[MID.GATE_ROLE_ENTER_REQ] = true,
+	[MID.GATE_ROLE_ENTER_RET] = true,
 }
 
 --[[

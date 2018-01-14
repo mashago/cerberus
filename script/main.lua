@@ -15,7 +15,7 @@ local function main()
 	Log.info("g_server_id=%d", g_server_id)
 	Log.info("g_server_type=%d", g_server_type)
 	Log.info("g_conf_file=%s", g_conf_file)
-	Log.info("g_entry_file=%s", g_entry_file)
+	Log.info("g_entry_path=%s", g_entry_path)
 	Log.info("------------------------------")
 
 
@@ -35,7 +35,7 @@ local function main()
 
 	math.randomseed(os.time())
 
-	local main_entry = require(g_entry_file)
+	local main_entry = require(g_entry_path .. ".main")
 	main_entry(xml_doc)
 
 	local hotfix = require("hotfix.main")

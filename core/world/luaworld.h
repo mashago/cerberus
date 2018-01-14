@@ -11,7 +11,7 @@ public:
 	LuaWorld();
 	virtual ~LuaWorld();
 
-	virtual bool Init(int server_id, int server_type, const char *conf_file, const char *entry_file) override;
+	virtual bool Init(int server_id, int server_type, const char *conf_file, const char *entry_path) override;
 
 	virtual void HandleNewConnection(int64_t mailboxId, const char *ip, int port) override;
 	virtual void HandleConnectToSuccess(int64_t mailboxId) override;

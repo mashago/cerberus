@@ -7,7 +7,7 @@ local hotfix_module_names = {
 	-- "core.global.global_funcs",
 	-- "login_svr.main",
 	-- "client.main",
-	-- "router_svr.user_mgr",
+	-- "gate_svr.user_mgr",
 }
 
 return hotfix_module_names

@@ -8,11 +8,11 @@ bridge:
 100
 60102
 
-router:
+gate:
 501
 60103
 
-router2:
+gate2:
 502
 60104
 

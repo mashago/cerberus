@@ -6,8 +6,8 @@ local function handle_rpc_test(data, mailbox_id, msg_id)
 
 	-- 1. rpc to db
 	-- 2. rpc to bridge
-	-- 3. bridge rpc to router
-	-- 4. router rpc to scene
+	-- 3. bridge rpc to gate
+	-- 4. gate rpc to scene
 	-- 5. bridge rpc to scene
 
 	local area_id = 1

@@ -35,7 +35,7 @@ function User:offline()
 		return
 	end
 	local msg = { }
-	scene_server_info:send_msg_ext(MID.ROUTER_ROLE_DISCONNECT, self._role_id, msg)
+	scene_server_info:send_msg_ext(MID.GATE_ROLE_DISCONNECT, self._role_id, msg)
 end
 
 return User

@@ -57,8 +57,8 @@ local function handle_client_test(data, mailbox_id, msg_id)
 	Net.send_msg(mailbox_id, MID.CLIENT_TEST_RET, msg)
 end
 
-local function handle_router_role_enter_req(data, mailbox_id)
-	Log.debug("handle_router_role_enter_req: mailbox_id=%d data=%s", mailbox_id, Util.table_to_string(data))
+local function handle_gate_role_enter_req(data, mailbox_id)
+	Log.debug("handle_gate_role_enter_req: mailbox_id=%d data=%s", mailbox_id, Util.table_to_string(data))
 
 	local role_id = data.role_id
 	local scene_id = data.scene_id
@@ -66,7 +66,7 @@ local function handle_router_role_enter_req(data, mailbox_id)
 	-- 1. new role
 	-- 2. init role attr
 	-- 3. sync to client
-	-- 4. success to router
+	-- 4. success to gate
 
 	-- 1. new role
 	local role = g_role_mgr:get_role_by_id(role_id)
@@ -75,7 +75,7 @@ local function handle_router_role_enter_req(data, mailbox_id)
 		role = Role.new(role_id, mailbox_id)
 		g_role_mgr:add_role(role)
 	else
-		Log.debug("handle_router_role_enter_req: role already exists %d", role_id)
+		Log.debug("handle_gate_role_enter_req: role already exists %d", role_id)
 	end
 	
 	-- 2. init role info
@@ -84,19 +84,19 @@ local function handle_router_role_enter_req(data, mailbox_id)
 	-- 3. sync to client
 	role:send_module_data()
 
-	-- 4. success to router
+	-- 4. success to gate
 	local msg = 
 	{
 		result = ErrorCode.SUCCESS,
 		role_id = role_id,
 	}
-	local ret = Net.send_msg(mailbox_id, MID.ROUTER_ROLE_ENTER_RET, msg)
+	local ret = Net.send_msg(mailbox_id, MID.GATE_ROLE_ENTER_RET, msg)
 
 end
 
-local function handle_router_role_disconnect(role, data, mailbox_id)
+local function handle_gate_role_disconnect(role, data, mailbox_id)
 
-	Log.debug("handle_router_role_disconnect: role._role_id=%d", role._role_id)
+	Log.debug("handle_gate_role_disconnect: role._role_id=%d", role._role_id)
 
 	role:on_disconnect()
 
@@ -118,8 +118,8 @@ local function register_msg_handler()
 
 	Net.add_msg_handler(MID.CLIENT_TEST, handle_client_test)
 
-	Net.add_msg_handler(MID.ROUTER_ROLE_ENTER_REQ, handle_router_role_enter_req)
-	Net.add_msg_handler(MID.ROUTER_ROLE_DISCONNECT, handle_router_role_disconnect)
+	Net.add_msg_handler(MID.GATE_ROLE_ENTER_REQ, handle_gate_role_enter_req)
+	Net.add_msg_handler(MID.GATE_ROLE_DISCONNECT, handle_gate_role_disconnect)
 
 
 	Net.add_msg_handler(MID.ROLE_ATTR_CHANGE_REQ, handle_role_attr_change_req)

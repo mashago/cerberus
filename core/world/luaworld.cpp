@@ -72,7 +72,7 @@ static int get_time_ms_c(lua_State *L)
 	return 1;
 }
 
-bool LuaWorld::Init(int server_id, int server_type, const char *conf_file, const char *entry_file)
+bool LuaWorld::Init(int server_id, int server_type, const char *conf_file, const char *entry_path)
 {
 	m_luanetwork = new LuaNetwork(this);
 
@@ -124,8 +124,8 @@ bool LuaWorld::Init(int server_id, int server_type, const char *conf_file, const
 	lua_setglobal(m_L, "g_server_type");
 	lua_pushstring(m_L, conf_file);
 	lua_setglobal(m_L, "g_conf_file");
-	lua_pushstring(m_L, entry_file);
-	lua_setglobal(m_L, "g_entry_file");
+	lua_pushstring(m_L, entry_path);
+	lua_setglobal(m_L, "g_entry_path");
 
 	// push this to lua
 	lua_pushlightuserdata(m_L, (void *)this);

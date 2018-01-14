@@ -3,8 +3,8 @@ function send_to_login(msg_id, msg)
 	g_service_mgr:send_to_type_server(ServerType.LOGIN, msg_id, msg)
 end
 
-function send_to_router(msg_id, msg)
-	g_service_mgr:send_to_type_server(ServerType.ROUTER, msg_id, msg)
+function send_to_gate(msg_id, msg)
+	g_service_mgr:send_to_type_server(ServerType.GATE, msg_id, msg)
 end
 
 ------------------------------------------------
@@ -101,7 +101,7 @@ local function handle_select_role(data, mailbox_id, msg_id)
 		return
 	end
 
-	g_client._server_list[ServerType.ROUTER] =
+	g_client._server_list[ServerType.GATE] =
 	{
 		ip = data.ip,
 		port = data.port,

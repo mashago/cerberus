@@ -3,7 +3,7 @@ local Role = class()
 
 function Role:ctor(role_id, mailbox_id)
 	self._role_id = role_id
-	self._mailbox_id = mailbox_id -- router mailbox id
+	self._mailbox_id = mailbox_id -- gate mailbox id
 	self._attr = {} -- {pos_x = 1, pos_y = 2, ...}
 
 	-- mark the attr need to save into db
