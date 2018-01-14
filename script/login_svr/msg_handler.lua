@@ -275,48 +275,37 @@ local function handle_role_list_req(user, data, mailbox_id, msg_id)
 	local msg =
 	{
 		result = ErrorCode.SUCCESS,
-		area_id = data.area_id,
-		role_list = {},
+		area_role_list = {},
 	}
 
-	if not g_area_mgr:is_open(data.area_id) then
-		msg.result = ErrorCode.AREA_NOT_OPEN
-		user:send_msg(MID.ROLE_LIST_RET, msg)
-		return
-	end
+	-- get role list from user if exists
+	-- rpc db to get role list, and save into user
 
-	-- 1. check area is online
-	-- 2. get role list from user if exists
-	-- 3. rpc db to get role list, and save into user
-
-	-- already get role list
-	if user._role_map[data.area_id] then
-		for k, v in ipairs(user._role_map[data.area_id]) do
-			table.insert(msg.role_list, v)
+	local function send_role_list()
+		for area_id, role_list in pairs(user._role_map) do
+			local node = {}
+			node.area_id = area_id
+			node.role_list = role_list
+			table.insert(msg.area_role_list, node)
 		end
 		user:send_msg(MID.ROLE_LIST_RET, msg)
+	end
+	
+	-- already get role list
+	if user._role_map then
+		send_role_list()
 		return
 	end
 
 
 	-- first time get role list
-
-	local area_id = data.area_id
-	local msg =
-	{
-		result = ErrorCode.SUCCESS,
-		area_id = area_id,
-		role_list = {},
-	}
-
 	local rpc_data = 
 	{
 		table_name="user_role",
-		fields={"role_id", "role_name"},
+		fields={"role_id", "role_name, area_id"},
 		conditions=
 		{
 			user_id=user._user_id, 
-			area_id=area_id,
 			is_delete=0,
 		}
 	}
@@ -338,18 +327,26 @@ local function handle_role_list_req(user, data, mailbox_id, msg_id)
 	-- ok now
 	-- save data into user role_list
 	-- all data from db is string, must convert to number 
-	user._role_map[area_id] = {}
-	local role_list = user._role_map[area_id]
+	user._role_map = {}
 	
 	for _, v in ipairs(ret.data) do
-		local role_info = {}
-		role_info.role_id = tonumber(v.role_id)
-		role_info.role_name = v.role_name
-		table.insert(role_list, role_info)
+		
+		local role_id = tonumber(v.role_id)
+		local role_name = v.role_name
+		local area_id = tonumber(v.area_id)
+		if not user._role_map[area_id] then
+			user._role_map[area_id] = {}
+		end
+
+		local role_info = 
+		{
+			role_id = role_id,
+			role_name = role_name,
+		}
+		table.insert(user._role_map[area_id], role_info)
 	end
 
-	msg.role_list = role_list
-	user:send_msg(MID.ROLE_LIST_RET, msg)
+	send_role_list()
 end
 
 local function handle_create_role(user, data, mailbox_id, msg_id)

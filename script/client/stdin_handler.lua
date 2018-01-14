@@ -182,7 +182,7 @@ function cmd_handler.print_all_cmd()
 	login [username] [password] [channel_id]
 	loginx [num]
 	arealist
-	rolelist [opt area_id]
+	rolelist
 	create [role_name] [opt area_id]
 	delete [role_id] [opt area_id]
 	select [role_id] [opt area_id]
@@ -414,12 +414,10 @@ function cmd_handler.do_area_list_req(params)
 end
 
 function cmd_handler.do_role_list_req(params)
-	-- rolelist [opt area_id]
-	local area_id = tonumber(params[2] or "1")
+	-- rolelist 
 
 	local msg =
 	{
-		area_id = area_id
 	}
 
 	send_to_login(MID.ROLE_LIST_REQ, msg)

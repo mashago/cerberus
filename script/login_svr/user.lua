@@ -7,7 +7,17 @@ function User:ctor(mailbox_id, user_id, username, channel_id)
 	self._username = username
 	self._channel_id = channel_id
 	self._is_online = true
-	self._role_map = {} -- {[area_id]=role_list, } role_list={{role_id=x, role_name=y},}
+
+	--[[
+	{
+		[area_id]= 
+		{
+			{role_id=x, role_name=y},
+			{role_id=x, role_name=y},
+		},
+	}
+	--]]
+	self._role_map = nil 
 end
 
 function User:is_ok()

@@ -79,10 +79,17 @@ AreaListStruct =
 	{ "area_name", _String },
 }
 
-RoleListStruct = 
+
+AreaRoleStruct = 
 {
 	{ "role_id", _Int64 },
 	{ "role_name", _String },
+}
+
+AreaRoleListStruct = 
+{
+	{ "area_id", _Int },
+	{ "role_list", _StructArray, AreaRoleStruct },
 }
 
 ServerAddrStruct =
@@ -243,13 +250,11 @@ MSG_DEF_MAP =
 
 	[MID.ROLE_LIST_REQ] =
 	{
-		{ "area_id", _Int },
 	},
 	[MID.ROLE_LIST_RET] =
 	{
 		{ "result", _Int },
-		{ "area_id", _Int },
-		{ "role_list", _StructArray, RoleListStruct },
+		{ "area_role_list", _StructArray, AreaRoleListStruct },
 	},
 
 	[MID.CREATE_ROLE_REQ] =
