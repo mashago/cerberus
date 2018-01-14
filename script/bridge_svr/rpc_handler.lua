@@ -160,6 +160,27 @@ end
 
 -----------------------------------------------------------
 
+local function bridge_mark_gate_conn_num(data, mailbox_id)
+	
+	local server_info = g_service_mgr:get_server_by_mailbox(mailbox_id)
+	if not server_info then
+		Log.err("bridge_mark_gate_conn_num server null")
+		return
+	end
+
+	local server_id = server_info._server_id
+	local server_type = server_info._server_type
+	if server_type ~= ServerType.GATE then
+		Log.err("bridge_mark_gate_conn_num not gate server server_id=%d server_type=%d", server_id, server_type)
+		return
+	end
+
+	g_gate_conn_map[server_id] = data.num
+end
+
+
+-----------------------------------------------------------
+
 local function bridge_create_role(data)
 	
 	Log.debug("bridge_create_role: data=%s", Util.table_to_string(data))
@@ -279,11 +300,22 @@ local function bridge_select_role(data)
 		return {result = ErrorCode.ROLE_NOT_EXISTS}
 	end
 
-	-- local scene_id = tonumber(ret.data[1].scene_id)
-	local scene_id = ret.data[1].scene_id
-	
-	local token = "0000" -- TODO
+	-- select a gate
+	local target_gate_id = 0
+	local min_conn_num = math.huge
+	for k, v in pairs(g_gate_conn_map) do
+		if v < min_conn_num then
+			target_gate_id = k
+			min_conn_num = v
+		end
+	end
+	if target_gate_id == 0 then
+		return {result = ErrorCode.SYS_ERROR}
+	end
 
+	-- rpc gate select role
+	local scene_id = ret.data[1].scene_id
+	local token = "0000" -- TODO
 	local rpc_data = 
 	{
 		user_id=user_id, 
@@ -291,7 +323,7 @@ local function bridge_select_role(data)
 		scene_id=scene_id,
 		token=token,
 	}
-	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.GATE, "gate_select_role", rpc_data, user_id)
+	local status, ret = g_rpc_mgr:call_by_server_id(target_gate_id, "gate_select_role", rpc_data, user_id)
 	if not status then
 		Log.err("bridge_select_role rpc call fail")
 		return {result = ErrorCode.SYS_ERROR}

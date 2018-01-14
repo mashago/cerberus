@@ -10,6 +10,10 @@ function g_net_event_server_connect(server_id)
 		}
 
 		server_info:send_msg(MID.REGISTER_AREA_REQ, msg)
+	elseif server_info._server_type == ServerType.GATE then
+		-- init gate connection num
+		g_gate_conn_map = g_gate_conn_map or {}
+		g_gate_conn_map[server_info._server_id] = 0
 	end
 end
 

@@ -158,28 +158,6 @@ function RpcMgr:handle_call(data, mailbox_id, msg_id, is_nocb)
 			send_error(-1)
 		end
 		return
-
-		--[[
-		-- transfer rpc req to to server
-		local server_info = g_service_mgr:get_server_by_id(to_server_id)
-		if not server_info then
-			Log.warn("RpcMgr:handle_call cannot go to to_server_id=%d", to_server_id)
-			if not is_nocb then
-				send_error(-1)
-			end
-			return
-		end
-
-		local mid = 0
-		if is_nocb then
-			mid = MID.REMOTE_CALL_NOCB_REQ
-		else
-			mid = MID.REMOTE_CALL_REQ
-		end
-		
-		server_info:send_msg(mid, data)
-		return
-		--]]
 	end
 
 	-- handle rpc
@@ -196,7 +174,7 @@ function RpcMgr:handle_call(data, mailbox_id, msg_id, is_nocb)
 	-- consider rpc in call function
 	-- so use a coroutine wrap this function
 	local cor = coroutine.create(func)
-	local status, result = coroutine.resume(cor, param)
+	local status, result = coroutine.resume(cor, param, mailbox_id)
 	if not status then
 		Log.err("RpcMgr:handle_call resume function error func_name=%s %s", func_name, result)
 		if not is_nocb then
