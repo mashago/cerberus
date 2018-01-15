@@ -34,7 +34,8 @@ function Timer:on_timer(timer_index, is_loop)
 	end
 
 	local function wrapper()
-		timer_param[1](timer_param[2])
+		-- timer_param[1](timer_param[2])
+		g_rpc_mgr:run(timer_param[1], timer_param[2])
 	end
 
 	local function error_handler(msg)

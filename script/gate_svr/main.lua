@@ -10,6 +10,8 @@ local function main_entry(xml_doc)
 	local UserMgr = require "gate_svr.user_mgr"
 	g_user_mgr = UserMgr.new()
 
+	local CommonHandler = require "gate_svr.common_handler"
+	g_common_handler = CommonHandler.new()
 end
 
 return main_entry

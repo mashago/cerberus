@@ -160,18 +160,19 @@ end
 
 -----------------------------------------------------------
 
-local function bridge_mark_gate_conn_num(data, mailbox_id)
+local function bridge_sync_gate_conn_num(data, mailbox_id)
+	Log.debug("bridge_sync_gate_conn_num data=%s", Util.table_to_string(data))
 	
 	local server_info = g_service_mgr:get_server_by_mailbox(mailbox_id)
 	if not server_info then
-		Log.err("bridge_mark_gate_conn_num server null")
+		Log.err("bridge_sync_gate_conn_num server null")
 		return
 	end
 
 	local server_id = server_info._server_id
 	local server_type = server_info._server_type
 	if server_type ~= ServerType.GATE then
-		Log.err("bridge_mark_gate_conn_num not gate server server_id=%d server_type=%d", server_id, server_type)
+		Log.err("bridge_sync_gate_conn_num not gate server server_id=%d server_type=%d", server_id, server_type)
 		return
 	end
 
@@ -352,6 +353,7 @@ local function register_rpc_handler()
 	g_rpc_mgr:register_func("bridge_rpc_nocb_test", bridge_rpc_nocb_test)
 	g_rpc_mgr:register_func("bridge_rpc_mix_test", bridge_rpc_mix_test)
 
+	g_rpc_mgr:register_func("bridge_sync_gate_conn_num", bridge_sync_gate_conn_num)
 	g_rpc_mgr:register_func("bridge_create_role", bridge_create_role)
 	g_rpc_mgr:register_func("bridge_delete_role", bridge_delete_role)
 	g_rpc_mgr:register_func("bridge_select_role", bridge_select_role)

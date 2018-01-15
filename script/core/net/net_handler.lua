@@ -274,7 +274,7 @@ function ccall_disconnect_handler(mailbox_id)
 			end
 			g_service_mgr:handle_disconnect(mailbox_id)
 		else
-			-- client disconnect
+			-- client disconnect, login and gate handle
 			Log.warn("ccall_disconnect_handler client disconnect %d", mailbox_id)
 			if g_net_event_client_disconnect then
 				g_net_event_client_disconnect(mailbox_id)
