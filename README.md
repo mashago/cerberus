@@ -6,6 +6,8 @@ MassNet is a simple game server framework, build by C++ and lua, config use xml.
 
 Main framework:  
 ![main](pictures/MassNet-main.png)
+In the Server Pack, every server connect to other server directly.  
+
 
 Server core:  
 ![core](pictures/MassNet-core.png)
