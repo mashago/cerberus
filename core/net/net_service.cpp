@@ -366,7 +366,7 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 	LOG_DEBUG("clientHost=%s clientPort=%d", clientHost, clientPort);
 
 	// check connection num
-	if (m_mailboxs.size() > m_maxConn)
+	if ((int)m_mailboxs.size() > m_maxConn)
 	{
         LOG_WARN("connection is max fd=%d", fd);
 		evutil_closesocket(fd);

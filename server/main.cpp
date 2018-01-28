@@ -130,7 +130,11 @@ int main(int argc, char ** argv)
 	world->Dispatch();
 
 	NetService *net = new NetService();
-	net->Init(ip, port, max_conn, is_daemon, net2worldPipe, world2newPipe);
+	if (net->Init(ip, port, max_conn, is_daemon, net2worldPipe, world2newPipe) != 0)
+	{
+		printf("net service init error\n");
+		return 0;
+	}
 	net->Dispatch();
 
 	return 0;
