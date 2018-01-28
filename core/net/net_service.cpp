@@ -61,7 +61,7 @@ NetService::~NetService()
 }
 
 
-int NetService::Init(const char *addr, unsigned int port, int maxConn, EventPipe *net2worldPipe, EventPipe *world2netPipe)
+int NetService::Init(const char *addr, unsigned int port, int maxConn, bool isDaemon, EventPipe *net2worldPipe, EventPipe *world2netPipe)
 {
 	m_maxConn = maxConn;
 
@@ -106,19 +106,22 @@ int NetService::Init(const char *addr, unsigned int port, int maxConn, EventPipe
 	// in win32, cannot add stdin fd into libevent
 	// so have to create a timer to check keyboard input
 	// good job, microsoft.
-	struct timeval *ptr = NULL;
-#ifdef WIN32
-	m_stdinEvent = event_new(m_mainEvent, -1, EV_PERSIST, stdin_cb, this);
-	tv.tv_sec = 0;
-	tv.tv_usec = 100;
-	ptr = &tv;
-#else
-	m_stdinEvent = event_new(m_mainEvent, STDIN_FILENO, EV_READ | EV_PERSIST, stdin_cb, this);
-#endif
-	if (event_add(m_stdinEvent, ptr) != 0)
+	if (!isDaemon)
 	{
-		LOG_ERROR("add stdin event fail");
-		return -1;
+		struct timeval *ptr = NULL;
+#ifdef WIN32
+		m_stdinEvent = event_new(m_mainEvent, -1, EV_PERSIST, stdin_cb, this);
+		tv.tv_sec = 0;
+		tv.tv_usec = 100;
+		ptr = &tv;
+#else
+		m_stdinEvent = event_new(m_mainEvent, STDIN_FILENO, EV_READ | EV_PERSIST, stdin_cb, this);
+#endif
+		if (event_add(m_stdinEvent, ptr) != 0)
+		{
+			LOG_ERROR("add stdin event fail");
+			return -1;
+		}
 	}
 
 	m_net2worldPipe = net2worldPipe;

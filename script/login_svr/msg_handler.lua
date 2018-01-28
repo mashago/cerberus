@@ -334,16 +334,8 @@ local function handle_role_list_req(user, data, mailbox_id, msg_id)
 		local role_id = tonumber(v.role_id)
 		local role_name = v.role_name
 		local area_id = tonumber(v.area_id)
-		if not user._role_map[area_id] then
-			user._role_map[area_id] = {}
-		end
 
-		local role_info = 
-		{
-			role_id = role_id,
-			role_name = role_name,
-		}
-		table.insert(user._role_map[area_id], role_info)
+		user:add_role(area_id, role_id, role_name)
 	end
 
 	send_role_list()
@@ -373,7 +365,7 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 	-- 4. add role into user
 
 	-- 1. check already get role_list
-	if not user._role_map[data.area_id] then
+	if not user._role_map then
 		msg.result = ErrorCode.CREATE_ROLE_FAIL
 		user:send_msg(MID.CREATE_ROLE_RET, msg)
 		return

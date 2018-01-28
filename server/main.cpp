@@ -130,7 +130,7 @@ int main(int argc, char ** argv)
 	world->Dispatch();
 
 	NetService *net = new NetService();
-	net->Init(ip, port, max_conn, net2worldPipe, world2newPipe);
+	net->Init(ip, port, max_conn, is_daemon, net2worldPipe, world2newPipe);
 	net->Dispatch();
 
 	return 0;

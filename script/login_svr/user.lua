@@ -36,6 +36,7 @@ function User:send_msg(msg_id, msg)
 end
 
 function User:add_role(area_id, role_id, role_name)
+	self._role_map = self._role_map or {} 
 	self._role_map[area_id] = self._role_map[area_id] or {}
 	local role = {role_id=role_id, role_name=role_name}
 	table.insert(self._role_map[area_id], role)

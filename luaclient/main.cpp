@@ -57,7 +57,7 @@ int main(int argc, char ** argv)
 	world->Dispatch();
 
 	NetService *net = new NetService();
-	net->Init("", 0, 0, net2worldPipe, world2newPipe);
+	net->Init("", 0, 0, false, net2worldPipe, world2newPipe);
 	net->Dispatch();
 
 	return 0;
