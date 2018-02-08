@@ -50,7 +50,7 @@ public:
 	NetService();
 	~NetService();
 
-	int Init(const char *addr, unsigned int port, int maxConn, bool isDaemon, EventPipe *net2worldPipe, EventPipe *world2netPipe);
+	int Init(const char *addr, unsigned int port, bool isDaemon, EventPipe *net2worldPipe, EventPipe *world2netPipe);
 	int Dispatch();
 
 	// return >= 0 as mailboxId, < 0 as error
@@ -87,7 +87,6 @@ private:
 	bool HttpRequest(const char *url, int64_t session_id, int request_type, const char *post_data, int post_data_len);
 	struct evhttp_connection * GetHttpConnection(struct event_base *main_event, struct evdns_base *dns, const char *host, int port);
 
-	int m_maxConn;
 	struct event_base *m_mainEvent;
 	struct event *m_mainLoopEvent;
 	struct event *m_tickTimerEvent;

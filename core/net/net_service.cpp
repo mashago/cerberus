@@ -52,7 +52,7 @@ static void http_conn_close_cb(struct evhttp_connection *http_conn, void *user_d
 static void http_done_cb(struct evhttp_request *http_request, void *user_data);
 
 
-NetService::NetService() : m_maxConn(0), m_mainEvent(nullptr), m_mainLoopEvent(nullptr), m_tickTimerEvent(nullptr), m_stdinEvent(nullptr), m_evconnlistener(nullptr)
+NetService::NetService() : m_mainEvent(nullptr), m_mainLoopEvent(nullptr), m_tickTimerEvent(nullptr), m_stdinEvent(nullptr), m_evconnlistener(nullptr)
 {
 }
 
@@ -61,10 +61,8 @@ NetService::~NetService()
 }
 
 
-int NetService::Init(const char *addr, unsigned int port, int maxConn, bool isDaemon, EventPipe *net2worldPipe, EventPipe *world2netPipe)
+int NetService::Init(const char *addr, unsigned int port, bool isDaemon, EventPipe *net2worldPipe, EventPipe *world2netPipe)
 {
-	m_maxConn = maxConn;
-
 	// new event_base
 	m_mainEvent = event_base_new();
 	if (!m_mainEvent)
@@ -353,25 +351,16 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 {
 	LOG_DEBUG("fd=%d", fd);
 
-	// 1. check connection num
-	// 2. check connection is valide
-	// 3. set fd non-block
-	// 4. accept clinet
-	// 5. new mailbox
-	// 6. send to world
+	// 1. check connection is valide
+	// 2. set fd non-block
+	// 3. accept clinet
+	// 4. new mailbox
+	// 5. send to world
 	
 	struct sockaddr_in *sin = (struct sockaddr_in *)sa;
 	const char *clientHost = inet_ntoa(sin->sin_addr);
 	uint16_t clientPort = ntohs(sin->sin_port);
 	LOG_DEBUG("clientHost=%s clientPort=%d", clientHost, clientPort);
-
-	// check connection num
-	if ((int)m_mailboxs.size() > m_maxConn)
-	{
-        LOG_WARN("connection is max fd=%d", fd);
-		evutil_closesocket(fd);
-		return -1;
-	}
 
 	std::string ip(clientHost);
 	

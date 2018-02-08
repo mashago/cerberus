@@ -52,6 +52,7 @@ int main(int argc, char ** argv)
 		return 0;
 	}
 
+	bool is_daemon = false;
 #ifdef WIN32
 	WSADATA wsa_data;
 	WSAStartup(0x0201, &wsa_data);
@@ -59,7 +60,6 @@ int main(int argc, char ** argv)
 #else
 	signal(SIGHUP,  SIG_IGN );
 	signal(SIGCHLD,  SIG_IGN );
-	bool is_daemon = false;
 	const char *conf_file = "";
 
 	int c;
@@ -94,14 +94,13 @@ int main(int argc, char ** argv)
 	int server_type = root->IntAttribute("type");
 	const char *ip = (char*)root->Attribute("ip");
 	int port = root->IntAttribute("port");
-	int max_conn = root->IntAttribute("max_conn");
 	const char *entry_path = (char*)root->Attribute("path");
 	int auto_shutdown = root->IntAttribute("auto_shutdown");
 	int no_broadcast = root->IntAttribute("no_broadcast");
 
 
-	printf("server_id=%d server_type=%d ip=%s port=%d max_conn=%d entry_path=%s auto_shutdown=%d no_broadcast=%d\n"
-	, server_id, server_type, ip, port, max_conn, entry_path, auto_shutdown, no_broadcast);
+	printf("server_id=%d server_type=%d ip=%s port=%d entry_path=%s auto_shutdown=%d no_broadcast=%d\n"
+	, server_id, server_type, ip, port, entry_path, auto_shutdown, no_broadcast);
 	if (!strcmp(entry_path, ""))
 	{
 		printf("entry_path error\n");
@@ -130,7 +129,7 @@ int main(int argc, char ** argv)
 	world->Dispatch();
 
 	NetService *net = new NetService();
-	if (net->Init(ip, port, max_conn, is_daemon, net2worldPipe, world2newPipe) != 0)
+	if (net->Init(ip, port, is_daemon, net2worldPipe, world2newPipe) != 0)
 	{
 		printf("net service init error\n");
 		return 0;

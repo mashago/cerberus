@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<server id = "502" type = "5" ip = "127.0.0.1" port = "60104" max_conn = "1000" path = "gate_svr"> 
+<server id = "502" type = "5" ip = "127.0.0.1" port = "60104" path = "gate_svr"> 
 	<connect_to>
 		<!-- master_svr -->
 		<address ip = "127.0.0.1" port = "60101"/>
