@@ -324,7 +324,7 @@ local function bridge_select_role(data)
 		scene_id=scene_id,
 		token=token,
 	}
-	local status, ret = g_rpc_mgr:call_by_server_id(target_gate_id, "gate_select_role", rpc_data, user_id)
+	local status, ret = g_rpc_mgr:call_by_server_id(target_gate_id, "gate_select_role", rpc_data)
 	if not status then
 		Log.err("bridge_select_role rpc call fail")
 		return {result = ErrorCode.SYS_ERROR}

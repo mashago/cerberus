@@ -233,6 +233,16 @@ end
 
 -------- for attr data and string convert
 
+function g_funcs.register_attr_func(obj_class, obj_def)
+	for _, line in ipairs(obj_def) do
+		local field_name = line.field
+		obj_class["set_" .. field_name] = function(self, value)
+			self:modify_attr(field_name, value)
+		end
+
+	end
+end
+
 --[[
 define attr container:
 attr_table = 

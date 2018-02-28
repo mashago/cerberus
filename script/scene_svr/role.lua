@@ -178,7 +178,8 @@ function Role:modify_attr_table(attr_table)
 	Log.debug("Role:modify_attr_table attr_map=%s", Util.table_to_string(attr_map))
 
 	for k, v in pairs(attr_map) do
-		self:modify_attr(k, v)
+		-- self:modify_attr(k, v)
+		self["set_" .. k](self, v)
 	end
 
 	local msg =
@@ -195,5 +196,7 @@ function Role:on_disconnect()
 
 	g_role_mgr:del_role(self)
 end
+
+g_funcs.register_attr_func(Role, DataStructDef.data.role_info)
 
 return Role
