@@ -161,7 +161,7 @@ end
 -----------------------------------------------------------
 
 local function bridge_sync_gate_conn_num(data, mailbox_id)
-	Log.debug("bridge_sync_gate_conn_num data=%s", Util.table_to_string(data))
+	-- Log.debug("bridge_sync_gate_conn_num data=%s", Util.table_to_string(data))
 	
 	local server_info = g_service_mgr:get_server_by_mailbox(mailbox_id)
 	if not server_info then

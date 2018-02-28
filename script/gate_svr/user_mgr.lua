@@ -3,6 +3,8 @@ local UserMgr = class()
 
 function UserMgr:ctor()
 	self._all_user_map = {} -- {[user_id]=[User], }
+	self._all_user_num = 0
+
 	self._mailbox_user_map = {} -- {[mailbox_id]=[User], }
 	self._role_user_map = {} -- {[role_id]=[User], }
 
@@ -17,6 +19,7 @@ function UserMgr:add_user(user)
 	end
 
 	self._all_user_map[user._user_id] = user
+	self._all_user_num = self._all_user_num + 1 
 	self._role_user_map[user._role_id] = user
 	return true
 end
@@ -35,6 +38,8 @@ end
 
 function UserMgr:del_user(user)
 	self._all_user_map[user._user_id] = nil
+	self._all_user_num = self._all_user_num - 1 
+
 	self._mailbox_user_map[user._mailbox_id] = nil
 	self._role_user_map[user._role_id] = nil
 	user._mailbox_id = 0
