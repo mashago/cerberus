@@ -11,6 +11,15 @@ function UserMgr:ctor()
 	self._offline_user_map = {} -- {[user_id]=timer_index,}
 end
 
+function UserMgr:connect_timeout_cb(user_id)
+	Log.debug("UserMgr:offline_timer_cb delete offline user %d", user_id)
+	self._offline_user_map[user_id] = nil
+	local user = self:get_user_by_id(user_id)
+	self:del_user(user)
+
+	-- TODO rpc to bridge
+end
+
 function UserMgr:add_user(user)
 
 	if self._all_user_map[user._user_id] then
@@ -21,6 +30,11 @@ function UserMgr:add_user(user)
 	self._all_user_map[user._user_id] = user
 	self._all_user_num = self._all_user_num + 1 
 	self._role_user_map[user._role_id] = user
+	local connect_wait_interval_ms = 10 * 1000
+	local timer_cb = function(user_id)
+		self:connect_timeout_cb(user_id)
+	end
+	self._offline_user_map[user_id] = g_timer:add_timer(connect_wait_interval_ms, timer_cb, user_id, false)
 	return true
 end
 
@@ -40,7 +54,7 @@ function UserMgr:del_user(user)
 	self._all_user_map[user._user_id] = nil
 	self._all_user_num = self._all_user_num - 1 
 
-	self._mailbox_user_map[user._mailbox_id] = nil
+	-- self._mailbox_user_map[user._mailbox_id] = nil
 	self._role_user_map[user._role_id] = nil
 	user._mailbox_id = 0
 end

@@ -179,6 +179,10 @@ local function bridge_sync_gate_conn_num(data, mailbox_id)
 	g_gate_conn_map[server_id] = data.num
 end
 
+local function bridge_wait_connect_timeout(data, mailbox_id)
+	-- TODO
+end
+
 
 -----------------------------------------------------------
 
@@ -354,6 +358,8 @@ local function register_rpc_handler()
 	g_rpc_mgr:register_func("bridge_rpc_mix_test", bridge_rpc_mix_test)
 
 	g_rpc_mgr:register_func("bridge_sync_gate_conn_num", bridge_sync_gate_conn_num)
+	g_rpc_mgr:register_func("bridge_wait_connect_timeout", bridge_wait_connect_timeout)
+
 	g_rpc_mgr:register_func("bridge_create_role", bridge_create_role)
 	g_rpc_mgr:register_func("bridge_delete_role", bridge_delete_role)
 	g_rpc_mgr:register_func("bridge_select_role", bridge_select_role)
