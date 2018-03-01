@@ -179,11 +179,6 @@ local function bridge_sync_gate_conn_num(data, mailbox_id)
 	g_gate_conn_map[server_id] = data.num
 end
 
-local function bridge_wait_connect_timeout(data, mailbox_id)
-	-- TODO
-end
-
-
 -----------------------------------------------------------
 
 local function bridge_create_role(data)
