@@ -73,10 +73,10 @@ function CommonMgr:rpc_delete_role(user_id, role_id)
 		}
 		local status, ret = g_rpc_mgr:call_by_server_id(enter_user.gate_server_id, "gate_delete_role", rpc_data)
 		if not status then
-			Log.err("bridge_select_role rpc call fail")
+			Log.err("bridge_delete_role rpc call fail")
 			return {result = ErrorCode.SYS_ERROR}
 		end
-		Log.debug("bridge_select_role: callback ret=%s", Util.table_to_string(ret))
+		Log.debug("bridge_delete_role: callback ret=%s", Util.table_to_string(ret))
 		if ret.result ~= ErrorCode.SUCCESS then
 			return {result = ret.result}
 		end

@@ -104,6 +104,10 @@ local function gate_check_role_online(data)
 	return msg
 end
 
+local function gate_delete_role(data)
+	-- TODO
+end
+
 local function register_rpc_handler()
 	-- for test
 	g_rpc_mgr:register_func("gate_rpc_test" ,gate_rpc_test)
@@ -111,6 +115,7 @@ local function register_rpc_handler()
 
 	g_rpc_mgr:register_func("gate_select_role" ,gate_select_role)
 	g_rpc_mgr:register_func("gate_check_role_online" ,gate_check_role_online)
+	g_rpc_mgr:register_func("gate_delete_role" ,gate_delete_role)
 end
 
 register_rpc_handler()

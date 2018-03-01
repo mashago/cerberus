@@ -1,4 +1,5 @@
 
+-- [
 local function bridge_rpc_test(data)
 	
 	Log.debug("bridge_rpc_test: data=%s", Util.table_to_string(data))
@@ -157,6 +158,7 @@ local function bridge_rpc_mix_test(data)
 
 	return {result = ErrorCode.SUCCESS, buff=buff, sum=sum}
 end
+-- ]
 
 -----------------------------------------------------------
 
@@ -165,7 +167,7 @@ local function bridge_sync_gate_conn_num(data, mailbox_id)
 	
 	local server_info = g_service_mgr:get_server_by_mailbox(mailbox_id)
 	if not server_info then
-		Log.err("bridge_sync_gate_conn_num server null")
+		Log.err("bridge_sync_gate_conn_num not server")
 		return
 	end
 
@@ -176,13 +178,16 @@ local function bridge_sync_gate_conn_num(data, mailbox_id)
 		return
 	end
 
-	g_gate_conn_map[server_id] = data.num
+	g_common_mgr:sync_gate_conn_num(server_id, data.num)
 end
 
 -----------------------------------------------------------
 
 local function bridge_create_role(data)
+
+	return g_common_mgr:rpc_create_role(data)
 	
+	--[[
 	Log.debug("bridge_create_role: data=%s", Util.table_to_string(data))
 
 	-- rpc to db to insert role_info
@@ -219,6 +224,7 @@ local function bridge_create_role(data)
 	Log.debug("bridge_create_role callback ret=%s", Util.table_to_string(ret))
 
 	return {result = ret.result}
+	--]]
 
 end
 
@@ -229,6 +235,8 @@ local function bridge_delete_role(data)
 	local user_id = data.user_id
 	local role_id = data.role_id
 
+	return g_common_mgr:rpc_delete_role(user_id, role_id)
+	--[[
 	-- check if role is online
 	local rpc_data = 
 	{
@@ -263,6 +271,7 @@ local function bridge_delete_role(data)
 	Log.debug("bridge_delete_role: callback ret=%s", Util.table_to_string(ret))
 
 	return {result = ret.result}
+	--]]
 
 end
 
@@ -270,13 +279,12 @@ local function bridge_select_role(data)
 	
 	Log.debug("bridge_select_role: data=%s", Util.table_to_string(data))
 
-	-- 1. load scene_id from db
-	-- 2. create a token
-	-- 3. choose a gate by user_id
-
 	local user_id = data.user_id
 	local role_id = data.role_id
 
+	return g_common_mgr:rpc_select_role(user_id, role_id)
+
+	--[[
 	-- 1. load scene_id from db
 	local rpc_data = 
 	{
@@ -342,6 +350,7 @@ local function bridge_select_role(data)
 	}
 
 	return msg
+	--]]
 
 end
 
