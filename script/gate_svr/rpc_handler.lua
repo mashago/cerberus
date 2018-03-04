@@ -56,15 +56,9 @@ local function gate_select_role(data)
 	-- check if already online
 	local user = g_user_mgr:get_user_by_id(user_id)
 	if user then
-		if user:is_online() then
-			-- duplicate select role
-			Log.warn("gate_select_role: duplicate select role %d %d", user_id, role_id)
-			msg.result = ErrorCode.SELECT_ROLE_DUPLICATE_LOGIN
-			return msg
-		end
-		-- has user, but offline, just remove user 
-		Log.debug("gate_select_role: user offline, del user user_id=%d old_role_id=%d new_role_id%d", user_id, user._role_id, role_id)
-		g_user_mgr:del_user(user)
+		-- user exists, use that scene_id
+		scene_id = user._scene_id
+		g_user_mgr:kick_user(user)
 	end
 
 	-- create user
@@ -75,6 +69,23 @@ local function gate_select_role(data)
 	msg.result = ErrorCode.SUCCESS
 	msg.ip = g_server_conf._ip
 	msg.port = g_server_conf._port
+
+	return msg
+end
+
+local function gate_delete_role(data)
+	local user_id = data.user_id
+	local role_id = data.role_id
+
+	local msg =
+	{
+		result = ErrorCode.SUCCESS,
+	}
+
+	local user = g_user_mgr:get_user_by_id(user_id)
+	if user then
+		g_user_mgr:kick_user(user)
+	end
 
 	return msg
 end
@@ -104,18 +115,14 @@ local function gate_check_role_online(data)
 	return msg
 end
 
-local function gate_delete_role(data)
-	-- TODO
-end
-
 local function register_rpc_handler()
 	-- for test
 	g_rpc_mgr:register_func("gate_rpc_test" ,gate_rpc_test)
 	g_rpc_mgr:register_func("gate_rpc_nocb_test" ,gate_rpc_nocb_test)
 
 	g_rpc_mgr:register_func("gate_select_role" ,gate_select_role)
-	g_rpc_mgr:register_func("gate_check_role_online" ,gate_check_role_online)
 	g_rpc_mgr:register_func("gate_delete_role" ,gate_delete_role)
+	g_rpc_mgr:register_func("gate_check_role_online" ,gate_check_role_online)
 end
 
 register_rpc_handler()

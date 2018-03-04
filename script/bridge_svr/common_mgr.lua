@@ -73,10 +73,10 @@ function CommonMgr:rpc_delete_role(user_id, role_id)
 		}
 		local status, ret = g_rpc_mgr:call_by_server_id(enter_user.gate_server_id, "gate_delete_role", rpc_data)
 		if not status then
-			Log.err("bridge_delete_role rpc call fail")
+			Log.err("rpc_delete_role rpc call fail")
 			return {result = ErrorCode.SYS_ERROR}
 		end
-		Log.debug("bridge_delete_role: callback ret=%s", Util.table_to_string(ret))
+		Log.debug("rpc_delete_role: callback ret=%s", Util.table_to_string(ret))
 		if ret.result ~= ErrorCode.SUCCESS then
 			return {result = ret.result}
 		end
@@ -91,10 +91,10 @@ function CommonMgr:rpc_delete_role(user_id, role_id)
 	}
 	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_game_update", rpc_data)
 	if not status then
-		Log.err("bridge_delete_role rpc call fail")
+		Log.err("rpc_delete_role rpc call fail")
 		return {result = ErrorCode.SYS_ERROR}
 	end
-	Log.debug("bridge_delete_role: callback ret=%s", Util.table_to_string(ret))
+	Log.debug("rpc_delete_role: callback ret=%s", Util.table_to_string(ret))
 
 	return {result = ret.result}
 end
@@ -150,24 +150,49 @@ end
 -- return table for rpc call
 function CommonMgr:rpc_select_role(user_id, role_id)
 
+	-- load scene_id from db
+	local rpc_data = 
+	{
+		table_name = "role_info",
+		fields = {"scene_id"},
+		conditions = {role_id=role_id}
+	}
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_game_select", rpc_data)
+	if not status then
+		Log.err("rpc_select_role rpc call fail")
+		return {result = ErrorCode.SYS_ERROR}
+	end
+	Log.debug("rpc_select_role: callback ret=%s", Util.table_to_string(ret))
+
+	if ret.result ~= ErrorCode.SUCCESS then
+		return {result = ret.result}
+	end
+
+	if #ret.data ~= 1 or not ret.data[1].scene_id then
+		Log.warn("rpc_select_role: role not exists %d %d", user_id, role_id)
+		return {result = ErrorCode.ROLE_NOT_EXISTS}
+	end
+	local scene_id = ret.data[1].scene_id
+
+	-- rpc gate select role
 	local enter_user = self:get_enter_user(user_id, role_id)
 	if not enter_user then
 		return {result = ret.result}
 	end
 
-	-- rpc gate select role
 	local rpc_data = 
 	{
 		user_id=user_id, 
 		role_id=role_id, 
+		scene_id=scene_id,
 		token=enter_user.token,
 	}
 	local status, ret = g_rpc_mgr:call_by_server_id(enter_user.gate_server_id, "gate_select_role", rpc_data)
 	if not status then
-		Log.err("bridge_select_role rpc call fail")
+		Log.err("rpc_select_role rpc call fail")
 		return {result = ErrorCode.SYS_ERROR}
 	end
-	Log.debug("bridge_select_role: callback ret=%s", Util.table_to_string(ret))
+	Log.debug("rpc_select_role: callback ret=%s", Util.table_to_string(ret))
 	if ret.result ~= ErrorCode.SUCCESS then
 		return {result = ret.result}
 	end

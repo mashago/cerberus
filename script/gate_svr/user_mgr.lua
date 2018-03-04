@@ -38,6 +38,13 @@ function UserMgr:add_user(user)
 	return true
 end
 
+function UserMgr:kick_user(user)
+	-- TODO
+	-- if online, send kick msg, send to scene
+	-- delete user
+	Log.warn("UserMgr:kick_user user_id=%d role_id=%d", user._user_id, user._role_id)
+end
+
 function UserMgr:get_user_by_id(user_id)
 	return self._all_user_map[user_id]
 end
