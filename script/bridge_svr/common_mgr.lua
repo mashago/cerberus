@@ -20,8 +20,6 @@ end
 
 -- return table for rpc call
 function CommonMgr:rpc_create_role(custom_data)
-	
-	Log.debug("CommonMgr:rpc_create_role custom_data=%s", Util.table_to_string(custom_data))
 
 	-- rpc to db to insert role_info
 	local role_data = {}
