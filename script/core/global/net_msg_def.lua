@@ -30,6 +30,9 @@ MID._id_name_map =
 	[20023] = "ROLE_ATTR_RET",
 	[20024] = "ROLE_ATTR_CHANGE_REQ",
 	[20025] = "ROLE_ATTR_CHANGE_RET",
+	[20026] = "ATTR_MODIFY_RET",
+	[20027] = "ATTR_INSERT_RET",
+	[20028] = "ATTR_DELETE_RET",
 
 	-- msg for server
 	-- about master_svr
@@ -319,6 +322,25 @@ MSG_DEF_MAP =
 	{
 		{ "role_id", _Int64 },
 		{ "attr_table", _Struct, AttrTableStruct },
+	},
+
+	[MID.ATTR_MODIFY_RET] =
+	{
+		{ "sheet_name", _String },
+		{ "attr_key", _Struct, AttrTableStruct },
+		{ "attr_value", _Struct, AttrTableStruct },
+	},
+
+	[MID.ATTR_INSERT_RET] =
+	{
+		{ "sheet_name", _String },
+		{ "attr_value", _Struct, AttrTableStruct },
+	},
+
+	[MID.ATTR_DELETE_RET] =
+	{
+		{ "sheet_name", _String },
+		{ "attr_key", _Struct, AttrTableStruct },
 	},
 
 	----------------------------------------
