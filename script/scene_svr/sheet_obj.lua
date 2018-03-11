@@ -268,7 +268,50 @@ function SheetObj:insert(data)
 	return true
 end
 
+local function remove_by_key_list(t, key_list)
+	local is_exists = false
+
+	for k, v in ipairs(key_list) do
+		if not t or not t[v] then
+			break
+		end
+		if k == #key_list then
+			t[v] = nil
+			is_exists = true
+			break
+		end
+		t = t[v]
+	end
+
+	return is_exists
+end
+
+local function mark_by_key_list(t, key_list)
+	for k, v in ipairs(key_list) do
+		if k == #key_list then
+			t[v] = true
+			break
+		end
+		t[v] = t[v] or {}
+		t = t[v]
+	end
+end
+
 function SheetObj:delete(...)
+	
+	local key_list = {...}
+	-- fix key_list begin from root
+	for i=1, self._const_key_num do
+		table.insert(key_list, i, self._keys[i][2])
+	end
+
+	-- check if in insert or update
+	local is_will_modify = remove_by_key_list(self._modify_attr_map, key_list)
+	local is_will_insert = remove_by_key_list(self._insert_attr_map, key_list)
+	if not is_will_insert then
+		mark_by_key_list(self._delete_attr_map, key_list)
+	end
+
 	return true
 end
 
