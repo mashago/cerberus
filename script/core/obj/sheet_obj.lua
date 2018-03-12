@@ -32,6 +32,9 @@ function SheetObj:init(sheet_name, change_cb, ...)
 		end
 	end
 	assert(num > 0 and num == #self._keys, "SheetObj:init sheet key num error " .. sheet_name)
+
+	Log.debug("_const_key_num=%d", self._const_key_num)
+	Log.debug("_keys=%s", Util.table_to_string(self._keys))
 	
 	-- include const key
 	-- {
@@ -59,8 +62,8 @@ function SheetObj:init(sheet_name, change_cb, ...)
 	self._attr_map = {}
 
 	-- base on _root_attr_map
-	self._delete_attr_map = {}
 	self._insert_attr_map = {}
+	self._delete_attr_map = {}
 	self._modify_attr_map = {}
 
 	self._change_cb = change_cb
@@ -129,12 +132,61 @@ function SheetObj:init_data(db_record)
 		absolute_pos[last_key] = sub_attr_map
 	end
 
-	local self._attr_map = self._root_attr_map
+	self._attr_map = self._root_attr_map
 	for i=1, self._const_key_num do
 		self._attr_map = self._attr_map[self._keys[i][2]]
 	end
 
 end
+
+---------------------------------------
+
+-- key_list = {key1, key2, key3, ...}
+local function check_is_exists_by_key_list(t, key_list)
+	local is_marked = true
+	for k, v in ipairs(key_list) do
+		if not t or not t[v] then
+			is_marked = false
+			break
+		end
+		t = t[v]
+	end
+
+	return is_marked
+end
+
+local function remove_by_key_list(t, key_list)
+	local is_exists = false
+
+	for k, v in ipairs(key_list) do
+		if not t or not t[v] then
+			break
+		end
+		if k == #key_list then
+			t[v] = nil
+			is_exists = true
+			break
+		end
+		t = t[v]
+	end
+
+	return is_exists
+end
+
+-- mark as true
+-- key table will create if not exists
+local function mark_by_key_list(t, key_list)
+	for k, v in ipairs(key_list) do
+		if k == #key_list then
+			t[v] = true
+			break
+		end
+		t[v] = t[v] or {}
+		t = t[v]
+	end
+end
+
+------------------------------------------------
 
 -- key_list is optional, base on _attr_map
 function SheetObj:modify(attr_name, value, ...)
@@ -145,34 +197,20 @@ function SheetObj:modify(attr_name, value, ...)
 		table.insert(key_list, i, self._keys[i][2])
 	end
 
-	local absolute_pos = self._root_attr_map
-	local modify_attr_map = self._modify_attr_map
-	local insert_attr_map = self._insert_attr_map
-	local delete_attr_map = self._delete_attr_map
 
-	local is_will_delete = true
-	for _, key in ipairs(key_list) do
-		delete_attr_map = delete_attr_map[key]
-		if not delete_attr_map or not next(delete_attr_map) then
-			is_will_delete = false
-			break
-		end
-	end
+	local is_will_delete = check_is_exists_by_key_list(self._delete_attr_map, key_list)
 	if is_will_delete then
 		Log.err("SheetObj:modify modify will delete row, sheet_name=%s key_list=%s", self._sheet_name, Util.table_to_string(key_list))
 		return false
 	end
 
+	-- 1. modify normal row
+	-- 2. modify insert row
+
+	local absolute_pos = self._root_attr_map
 
 	-- check if already in _insert_attr_map, if true, will not set in _modify_attr_map
-	local is_will_insert = true 
-	for _, key in ipairs(key_list) do
-		insert_attr_map = insert_attr_map[key]
-		if not insert_attr_map then
-			is_will_insert = false
-			break
-		end
-	end
+	local is_will_insert = check_is_exists_by_key_list(self._insert_attr_map, key_list) 
 
 	if is_will_insert then
 		for _, key in ipairs(key_list) do
@@ -180,6 +218,7 @@ function SheetObj:modify(attr_name, value, ...)
 		end
 		absolute_pos[attr_name] = value
 	else
+		local modify_attr_map = self._modify_attr_map
 		for _, key in ipairs(key_list) do
 			absolute_pos = absolute_pos[key]
 			modify_attr_map[key] = modify_attr_map[key] or {}
@@ -189,7 +228,9 @@ function SheetObj:modify(attr_name, value, ...)
 		modify_attr_map[attr_name] = true
 	end
 
-	self._change_cb()
+	if self._change_cb then
+		self._change_cb()
+	end
 
 	return true
 end
@@ -214,35 +255,17 @@ function SheetObj:insert(data)
 		return false
 	end
 
+	-- 1. insert normal row
+	-- 2. insert delete row
+
 	-- core logic
 	absolute_pos[last_key] = data
 
-	-- check if will delete, if true, remove delete, add full update
-	local delete_pos = self._delete_attr_map
-	local is_will_delete = true
-	local last_key
-	for i, key in ipairs(key_list) do
-		if last_key then
-			delete_pos = delete_pos[last_key]
-		end
+	-- remove from delete
+	local is_will_delete = remove_by_key_list(self._delete_attr_map, key_list)
 
-		if not delete_pos[key] then
-			is_will_delete = false
-			break
-		end
-
-		if not next(delete_pos[key]) then
-			is_will_delete = false
-			delete_pos[key] = nil
-			break
-		end
-		last_key = key
-	end
 	if is_will_delete then
-		-- remove from delete
-		delete_pos[last_key] = nil
-
-		-- set into update
+		-- mark data into update
 		local modify_attr_map = self._modify_attr_map
 		for _, key in ipairs(key_list) do
 			modify_attr_map[key] = modify_attr_map[key] or {}
@@ -252,49 +275,12 @@ function SheetObj:insert(data)
 			modify_attr_map[k] = true
 		end
 	else
-		-- set into insert
-		local insert_pos = self._insert_attr_map
-		for i, key in ipairs(key_list) do
-			if i ~= #key_list then
-				insert_pos[key] = insert_pos[key] or {}
-				insert_pos = insert_pos[key]
-			else
-				insert_pos[key] = true
-			end
-		end
+		-- mark into insert
+		mark_by_key_list(self._insert_attr_map, key_list)
 	end
 
 
 	return true
-end
-
-local function remove_by_key_list(t, key_list)
-	local is_exists = false
-
-	for k, v in ipairs(key_list) do
-		if not t or not t[v] then
-			break
-		end
-		if k == #key_list then
-			t[v] = nil
-			is_exists = true
-			break
-		end
-		t = t[v]
-	end
-
-	return is_exists
-end
-
-local function mark_by_key_list(t, key_list)
-	for k, v in ipairs(key_list) do
-		if k == #key_list then
-			t[v] = true
-			break
-		end
-		t[v] = t[v] or {}
-		t = t[v]
-	end
 end
 
 function SheetObj:delete(...)
@@ -303,6 +289,17 @@ function SheetObj:delete(...)
 	-- fix key_list begin from root
 	for i=1, self._const_key_num do
 		table.insert(key_list, i, self._keys[i][2])
+	end
+
+	-- 1. delete normal row
+	-- 2. delete modify row
+	-- 3. delete insert row
+
+	-- remove from root
+	local is_exists = remove_by_key_list(self._root_attr_map, key_list)
+	if not is_exists then
+		Log.err("SheetObj:delete row not exists %s", Util.table_to_string(key_list))
+		return false
 	end
 
 	-- check if in insert or update
@@ -316,6 +313,14 @@ function SheetObj:delete(...)
 end
 
 function SheetObj:db_save()
+end
+
+function SheetObj:print()
+	Log.info("******* SheetObj:print %s", self._sheet_name)
+	Log.info("self._root_attr_map=%s", Util.table_to_string(self._root_attr_map))
+	Log.info("self._insert_attr_map=%s", Util.table_to_string(self._insert_attr_map))
+	Log.info("self._delete_attr_map=%s", Util.table_to_string(self._delete_attr_map))
+	Log.info("self._modify_attr_map=%s", Util.table_to_string(self._modify_attr_map))
 end
 
 return SheetObj

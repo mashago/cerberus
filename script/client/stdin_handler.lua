@@ -58,6 +58,9 @@ function cmd_handler.execute(buffer)
 		cmd_handler.do_attr_change(params)
 	elseif params[1] == "roleprint" then
 		cmd_handler.do_role_print(params)
+
+	elseif params[1] == "testobj" then
+		cmd_handler.do_test_obj(params)
 	
 	else
 		Log.warn("unknow cmd")
@@ -547,6 +550,118 @@ function cmd_handler.do_role_print(params)
 		return
 	end
 	g_role:print()
+end
+
+function cmd_handler.do_test_obj(params)
+	local role_id = 1
+	if not g_test_obj then
+		local SheetObj = require "core.obj.sheet_obj"
+		g_test_obj = SheetObj.new()
+		g_test_obj:init("testobj", nil, 1)
+		local db_record = 
+		{
+			[1] =
+			{
+				role_id = role_id,
+				item_id = 1001,
+				num = 1,
+				attr = 101,
+			},
+			[2] =
+			{
+				role_id = role_id,
+				item_id = 1002,
+				num = 2,
+				attr = 201,
+			},
+		}
+		g_test_obj:init_data(db_record)
+		g_test_obj:print()
+	end
+
+	-- modify
+	do
+		Log.debug("******* 1")
+		g_test_obj:modify("num", 20, 1001)
+		g_test_obj:print()
+
+		Log.debug("******* 2")
+		g_test_obj:modify("attr", 102, 1001)
+		g_test_obj:print()
+	end
+
+	-- insert
+	do
+		Log.debug("******* 3")
+		g_test_obj:insert(
+			{
+				role_id = role_id,
+				item_id = 1003,
+				num = 3,
+				attr = 301,
+			})
+		g_test_obj:print()
+
+		Log.debug("******* 4")
+		g_test_obj:insert(
+			{
+				role_id = role_id,
+				item_id = 1004,
+				num = 4,
+				attr = 401,
+			})
+		g_test_obj:print()
+	end
+
+	-- delete
+	do
+		-- delete modify row
+		Log.debug("******* 5")
+		g_test_obj:delete(1001)
+		g_test_obj:print()
+
+		-- delete normal row
+		Log.debug("******* 6")
+		g_test_obj:delete(1002)
+		g_test_obj:print()
+
+		-- delete insert row
+		Log.debug("******* 7")
+		g_test_obj:delete(1003)
+		g_test_obj:print()
+	end
+
+	do 
+		-- modify insert row
+		Log.debug("******* 8")
+		g_test_obj:modify("attr", 402, 1004)
+		g_test_obj:print()
+	end
+
+	-- insert
+	do
+		-- insert delete row
+		Log.debug("******* 9")
+		g_test_obj:insert(
+			{
+				role_id = role_id,
+				item_id = 1001,
+				num = 10,
+				attr = 101,
+			})
+		g_test_obj:print()
+
+		Log.debug("******* 10")
+		g_test_obj:insert(
+			{
+				role_id = role_id,
+				item_id = 1002,
+				num = 11,
+				attr = 201,
+			})
+		g_test_obj:print()
+	end
+
 end
 
 function ccall_stdin_handler(buffer)

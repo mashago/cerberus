@@ -34,6 +34,15 @@ DataStructDef.data.role_info =
 	[20] = {id=20, field='attr_struct', type=_Struct, save=1, default='_Null', sync=1},
 }
 
+-- FOR TEST
+DataStructDef.data.testobj = 
+{
+	[1] = {id=1, field='role_id', type=_Int64, save=1, default='_Null', key=1, sync=1},
+	[2] = {id=2, field='item_id', type=_Int, save=0, default='_Null', key=2, sync=1},
+	[3] = {id=3, field='num', type=_Int, save=0, default='0', key=0, sync=1},
+	[4] = {id=4, field='attr', type=_Int, save=0, default='0', key=0, sync=1},
+}
+
 function DataStructDef.func.init_cfg()
 	for table_name, table_def in pairs(DataStructDef.data) do
 		for k, field_def in ipairs(table_def) do
