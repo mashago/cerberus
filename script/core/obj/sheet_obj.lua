@@ -315,6 +315,30 @@ end
 function SheetObj:db_save()
 end
 
+local function recu(input, tmp, output)
+	for k, v in pairs(input) do
+		local t = {}
+		if tmp then
+			for _, x in ipairs(tmp) do
+				table.insert(t, x)
+			end
+		else
+			table.insert(t, k)
+		end
+		table.insert(t, v)
+		if type(v) == 'table' then
+			recu(v, t, output)
+		elseif type(v) == 'boolean' and v == true then
+			table.insert(output, t)
+		end
+	end
+end
+
+function SheetObj:collect_change()
+	local delete_record = {}
+	recu(self._delete_attr_map, nil, output)
+end
+
 function SheetObj:print()
 	Log.info("******* SheetObj:print %s", self._sheet_name)
 	Log.info("self._root_attr_map=%s", Util.table_to_string(self._root_attr_map))
