@@ -315,28 +315,22 @@ end
 function SheetObj:db_save()
 end
 
-local function recu(input, tmp, output)
-	for k, v in pairs(input) do
-		local t = {}
-		if tmp then
-			for _, x in ipairs(tmp) do
-				table.insert(t, x)
-			end
-		else
-			table.insert(t, k)
-		end
-		table.insert(t, v)
-		if type(v) == 'table' then
-			recu(v, t, output)
-		elseif type(v) == 'boolean' and v == true then
-			table.insert(output, t)
-		end
-	end
-end
-
 function SheetObj:collect_change()
+	local insert_record = {}
+	Util.map2path(self._insert_attr_map, insert_record)
 	local delete_record = {}
-	recu(self._delete_attr_map, nil, output)
+	Util.map2path(self._delete_attr_map, delete_record)
+	local modify_record = {}
+	Util.map2mergepath(self._modify_attr_map, modify_record)
+
+	self._insert_attr_map = {}
+	self._delete_attr_map = {}
+	self._modify_attr_map = {}
+	Log.info("insert_record=%s", Util.table_to_string(insert_record))
+	Log.info("delete_record=%s", Util.table_to_string(delete_record))
+	Log.info("modify_record=%s", Util.table_to_string(modify_record))
+
+	-- TODO sync to role or save db
 end
 
 function SheetObj:print()

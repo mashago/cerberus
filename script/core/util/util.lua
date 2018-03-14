@@ -128,4 +128,81 @@ function Util.unserialize(lua)
 	return func()  
 end
 
+--[[
+local t = 
+{
+	[1] = {
+		[11] =
+		{
+			[111] = true,
+			[112] = true,
+		},
+		[12] =
+		{
+			[121] = true,
+		},
+	},
+	[2] = {
+		[21] =
+		{
+		},
+		[22] =
+		{
+			[221] = true,
+		},
+	},
+}
+==>
+{
+	{1, 11, 111},
+	{1, 11, 112},
+	{1, 12, 121},
+	{2, 22, 221},
+}
+--]]
+function Util.map2path(input, output, tmp)
+    for k, v in pairs(input) do
+        local mid = {}
+        if tmp then
+            for _, key in ipairs(tmp) do
+                table.insert(mid, key)
+            end
+        end
+
+        if type(v) == 'table' then
+        	table.insert(mid, k)
+            Util.map2path(v, output, mid)
+        elseif type(v) == 'boolean' and v == true then
+        	table.insert(mid, k)
+            table.insert(output, mid)
+        end
+    end
+end
+
+function Util.map2mergepath(input, output, tmp)
+	local terminal = {}
+    for k, v in pairs(input) do
+        if type(v) == 'table' then
+			local mid = {}
+			if tmp then
+				for _, key in ipairs(tmp) do
+					table.insert(mid, key)
+				end
+			end
+        	table.insert(mid, k)
+            local terminal = Util.map2mergepath(v, output, mid)
+			if next(terminal) then
+				table.insert(mid, terminal)
+            	table.insert(output, mid)
+			end
+        elseif type(v) == 'boolean' and v == true then
+        	table.insert(terminal, k)
+        end
+    end
+	if next(terminal) and not tmp then
+		table.insert(output, {terminal})
+	end
+	return terminal
+end
+
 return Util

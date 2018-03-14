@@ -662,6 +662,8 @@ function cmd_handler.do_test_obj(params)
 		g_test_obj:print()
 	end
 
+	g_test_obj:collect_change()
+
 end
 
 function ccall_stdin_handler(buffer)
