@@ -17,7 +17,7 @@ function SheetObj:init(sheet_name, change_cb, ...)
 	assert(#const_keys > 0, "SheetObj:init key error " .. sheet_name)
 	self._const_key_num = #const_keys
 
-	self._keys = {} -- {[1]={key_id,v}, [2]={key_id,v}, ..., [n]={key_id,'_Null'}
+	self._keys = {} -- {[1]={key_id, key_name, v}, [2]={key_id, key_name, v}, ..., [n]={key_id, key_name, '_Null'}
 	
 	local num = 0
 	for _, field_def in ipairs(self._table_def) do
@@ -27,7 +27,7 @@ function SheetObj:init(sheet_name, change_cb, ...)
 			if key_index <= #const_keys then
 				key_value = const_keys[key_index]
 			end
-			self._keys[key_index] = {field_def.id, key_value}
+			self._keys[key_index] = {field_def.id, field_def.field, key_value}
 			num = num + 1
 		end
 	end
@@ -42,7 +42,10 @@ function SheetObj:init(sheet_name, change_cb, ...)
 	-- 		{
 	-- 			[key2] = 
 	-- 			{
-	-- 				[keyn] = {...}
+	-- 				[keyn] =
+	-- 				{
+	-- 					k = v,
+	-- 				}
 	-- 				[keyn] = {...}
 	-- 			}
 	-- 		}
@@ -64,7 +67,7 @@ function SheetObj:init(sheet_name, change_cb, ...)
 	-- base on _root_attr_map
 	self._insert_attr_map = {}
 	self._delete_attr_map = {}
-	self._modify_attr_map = {}
+	self._modify_attr_map = {} -- mark by attr_id
 
 	self._change_cb = change_cb
 end
@@ -73,7 +76,7 @@ function SheetObj:get_db_data()
 
 	local conditions = {}
 	for i=1, self._const_key_num do
-		conditions[self._table_def[self._keys[i][1]].field] = self._keys[i][2]
+		conditions[self._keys[i][2]] = self._keys[i][3]
 	end
 
 	local rpc_data = 
@@ -106,7 +109,7 @@ function SheetObj:init_data(db_record)
 	for _, field_def in ipairs(self._table_def) do
 		if field_def.save == 0 then
 			local value = g_funcs.str_to_value(field_def.default, field_def.type)
-			attr_map[field_def.id] = value
+			attr_map[field_def.field] = value
 		end
 	end
 
@@ -117,10 +120,8 @@ function SheetObj:init_data(db_record)
 			sub_attr_map[k] = v
 		end
 		for k, v in pairs(row) do
-			local attr_id = self._table_def[k].id
-			sub_attr_map[attr_id] = v
+			sub_attr_map[k] = v
 		end
-
 
 		local absolute_pos = self._root_attr_map
 		local last_key
@@ -128,7 +129,7 @@ function SheetObj:init_data(db_record)
 			if last_key then
 				absolute_pos = absolute_pos[last_key]
 			end
-			last_key = sub_attr_map[self._keys[i][1]]
+			last_key = sub_attr_map[self._keys[i][2]]
 			absolute_pos[last_key] = absolute_pos[last_key] or {} 
 		end
 		absolute_pos[last_key] = sub_attr_map
@@ -136,7 +137,7 @@ function SheetObj:init_data(db_record)
 
 	self._attr_map = self._root_attr_map
 	for i=1, self._const_key_num do
-		self._attr_map = self._attr_map[self._keys[i][2]]
+		self._attr_map = self._attr_map[self._keys[i][3]]
 	end
 
 end
@@ -239,7 +240,7 @@ function SheetObj:modify(attr_name, value, ...)
 	local key_list = {...}
 	-- fix key_list begin from root
 	for i=1, self._const_key_num do
-		table.insert(key_list, i, self._keys[i][2])
+		table.insert(key_list, i, self._keys[i][3])
 	end
 
 	local is_will_delete = check_is_exists_by_key_list(self._delete_attr_map, key_list)
@@ -249,13 +250,13 @@ function SheetObj:modify(attr_name, value, ...)
 	end
 
 	-- core logic
-	local attr_id = self._table_def[attr_name].id
 	local absolute_pos = self._root_attr_map
 	for _, key in ipairs(key_list) do
 		absolute_pos = absolute_pos[key]
 	end
-	absolute_pos[attr_id] = value
+	absolute_pos[attr_name] = value
 
+	local attr_id = self._table_def[attr_name].id
 	self:update_modify_map(key_list, attr_id)
 
 	if self._change_cb then
@@ -290,7 +291,6 @@ function SheetObj:update_insert_map(key_list, attr_data)
 end
 
 function SheetObj:insert(data)
-	local attr_data = self:convert_attr_data(data)
 
 	-- check if duplicate, get insert position at _root_attr_map
 	local is_duplicate = false
@@ -301,9 +301,9 @@ function SheetObj:insert(data)
 		if last_key then
 			absolute_pos = absolute_pos[last_key]
 		end
-		last_key = attr_data[v[1]]
+		last_key = data[v[2]]
 		if not last_key then
-			Log.err("SheetObj:insert key nil %s %d", self._sheet_name, v[1])
+			Log.err("SheetObj:insert key nil %s %s", self._sheet_name, v[2])
 			return false
 		end
 		absolute_pos[last_key] = absolute_pos[last_key] or {}
@@ -318,8 +318,9 @@ function SheetObj:insert(data)
 	-- TODO set default attr by table_def
 
 	-- core logic
-	absolute_pos[last_key] = attr_data
+	absolute_pos[last_key] = data
 
+	local attr_data = self:convert_attr_data(data)
 	self:update_insert_map(key_list, attr_data)
 
 	if self._change_cb then
@@ -348,7 +349,7 @@ function SheetObj:delete(...)
 	local key_list = {...}
 	-- fix key_list begin from root
 	for i=1, self._const_key_num do
-		table.insert(key_list, i, self._keys[i][2])
+		table.insert(key_list, i, self._keys[i][3])
 	end
 
 	-- remove from root
@@ -358,11 +359,11 @@ function SheetObj:delete(...)
 		return false
 	end
 
+	self:update_delete_map(key_list)
+
 	if self._change_cb then
 		self._change_cb()
 	end
-
-	self:update_delete_map(key_list)
 
 	return true
 end
