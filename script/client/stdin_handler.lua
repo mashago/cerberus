@@ -662,7 +662,7 @@ function cmd_handler.do_test_obj(params)
 		g_test_obj:print()
 	end
 
-	g_test_obj:collect_change()
+	g_test_obj:collect_dirty()
 
 end
 

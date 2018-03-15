@@ -17,7 +17,7 @@ function SheetObj:init(sheet_name, change_cb, ...)
 	assert(#const_keys > 0, "SheetObj:init key error " .. sheet_name)
 	self._const_key_num = #const_keys
 
-	self._keys = {} -- {[1]={key_name1,v}, [2]={key_name2,v}, ..., [n]={key_namen,'_Null'}
+	self._keys = {} -- {[1]={key_id,v}, [2]={key_id,v}, ..., [n]={key_id,'_Null'}
 	
 	local num = 0
 	for _, field_def in ipairs(self._table_def) do
@@ -27,7 +27,7 @@ function SheetObj:init(sheet_name, change_cb, ...)
 			if key_index <= #const_keys then
 				key_value = const_keys[key_index]
 			end
-			self._keys[key_index] = {field_def.field, key_value}
+			self._keys[key_index] = {field_def.id, key_value}
 			num = num + 1
 		end
 	end
@@ -73,7 +73,7 @@ function SheetObj:get_db_data()
 
 	local conditions = {}
 	for i=1, self._const_key_num do
-		conditions[self._keys[i][1]] = self._keys[i][2]
+		conditions[self._table_def[self._keys[i][1]].field] = self._keys[i][2]
 	end
 
 	local rpc_data = 
@@ -106,7 +106,7 @@ function SheetObj:init_data(db_record)
 	for _, field_def in ipairs(self._table_def) do
 		if field_def.save == 0 then
 			local value = g_funcs.str_to_value(field_def.default, field_def.type)
-			attr_map[field_def.field] = value
+			attr_map[field_def.id] = value
 		end
 	end
 
@@ -117,8 +117,10 @@ function SheetObj:init_data(db_record)
 			sub_attr_map[k] = v
 		end
 		for k, v in pairs(row) do
-			sub_attr_map[k] = v
+			local attr_id = self._table_def[k].id
+			sub_attr_map[attr_id] = v
 		end
+
 
 		local absolute_pos = self._root_attr_map
 		local last_key
@@ -186,7 +188,50 @@ local function mark_by_key_list(t, key_list)
 	end
 end
 
+--[[
+{
+	[attr_name1] = n,
+	[attr_name2] = n,
+}
+==>
+{
+	[attr_id1] = n,
+	[attr_id2] = n,
+}
+
+--]]
+function SheetObj:convert_attr_data(data)
+	local attr_data = {}
+	for k, v in pairs(data) do
+		local field_def = self._table_def[k]
+		if field_def then
+			attr_data[field_def.id] = v
+		end
+	end
+	return attr_data
+end
+
 ------------------------------------------------
+
+function SheetObj:update_modify_map(key_list, attr_id)
+
+	-- 1. modify normal row
+	-- 2. modify insert row
+
+	-- check if already in _insert_attr_map, if true, will not set in _modify_attr_map
+	local is_will_insert = check_is_exists_by_key_list(self._insert_attr_map, key_list) 
+
+	if is_will_insert then
+		return
+	end
+
+	local modify_attr_map = self._modify_attr_map
+	for _, key in ipairs(key_list) do
+		modify_attr_map[key] = modify_attr_map[key] or {}
+		modify_attr_map = modify_attr_map[key]
+	end
+	modify_attr_map[attr_id] = true
+end
 
 -- key_list is optional, base on _attr_map
 function SheetObj:modify(attr_name, value, ...)
@@ -197,36 +242,21 @@ function SheetObj:modify(attr_name, value, ...)
 		table.insert(key_list, i, self._keys[i][2])
 	end
 
-
 	local is_will_delete = check_is_exists_by_key_list(self._delete_attr_map, key_list)
 	if is_will_delete then
 		Log.err("SheetObj:modify modify will delete row, sheet_name=%s key_list=%s", self._sheet_name, Util.table_to_string(key_list))
 		return false
 	end
 
-	-- 1. modify normal row
-	-- 2. modify insert row
-
+	-- core logic
+	local attr_id = self._table_def[attr_name].id
 	local absolute_pos = self._root_attr_map
-
-	-- check if already in _insert_attr_map, if true, will not set in _modify_attr_map
-	local is_will_insert = check_is_exists_by_key_list(self._insert_attr_map, key_list) 
-
-	if is_will_insert then
-		for _, key in ipairs(key_list) do
-			absolute_pos = absolute_pos[key]
-		end
-		absolute_pos[attr_name] = value
-	else
-		local modify_attr_map = self._modify_attr_map
-		for _, key in ipairs(key_list) do
-			absolute_pos = absolute_pos[key]
-			modify_attr_map[key] = modify_attr_map[key] or {}
-			modify_attr_map = modify_attr_map[key]
-		end
-		absolute_pos[attr_name] = value
-		modify_attr_map[attr_name] = true
+	for _, key in ipairs(key_list) do
+		absolute_pos = absolute_pos[key]
 	end
+	absolute_pos[attr_id] = value
+
+	self:update_modify_map(key_list, attr_id)
 
 	if self._change_cb then
 		self._change_cb()
@@ -235,31 +265,10 @@ function SheetObj:modify(attr_name, value, ...)
 	return true
 end
 
-function SheetObj:insert(data)
-	-- check if duplicate
-	local is_duplicate = false
-	local absolute_pos = self._root_attr_map
-	local last_key
-	local key_list = {}
-	for _, v in ipairs(self._keys) do
-		if last_key then
-			absolute_pos = absolute_pos[last_key]
-		end
-		last_key = data[v[1]]
-		absolute_pos[last_key] = absolute_pos[last_key] or {}
-		table.insert(key_list, last_key)
-	end
-
-	if next(absolute_pos[last_key]) then
-		Log.err("SheetObj:insert duplicate key %s", self._sheet_name)
-		return false
-	end
+function SheetObj:update_insert_map(key_list, attr_data)
 
 	-- 1. insert normal row
 	-- 2. insert delete row
-
-	-- core logic
-	absolute_pos[last_key] = data
 
 	-- remove from delete
 	local is_will_delete = remove_by_key_list(self._delete_attr_map, key_list)
@@ -271,16 +280,67 @@ function SheetObj:insert(data)
 			modify_attr_map[key] = modify_attr_map[key] or {}
 			modify_attr_map = modify_attr_map[key]
 		end
-		for k, v in pairs(data) do
+		for k, v in pairs(attr_data) do
 			modify_attr_map[k] = true
 		end
 	else
 		-- mark into insert
 		mark_by_key_list(self._insert_attr_map, key_list)
 	end
+end
 
+function SheetObj:insert(data)
+	local attr_data = self:convert_attr_data(data)
+
+	-- check if duplicate, get insert position at _root_attr_map
+	local is_duplicate = false
+	local absolute_pos = self._root_attr_map
+	local last_key
+	local key_list = {}
+	for _, v in ipairs(self._keys) do
+		if last_key then
+			absolute_pos = absolute_pos[last_key]
+		end
+		last_key = attr_data[v[1]]
+		if not last_key then
+			Log.err("SheetObj:insert key nil %s %d", self._sheet_name, v[1])
+			return false
+		end
+		absolute_pos[last_key] = absolute_pos[last_key] or {}
+		table.insert(key_list, last_key)
+	end
+
+	if next(absolute_pos[last_key]) then
+		Log.err("SheetObj:insert duplicate key %s", self._sheet_name)
+		return false
+	end
+
+	-- TODO set default attr by table_def
+
+	-- core logic
+	absolute_pos[last_key] = attr_data
+
+	self:update_insert_map(key_list, attr_data)
+
+	if self._change_cb then
+		self._change_cb()
+	end
 
 	return true
+end
+
+function SheetObj:update_delete_map(key_list)
+
+	-- 1. delete normal row
+	-- 2. delete modify row
+	-- 3. delete insert row
+
+	-- check if in insert or update
+	local is_will_modify = remove_by_key_list(self._modify_attr_map, key_list)
+	local is_will_insert = remove_by_key_list(self._insert_attr_map, key_list)
+	if not is_will_insert then
+		mark_by_key_list(self._delete_attr_map, key_list)
+	end
 end
 
 function SheetObj:delete(...)
@@ -291,10 +351,6 @@ function SheetObj:delete(...)
 		table.insert(key_list, i, self._keys[i][2])
 	end
 
-	-- 1. delete normal row
-	-- 2. delete modify row
-	-- 3. delete insert row
-
 	-- remove from root
 	local is_exists = remove_by_key_list(self._root_attr_map, key_list)
 	if not is_exists then
@@ -302,12 +358,11 @@ function SheetObj:delete(...)
 		return false
 	end
 
-	-- check if in insert or update
-	local is_will_modify = remove_by_key_list(self._modify_attr_map, key_list)
-	local is_will_insert = remove_by_key_list(self._insert_attr_map, key_list)
-	if not is_will_insert then
-		mark_by_key_list(self._delete_attr_map, key_list)
+	if self._change_cb then
+		self._change_cb()
 	end
+
+	self:update_delete_map(key_list)
 
 	return true
 end
@@ -315,7 +370,7 @@ end
 function SheetObj:db_save()
 end
 
-function SheetObj:collect_change()
+function SheetObj:collect_dirty()
 	local insert_record = {}
 	Util.map2path(self._insert_attr_map, insert_record)
 	local delete_record = {}
@@ -336,6 +391,7 @@ end
 function SheetObj:print()
 	Log.info("******* SheetObj:print %s", self._sheet_name)
 	Log.info("self._root_attr_map=%s", Util.table_to_string(self._root_attr_map))
+	Log.info("self._attr_map=%s", Util.table_to_string(self._attr_map))
 	Log.info("self._insert_attr_map=%s", Util.table_to_string(self._insert_attr_map))
 	Log.info("self._delete_attr_map=%s", Util.table_to_string(self._delete_attr_map))
 	Log.info("self._modify_attr_map=%s", Util.table_to_string(self._modify_attr_map))
