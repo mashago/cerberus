@@ -243,6 +243,21 @@ function g_funcs.register_attr_func(obj_class, obj_def)
 	end
 end
 
+function g_funcs.register_getter_setter(class, sheet_name)
+	local table_def = DataStructDef.data[sheet_name]
+	for _, field_def in ipairs(table_def) do
+		local field_name = field_def.field
+		class["set_" .. field_name] = function(self, value, ...)
+			self:modify(field_name, value, ...)
+		end
+
+		class["get_" .. field_name] = function(self, ...)
+			return self:get_attr(field_name, ...)
+		end
+
+	end
+end
+
 --[[
 define attr container:
 attr_table = 

@@ -11,36 +11,48 @@ DataStructDef.func = {}
 
 DataStructDef.data.role_info = 
 {
-	[1] = {id=1, field='role_id', type=_Int64, save=1, default='_Null', key=1, sync=1},
-	[2] = {id=2, field='role_name', type=_String, save=1, default='_Null', sync=1},
-	[3] = {id=3, field='user_id', type=_Int64, save=1, default='_Null', key=0, sync=1},
-	[4] = {id=4, field='channel_id', type=_Int, save=1, default='_Null', sync=1},
-	[5] = {id=5, field='area_id', type=_Int, save=1, default='_Null', sync=1},
-	[6] = {id=6, field='is_delete', type=_Bool, save=1, default='0', sync=0},
-	[7] = {id=7, field='lv', type=_Int, save=1, default='1', sync=1},
-	[8] = {id=8, field='exp', type=_Int, save=1, default='0', sync=1},
-	[9] = {id=9, field='scene_id', type=_Int, save=1, default='1', sync=1},
-	[10] = {id=10, field='pos_x', type=_Int, save=1, default='0', sync=1},
-	[11] = {id=11, field='pos_y', type=_Int, save=1, default='0', sync=1},
-	[12] = {id=12, field='cur_hp', type=_Int, save=0, default='0', sync=1},
+	[1] = {id=1, field='role_id', type=_Int64, default='_Null', save=1, sync=1, key=1},
+	[2] = {id=2, field='role_name', type=_String, default='_Null', save=1, sync=1},
+	[3] = {id=3, field='user_id', type=_Int64, default='_Null', save=1, sync=1},
+	[4] = {id=4, field='channel_id', type=_Int, default='_Null', save=1, sync=1},
+	[5] = {id=5, field='area_id', type=_Int, default='_Null', save=1, sync=1},
+	[6] = {id=6, field='is_delete', type=_Bool, default='0', save=1, sync=0},
+	[7] = {id=7, field='lv', type=_Int, default='1', save=1, sync=1},
+	[8] = {id=8, field='exp', type=_Int, default='0', save=1, sync=1},
+	[9] = {id=9, field='scene_id', type=_Int, default='1', save=1, sync=1},
+	[10] = {id=10, field='pos_x', type=_Int, default='0', save=1, sync=1},
+	[11] = {id=11, field='pos_y', type=_Int, default='0', save=1, sync=1},
+	[12] = {id=12, field='cur_hp', type=_Int, default='0', save=0, sync=1},
 
-	[13] = {id=13, field='attr_byte', type=_Byte, save=1, default='0', sync=1},
-	[14] = {id=14, field='attr_bool', type=_Bool, save=1, default='1', sync=1},
-	[15] = {id=15, field='attr_int', type=_Int, save=1, default='0', sync=1},
-	[16] = {id=16, field='attr_float', type=_Float, save=1, default='0', sync=1},
-	[17] = {id=17, field='attr_short', type=_Short, save=1, default='0', sync=1},
-	[18] = {id=18, field='attr_int64', type=_Int64, save=1, default='0', sync=1},
-	[19] = {id=19, field='attr_string', type=_String, save=1, default='', sync=1},
-	[20] = {id=20, field='attr_struct', type=_Struct, save=1, default='_Null', sync=1},
+	[13] = {id=13, field='attr_byte', type=_Byte, default='0', save=1, sync=1},
+	[14] = {id=14, field='attr_bool', type=_Bool, default='1', save=1, sync=1},
+	[15] = {id=15, field='attr_int', type=_Int, default='0', save=1, sync=1},
+	[16] = {id=16, field='attr_float', type=_Float, default='0', save=1, sync=1},
+	[17] = {id=17, field='attr_short', type=_Short, default='0', save=1, sync=1},
+	[18] = {id=18, field='attr_int64', type=_Int64, default='0', save=1, sync=1},
+	[19] = {id=19, field='attr_string', type=_String, default='', save=1, sync=1},
+	[20] = {id=20, field='attr_struct', type=_Struct, default='_Null', save=1, sync=1},
 }
 
 -- FOR TEST
-DataStructDef.data.testobj = 
+DataStructDef.data.test_role = 
 {
-	[1] = {id=1, field='role_id', type=_Int64, save=1, default='_Null', key=1, sync=1},
-	[2] = {id=2, field='item_id', type=_Int, save=0, default='_Null', key=2, sync=1},
-	[3] = {id=3, field='num', type=_Int, save=0, default='0', key=0, sync=1},
-	[4] = {id=4, field='attr', type=_Int, save=0, default='0', key=0, sync=1},
+	[1] = {id=1, field='role_id', type=_Int64, default='_Null', save=1, sync=1, key=1},
+	[2] = {id=2, field='sync_attr', type=_Int, default='0', save=0, sync=1},
+	[3] = {id=3, field='save_attr', type=_Int, default='0', save=1, sync=0},
+	[4] = {id=4, field='sync_save_attr', type=_Int, default='0', save=1, sync=1},
+	[5] = {id=5, field='tmp_attr', type=_Int, default='0', save=0, sync=0},
+}
+
+DataStructDef.data.test_bag = 
+{
+	[1] = {id=1, field='role_id', type=_Int64, default='_Null', save=1, sync=1, key=1},
+	[2] = {id=2, field='item_id', type=_Int, default='_Null', save=1, sync=1, key=2},
+	[3] = {id=3, field='num', type=_Int, default='0', save=1, sync=1},
+	[4] = {id=4, field='sync_attr', type=_Int, default='0', save=0, sync=1},
+	[5] = {id=5, field='save_attr', type=_Int, default='0', save=1, sync=0},
+	[6] = {id=6, field='sync_save_attr', type=_Int, default='0', save=1, sync=1},
+	[7] = {id=7, field='tmp_attr', type=_Int, default='0', save=0, sync=0},
 }
 
 function DataStructDef.func.init_cfg()

@@ -1,5 +1,5 @@
 
-local SheetObj = class()
+SheetObj = class()
 
 --[[
 function SheetObj:ctor(sheet_name)
@@ -7,14 +7,14 @@ end
 --]]
 
 -- call by inherit class ctor
-function SheetObj:init(sheet_name, change_cb, ...)
+function SheetObj:init_sheet(sheet_name, change_cb, ...)
 	
 	self._sheet_name = sheet_name
 	self._table_def = DataStructDef.data[sheet_name]
 	assert(self._table_def, "SheetObj:ctor no such sheet " .. sheet_name)
 
 	local const_keys = {...} -- {key_value1, key_value2, ...}
-	assert(#const_keys > 0, "SheetObj:init key error " .. sheet_name)
+	assert(#const_keys > 0, "SheetObj:init_sheet key error " .. sheet_name)
 	self._const_key_num = #const_keys
 
 	self._keys = {} -- {[1]={key_id, key_name, v}, [2]={key_id, key_name, v}, ..., [n]={key_id, key_name, '_Null'}
@@ -31,7 +31,7 @@ function SheetObj:init(sheet_name, change_cb, ...)
 			num = num + 1
 		end
 	end
-	assert(num > 0 and num == #self._keys, "SheetObj:init sheet key num error " .. sheet_name)
+	assert(num > 0 and num == #self._keys, "SheetObj:init_sheet sheet key num error " .. sheet_name)
 
 	Log.debug("_const_key_num=%d", self._const_key_num)
 	Log.debug("_keys=%s", Util.table_to_string(self._keys))
@@ -65,14 +65,18 @@ function SheetObj:init(sheet_name, change_cb, ...)
 	self._attr_map = {}
 
 	-- base on _root_attr_map
-	self._insert_attr_map = {}
-	self._delete_attr_map = {}
-	self._modify_attr_map = {} -- mark by attr_id
+	self._sync_insert_attr_map = {}
+	self._sync_delete_attr_map = {}
+	self._sync_modify_attr_map = {} -- mark by attr_id
+
+	self._db_insert_attr_map = {}
+	self._db_delete_attr_map = {}
+	self._db_modify_attr_map = {} -- mark by attr_id
 
 	self._change_cb = change_cb
 end
 
-function SheetObj:get_db_data()
+function SheetObj:load_data()
 
 	local conditions = {}
 	for i=1, self._const_key_num do
@@ -88,12 +92,12 @@ function SheetObj:get_db_data()
 
 	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_game_select", rpc_data, self._key)
 	if not status then
-		Log.err("SheetObj:get_db_data fail")
+		Log.err("SheetObj:load_data fail")
 		return false
 	end
 
 	if ret.result ~= ErrorCode.SUCCESS then
-		Log.err("SheetObj:get_db_data error %d", ret.result)
+		Log.err("SheetObj:load_data error %d", ret.result)
 		return false
 	end
 
@@ -212,38 +216,58 @@ function SheetObj:convert_attr_data(data)
 	return attr_data
 end
 
-------------------------------------------------
-
-function SheetObj:update_modify_map(key_list, attr_id)
-
-	-- 1. modify normal row
-	-- 2. modify insert row
-
-	-- check if already in _insert_attr_map, if true, will not set in _modify_attr_map
-	local is_will_insert = check_is_exists_by_key_list(self._insert_attr_map, key_list) 
-
-	if is_will_insert then
-		return
-	end
-
-	local modify_attr_map = self._modify_attr_map
-	for _, key in ipairs(key_list) do
-		modify_attr_map[key] = modify_attr_map[key] or {}
-		modify_attr_map = modify_attr_map[key]
-	end
-	modify_attr_map[attr_id] = true
-end
-
--- key_list is optional, base on _attr_map
-function SheetObj:modify(attr_name, value, ...)
-	
+function SheetObj:get_fix_key_list(...)
 	local key_list = {...}
 	-- fix key_list begin from root
 	for i=1, self._const_key_num do
 		table.insert(key_list, i, self._keys[i][3])
 	end
+	return key_list
+end
 
-	local is_will_delete = check_is_exists_by_key_list(self._delete_attr_map, key_list)
+function SheetObj:get_attr(attr_name, ...)
+	local key_list = self:get_fix_key_list(...)
+
+	local target = self._root_attr_map
+	for _, key in ipairs(key_list) do
+		target = target[key]
+	end
+	return target[attr_name]
+end
+
+------------------------------------------------
+
+function SheetObj:update_modify_map(insert_map, delete_map, modify_map, key_list, attr_id, check_flag)
+
+	local flag = self._table_def[attr_id][check_flag]
+	if not flag or flag == 0 then
+		return
+	end
+
+	-- 1. modify normal row
+	-- 2. modify insert row
+
+	-- check if already in insert_map, if true, will not set in modify_map
+	local is_will_insert = check_is_exists_by_key_list(insert_map, key_list) 
+
+	if is_will_insert then
+		return
+	end
+
+	local target_map = modify_map
+	for _, key in ipairs(key_list) do
+		target_map[key] = target_map[key] or {}
+		target_map = target_map[key]
+	end
+	target_map[attr_id] = true
+end
+
+-- ... is key_list, base on _attr_map
+function SheetObj:modify(attr_name, value, ...)
+	
+	local key_list = self:get_fix_key_list(...)
+
+	local is_will_delete = check_is_exists_by_key_list(self._sync_delete_attr_map, key_list)
 	if is_will_delete then
 		Log.err("SheetObj:modify modify will delete row, sheet_name=%s key_list=%s", self._sheet_name, Util.table_to_string(key_list))
 		return false
@@ -257,7 +281,8 @@ function SheetObj:modify(attr_name, value, ...)
 	absolute_pos[attr_name] = value
 
 	local attr_id = self._table_def[attr_name].id
-	self:update_modify_map(key_list, attr_id)
+	self:update_modify_map(self._sync_insert_attr_map, self._sync_delete_attr_map, self._sync_modify_attr_map, key_list, attr_id, "sync")
+	self:update_modify_map(self._db_insert_attr_map, self._db_delete_attr_map, self._db_modify_attr_map, key_list, attr_id, "save")
 
 	if self._change_cb then
 		self._change_cb()
@@ -266,28 +291,32 @@ function SheetObj:modify(attr_name, value, ...)
 	return true
 end
 
-function SheetObj:update_insert_map(key_list, attr_data)
+function SheetObj:update_insert_map(insert_map, delete_map, modify_map, key_list, attr_data, check_flag)
 
 	-- 1. insert normal row
 	-- 2. insert delete row
 
 	-- remove from delete
-	local is_will_delete = remove_by_key_list(self._delete_attr_map, key_list)
+	local is_will_delete = remove_by_key_list(delete_map, key_list)
 
 	if is_will_delete then
 		-- mark data into update
-		local modify_attr_map = self._modify_attr_map
+		local target_map = modify_map
 		for _, key in ipairs(key_list) do
-			modify_attr_map[key] = modify_attr_map[key] or {}
-			modify_attr_map = modify_attr_map[key]
+			target_map[key] = target_map[key] or {}
+			target_map = target_map[key]
 		end
-		for k, v in pairs(attr_data) do
-			modify_attr_map[k] = true
+		for attr_id, v in pairs(attr_data) do
+			local flag = self._table_def[attr_id][check_flag]
+			if flag and flag ~= 0 then
+				target_map[attr_id] = true
+			end
 		end
 	else
 		-- mark into insert
-		mark_by_key_list(self._insert_attr_map, key_list)
+		mark_by_key_list(insert_map, key_list)
 	end
+
 end
 
 function SheetObj:insert(data)
@@ -321,7 +350,8 @@ function SheetObj:insert(data)
 	absolute_pos[last_key] = data
 
 	local attr_data = self:convert_attr_data(data)
-	self:update_insert_map(key_list, attr_data)
+	self:update_insert_map(self._sync_insert_attr_map, self._sync_delete_attr_map, self._sync_modify_attr_map, key_list, attr_data, "sync")
+	self:update_insert_map(self._db_insert_attr_map, self._db_delete_attr_map, self._db_modify_attr_map, key_list, attr_data, "save")
 
 	if self._change_cb then
 		self._change_cb()
@@ -330,27 +360,24 @@ function SheetObj:insert(data)
 	return true
 end
 
-function SheetObj:update_delete_map(key_list)
+function SheetObj:update_delete_map(insert_map, delete_map, modify_map, key_list)
 
 	-- 1. delete normal row
 	-- 2. delete modify row
 	-- 3. delete insert row
 
 	-- check if in insert or update
-	local is_will_modify = remove_by_key_list(self._modify_attr_map, key_list)
-	local is_will_insert = remove_by_key_list(self._insert_attr_map, key_list)
+	local is_will_modify = remove_by_key_list(modify_map, key_list)
+	local is_will_insert = remove_by_key_list(insert_map, key_list)
 	if not is_will_insert then
-		mark_by_key_list(self._delete_attr_map, key_list)
+		mark_by_key_list(delete_map, key_list)
 	end
 end
 
+-- ... is key_list, base on _attr_map
 function SheetObj:delete(...)
 	
-	local key_list = {...}
-	-- fix key_list begin from root
-	for i=1, self._const_key_num do
-		table.insert(key_list, i, self._keys[i][3])
-	end
+	local key_list = self:get_fix_key_list(...)
 
 	-- remove from root
 	local is_exists = remove_by_key_list(self._root_attr_map, key_list)
@@ -359,7 +386,8 @@ function SheetObj:delete(...)
 		return false
 	end
 
-	self:update_delete_map(key_list)
+	self:update_delete_map(self._sync_insert_attr_map, self._sync_delete_attr_map, self._sync_modify_attr_map, key_list)
+	self:update_delete_map(self._db_insert_attr_map, self._db_delete_attr_map, self._db_modify_attr_map, key_list)
 
 	if self._change_cb then
 		self._change_cb()
@@ -371,31 +399,53 @@ end
 function SheetObj:db_save()
 end
 
-function SheetObj:collect_dirty()
+function SheetObj:collect_sync_dirty()
+	Log.info("SheetObj:collect_sync_dirty()")
 	local insert_record = {}
-	Util.map2path(self._insert_attr_map, insert_record)
+	Util.map2path(self._sync_insert_attr_map, insert_record)
 	local delete_record = {}
-	Util.map2path(self._delete_attr_map, delete_record)
+	Util.map2path(self._sync_delete_attr_map, delete_record)
 	local modify_record = {}
-	Util.map2mergepath(self._modify_attr_map, modify_record)
+	Util.map2mergepath(self._sync_modify_attr_map, modify_record)
 
-	self._insert_attr_map = {}
-	self._delete_attr_map = {}
-	self._modify_attr_map = {}
+	self._sync_insert_attr_map = {}
+	self._sync_delete_attr_map = {}
+	self._sync_modify_attr_map = {}
 	Log.info("insert_record=%s", Util.table_to_string(insert_record))
 	Log.info("delete_record=%s", Util.table_to_string(delete_record))
 	Log.info("modify_record=%s", Util.table_to_string(modify_record))
 
-	-- TODO sync to role or save db
+	return insert_record, delete_record, modify_record
+end
+
+function SheetObj:collect_db_dirty()
+	Log.info("SheetObj:collect_db_dirty()")
+	local insert_record = {}
+	Util.map2path(self._db_insert_attr_map, insert_record)
+	local delete_record = {}
+	Util.map2path(self._db_delete_attr_map, delete_record)
+	local modify_record = {}
+	Util.map2mergepath(self._db_modify_attr_map, modify_record)
+
+	self._db_insert_attr_map = {}
+	self._db_delete_attr_map = {}
+	self._db_modify_attr_map = {}
+	Log.info("insert_record=%s", Util.table_to_string(insert_record))
+	Log.info("delete_record=%s", Util.table_to_string(delete_record))
+	Log.info("modify_record=%s", Util.table_to_string(modify_record))
+
+	return insert_record, delete_record, modify_record
 end
 
 function SheetObj:print()
 	Log.info("******* SheetObj:print %s", self._sheet_name)
 	Log.info("self._root_attr_map=%s", Util.table_to_string(self._root_attr_map))
-	Log.info("self._attr_map=%s", Util.table_to_string(self._attr_map))
-	Log.info("self._insert_attr_map=%s", Util.table_to_string(self._insert_attr_map))
-	Log.info("self._delete_attr_map=%s", Util.table_to_string(self._delete_attr_map))
-	Log.info("self._modify_attr_map=%s", Util.table_to_string(self._modify_attr_map))
+	Log.info("self._sync_insert_attr_map=%s", Util.table_to_string(self._sync_insert_attr_map))
+	Log.info("self._sync_delete_attr_map=%s", Util.table_to_string(self._sync_delete_attr_map))
+	Log.info("self._sync_modify_attr_map=%s", Util.table_to_string(self._sync_modify_attr_map))
+	Log.info("self._db_insert_attr_map=%s", Util.table_to_string(self._db_insert_attr_map))
+	Log.info("self._db_delete_attr_map=%s", Util.table_to_string(self._db_delete_attr_map))
+	Log.info("self._db_modify_attr_map=%s", Util.table_to_string(self._db_modify_attr_map))
 end
 
 return SheetObj

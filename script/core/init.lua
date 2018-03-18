@@ -1,5 +1,6 @@
 require "core.util.init"
 require "core.global.init"
+require "core.obj.sheet_obj"
 require "core.log.logger"
 require "core.net.init"
 require "core.timer.timer"

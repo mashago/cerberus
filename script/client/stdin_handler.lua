@@ -59,8 +59,10 @@ function cmd_handler.execute(buffer)
 	elseif params[1] == "roleprint" then
 		cmd_handler.do_role_print(params)
 
-	elseif params[1] == "testobj" then
-		cmd_handler.do_test_obj(params)
+	elseif params[1] == "testrole" then
+		cmd_handler.do_test_role(params)
+	elseif params[1] == "testbag" then
+		cmd_handler.do_test_bag(params)
 	
 	else
 		Log.warn("unknow cmd")
@@ -552,117 +554,211 @@ function cmd_handler.do_role_print(params)
 	g_role:print()
 end
 
-function cmd_handler.do_test_obj(params)
-	local role_id = 1
-	if not g_test_obj then
-		local SheetObj = require "core.obj.sheet_obj"
-		g_test_obj = SheetObj.new()
-		g_test_obj:init("testobj", nil, 1)
-		local db_record = 
+function cmd_handler.do_test_role(params)
+	local role_id = 10000
+	require("client.test_role")
+
+	local test_role = TestRole.new(role_id)
+	test_role:init()
+	Log.debug("test_role = %s", Util.table_to_string(test_role))
+
+	local db_record = 
+	{
+		[1] =
 		{
-			[1] =
-			{
-				role_id = role_id,
-				item_id = 1001,
-				num = 1,
-				attr = 101,
-			},
-			[2] =
-			{
-				role_id = role_id,
-				item_id = 1002,
-				num = 2,
-				attr = 201,
-			},
-		}
-		g_test_obj:init_data(db_record)
-		g_test_obj:print()
-	end
+			role_id = role_id,
+			save_attr = 131,
+			sync_save_attr = 141,
+		},
+	}
+	test_role:init_data(db_record)
+	test_role:print()
 
 	-- modify
 	do
 		Log.debug("******* 1")
-		g_test_obj:modify("num", 20, 1001)
-		g_test_obj:print()
+		test_role:set_sync_attr(122)
+		test_role:set_save_attr(132)
+		test_role:set_sync_save_attr(142)
+		test_role:set_tmp_attr(152)
+		test_role:print()
+	end
+
+	test_role:collect_sync_dirty()
+	test_role:collect_db_dirty()
+
+
+	local role_id = 20000
+	local test_role2 = TestRole.new(role_id)
+	test_role2:init()
+	Log.debug("test_role2 = %s", Util.table_to_string(test_role2))
+
+	local db_record = 
+	{
+		[1] =
+		{
+			role_id = role_id,
+			save_attr = 231,
+			sync_save_attr = 241,
+		},
+	}
+	test_role2:init_data(db_record)
+	test_role2:print()
+
+	-- modify
+	do
+		Log.debug("******* 1")
+		test_role2:set_sync_attr(222)
+		test_role2:set_save_attr(232)
+		test_role2:set_sync_save_attr(242)
+		test_role2:set_tmp_attr(152)
+		test_role2:print()
+	end
+
+	test_role2:collect_sync_dirty()
+	test_role2:collect_db_dirty()
+
+	Log.debug("***********************")
+	test_role:print()
+	Log.debug("#######################")
+	test_role2:print()
+end
+
+function cmd_handler.do_test_bag(params)
+	local role_id = 10000
+	require("client.test_bag")
+	local test_bag = TestBag.new(role_id)
+	test_bag:init()
+	Log.debug("test_bag = %s", Util.table_to_string(test_bag))
+
+	local db_record = 
+	{
+		[1] =
+		{
+			role_id = role_id,
+			item_id = 1001,
+			num = 131,
+			save_attr = 151,
+			sync_save_attr = 161,
+		},
+		[2] =
+		{
+			role_id = role_id,
+			item_id = 1002,
+			num = 231,
+			save_attr = 251,
+			sync_save_attr = 261,
+		},
+	}
+	test_bag:init_data(db_record)
+	test_bag:print()
+
+	-- modify
+	do
+		Log.debug("******* 1")
+		test_bag:set_num(132, 1001)
+		test_bag:set_sync_attr(142, 1001)
+		test_bag:set_save_attr(152, 1001)
+		test_bag:set_sync_save_attr(162, 1001)
+		test_bag:set_tmp_attr(172, 1001)
 
 		Log.debug("******* 2")
-		g_test_obj:modify("attr", 102, 1001)
-		g_test_obj:print()
+		test_bag:set_num(232, 1002)
+		test_bag:set_sync_attr(242, 1002)
+		test_bag:set_save_attr(252, 1002)
+		test_bag:set_sync_save_attr(262, 1002)
+		test_bag:set_tmp_attr(272, 1002)
+		test_bag:print()
+
+		Log.debug("1002 save_attr=%d", test_bag:get_save_attr(1002))
 	end
 
 	-- insert
 	do
 		Log.debug("******* 3")
-		g_test_obj:insert(
+		test_bag:insert(
 			{
 				role_id = role_id,
 				item_id = 1003,
-				num = 3,
-				attr = 301,
+				num = 331,
+				sync_attr = 341,
+				save_attr = 351,
+				sync_save_attr = 361,
+				tmp_attr = 371,
 			})
-		g_test_obj:print()
 
 		Log.debug("******* 4")
-		g_test_obj:insert(
+		test_bag:insert(
 			{
 				role_id = role_id,
 				item_id = 1004,
-				num = 4,
-				attr = 401,
+				num = 431,
+				sync_attr = 441,
+				save_attr = 451,
+				sync_save_attr = 461,
+				tmp_attr = 471,
 			})
-		g_test_obj:print()
+		test_bag:print()
 	end
 
 	-- delete
 	do
 		-- delete modify row
 		Log.debug("******* 5")
-		g_test_obj:delete(1001)
-		g_test_obj:print()
+		test_bag:delete(1001)
 
 		-- delete normal row
 		Log.debug("******* 6")
-		g_test_obj:delete(1002)
-		g_test_obj:print()
+		test_bag:delete(1002)
 
 		-- delete insert row
 		Log.debug("******* 7")
-		g_test_obj:delete(1003)
-		g_test_obj:print()
+		test_bag:delete(1003)
+		test_bag:print()
 	end
 
 	do 
 		-- modify insert row
 		Log.debug("******* 8")
-		g_test_obj:modify("attr", 402, 1004)
-		g_test_obj:print()
+		test_bag:set_num(433, 1004)
+		test_bag:set_sync_attr(443, 1004)
+		test_bag:set_save_attr(453, 1004)
+		test_bag:set_sync_save_attr(463, 1004)
+		test_bag:set_tmp_attr(473, 1004)
+		test_bag:print()
 	end
 
 	-- insert
 	do
 		-- insert delete row
 		Log.debug("******* 9")
-		g_test_obj:insert(
+		test_bag:insert(
 			{
 				role_id = role_id,
 				item_id = 1001,
-				num = 10,
-				attr = 101,
+				num = 132,
+				sync_attr = 142,
+				save_attr = 152,
+				sync_save_attr = 162,
+				tmp_attr = 172,
 			})
-		g_test_obj:print()
 
 		Log.debug("******* 10")
-		g_test_obj:insert(
+		test_bag:insert(
 			{
 				role_id = role_id,
 				item_id = 1002,
-				num = 11,
-				attr = 201,
+				num = 232,
+				sync_attr = 242,
+				save_attr = 252,
+				sync_save_attr = 262,
+				tmp_attr = 272,
 			})
-		g_test_obj:print()
+		test_bag:print()
 	end
 
-	g_test_obj:collect_dirty()
+	test_bag:collect_sync_dirty()
+	test_bag:collect_db_dirty()
 
 end
 
