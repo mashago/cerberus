@@ -4,6 +4,9 @@ local RoleMgr = class()
 function RoleMgr:ctor()
 	self._all_role_map = {} -- {[role_id]=[role], }
 	self._mailbox_role_map = {} -- gate_mailbox_id to role_id map {[mailbox_id]={role_id=true, role_id=true}, } -- 
+
+	self._sync_role_timer_index = 0
+	self._sync_role_map = {} -- role_id
 end
 
 function RoleMgr:add_role(role)
@@ -28,6 +31,30 @@ function RoleMgr:del_role(role)
 	self._all_role_map[role._role_id] = nil
 	self._mailbox_role_map[role._mailbox_id][role._role_id] = nil
 	role._mailbox_id = 0
+end
+
+function RoleMgr:sync_role()
+	for role_id, _ in pairs(self._sync_role_map) do
+		local role = self:get_role_by_id(role_id)
+		if role then
+			role:do_sync()
+		end
+	end
+	self._sync_role_map = {}
+end
+
+function RoleMgr:mark_sync_role(role_id)
+	self._sync_role_map[role_id] = true
+	if self._sync_role_timer_index ~= 0 then
+		return
+	end
+	local timer_cb = function(self)
+		self._sync_role_timer_index = 0
+		self:sync_role()
+	end
+	local ROLE_SYNC_INTERVAL = 500 -- ms
+	self._sync_role_timer_index = g_timer:add_timer(ROLE_SYNC_INTERVAL, timer_cb, self, false)
+
 end
 
 return RoleMgr

@@ -6,6 +6,7 @@ Role = class(SheetObj)
 function Role:ctor(role_id, mailbox_id)
 	self._role_id = role_id
 	self._mailbox_id = mailbox_id -- gate mailbox id
+	self._db_save_timer_index = 0 -- > 0 means need save
 end
 
 function Role:send_msg(msg_id, msg)
@@ -16,6 +17,7 @@ end
 function Role:init()
 	function change_cb(...)
 		Log.debug("change_cb %s", Util.table_to_string({...}))
+		self:active_sync()
 	end
 	self:init_sheet(sheet_name, change_cb, self._role_id)
 end
@@ -72,8 +74,16 @@ function Role:active_save()
 	self._db_save_timer_index = g_timer:add_timer(ROLE_DB_SAVE_INTERVAL, timer_cb, self, false)
 end
 
-function Role:active_sync()
+function Role:do_sync()
+	local insert_record, delete_record, modify_record = self:collect_sync_dirty()
 	-- TODO
+	self:send_msg(MID.ATTR_INSERT_RET)
+	self:send_msg(MID.ATTR_DELETE_RET)
+	self:send_msg(MID.ATTR_MODIFY_RET)
+end
+
+function Role:active_sync()
+	g_role_mgr:mark_sync_role(self._role_id)
 end
 
 function Role:force_save()
