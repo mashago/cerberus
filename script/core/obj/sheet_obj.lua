@@ -437,6 +437,21 @@ function SheetObj:collect_db_dirty()
 	return insert_record, delete_record, modify_record
 end
 
+function SheetObj:convert_sync_modify_data(modify_record)
+	-- TODO
+	local ret = {}
+	for _, line in ipairs(modify_record) do
+		local key = {}
+		local attr_table = {}
+		for __, node in ipairs(line) do
+			if type(node) ~= 'table' then
+				-- is line key
+
+			end
+		end
+	end
+end
+
 function SheetObj:print()
 	Log.info("******* SheetObj:print %s", self._sheet_name)
 	Log.info("self._root_attr_map=%s", Util.table_to_string(self._root_attr_map))

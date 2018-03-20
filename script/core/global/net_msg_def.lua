@@ -30,9 +30,9 @@ MID._id_name_map =
 	[20023] = "ROLE_ATTR_RET",
 	[20024] = "ROLE_ATTR_CHANGE_REQ",
 	[20025] = "ROLE_ATTR_CHANGE_RET",
-	[20026] = "ATTR_MODIFY_RET",
-	[20027] = "ATTR_INSERT_RET",
-	[20028] = "ATTR_DELETE_RET",
+	[20026] = "ATTR_INSERT_RET",
+	[20027] = "ATTR_DELETE_RET",
+	[20028] = "ATTR_MODIFY_RET",
 
 	-- msg for server
 	-- about master_svr
@@ -161,6 +161,12 @@ AttrTableStruct =
 	{ "int64_attr_list", _StructArray, Int64AttrStruct },
 	{ "string_attr_list", _StructArray, StringAttrStruct },
 	{ "struct_attr_list", _StructArray, StructAttrStruct },
+}
+
+ModifyAttrTableStruct =
+{
+	{ "key", _Struct, AttrTableStruct },
+	{ "attr_table", _Struct, AttrTableStruct },
 }
 
 -----------------------------------
@@ -324,23 +330,22 @@ MSG_DEF_MAP =
 		{ "attr_table", _Struct, AttrTableStruct },
 	},
 
-	[MID.ATTR_MODIFY_RET] =
-	{
-		{ "sheet_name", _String },
-		{ "attr_key", _Struct, AttrTableStruct },
-		{ "attr_value", _Struct, AttrTableStruct },
-	},
-
 	[MID.ATTR_INSERT_RET] =
 	{
 		{ "sheet_name", _String },
-		{ "attr_value", _Struct, AttrTableStruct },
+		{ "attr_list", _StructArray, AttrTableStruct },
 	},
 
 	[MID.ATTR_DELETE_RET] =
 	{
 		{ "sheet_name", _String },
-		{ "attr_key", _Struct, AttrTableStruct },
+		{ "attr_list", _StructArray, AttrTableStruct },
+	},
+
+	[MID.ATTR_MODIFY_RET] =
+	{
+		{ "sheet_name", _String },
+		{ "attr_list", _StructArray, ModifyAttrTableStruct },
 	},
 
 	----------------------------------------
