@@ -437,19 +437,53 @@ function SheetObj:collect_db_dirty()
 	return insert_record, delete_record, modify_record
 end
 
-function SheetObj:convert_sync_modify_data(modify_record)
+function SheetObj:convert_sync_insert_rows(insert_record)
 	-- TODO
+end
+
+function SheetObj:convert_sync_delete_rows(delete_record)
+	-- TODO
+end
+
+function SheetObj:convert_sync_modify_rows(modify_record)
 	local ret = {}
 	for _, line in ipairs(modify_record) do
-		local key = {}
-		local attr_table = {}
-		for __, node in ipairs(line) do
+		local keys = g_funcs.get_empty_attr_table()
+		local attrs = g_funcs.get_empty_attr_table()
+		local row = self._root_attr_map
+		for i, node in ipairs(line) do
 			if type(node) ~= 'table' then
-				-- is line key
-
+				-- is key
+				local key_info = self._keys[i]
+				g_funcs.set_attr_table(keys, self._table_def, key_info[2], node)
+				row = row[node]
+			else
+				-- is modify attr name list
+				for __, attr_id in ipairs(node) do
+					local attr_name = self._table_def[attr_id].field
+					g_funcs.set_attr_table(attrs, self._table_def, attr_name, row[attr_name])
+				end
 			end
 		end
+		table.insert(ret,
+		{
+			keys = keys,
+			attrs = attrs,
+		})
 	end
+	return ret
+end
+
+function SheetObj:convert_db_insert_rows(insert_record)
+	-- TODO
+end
+
+function SheetObj:convert_db_delete_rows(delete_record)
+	-- TODO
+end
+
+function SheetObj:convert_db_modify_rows(modify_record)
+	-- TODO
 end
 
 function SheetObj:print()

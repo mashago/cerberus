@@ -165,8 +165,8 @@ AttrTableStruct =
 
 ModifyAttrTableStruct =
 {
-	{ "key", _Struct, AttrTableStruct },
-	{ "attr_table", _Struct, AttrTableStruct },
+	{ "keys", _Struct, AttrTableStruct },
+	{ "attrs", _Struct, AttrTableStruct },
 }
 
 -----------------------------------
@@ -333,19 +333,19 @@ MSG_DEF_MAP =
 	[MID.ATTR_INSERT_RET] =
 	{
 		{ "sheet_name", _String },
-		{ "attr_list", _StructArray, AttrTableStruct },
+		{ "rows", _StructArray, AttrTableStruct },
 	},
 
 	[MID.ATTR_DELETE_RET] =
 	{
 		{ "sheet_name", _String },
-		{ "attr_list", _StructArray, AttrTableStruct },
+		{ "rows", _StructArray, AttrTableStruct },
 	},
 
 	[MID.ATTR_MODIFY_RET] =
 	{
 		{ "sheet_name", _String },
-		{ "attr_list", _StructArray, ModifyAttrTableStruct },
+		{ "rows", _StructArray, ModifyAttrTableStruct },
 	},
 
 	----------------------------------------

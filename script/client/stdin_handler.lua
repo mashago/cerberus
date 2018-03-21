@@ -615,8 +615,13 @@ function cmd_handler.do_test_role(params)
 		test_role2:print()
 	end
 
-	test_role2:collect_sync_dirty()
-	test_role2:collect_db_dirty()
+	local sync_insert_record, sync_delete_record, sync_modify_record = test_role2:collect_sync_dirty()
+	local db_insert_record, db_delete_record, db_modify_record = test_role2:collect_db_dirty()
+
+	Log.debug("sync_modify_record=%s", Util.table_to_string(sync_modify_record))
+
+	local modify_rows = test_role2:convert_sync_modify_rows(sync_modify_record)
+	Log.debug("modify_rows=%s", Util.table_to_string(modify_rows))
 
 	Log.debug("***********************")
 	test_role:print()

@@ -1,5 +1,5 @@
 
-local sheet_name = "role_info"
+local SHEET_NAME = "role_info"
 
 Role = class(SheetObj)
 
@@ -19,7 +19,7 @@ function Role:init()
 		Log.debug("change_cb %s", Util.table_to_string({...}))
 		self:active_sync()
 	end
-	self:init_sheet(sheet_name, change_cb, self._role_id)
+	self:init_sheet(SHEET_NAME, change_cb, self._role_id)
 end
 
 function Role:load_and_init_data()
@@ -77,9 +77,11 @@ end
 function Role:do_sync()
 	local insert_record, delete_record, modify_record = self:collect_sync_dirty()
 	-- TODO
-	self:send_msg(MID.ATTR_INSERT_RET)
-	self:send_msg(MID.ATTR_DELETE_RET)
-	self:send_msg(MID.ATTR_MODIFY_RET)
+	-- self:send_msg(MID.ATTR_INSERT_RET)
+	-- self:send_msg(MID.ATTR_DELETE_RET)
+
+	local modify_rows = self:convert_sync_modify_rows(modify_record)
+	self:send_msg(MID.ATTR_MODIFY_RET, SHEET_NAME, modify_rows)
 end
 
 function Role:active_sync()
@@ -103,4 +105,4 @@ function Role:on_disconnect()
 	g_role_mgr:del_role(self)
 end
 
-g_funcs.register_getter_setter(Role, sheet_name)
+g_funcs.register_getter_setter(Role, SHEET_NAME)
