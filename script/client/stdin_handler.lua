@@ -759,12 +759,20 @@ function cmd_handler.do_test_bag(params)
 				sync_save_attr = 262,
 				tmp_attr = 272,
 			})
+
 		test_bag:print()
 	end
 
-	test_bag:collect_sync_dirty()
-	test_bag:collect_db_dirty()
+	local sync_insert_record, sync_delete_record, sync_modify_record = test_bag:collect_sync_dirty()
+	local db_insert_record, db_delete_record, db_modify_record = test_bag:collect_db_dirty()
 
+	local sync_insert_rows = test_bag:convert_sync_insert_rows(sync_insert_record)
+	local sync_delete_rows = test_bag:convert_sync_delete_rows(sync_delete_record)
+	local sync_modify_rows = test_bag:convert_sync_modify_rows(sync_modify_record)
+
+	Log.debug("sync_insert_rows=%s", Util.table_to_string(sync_insert_rows))
+	Log.debug("sync_delete_rows=%s", Util.table_to_string(sync_delete_rows))
+	Log.debug("sync_modify_rows=%s", Util.table_to_string(sync_modify_rows))
 end
 
 function ccall_stdin_handler(buffer)

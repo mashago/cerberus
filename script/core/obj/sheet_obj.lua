@@ -308,7 +308,8 @@ function SheetObj:update_insert_map(insert_map, delete_map, modify_map, key_list
 		end
 		for attr_id, v in pairs(attr_data) do
 			local flag = self._table_def[attr_id][check_flag]
-			if flag and flag ~= 0 then
+			local key = self._table_def[attr_id].key or 0
+			if flag and flag ~= 0 and key == 0 then
 				target_map[attr_id] = true
 			end
 		end
@@ -438,11 +439,34 @@ function SheetObj:collect_db_dirty()
 end
 
 function SheetObj:convert_sync_insert_rows(insert_record)
-	-- TODO
+	local ret = {}
+	for _, line in ipairs(insert_record) do
+		local attrs = g_funcs.get_empty_attr_table()
+		local row = self._root_attr_map
+		for i, node in ipairs(line) do
+			row = row[node]
+		end
+		for k, v in pairs(row) do
+			if self._table_def[k].sync and self._table_def[k].sync ~= 0 then
+				g_funcs.set_attr_table(attrs, self._table_def, k, v)
+			end
+		end
+		table.insert(ret, attrs)
+	end
+	return ret
 end
 
 function SheetObj:convert_sync_delete_rows(delete_record)
-	-- TODO
+	local ret = {}
+	for _, line in ipairs(delete_record) do
+		local keys = g_funcs.get_empty_attr_table()
+		for i, node in ipairs(line) do
+			local key_info = self._keys[i]
+			g_funcs.set_attr_table(keys, self._table_def, key_info[2], node)
+		end
+		table.insert(ret, keys)
+	end
+	return ret
 end
 
 function SheetObj:convert_sync_modify_rows(modify_record)

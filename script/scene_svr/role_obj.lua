@@ -81,7 +81,11 @@ function Role:do_sync()
 	-- self:send_msg(MID.ATTR_DELETE_RET)
 
 	local modify_rows = self:convert_sync_modify_rows(modify_record)
-	self:send_msg(MID.ATTR_MODIFY_RET, SHEET_NAME, modify_rows)
+	self:send_msg(MID.ATTR_MODIFY_RET,
+	{
+		sheet_name = SHEET_NAME,
+		rows = modify_rows,
+	})
 end
 
 function Role:active_sync()
