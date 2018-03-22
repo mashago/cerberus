@@ -12,7 +12,13 @@ function TestRole:init()
 	function change_cb(...)
 		Log.debug("change_cb %s", Util.table_to_string({...}))
 	end
-	self:init_sheet(sheet_name, change_cb, self._role_id)
+	function sync_func(...)
+		Log.debug("sync_func %s", Util.table_to_string({...}))
+	end
+	function save_func(...)
+		Log.debug("save_func %s", Util.table_to_string({...}))
+	end
+	self:init_sheet(sheet_name, {self._role_id}, change_cb, sync_func, save_func)
 end
 
 g_funcs.register_getter_setter(TestRole, sheet_name)

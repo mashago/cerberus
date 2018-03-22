@@ -6,14 +6,12 @@ function SheetObj:ctor(sheet_name)
 end
 --]]
 
--- call by inherit class ctor
-function SheetObj:init_sheet(sheet_name, change_cb, ...)
+function SheetObj:init_sheet(sheet_name, const_keys, change_cb, sync_func, save_func)
 	
 	self._sheet_name = sheet_name
 	self._table_def = DataStructDef.data[sheet_name]
 	assert(self._table_def, "SheetObj:ctor no such sheet " .. sheet_name)
 
-	local const_keys = {...} -- {key_value1, key_value2, ...}
 	assert(#const_keys > 0, "SheetObj:init_sheet key error " .. sheet_name)
 	self._const_key_num = #const_keys
 
@@ -31,10 +29,13 @@ function SheetObj:init_sheet(sheet_name, change_cb, ...)
 			num = num + 1
 		end
 	end
-	assert(num > 0 and num == #self._keys, "SheetObj:init_sheet sheet key num error " .. sheet_name)
 
 	Log.debug("_const_key_num=%d", self._const_key_num)
 	Log.debug("_keys=%s", Util.table_to_string(self._keys))
+
+	self._change_cb = change_cb
+	self._sync_func = sync_func
+	self._save_func = save_func
 	
 	-- include const key
 	-- {
@@ -72,8 +73,6 @@ function SheetObj:init_sheet(sheet_name, change_cb, ...)
 	self._db_insert_attr_map = {}
 	self._db_delete_attr_map = {}
 	self._db_modify_attr_map = {} -- mark by attr_id
-
-	self._change_cb = change_cb
 end
 
 function SheetObj:load_data()
@@ -397,9 +396,6 @@ function SheetObj:delete(...)
 	return true
 end
 
-function SheetObj:db_save()
-end
-
 function SheetObj:collect_sync_dirty()
 	Log.info("SheetObj:collect_sync_dirty()")
 	local insert_record = {}
@@ -412,15 +408,15 @@ function SheetObj:collect_sync_dirty()
 	self._sync_insert_attr_map = {}
 	self._sync_delete_attr_map = {}
 	self._sync_modify_attr_map = {}
-	Log.info("insert_record=%s", Util.table_to_string(insert_record))
-	Log.info("delete_record=%s", Util.table_to_string(delete_record))
-	Log.info("modify_record=%s", Util.table_to_string(modify_record))
+	-- Log.info("insert_record=%s", Util.table_to_string(insert_record))
+	-- Log.info("delete_record=%s", Util.table_to_string(delete_record))
+	-- Log.info("modify_record=%s", Util.table_to_string(modify_record))
 
 	return insert_record, delete_record, modify_record
 end
 
-function SheetObj:collect_db_dirty()
-	Log.info("SheetObj:collect_db_dirty()")
+function SheetObj:collect_save_dirty()
+	Log.info("SheetObj:collect_save_dirty()")
 	local insert_record = {}
 	Util.map2path(self._db_insert_attr_map, insert_record)
 	local delete_record = {}
@@ -498,16 +494,39 @@ function SheetObj:convert_sync_modify_rows(modify_record)
 	return ret
 end
 
-function SheetObj:convert_db_insert_rows(insert_record)
+function SheetObj:convert_save_insert_rows(insert_record)
 	-- TODO
+	return {}
 end
 
-function SheetObj:convert_db_delete_rows(delete_record)
+function SheetObj:convert_save_delete_rows(delete_record)
 	-- TODO
+	return {}
 end
 
-function SheetObj:convert_db_modify_rows(modify_record)
+function SheetObj:convert_save_modify_rows(modify_record)
 	-- TODO
+	return {}
+end
+
+function SheetObj:sync_dirty()
+	local insert_record, delete_record, modify_record = self:collect_sync_dirty()
+	local insert_rows = self:convert_sync_insert_rows(insert_record)
+	local delete_rows = self:convert_sync_delete_rows(delete_record)
+	local modify_rows = self:convert_sync_modify_rows(modify_record)
+	if self._sync_func then
+		self._sync_func(insert_rows, delete_rows, modify_rows)
+	end
+end
+
+function SheetObj:save_dirty()
+	local insert_record, delete_record, modify_record = self:collect_save_dirty()
+	local insert_rows = self:convert_save_insert_rows(insert_record)
+	local delete_rows = self:convert_save_delete_rows(delete_record)
+	local modify_rows = self:convert_save_modify_rows(modify_record)
+	if self._save_func then
+		self._save_func(insert_rows, delete_rows, modify_rows)
+	end
 end
 
 function SheetObj:print()

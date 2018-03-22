@@ -19,7 +19,7 @@ function Role:init()
 		Log.debug("change_cb %s", Util.table_to_string({...}))
 		self:active_sync()
 	end
-	self:init_sheet(SHEET_NAME, change_cb, self._role_id)
+	self:init_sheet(SHEET_NAME, {self._role_id}, change_cb)
 end
 
 function Role:load_and_init_data()
