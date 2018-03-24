@@ -34,7 +34,7 @@ function UserMgr:add_user(user)
 	local timer_cb = function(user_id)
 		self:connect_timeout_cb(user_id)
 	end
-	self._offline_user_map[user_id] = g_timer:add_timer(connect_wait_interval_ms, timer_cb, user_id, false)
+	self._offline_user_map[user._user_id] = g_timer:add_timer(connect_wait_interval_ms, timer_cb, user._user_id, false)
 	return true
 end
 
@@ -92,8 +92,8 @@ function UserMgr:offline(user)
 	user:offline()
 
 	-- add timer to delete user
-	-- local delete_user_interval_ms = 300 * 1000
-	local delete_user_interval_ms = 10 * 1000
+	local delete_user_interval_ms = 300 * 1000
+	-- local delete_user_interval_ms = 10 * 1000
 	local timer_cb = function(user_id)
 		self:offline_timer_cb(user_id)
 	end

@@ -6,7 +6,7 @@ function SheetObj:ctor(sheet_name)
 end
 --]]
 
-function SheetObj:init_sheet(sheet_name, const_keys, change_cb, sync_func, save_func)
+function SheetObj:init_sheet(sheet_name, const_keys)
 	
 	self._sheet_name = sheet_name
 	self._table_def = DataStructDef.data[sheet_name]
@@ -33,10 +33,6 @@ function SheetObj:init_sheet(sheet_name, const_keys, change_cb, sync_func, save_
 	Log.debug("_const_key_num=%d", self._const_key_num)
 	Log.debug("_keys=%s", Util.table_to_string(self._keys))
 
-	self._change_cb = change_cb
-	self._sync_func = sync_func
-	self._save_func = save_func
-	
 	-- include const key
 	-- {
 	-- 		[key1] = 
@@ -236,64 +232,12 @@ end
 
 ------------------------------------------------
 
-function SheetObj:update_modify_map(insert_map, delete_map, modify_map, key_list, attr_id, check_flag)
-
-	local flag = self._table_def[attr_id][check_flag]
-	if not flag or flag == 0 then
-		return
-	end
-
-	-- 1. modify normal row
-	-- 2. modify insert row
-
-	-- check if already in insert_map, if true, will not set in modify_map
-	local is_will_insert = check_is_exists_by_key_list(insert_map, key_list) 
-
-	if is_will_insert then
-		return
-	end
-
-	local target_map = modify_map
-	for _, key in ipairs(key_list) do
-		target_map[key] = target_map[key] or {}
-		target_map = target_map[key]
-	end
-	target_map[attr_id] = true
-end
-
--- ... is key_list, base on _attr_map
-function SheetObj:modify(attr_name, value, ...)
-	
-	local key_list = self:get_fix_key_list(...)
-
-	local is_will_delete = check_is_exists_by_key_list(self._sync_delete_attr_map, key_list)
-	if is_will_delete then
-		Log.err("SheetObj:modify modify will delete row, sheet_name=%s key_list=%s", self._sheet_name, Util.table_to_string(key_list))
-		return false
-	end
-
-	-- core logic
-	local absolute_pos = self._root_attr_map
-	for _, key in ipairs(key_list) do
-		absolute_pos = absolute_pos[key]
-	end
-	absolute_pos[attr_name] = value
-
-	local attr_id = self._table_def[attr_name].id
-	self:update_modify_map(self._sync_insert_attr_map, self._sync_delete_attr_map, self._sync_modify_attr_map, key_list, attr_id, "sync")
-	self:update_modify_map(self._db_insert_attr_map, self._db_delete_attr_map, self._db_modify_attr_map, key_list, attr_id, "save")
-
-	if self._change_cb then
-		self._change_cb()
-	end
-
-	return true
-end
-
 function SheetObj:update_insert_map(insert_map, delete_map, modify_map, key_list, attr_data, check_flag)
 
 	-- 1. insert normal row
 	-- 2. insert delete row
+
+	local is_change = false
 
 	-- remove from delete
 	local is_will_delete = remove_by_key_list(delete_map, key_list)
@@ -310,13 +254,22 @@ function SheetObj:update_insert_map(insert_map, delete_map, modify_map, key_list
 			local key = self._table_def[attr_id].key or 0
 			if flag and flag ~= 0 and key == 0 then
 				target_map[attr_id] = true
+				is_change = true
 			end
 		end
 	else
 		-- mark into insert
-		mark_by_key_list(insert_map, key_list)
+		for _, field_def in ipairs(self._table_def) do
+			local flag = field_def[check_flag] 
+			if flag and flag ~= 0 then
+				mark_by_key_list(insert_map, key_list)
+				is_change = true
+				break
+			end
+		end
 	end
 
+	return is_change
 end
 
 function SheetObj:insert(data)
@@ -350,21 +303,34 @@ function SheetObj:insert(data)
 	absolute_pos[last_key] = data
 
 	local attr_data = self:convert_attr_data(data)
-	self:update_insert_map(self._sync_insert_attr_map, self._sync_delete_attr_map, self._sync_modify_attr_map, key_list, attr_data, "sync")
-	self:update_insert_map(self._db_insert_attr_map, self._db_delete_attr_map, self._db_modify_attr_map, key_list, attr_data, "save")
+	local is_need_sync = self:update_insert_map(self._sync_insert_attr_map, self._sync_delete_attr_map, self._sync_modify_attr_map, key_list, attr_data, "sync")
+	local is_need_save = self:update_insert_map(self._db_insert_attr_map, self._db_delete_attr_map, self._db_modify_attr_map, key_list, attr_data, "save")
 
-	if self._change_cb then
-		self._change_cb()
+	if is_need_sync then
+		self:active_sync()
+	end
+
+	if is_need_save then
+		self:active_save()
 	end
 
 	return true
 end
 
-function SheetObj:update_delete_map(insert_map, delete_map, modify_map, key_list)
+function SheetObj:update_delete_map(insert_map, delete_map, modify_map, key_list, check_flag)
 
 	-- 1. delete normal row
 	-- 2. delete modify row
 	-- 3. delete insert row
+
+	local is_change = false
+	for _, field_def in ipairs(self._table_def) do
+		local flag = field_def[check_flag] 
+		if flag and flag ~= 0 then
+			is_change = true
+			break
+		end
+	end
 
 	-- check if in insert or update
 	local is_will_modify = remove_by_key_list(modify_map, key_list)
@@ -372,6 +338,8 @@ function SheetObj:update_delete_map(insert_map, delete_map, modify_map, key_list
 	if not is_will_insert then
 		mark_by_key_list(delete_map, key_list)
 	end
+
+	return is_change
 end
 
 -- ... is key_list, base on _attr_map
@@ -386,14 +354,141 @@ function SheetObj:delete(...)
 		return false
 	end
 
-	self:update_delete_map(self._sync_insert_attr_map, self._sync_delete_attr_map, self._sync_modify_attr_map, key_list)
-	self:update_delete_map(self._db_insert_attr_map, self._db_delete_attr_map, self._db_modify_attr_map, key_list)
+	local is_need_sync = self:update_delete_map(self._sync_insert_attr_map, self._sync_delete_attr_map, self._sync_modify_attr_map, key_list, "sync")
+	local is_need_save = self:update_delete_map(self._db_insert_attr_map, self._db_delete_attr_map, self._db_modify_attr_map, key_list, "save")
 
-	if self._change_cb then
-		self._change_cb()
+	if is_need_sync then
+		self:active_sync()
+	end
+
+	if is_need_save then
+		self:active_save()
 	end
 
 	return true
+end
+
+function SheetObj:update_modify_map(insert_map, delete_map, modify_map, key_list, attr_id, check_flag)
+
+	local flag = self._table_def[attr_id][check_flag]
+	if not flag or flag == 0 then
+		return false
+	end
+
+	-- 1. modify normal row
+	-- 2. modify insert row
+
+	-- check if already in insert_map, if true, will not set in modify_map
+	local is_will_insert = check_is_exists_by_key_list(insert_map, key_list) 
+
+	if is_will_insert then
+		return false
+	end
+
+	local target_map = modify_map
+	for _, key in ipairs(key_list) do
+		target_map[key] = target_map[key] or {}
+		target_map = target_map[key]
+	end
+	target_map[attr_id] = true
+
+	return true
+end
+
+-- ... is key_list, base on _attr_map
+function SheetObj:modify(attr_name, value, ...)
+	
+	local key_list = self:get_fix_key_list(...)
+
+	local is_will_delete = check_is_exists_by_key_list(self._sync_delete_attr_map, key_list)
+	if is_will_delete then
+		Log.err("SheetObj:modify modify will delete row, sheet_name=%s key_list=%s", self._sheet_name, Util.table_to_string(key_list))
+		return false
+	end
+
+	-- core logic
+	local absolute_pos = self._root_attr_map
+	for _, key in ipairs(key_list) do
+		absolute_pos = absolute_pos[key]
+	end
+	absolute_pos[attr_name] = value
+
+	local attr_id = self._table_def[attr_name].id
+	local is_need_sync = self:update_modify_map(self._sync_insert_attr_map, self._sync_delete_attr_map, self._sync_modify_attr_map, key_list, attr_id, "sync")
+	local is_need_save = self:update_modify_map(self._db_insert_attr_map, self._db_delete_attr_map, self._db_modify_attr_map, key_list, attr_id, "save")
+
+	if is_need_sync then
+		self:active_sync()
+	end
+
+	if is_need_save then
+		self:active_save()
+	end
+
+	return true
+end
+
+function SheetObj:active_sync()
+	Log.debug("SheetObj:active_sync emtpy")
+end
+
+function SheetObj:active_save()
+	Log.debug("SheetObj:active_save empty")
+end
+
+
+------------------------------------------
+
+function SheetObj:sync_dirty()
+	local insert_record, delete_record, modify_record = self:collect_sync_dirty()
+	local insert_rows = self:convert_sync_insert_rows(insert_record)
+	local delete_rows = self:convert_sync_delete_rows(delete_record)
+	local modify_rows = self:convert_sync_modify_rows(modify_record)
+	self:do_sync(insert_rows, delete_rows, modify_rows)
+end
+
+function SheetObj:save_dirty()
+	local insert_record, delete_record, modify_record = self:collect_save_dirty()
+	local insert_rows = self:convert_save_insert_rows(insert_record)
+	local delete_rows = self:convert_save_delete_rows(delete_record)
+	local modify_rows = self:convert_save_modify_rows(modify_record)
+	self:do_save(insert_rows, delete_rows, modify_rows)
+end
+
+function SheetObj:do_sync(insert_rows, delete_rows, modify_rows)
+	Log.debug("SheetObj:do_sync empty")
+	Log.debug("insert_rows=%s", Util.table_to_string(insert_rows))
+	Log.debug("delete_rows=%s", Util.table_to_string(delete_rows))
+	Log.debug("modify_rows=%s", Util.table_to_string(modify_rows))
+end
+
+function SheetObj:do_save(insert_rows, delete_rows, modify_rows)
+	Log.debug("SheetObj:do_save")
+	Log.debug("insert_rows=%s", Util.table_to_string(insert_rows))
+	Log.debug("delete_rows=%s", Util.table_to_string(delete_rows))
+	Log.debug("modify_rows=%s", Util.table_to_string(modify_rows))
+
+	local rpc_data =
+	{
+		table_name = self._sheet_name,
+		kvs_list = insert_rows,
+	}
+	g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_insert_multi", rpc_data)
+
+	local rpc_data =
+	{
+		table_name = self._sheet_name,
+		conditions_list = delete_rows,
+	}
+	g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_delete_multi", rpc_data)
+	
+	local rpc_data =
+	{
+		table_name = self._sheet_name,
+		modify_list = modify_rows,
+	}
+	g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_modify_multi", rpc_data)
+
 end
 
 function SheetObj:collect_sync_dirty()
@@ -456,9 +551,9 @@ function SheetObj:convert_sync_delete_rows(delete_record)
 	local ret = {}
 	for _, line in ipairs(delete_record) do
 		local keys = g_funcs.get_empty_attr_table()
-		for i, node in ipairs(line) do
+		for i, k in ipairs(line) do
 			local key_info = self._keys[i]
-			g_funcs.set_attr_table(keys, self._table_def, key_info[2], node)
+			g_funcs.set_attr_table(keys, self._table_def, key_info[2], k)
 		end
 		table.insert(ret, keys)
 	end
@@ -495,38 +590,62 @@ function SheetObj:convert_sync_modify_rows(modify_record)
 end
 
 function SheetObj:convert_save_insert_rows(insert_record)
-	-- TODO
-	return {}
+	
+	local kvs_list = {}
+
+	for _, line in ipairs(insert_record) do
+
+		local kvs = {}
+		local row = self._root_attr_map
+		for i, node in ipairs(line) do
+			row = row[node]
+		end
+		for k, v in pairs(row) do
+			if self._table_def[k].save and self._table_def[k].save ~= 0 then
+				kvs[k] = v
+			end
+		end
+		table.insert(kvs_list, kvs)
+	end
+	return kvs_list
 end
 
 function SheetObj:convert_save_delete_rows(delete_record)
-	-- TODO
-	return {}
+	local conditions_list = {}
+	for _, line in ipairs(delete_record) do
+		local conditions = {}
+		for i, k in ipairs(line) do
+			local key_info = self._keys[i]
+			conditions[key_info[2]] = k
+		end
+		table.insert(ret, keys)
+	end
+	return conditions_list
 end
 
 function SheetObj:convert_save_modify_rows(modify_record)
-	-- TODO
-	return {}
-end
+	local modify_list = {}
+	for _, line in ipairs(modify_record) do
+		local fields = {}
+		local conditions = {}
+		local row = self._root_attr_map
+		for i, node in ipairs(line) do
+			if type(node) ~= 'table' then
+				-- is key
+				conditions[self._keys[i][2]] = node
+				row = row[node]
+			else
+				-- is modify attr name list
+				for __, attr_id in ipairs(node) do
+					local attr_name = self._table_def[attr_id].field
+					fields[attr_name] = row[attr_name]
+				end
+			end
+		end
 
-function SheetObj:sync_dirty()
-	local insert_record, delete_record, modify_record = self:collect_sync_dirty()
-	local insert_rows = self:convert_sync_insert_rows(insert_record)
-	local delete_rows = self:convert_sync_delete_rows(delete_record)
-	local modify_rows = self:convert_sync_modify_rows(modify_record)
-	if self._sync_func then
-		self._sync_func(insert_rows, delete_rows, modify_rows)
+		table.insert(modify_list, {fields, conditions})
 	end
-end
-
-function SheetObj:save_dirty()
-	local insert_record, delete_record, modify_record = self:collect_save_dirty()
-	local insert_rows = self:convert_save_insert_rows(insert_record)
-	local delete_rows = self:convert_save_delete_rows(delete_record)
-	local modify_rows = self:convert_save_modify_rows(modify_record)
-	if self._save_func then
-		self._save_func(insert_rows, delete_rows, modify_rows)
-	end
+	return modify_list
 end
 
 function SheetObj:print()

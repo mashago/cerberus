@@ -37,7 +37,7 @@ function RoleMgr:sync_role()
 	for role_id, _ in pairs(self._sync_role_map) do
 		local role = self:get_role_by_id(role_id)
 		if role then
-			role:do_sync()
+			role:sync_dirty()
 		end
 	end
 	self._sync_role_map = {}

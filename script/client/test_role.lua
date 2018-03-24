@@ -9,16 +9,22 @@ function TestRole:ctor(role_id)
 end
 
 function TestRole:init()
-	function change_cb(...)
-		Log.debug("change_cb %s", Util.table_to_string({...}))
-	end
-	function sync_func(...)
-		Log.debug("sync_func %s", Util.table_to_string({...}))
-	end
-	function save_func(...)
-		Log.debug("save_func %s", Util.table_to_string({...}))
-	end
-	self:init_sheet(sheet_name, {self._role_id}, change_cb, sync_func, save_func)
+	self:init_sheet(sheet_name, {self._role_id})
+end
+
+function TestRole:test_func()
+	local a = 123
+	Log.debug("TestRole:test_func %s", Util.table_to_string(SheetObj))
+	-- SheetObj.test_func(a)
+	Log.debug("TestRole:test_func %s", Util.table_to_string({a}))
+end
+
+function TestRole:do_save(insert_rows, delete_rows, modify_rows)
+	Log.debug("#### TestRole:do_save ####")
+	Log.debug("insert_rows=%s", Util.table_to_string(insert_rows))
+	Log.debug("delete_rows=%s", Util.table_to_string(delete_rows))
+	Log.debug("modify_rows=%s", Util.table_to_string(modify_rows))
+	Log.debug("##########################")
 end
 
 g_funcs.register_getter_setter(TestRole, sheet_name)

@@ -178,12 +178,13 @@ function CommonMgr:rpc_select_role(user_id, role_id)
 		return {result = ret.result}
 	end
 
+	local token = enter_user.token
 	local rpc_data = 
 	{
 		user_id=user_id, 
 		role_id=role_id, 
 		scene_id=scene_id,
-		token=enter_user.token,
+		token=token,
 	}
 	local status, ret = g_rpc_mgr:call_by_server_id(enter_user.gate_server_id, "gate_select_role", rpc_data)
 	if not status then

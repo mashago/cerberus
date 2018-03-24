@@ -167,6 +167,27 @@ local function db_insert_one(data)
 	return ret_data
 end
 
+local function db_insert_multi(data)
+
+	local ret_data =
+	{
+		result = ErrorCode.SUCCESS,
+	}
+
+	-- fix to call db_insert_one
+	local kvs_list = data.kvs_list
+	for _, v in ipairs(kvs_list) do
+		data.kvs = v
+		local ret = db_insert_one(data)
+		if ret.result ~= ErrorCode.SYS_ERROR then
+			ret_data.result = ErrorCode.SYS_ERROR
+			break
+		end
+	end
+
+	return ret_data
+end
+
 local function db_update(data)
 	
 	Log.debug("db_update: data=%s", Util.table_to_string(data))
@@ -189,6 +210,27 @@ local function db_update(data)
 
 	-- must return a table
 	return {result = ErrorCode.SUCCESS}
+end
+
+local function db_update_multi(data)
+	local ret_data =
+	{
+		result = ErrorCode.SUCCESS,
+	}
+
+	-- fix to call db_update
+	local modify_list = data.modify_list
+	for _, v in ipairs(modify_list) do
+		data.fields = v[1]
+		data.conditions = v[2]
+		local ret = db_update(data)
+		if ret.result ~= ErrorCode.SYS_ERROR then
+			ret_data.result = ErrorCode.SYS_ERROR
+			break
+		end
+	end
+
+	return ret_data
 end
 
 local function db_delete(data)
@@ -215,6 +257,27 @@ local function db_delete(data)
 end
 
 
+local function db_delete_multi(data)
+
+	local ret_data =
+	{
+		result = ErrorCode.SUCCESS,
+	}
+
+	-- fix to call db_delete
+	local conditions_list = data.conditions_list
+	for _, v in ipairs(conditions_list) do
+		data.conditions = v
+		local ret = db_delete(data)
+		if ret.result ~= ErrorCode.SYS_ERROR then
+			ret_data.result = ErrorCode.SYS_ERROR
+			break
+		end
+	end
+
+	return ret_data
+end
+
 ------------------------------------------------------
 
 local function db_login_select(data)
@@ -229,6 +292,13 @@ local function db_login_insert_one(data)
 	local db_name = g_server_conf._db_name_map[DBType.LOGIN]
 	data.db_name = db_name
 	return db_insert_one(data)
+end
+
+local function db_login_insert_multi(data)
+	
+	local db_name = g_server_conf._db_name_map[DBType.LOGIN]
+	data.db_name = db_name
+	return db_insert_multi(data)
 end
 
 local function db_login_update(data)
@@ -292,6 +362,13 @@ local function db_game_insert_one(data)
 	return db_insert_one(data)
 end
 
+local function db_game_insert_multi(data)
+	
+	local db_name = g_server_conf._db_name_map[DBType.GAME]
+	data.db_name = db_name
+	return db_insert_multi(data)
+end
+
 local function db_game_update(data)
 	
 	local db_name = g_server_conf._db_name_map[DBType.GAME]
@@ -318,8 +395,12 @@ local function register_rpc_handler()
 
 	g_rpc_mgr:register_func("db_select", db_select)
 	g_rpc_mgr:register_func("db_insert_one", db_insert_one)
+	g_rpc_mgr:register_func("db_insert_multi", db_insert_multi)
 	g_rpc_mgr:register_func("db_update", db_update)
+	g_rpc_mgr:register_func("db_update_multi", db_update_multi)
 	g_rpc_mgr:register_func("db_delete", db_delete)
+	g_rpc_mgr:register_func("db_delete_multi", db_delete_multi)
+
 
 	g_rpc_mgr:register_func("db_login_select", db_login_select)
 	g_rpc_mgr:register_func("db_login_insert_one", db_login_insert_one)
@@ -327,7 +408,10 @@ local function register_rpc_handler()
 
 	g_rpc_mgr:register_func("db_game_select", db_game_select)
 	g_rpc_mgr:register_func("db_game_insert_one", db_game_insert_one)
+	g_rpc_mgr:register_func("db_game_insert_multi", db_game_insert_multi)
 	g_rpc_mgr:register_func("db_game_update", db_game_update)
+	g_rpc_mgr:register_func("db_game_update", db_game_update)
+	g_rpc_mgr:register_func("db_game_delete_multi", db_game_delete_multi)
 	g_rpc_mgr:register_func("db_game_delete", db_game_delete)
 end
 

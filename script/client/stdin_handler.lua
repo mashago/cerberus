@@ -560,7 +560,7 @@ function cmd_handler.do_test_role(params)
 
 	local test_role = TestRole.new(role_id)
 	test_role:init()
-	Log.debug("test_role = %s", Util.table_to_string(test_role))
+	-- Log.debug("test_role = %s", Util.table_to_string(test_role))
 
 	local db_record = 
 	{
@@ -587,11 +587,12 @@ function cmd_handler.do_test_role(params)
 	test_role:sync_dirty()
 	test_role:save_dirty()
 
+	Log.debug("********************")
 
 	local role_id = 20000
 	local test_role2 = TestRole.new(role_id)
 	test_role2:init()
-	Log.debug("test_role2 = %s", Util.table_to_string(test_role2))
+	-- Log.debug("test_role2 = %s", Util.table_to_string(test_role2))
 
 	local db_record = 
 	{
@@ -607,7 +608,7 @@ function cmd_handler.do_test_role(params)
 
 	-- modify
 	do
-		Log.debug("******* 1")
+		Log.debug("******* 2")
 		test_role2:set_sync_attr(222)
 		test_role2:set_save_attr(232)
 		test_role2:set_sync_save_attr(242)
@@ -617,11 +618,6 @@ function cmd_handler.do_test_role(params)
 
 	test_role2:sync_dirty()
 	test_role2:save_dirty()
-
-	Log.debug("***********************")
-	test_role:print()
-	Log.debug("#######################")
-	test_role2:print()
 end
 
 function cmd_handler.do_test_bag(params)

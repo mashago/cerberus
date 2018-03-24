@@ -10,7 +10,7 @@ local function main_entry(xml_doc)
 	g_funcs.load_scene(xml_doc)
 	g_funcs.load_area(xml_doc)
 
-	local CommonMgr = require "gate_svr.common_mgr"
+	local CommonMgr = require "bridge_svr.common_mgr"
 	g_common_mgr = CommonMgr.new()
 	
 end

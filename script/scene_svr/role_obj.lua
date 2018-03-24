@@ -15,11 +15,7 @@ function Role:send_msg(msg_id, msg)
 end
 
 function Role:init()
-	function change_cb(...)
-		Log.debug("change_cb %s", Util.table_to_string({...}))
-		self:active_sync()
-	end
-	self:init_sheet(SHEET_NAME, {self._role_id}, change_cb)
+	self:init_sheet(SHEET_NAME, {self._role_id})
 end
 
 function Role:load_and_init_data()
@@ -60,27 +56,14 @@ function Role:send_module_data()
 	self:send_msg(MID.ROLE_ATTR_RET, msg)
 end
 
-function Role:active_save()
-	if self._db_save_timer_index > 0 then
-		return
-	end
-
-	local timer_cb = function(role)
-		self._db_save_timer_index = 0
-		role:db_save()
-	end
-
-	local ROLE_DB_SAVE_INTERVAL = 10000 -- ms
-	self._db_save_timer_index = g_timer:add_timer(ROLE_DB_SAVE_INTERVAL, timer_cb, self, false)
+function Role:active_sync()
+	g_role_mgr:mark_sync_role(self._role_id)
 end
 
-function Role:do_sync()
-	local insert_record, delete_record, modify_record = self:collect_sync_dirty()
-	-- TODO
+function Role:do_sync(insert_rows, delete_rows, modify_rows)
 	-- self:send_msg(MID.ATTR_INSERT_RET)
 	-- self:send_msg(MID.ATTR_DELETE_RET)
 
-	local modify_rows = self:convert_sync_modify_rows(modify_record)
 	self:send_msg(MID.ATTR_MODIFY_RET,
 	{
 		sheet_name = SHEET_NAME,
@@ -88,8 +71,18 @@ function Role:do_sync()
 	})
 end
 
-function Role:active_sync()
-	g_role_mgr:mark_sync_role(self._role_id)
+function Role:active_save()
+	if self._db_save_timer_index > 0 then
+		return
+	end
+
+	local timer_cb = function(role)
+		self._db_save_timer_index = 0
+		role:save_dirty()
+	end
+
+	local ROLE_DB_SAVE_INTERVAL = 10000 -- ms
+	self._db_save_timer_index = g_timer:add_timer(ROLE_DB_SAVE_INTERVAL, timer_cb, self, false)
 end
 
 function Role:force_save()
@@ -100,12 +93,11 @@ function Role:force_save()
 	end
 	g_timer:del_timer(timer_index)
 	self._db_save_timer_index = 0
-	role:db_save()
+	role:save_dirty()
 end
 
 function Role:on_disconnect()
 	self:force_save()
-
 	g_role_mgr:del_role(self)
 end
 
