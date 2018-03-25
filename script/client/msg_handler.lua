@@ -147,6 +147,16 @@ end
 
 local function handle_attr_info(data, mailbox_id, msg_id)
 	Log.debug("handle_attr_info: data=%s", Util.table_to_string(data))
+
+	local sheet_name = data.sheet_name
+	if sheet_name == "role_info" then
+		if not g_role then
+			local Role = require "client.role"
+			g_role = Role.new()
+		end
+		g_role:init_data(data.rows[1])
+		g_role:print()
+	end
 end
 
 local function handle_attr_insert(data, mailbox_id, msg_id)
@@ -159,6 +169,15 @@ end
 
 local function handle_attr_modify(data, mailbox_id, msg_id)
 	Log.debug("handle_attr_modify: data=%s", Util.table_to_string(data))
+
+	local sheet_name = data.sheet_name
+	if sheet_name == "role_info" then
+		if not g_role then
+			return
+		end
+		g_role:update_data(data.rows[1].attrs)
+		g_role:print()
+	end
 end
 
 local function register_msg_handler()

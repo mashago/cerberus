@@ -1,7 +1,7 @@
 
 g_network = LuaNetwork:instance(g_luaworld_ptr)
 
-local read_val_action = 
+local read_value = 
 {
 	[_Byte] = function() return g_network:read_byte() end,
 	[_Bool] = function() return g_network:read_bool() end,
@@ -19,6 +19,8 @@ local read_val_action =
 	[_Int64Array] = function() return g_network:read_int64_array() end,
 	[_StringArray] = function() return g_network:read_string_array() end,
 }
+
+local read_data_by_msgdef
 
 local function read_struct_array(structdef, deep)
 	local ret = {}
@@ -39,7 +41,11 @@ local function read_struct_array(structdef, deep)
 	return flag, ret
 end
 
-function read_data_by_msgdef(msgdef, deep)
+local VALUE_NAME_INDEX = 1
+local VALUE_TYPE_INDEX = 2
+local VALUE_STRUCT_INDEX = 3
+
+read_data_by_msgdef = function(msgdef, deep)
 	if deep > 10 then
 		Log.warn("read_data_by_msgdef too deep")
 	end
@@ -47,21 +53,21 @@ function read_data_by_msgdef(msgdef, deep)
 	local flag = true
 	local ret = { }
 	for idx, v in ipairs(msgdef) do
-		local val_name = v[1]
-		local val_type = v[2]
+		local val_name = v[VALUE_NAME_INDEX]
+		local val_type = v[VALUE_TYPE_INDEX]
 
 		if (val_type == _Struct) then
-			flag, ret[val_name] = read_data_by_msgdef(v[3], deep + 1)
+			flag, ret[val_name] = read_data_by_msgdef(v[VALUE_STRUCT_INDEX], deep + 1)
 		elseif (val_type == _StructArray) then
-			flag, ret[val_name] = read_struct_array(v[3], deep + 1)
+			flag, ret[val_name] = read_struct_array(v[VALUE_STRUCT_INDEX], deep + 1)
 		elseif (val_type == _StructString) then
-			flag, ret[val_name] = read_val_action[_String]()
+			flag, ret[val_name] = read_value[_String]()
 			if flag then
 				ret[val_name] = Util.unserialize(ret[val_name])
 			end
 
 		else
-			flag, ret[val_name] = read_val_action[val_type]()
+			flag, ret[val_name] = read_value[val_type]()
 		end
 		if not flag then
 			Log.warn("read_data_by_msgdef read error val_type=%d", val_type)
@@ -72,10 +78,10 @@ function read_data_by_msgdef(msgdef, deep)
 	return flag, ret
 end
 
-local function recv_msg(msg_id)
+local function unpack_msg(msg_id)
 	local msgdef = MSG_DEF_MAP[msg_id]
 	if not msgdef then
-		Log.err("recv_msg msgdef not exists msg_id=%d", msg_id)
+		Log.err("unpack_msg msgdef not exists msg_id=%d", msg_id)
 		return false
 	end
 
@@ -109,9 +115,9 @@ local function recv_msg_handler(mailbox_id, msg_id)
 		return
 	end
 
-	local flag, data = recv_msg(msg_id)	
+	local flag, data = unpack_msg(msg_id)
 	if not flag then
-		Log.err("recv_msg_handler recv_msg fail mailbox_id=%d msg_id=%d", mailbox_id, msg_id)
+		Log.err("recv_msg_handler unpack_msg fail mailbox_id=%d msg_id=%d", mailbox_id, msg_id)
 		return
 	end
 

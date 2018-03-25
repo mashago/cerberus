@@ -384,35 +384,16 @@ function g_funcs.attr_table_to_attr_map(table_def, attr_table, out_map)
 			::continue::
 		end
 	end
-	convert(attr_table.byte_attr_list)
-	convert(attr_table.bool_attr_list)
-	convert(attr_table.int_attr_list)
-	convert(attr_table.float_attr_list)
-	convert(attr_table.short_attr_list)
-	convert(attr_table.int64_attr_list)
-	convert(attr_table.string_attr_list)
-	convert(attr_table.struct_attr_list)
+	convert(attr_table.byte_attr_list or {})
+	convert(attr_table.bool_attr_list or {})
+	convert(attr_table.int_attr_list or {})
+	convert(attr_table.float_attr_list or {})
+	convert(attr_table.short_attr_list or {})
+	convert(attr_table.int64_attr_list or {})
+	convert(attr_table.string_attr_list or {})
+	convert(attr_table.struct_attr_list or {})
 
 	return attr_map
-end
-
-function g_funcs.attr_map_to_attr_table_sync(table_def, attr_map)
-	
-	local out_attr_table = g_funcs.get_empty_attr_table()
-	for attr_name, value in pairs(attr_map) do
-		local field_def = table_def[attr_name]
-		if not field_def then
-			goto continue
-		end
-		if not field_def.sync or field_def.sync == 0 then
-			goto continue
-		end
-
-		g_funcs.set_attr_table(out_attr_table, table_def, attr_name, value)
-		::continue::
-	end
-
-	return out_attr_table
 end
 
 ----------------

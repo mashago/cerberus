@@ -67,7 +67,7 @@ local function create_msg_id_array()
 end
 create_msg_id_array()
 
-TestStruct = 
+local TestStruct = 
 {
 	{ "byte", _Byte },
 	{ "bool", _Bool },
@@ -78,26 +78,26 @@ TestStruct =
 	{ "string", _String },
 }
 
-AreaListStruct = 
+local AreaListStruct = 
 {
 	{ "area_id", _Int },
 	{ "area_name", _String },
 }
 
 
-AreaRoleStruct = 
+local AreaRoleStruct = 
 {
 	{ "role_id", _Int64 },
 	{ "role_name", _String },
 }
 
-AreaRoleListStruct = 
+local AreaRoleListStruct = 
 {
 	{ "area_id", _Int },
 	{ "role_list", _StructArray, AreaRoleStruct },
 }
 
-ServerAddrStruct =
+local ServerAddrStruct =
 {
 	{ "ip", _String },
 	{ "port", _Int },
@@ -105,55 +105,55 @@ ServerAddrStruct =
 
 -----------------------------------
 
-ByteAttrStruct = 
+local ByteAttrStruct = 
 {
 	{ "attr_id", _Int },
 	{ "value", _Byte },
 }
 
-BoolAttrStruct = 
+local BoolAttrStruct = 
 {
 	{ "attr_id", _Int },
 	{ "value", _Bool },
 }
 
-IntAttrStruct = 
+local IntAttrStruct = 
 {
 	{ "attr_id", _Int },
 	{ "value", _Int },
 }
 
-FloatAttrStruct = 
+local FloatAttrStruct = 
 {
 	{ "attr_id", _Int },
 	{ "value", _Float },
 }
 
-ShortAttrStruct = 
+local ShortAttrStruct = 
 {
 	{ "attr_id", _Int },
 	{ "value", _Short },
 }
 
-Int64AttrStruct = 
+local Int64AttrStruct = 
 {
 	{ "attr_id", _Int },
 	{ "value", _Int64 },
 }
 
-StringAttrStruct = 
+local StringAttrStruct = 
 {
 	{ "attr_id", _Int },
 	{ "value", _String },
 }
 
-StructAttrStruct = 
+local StructAttrStruct = 
 {
 	{ "attr_id", _Int },
 	{ "value", _StructString },
 }
 
-AttrTableStruct =
+local AttrTableStruct =
 {
 	{ "byte_attr_list", _StructArray, ByteAttrStruct },
 	{ "bool_attr_list", _StructArray, BoolAttrStruct },
@@ -165,7 +165,7 @@ AttrTableStruct =
 	{ "struct_attr_list", _StructArray, StructAttrStruct },
 }
 
-ModifyAttrTableStruct =
+local ModifyAttrTableStruct =
 {
 	{ "keys", _Struct, AttrTableStruct },
 	{ "attrs", _Struct, AttrTableStruct },

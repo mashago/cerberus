@@ -30,36 +30,18 @@ end
 function Role:send_module_data()
 	-- send sync == 1 or 2 attr to client
 
-	local out_attr_table = g_funcs.get_empty_attr_table()
-	local table_def = DataStructDef.data.role_info
-
-	for field_name, value in pairs(self._attr_map) do
-		local field_def = table_def[field_name]
-		if not field_def then
-			goto continue
-		end
-		if field_def.sync == 0 then
-			goto continue
-		end
-
-		g_funcs.set_attr_table(out_attr_table, table_def, field_name, value)
-		::continue::
-	end
-	
-	Log.debug("Role:send_module_data out_attr_table=%s", Util.table_to_string(out_attr_table))
-	
+	local rows = self:get_sync_attr_table()
 	local msg =
 	{
-		role_id = self._role_id,
-		attr_table = out_attr_table,
+		sheet_name = self._sheet_name,
+		rows = rows,
 	}
-	self:send_msg(MID.ROLE_ATTR_RET, msg)
+	self:send_msg(MID.ATTR_INFO_RET, msg)
 end
 
 function Role:modify_attr_table(attr_table)
 	
-	local table_def = DataStructDef.data[SHEET_NAME]
-	local attr_map = g_funcs.attr_table_to_attr_map(table_def, attr_table)
+	local attr_map = g_funcs.attr_table_to_attr_map(self._table_def, attr_table)
 	Log.debug("Role:modify_attr_table attr_map=%s", Util.table_to_string(attr_map))
 
 	for k, v in pairs(attr_map) do
@@ -108,7 +90,7 @@ function Role:do_sync(insert_rows, delete_rows, modify_rows)
 
 	self:send_msg(MID.ATTR_MODIFY_RET,
 	{
-		sheet_name = SHEET_NAME,
+		sheet_name = self._sheet_name,
 		rows = modify_rows,
 	})
 end

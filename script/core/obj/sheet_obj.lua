@@ -85,7 +85,7 @@ function SheetObj:load_data()
 		conditions = conditions
 	}
 
-	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_game_select", rpc_data, self._key)
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_game_select", rpc_data, self._keys[1][3])
 	if not status then
 		Log.err("SheetObj:load_data fail")
 		return false
@@ -652,6 +652,40 @@ function SheetObj:convert_save_modify_rows(modify_record)
 		table.insert(modify_list, {fields, conditions})
 	end
 	return modify_list
+end
+
+function SheetObj:get_sync_attr_table()
+	local rows = {}	
+	local recursion_func
+	recursion_func = function(attr_map, deep)
+		if deep ~= #self._keys then
+			deep = deep + 1
+			for k, v in pairs(attr_map) do
+				recursion_func(v, deep)
+			end
+			return
+		end
+
+		-- one row
+		local attr_table = g_funcs.get_empty_attr_table()
+		for attr_name, value in pairs(attr_map) do
+			Log.debug("attr_name=%s value=%s", attr_name, tostring(value))
+			local field_def = self._table_def[attr_name]
+			if not field_def or not field_def.sync or field_def.sync == 0 then
+				goto continue
+			end
+
+			g_funcs.set_attr_table(attr_table, self._table_def, attr_name, value)
+			::continue::
+		end
+		table.insert(rows, attr_table)
+	end
+
+	recursion_func(self._root_attr_map, 0)
+
+	Log.debug("SheetObj:get_sync_attr_table=%s", Util.table_to_string(rows))
+
+	return rows
 end
 
 function SheetObj:print()
