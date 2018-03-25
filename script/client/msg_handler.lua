@@ -145,6 +145,22 @@ local function handle_role_attr_change(data, mailbox_id, msg_id)
 	end
 end
 
+local function handle_attr_info(data, mailbox_id, msg_id)
+	Log.debug("handle_attr_info: data=%s", Util.table_to_string(data))
+end
+
+local function handle_attr_insert(data, mailbox_id, msg_id)
+	Log.debug("handle_attr_insert: data=%s", Util.table_to_string(data))
+end
+
+local function handle_attr_delete(data, mailbox_id, msg_id)
+	Log.debug("handle_attr_delete: data=%s", Util.table_to_string(data))
+end
+
+local function handle_attr_modify(data, mailbox_id, msg_id)
+	Log.debug("handle_attr_modify: data=%s", Util.table_to_string(data))
+end
+
 local function register_msg_handler()
 	Net.add_msg_handler(MID.RPC_TEST_RET, handle_rpc_test)
 
@@ -157,6 +173,11 @@ local function register_msg_handler()
 	Net.add_msg_handler(MID.ROLE_ENTER_RET, handle_role_enter)
 	Net.add_msg_handler(MID.ROLE_ATTR_RET, handle_role_attr)
 	Net.add_msg_handler(MID.ROLE_ATTR_CHANGE_RET, handle_role_attr_change)
+
+	Net.add_msg_handler(MID.ATTR_INFO_RET, handle_attr_info)
+	Net.add_msg_handler(MID.ATTR_INSERT_RET, handle_attr_insert)
+	Net.add_msg_handler(MID.ATTR_DELETE_RET, handle_attr_delete)
+	Net.add_msg_handler(MID.ATTR_MODIFY_RET, handle_attr_modify)
 end
 
 register_msg_handler()

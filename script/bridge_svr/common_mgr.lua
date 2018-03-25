@@ -47,7 +47,7 @@ function CommonMgr:rpc_create_role(custom_data)
 		kvs = role_data,
 	}
 	Log.debug("CommonMgr:rpc_create_role rpc_data=%s", Util.table_to_string(rpc_data))
-	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_game_insert_one", rpc_data)
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_game_insert", rpc_data)
 	if not status then
 		Log.err("CommonMgr:rpc_create_role rpc call fail")
 		return {result = ErrorCode.SYS_ERROR}

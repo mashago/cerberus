@@ -3,65 +3,89 @@ local cmd_handler = {}
 
 function cmd_handler.execute(buffer)
 	Log.debug("buffer=%s", buffer)
-	local params = Util.split_string(buffer, " ")
-	Log.debug("params=%s", Util.table_to_string(params))
+	local input_list = Util.split_string(buffer, " ")
 
-	if params[1] == "test" then
+	local cmd = input_list[1]
+	local params = { table.unpack(input_list, 2)}
+	Log.debug("cmd=%s params=%s", cmd, Util.table_to_string(params))
+
+
+	if cmd == "test" then
 		cmd_handler.do_test(params)
 
-	elseif params[1] == "help" then
+	elseif cmd == "help" then
 		cmd_handler.print_all_cmd()
 
-	elseif params[1] == "rpc" then
+	elseif cmd == "rpc" then
 		cmd_handler.do_rpc_test(params)
-	elseif params[1] == "rpcx" then
+	elseif cmd == "rpcx" then
 		cmd_handler.do_rpc_testx(params)
-	elseif params[1] == "rpcnocb" then
+	elseif cmd == "rpcnocb" then
 		cmd_handler.do_rpc_nocb_test(params)
-	elseif params[1] == "rpcnocbx" then
+	elseif cmd == "rpcnocbx" then
 		cmd_handler.do_rpc_nocb_testx(params)
-	elseif params[1] == "rpcmix" then
+	elseif cmd == "rpcmix" then
 		cmd_handler.do_rpc_mix_test(params)
-	elseif params[1] == "rpcmixx" then
+	elseif cmd == "rpcmixx" then
 		cmd_handler.do_rpc_mix_testx(params)
 
-	
-	elseif params[1] == "pserver" then
-		cmd_handler.do_print_server_list(params)
-	elseif params[1] == "c" then
+	elseif cmd == "1" then
+		params = {"login"}
 		cmd_handler.do_connect(params)
-	elseif params[1] == "close" then
+	elseif cmd == "2" then
+		params = {"masha", "1"}
+		cmd_handler.do_login(params)
+	elseif cmd == "3" then
+		params = {}
+		cmd_handler.do_role_list_req(params)
+	elseif cmd == "4" then
+		params = {"10001"}
+		cmd_handler.do_select_role(params)
+	elseif cmd == "5" then
+		params = {"gate"}
+		cmd_handler.do_connect(params)
+	elseif cmd == "6" then
+		params = {}
+		cmd_handler.do_enter(params)
+	elseif cmd == "7" then
+	elseif cmd == "8" then
+	
+	elseif cmd == "pserver" then
+		cmd_handler.do_print_server_list(params)
+	elseif cmd == "c" then
+		cmd_handler.do_connect(params)
+	elseif cmd == "close" then
 		cmd_handler.do_close_connect(params)
 
-	elseif params[1] == "login" then
+	elseif cmd == "login" then
 		cmd_handler.do_login(params)
-	elseif params[1] == "loginx" then
+	elseif cmd == "loginx" then
 		cmd_handler.do_loginx(params)
-	elseif params[1] == "arealist" then
+	elseif cmd == "arealist" then
 		cmd_handler.do_area_list_req(params)
-	elseif params[1] == "rolelist" then
+	elseif cmd == "rolelist" then
 		cmd_handler.do_role_list_req(params)
-	elseif params[1] == "create" then
+	elseif cmd == "create" then
 		cmd_handler.do_create_role(params)
-	elseif params[1] == "delete" then
+	elseif cmd == "delete" then
 		cmd_handler.do_delete_role(params)
-	elseif params[1] == "select" then
+	elseif cmd == "select" then
 		cmd_handler.do_select_role(params)
 
-	elseif params[1] == "enter" then
+	elseif cmd == "enter" then
 		cmd_handler.do_enter(params)
 
-	elseif params[1] == "http" then
+	elseif cmd == "http" then
 		cmd_handler.do_http_request(params)
 
-	elseif params[1] == "attr" then
+	elseif cmd == "attr" then
 		cmd_handler.do_attr_change(params)
-	elseif params[1] == "roleprint" then
+	elseif cmd == "roleprint" then
 		cmd_handler.do_role_print(params)
 
-	elseif params[1] == "testrole" then
+	elseif cmd == "testrole" then
 		cmd_handler.do_test_role(params)
-	elseif params[1] == "testbag" then
+	elseif cmd == "testbag" then
 		cmd_handler.do_test_bag(params)
 	
 	else
@@ -92,22 +116,22 @@ tmp_global_y2 = tmp_global_y2 or 400 -- if want to keep global after hotfix, mus
 
 local test3_timer_index_list = {}
 
+-- [n]
 function cmd_handler.do_test(params)
 
-	-- test [n]
-	if #params < 2 then
+	if #params < 1 then
 		Log.warn("cmd_handler.do_test params not enough")
 		return
 	end
 
-	local testn = tonumber(params[2]) or 1
+	local testn = tonumber(params[1]) or 1
 
 	local last_params = {}
 	if table.move then
-		table.move(params, 3, #params, 1, last_params)
+		table.move(params, 2, #params, 1, last_params)
 	else
-		for i=1, #params-2 do
-			last_params[i] = params[i+2]
+		for i=1, #params-1 do
+			last_params[i] = params[i+1]
 		end
 	end
 
@@ -199,11 +223,11 @@ function cmd_handler.print_all_cmd()
 	Log.info("cmd_handler.print_all_cmd()\n%s", words)
 end
 
+-- [buff]
 function cmd_handler.do_rpc_test(params)
-	-- rpc [buff]
 	local buff = "aaa"
-	if #params >= 2 then
-		buff = params[2]
+	if #params >= 1 then
+		buff = params[1]
 	end
 
 	local msg =
@@ -214,15 +238,15 @@ function cmd_handler.do_rpc_test(params)
 	send_to_login(MID.RPC_TEST_REQ, msg)
 end
 
+-- [num]
 function cmd_handler.do_rpc_testx(params)
 
-	-- rpcx [num]
-	if #params ~= 2 then
+	if #params ~= 1 then
 		Log.warn("cmd_handler.do_rpc_testx params not enough")
 		return
 	end
 
-	local num = tonumber(params[2])
+	local num = tonumber(params[1])
 
 	local msg =
 	{
@@ -235,11 +259,11 @@ function cmd_handler.do_rpc_testx(params)
 	x_test_start(num)
 end
 
+-- [buff]
 function cmd_handler.do_rpc_nocb_test(params)
-	-- rpcnocb [buff]
 	local buff = "bbb"
-	if #params >= 2 then
-		buff = params[2]
+	if #params >= 1 then
+		buff = params[1]
 	end
 
 	local msg =
@@ -250,15 +274,15 @@ function cmd_handler.do_rpc_nocb_test(params)
 	send_to_login(MID.RPC_NOCB_TEST_REQ, msg)
 end
 
+-- [num]
 function cmd_handler.do_rpc_nocb_testx(params)
 
-	-- rpcnocbx [num]
-	if #params ~= 2 then
+	if #params ~= 1 then
 		Log.warn("cmd_handler.do_rpc_nocb_testx params not enough")
 		return
 	end
 
-	local num = tonumber(params[2])
+	local num = tonumber(params[1])
 
 	local msg =
 	{
@@ -269,11 +293,11 @@ function cmd_handler.do_rpc_nocb_testx(params)
 	end
 end
 
+-- [buff]
 function cmd_handler.do_rpc_mix_test(params)
-	-- rpcmix [buff]
 	local buff = "ccc"
-	if #params >= 2 then
-		buff = params[2]
+	if #params >= 1 then
+		buff = params[1]
 	end
 
 	local msg =
@@ -284,15 +308,15 @@ function cmd_handler.do_rpc_mix_test(params)
 	send_to_login(MID.RPC_MIX_TEST_REQ, msg)
 end
 
+-- [num]
 function cmd_handler.do_rpc_mix_testx(params)
 
-	-- rpcmixx [num]
-	if #params ~= 2 then
+	if #params ~= 1 then
 		Log.warn("cmd_handler.do_rpc_mix_testx params not enough")
 		return
 	end
 
-	local num = tonumber(params[2])
+	local num = tonumber(params[1])
 
 	local msg =
 	{
@@ -311,17 +335,17 @@ function cmd_handler.do_print_server_list(params)
 	Log.debug("cmd_handler.do_print_server_list server_list=%s", Util.table_to_string(g_client._server_list))
 end
 
+-- [login/gate]
 function cmd_handler.do_connect(params)
-	-- c [login/gate]
-	if #params < 2 then
+	if #params < 1 then
 		Log.warn("cmd_handler.do_connect params not enough")
 		return
 	end
 
 	local server_type = nil
-	if params[2] == "login" then
+	if params[1] == "login" then
 		server_type = ServerType.LOGIN
-	elseif params[2] == "gate" then
+	elseif params[1] == "gate" then
 		server_type = ServerType.GATE
 	end
 	if not server_type then
@@ -345,17 +369,17 @@ function cmd_handler.do_connect(params)
 
 end
 
+-- [login/gate]
 function cmd_handler.do_close_connect(params)
-	-- close [login/gate]
-	if #params < 2 then
+	if #params < 1 then
 		Log.warn("cmd_handler.do_close_connect params not enough")
 		return
 	end
 
 	local server_type = nil
-	if params[2] == "login" then
+	if params[1] == "login" then
 		server_type = ServerType.LOGIN
-	elseif params[2] == "gate" then
+	elseif params[1] == "gate" then
 		server_type = ServerType.GATE
 	end
 	if not server_type then
@@ -366,18 +390,18 @@ function cmd_handler.do_close_connect(params)
 	g_service_mgr:close_connection_by_type(server_type)
 end
 
+-- [username] [password] [channel_id]
 function cmd_handler.do_login(params)
-	-- login [username] [password] [channel_id]
-	if #params < 3 then
+	if #params < 2 then
 		Log.warn("cmd_handler.do_login params not enough")
 		return
 	end
 
-	local channel_id = tonumber(params[4] or 0)
+	local channel_id = tonumber(params[3] or 0)
 	local msg =
 	{
-		username = params[2],
-		password = params[3],
+		username = params[1],
+		password = params[2],
 		channel_id = channel_id,
 	}
 	send_to_login(MID.USER_LOGIN_REQ, msg)
@@ -385,14 +409,14 @@ function cmd_handler.do_login(params)
 	x_test_start(1)
 end
 
+-- [num]
 function cmd_handler.do_loginx(params)
-	-- loginx [num]
-	if #params ~= 2 then
+	if #params ~= 1 then
 		Log.warn("cmd_handler.do_loginx params not enough")
 		return
 	end
 
-	local num = tonumber(params[2])
+	local num = tonumber(params[1])
 
 	for i=1, num do
 		local x = math.random(1000000)
@@ -412,14 +436,12 @@ function cmd_handler.do_loginx(params)
 end
 
 function cmd_handler.do_area_list_req(params)
-	-- arealist
 	send_to_login(MID.AREA_LIST_REQ)
 
 	g_time_counter:start()
 end
 
 function cmd_handler.do_role_list_req(params)
-	-- rolelist 
 
 	local msg =
 	{
@@ -430,17 +452,17 @@ function cmd_handler.do_role_list_req(params)
 	g_time_counter:start()
 end
 
+-- [role_name] [opt area_id]
 function cmd_handler.do_create_role(params)
-	-- create [role_name] [opt area_id]
-	if #params < 2 then
+	if #params < 1 then
 		Log.warn("cmd_handler.do_create_role params not enough")
 		return
 	end
 
 	local msg =
 	{
-		area_id = tonumber(params[3] or "1"),
-		role_name = params[2],
+		area_id = tonumber(params[2] or "1"),
+		role_name = params[1],
 	}
 
 	send_to_login(MID.CREATE_ROLE_REQ, msg)
@@ -448,17 +470,17 @@ function cmd_handler.do_create_role(params)
 	g_time_counter:start()
 end
 
+-- [role_id] [opt area_id]
 function cmd_handler.do_delete_role(params)
-	-- delete [role_id] [opt area_id]
-	if #params < 2 then
+	if #params < 1 then
 		Log.warn("cmd_handler.do_delete_role params not enough")
 		return
 	end
 
 	local msg =
 	{
-		area_id = tonumber(params[3] or "1"),
-		role_id = tonumber(params[2]),
+		area_id = tonumber(params[2] or "1"),
+		role_id = tonumber(params[1]),
 	}
 
 	send_to_login(MID.DELETE_ROLE_REQ, msg)
@@ -466,17 +488,17 @@ function cmd_handler.do_delete_role(params)
 	g_time_counter:start()
 end
 
+-- [role_id] [opt area_id]
 function cmd_handler.do_select_role(params)
-	-- select [role_id] [opt area_id]
-	if #params < 2 then
+	if #params < 1 then
 		Log.warn("cmd_handler.do_select_role params not enough")
 		return
 	end
 
 	local msg =
 	{
-		area_id = tonumber(params[3] or "1"),
-		role_id = tonumber(params[2]),
+		area_id = tonumber(params[2] or "1"),
+		role_id = tonumber(params[1]),
 	}
 
 	send_to_login(MID.SELECT_ROLE_REQ, msg)
@@ -507,9 +529,9 @@ function cmd_handler.do_http_request(params)
 	-- Net.http_request_get(url, session_id, request_type)
 end
 
+-- [attr_name] [value]
 function cmd_handler.do_attr_change(params)
-	-- attr [attr_name] [value]
-	if #params < 3 then
+	if #params < 2 then
 		Log.warn("cmd_handler.do_attr_change params not enough")
 		return
 	end
@@ -517,7 +539,7 @@ function cmd_handler.do_attr_change(params)
 	local out_attr_table = g_funcs.get_empty_attr_table()
 	local table_def = DataStructDef.data.role_info
 
-	for n=2, math.huge, 2 do
+	for n=1, math.huge, 2 do
 		local attr_name = params[n]
 		local attr_str = params[n+1]
 		if not attr_name or not attr_str then

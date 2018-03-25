@@ -468,26 +468,32 @@ function SheetObj:do_save(insert_rows, delete_rows, modify_rows)
 	Log.debug("delete_rows=%s", Util.table_to_string(delete_rows))
 	Log.debug("modify_rows=%s", Util.table_to_string(modify_rows))
 
-	local rpc_data =
-	{
-		table_name = self._sheet_name,
-		kvs_list = insert_rows,
-	}
-	g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_insert_multi", rpc_data)
+	if #insert_rows then
+		local rpc_data =
+		{
+			table_name = self._sheet_name,
+			kvs_list = insert_rows,
+		}
+		g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_insert_multi", rpc_data)
+	end
 
-	local rpc_data =
-	{
-		table_name = self._sheet_name,
-		conditions_list = delete_rows,
-	}
-	g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_delete_multi", rpc_data)
+	if #delete_rows then
+		local rpc_data =
+		{
+			table_name = self._sheet_name,
+			conditions_list = delete_rows,
+		}
+		g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_delete_multi", rpc_data)
+	end
 	
-	local rpc_data =
-	{
-		table_name = self._sheet_name,
-		modify_list = modify_rows,
-	}
-	g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_modify_multi", rpc_data)
+	if #modify_rows then
+		local rpc_data =
+		{
+			table_name = self._sheet_name,
+			modify_list = modify_rows,
+		}
+		g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_update_multi", rpc_data)
+	end
 
 end
 

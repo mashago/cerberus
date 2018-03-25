@@ -71,8 +71,9 @@ local function handle_gate_role_enter_req(data, mailbox_id)
 	-- 1. new role
 	local role = g_role_mgr:get_role_by_id(role_id)
 	if not role then
-		local Role = require "scene_svr.role"
+		local Role = require "scene_svr.role_obj"
 		role = Role.new(role_id, mailbox_id)
+		role:init()
 		g_role_mgr:add_role(role)
 	else
 		Log.debug("handle_gate_role_enter_req: role already exists %d", role_id)
