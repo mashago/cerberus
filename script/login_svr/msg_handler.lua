@@ -221,31 +221,51 @@ local function handle_user_login(data, mailbox_id, msg_id)
 
 	Log.debug("handle_user_login: callback ret=%s", Util.table_to_string(ret))
 
-	-- check client mailbox_id is still legal, after rpc
+	-- check after rpc
+	-- check connection
 	local mailbox = Net.get_mailbox(mailbox_id)
 	if not mailbox then
-		Log.warn("handle_user_login: user offline username=%s", username)
+		Log.warn("handle_user_login: connect close username=%s", username)
 		return
 	end
 
+	-- check result
 	if ret.result ~= ErrorCode.SUCCESS then
 		msg.result = ret.result
 		Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, msg)
 		return
 	end
 
-	-- ok now
-	-- create a user in memory with user_id
-	local user_id = ret.user_id
-	Log.debug("handle_user_login: user_id=%d", user_id)
-
-	local User = require "login_svr.user"
-	local user = User.new(mailbox_id, user_id, username, channel_id)
-	if not g_user_mgr:add_user(user) then
-		Log.warn("handle_user_login duplicate login2 [%s]", username)
+	-- check duplicate login
+	local user = g_user_mgr:get_user_by_mailbox(mailbox_id)
+	if user then
+		Log.warn("handle_user_login duplicate login [%s]", data.username)
 		msg.result = ErrorCode.USER_LOGIN_DUPLICATE_LOGIN
 		Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, msg)
 		return
+	end
+	--
+
+	local user_id = ret.user_id
+	Log.debug("handle_user_login: user_id=%d", user_id)
+
+	local user = g_user_mgr:get_user_by_id(ret.user_id)
+	if user then
+		-- kick old connection, and change user mailbox
+		Log.warn("handle_user_login login other place [%s]", data.username)
+		msg.result = ErrorCode.USER_LOGIN_OTHER_PLACE
+		user:send_msg(MID.USER_LOGIN_RET, msg)
+		g_user_mgr:change_user_mailbox(user, mailbox_id)
+	else
+		-- create a user in memory with user_id
+		local User = require "login_svr.user"
+		local user = User.new(mailbox_id, user_id, username, channel_id)
+		if not g_user_mgr:add_user(user) then
+			Log.warn("handle_user_login duplicate login2 [%s]", username)
+			msg.result = ErrorCode.USER_LOGIN_DUPLICATE_LOGIN
+			Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, msg)
+			return
+		end
 	end
 
 	msg.result = ErrorCode.SUCCESS
@@ -297,7 +317,6 @@ local function handle_role_list_req(user, data, mailbox_id, msg_id)
 		return
 	end
 
-
 	-- first time get role list
 	local rpc_data = 
 	{
@@ -318,9 +337,18 @@ local function handle_role_list_req(user, data, mailbox_id, msg_id)
 	end
 	Log.debug("handle_role_list_req: callback ret=%s", Util.table_to_string(ret))
 
+	if not user:is_ok() then
+		return
+	end
+
 	if ret.result ~= ErrorCode.SUCCESS then
 		msg.result = ret.result
 		user:send_msg(MID.ROLE_LIST_RET, msg)
+		return
+	end
+
+	if user._role_map then
+		send_role_list()
 		return
 	end
 
