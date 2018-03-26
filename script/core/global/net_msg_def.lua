@@ -25,6 +25,7 @@ MID._id_name_map =
 	[10016] = "SELECT_ROLE_RET",
 
 	-- gate server handle
+	[20001] = "ROLE_KICK_MSG",
 	[20021] = "ROLE_ENTER_REQ",
 	[20022] = "ROLE_ENTER_RET",
 	[20023] = "ROLE_ATTR_RET",
@@ -304,6 +305,10 @@ MSG_DEF_MAP =
 	},
 
 	----------------------------------------
+	[MID.ROLE_KICK_MSG] =
+	{
+		{ "reason", _Int },
+	},
 
 	[MID.ROLE_ENTER_REQ] =
 	{

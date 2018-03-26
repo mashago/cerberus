@@ -73,7 +73,7 @@ local function gate_select_role(data)
 	return msg
 end
 
-local function gate_delete_role(data)
+local function gate_kick_role(data)
 	local user_id = data.user_id
 	local role_id = data.role_id
 

@@ -39,10 +39,12 @@ function UserMgr:add_user(user)
 end
 
 function UserMgr:kick_user(user)
-	-- TODO
-	-- if online, send kick msg, send to scene
-	-- delete user
 	Log.warn("UserMgr:kick_user user_id=%d role_id=%d", user._user_id, user._role_id)
+
+	user:send_msg(MID.ROLE_KICK_MSG, {reason = 1})
+	
+	self:offline(user)
+
 end
 
 function UserMgr:get_user_by_id(user_id)

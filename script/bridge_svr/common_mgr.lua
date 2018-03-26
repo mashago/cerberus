@@ -5,12 +5,15 @@ function CommonMgr:ctor()
 	-- {[server_id] = conn_num, }
 	self._gate_conn_map = {}
 
-	-- {[user_id] = {
-	-- 	role_id = x,
-	-- 	token = z,
-	-- 	gate_server_id = n,
-	-- }, }
-	self._enter_user_map = {}
+	-- {
+	-- 		[user_id] = 
+	-- 		{
+	-- 			role_id = x,
+	-- 			token = z,
+	-- 			gate_server_id = n,
+	-- 		},
+	-- }
+	self._online_user_map = {}
 
 end
 
@@ -41,12 +44,12 @@ function CommonMgr:rpc_create_role(custom_data)
 		role_data[k] = v
 	end
 
+	-- just do a insert
 	local rpc_data =
 	{
 		table_name = "role_info",
 		kvs = role_data,
 	}
-	Log.debug("CommonMgr:rpc_create_role rpc_data=%s", Util.table_to_string(rpc_data))
 	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_game_insert", rpc_data)
 	if not status then
 		Log.err("CommonMgr:rpc_create_role rpc call fail")
@@ -61,7 +64,7 @@ end
 function CommonMgr:rpc_delete_role(user_id, role_id)
 
 	-- check if already enter
-	local enter_user = self._enter_user_map[user_id]
+	local enter_user = self._online_user_map[user_id]
 	if enter_user and enter_user.role_id == role_id then
 		-- rpc to gate, kick role
 		local rpc_data = 
@@ -69,7 +72,7 @@ function CommonMgr:rpc_delete_role(user_id, role_id)
 			user_id = user_id,
 			role_id = role_id,
 		}
-		local status, ret = g_rpc_mgr:call_by_server_id(enter_user.gate_server_id, "gate_delete_role", rpc_data)
+		local status, ret = g_rpc_mgr:call_by_server_id(enter_user.gate_server_id, "gate_kick_role", rpc_data)
 		if not status then
 			Log.err("rpc_delete_role rpc call fail")
 			return {result = ErrorCode.SYS_ERROR}
@@ -78,6 +81,7 @@ function CommonMgr:rpc_delete_role(user_id, role_id)
 		if ret.result ~= ErrorCode.SUCCESS then
 			return {result = ret.result}
 		end
+		self._online_user_map[user_id] = nil
 	end
 
 	-- core logic, set is_delete in game_db.role_info
@@ -85,7 +89,7 @@ function CommonMgr:rpc_delete_role(user_id, role_id)
 	{
 		table_name = "role_info",
 		fields = {is_delete = 1},
-		conditions = {role_id=role_id}
+		conditions = {role_id = role_id}
 	}
 	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_game_update", rpc_data)
 	if not status then
@@ -116,7 +120,7 @@ end
 
 function CommonMgr:get_enter_user(user_id, role_id)
 
-	local enter_user = self._enter_user_map[user_id]
+	local enter_user = self._online_user_map[user_id]
 
 	local gate_server_id = 0
 	if enter_user then
@@ -140,7 +144,7 @@ function CommonMgr:get_enter_user(user_id, role_id)
 		gate_server_id = gate_server_id,
 	}
 
-	self._enter_user_map[user_id] = enter_user
+	self._online_user_map[user_id] = enter_user
 
 	return enter_user
 end

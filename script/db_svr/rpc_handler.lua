@@ -293,6 +293,13 @@ local function db_login_insert(data)
 	return db_insert(data)
 end
 
+local function db_login_delete(data)
+	
+	local db_name = g_server_conf._db_name_map[DBType.LOGIN]
+	data.db_name = db_name
+	return db_delete(data)
+end
+
 local function db_login_update(data)
 	
 	local db_name = g_server_conf._db_name_map[DBType.LOGIN]
@@ -409,6 +416,7 @@ local function register_rpc_handler()
 
 	g_rpc_mgr:register_func("db_login_select", db_login_select)
 	g_rpc_mgr:register_func("db_login_insert", db_login_insert)
+	g_rpc_mgr:register_func("db_login_delete", db_login_delete)
 	g_rpc_mgr:register_func("db_login_update", db_login_update)
 
 	g_rpc_mgr:register_func("db_game_select", db_game_select)

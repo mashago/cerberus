@@ -424,7 +424,6 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 
 	-- get new role id
 	local role_id = ret.role_id
-	msg.role_id = role_id
 	Log.debug("handle_create_role role_id=%d", role_id)
 
 	-- 3. rpc to area bridge to create role data
@@ -446,7 +445,7 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 			table_name = "user_role",
 			conditions = {role_id = role_id},
 		}
-		g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_delete", rpc_data, user._user_id)
+		g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_login_delete", rpc_data, user._user_id)
 
 		msg.result = ErrorCode.CREATE_ROLE_FAIL
 		user:send_msg(MID.CREATE_ROLE_RET, msg)
@@ -461,6 +460,7 @@ local function handle_create_role(user, data, mailbox_id, msg_id)
 	end
 
 	user:add_role(area_id, role_id, role_name)
+	msg.role_id = role_id
 	user:send_msg(MID.CREATE_ROLE_RET, msg)
 
 end
@@ -539,6 +539,11 @@ local function handle_delete_role(user, data, mailbox_id, msg_id)
 		conditions={role_id=role_id}
 	}
 	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_login_update", rpc_data)
+	if not user:is_ok() then
+		-- user may offline, do nothing
+		return
+	end
+
 	if not status then
 		Log.err("handle_delete_role rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
@@ -554,11 +559,6 @@ local function handle_delete_role(user, data, mailbox_id, msg_id)
 	end
 
 	-- 5. remove role from user
-	if not user:is_ok() then
-		-- user may offline, do nothing
-		return
-	end
-
 	user:delete_role(area_id, role_id)
 	user:send_msg(MID.DELETE_ROLE_RET, msg)
 
