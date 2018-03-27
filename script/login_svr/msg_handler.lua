@@ -559,7 +559,7 @@ local function handle_delete_role(user, data, mailbox_id, msg_id)
 	end
 
 	-- 5. remove role from user
-	user:delete_role(area_id, role_id)
+	user:core_delete_role(area_id, role_id)
 	user:send_msg(MID.DELETE_ROLE_RET, msg)
 
 end
