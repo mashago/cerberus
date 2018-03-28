@@ -288,6 +288,7 @@ MSG_DEF_MAP =
 	[MID.DELETE_ROLE_RET] =
 	{
 		{ "result", _Int },
+		{ "role_id", _Int64 },
 	},
 
 	[MID.SELECT_ROLE_REQ] =

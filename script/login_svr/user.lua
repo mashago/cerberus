@@ -42,20 +42,11 @@ function User:add_role(area_id, role_id, role_name)
 	table.insert(self._role_map[area_id], role)
 end
 
-function User:core_delete_role(area_id, role_id)
-	self._role_map[area_id] = self._role_map[area_id] or {}
-	for k, v in ipairs(self._role_map[area_id]) do
-		if v.role_id == role_id then
-			table.remove(self._role_map[area_id], k)
-		end
-	end
-end
-
 function User:_check_role_exists(area_id, role_id)
 	-- 1. check already get role_list
 	local role_list = self._role_map[area_id]
 	if not role_list then
-		return false
+		return false, ErrorCode.DELETE_ROLE_FAIL
 	end
 
 	-- 2. check role exists
@@ -67,7 +58,7 @@ function User:_check_role_exists(area_id, role_id)
 		end
 	end
 	if not is_exists then
-		return false
+		return false, ErrorCode.DELETE_ROLE_FAIL
 	end
 	return true
 end
@@ -82,11 +73,11 @@ function User:_area_delete_role(area_id, role_id)
 	}
 	local status, ret = g_rpc_mgr:call_by_server_id(server_id, "bridge_delete_role", rpc_data)
 	if not status then
-		return false
+		return false, ErrorCode.DELETE_ROLE_FAIL
 	end
 	Log.debug("handle_delete_role: callback ret=%s", Util.table_to_string(ret))
 	if ret.result ~= ErrorCode.SUCCESS then
-		return false
+		return false, ret.result
 	end
 
 	return true
@@ -102,24 +93,34 @@ function User:_db_delete_role(role_id)
 	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_login_update", rpc_data)
 	if not status then
 		Log.err("handle_delete_role rpc call fail")
-		return false
+		return false, ErrorCode.DELETE_ROLE_FAIL
 	end
 	Log.debug("handle_delete_role: callback ret=%s", Util.table_to_string(ret))
 
 	if ret.result ~= ErrorCode.SUCCESS then
-		return false
+		return false, ret.result
 	end
 
 	return true
 end
 
 function User:delete_role(area_id, role_id)
+	if self._lock_delete then
+		return
+	end
+
+	self._lock_delete = true
+	local msg =
+	{
+		result = ErrorCode.SUCCESS,
+		role_id = role_id,
+	}
 	local ret, err
 	repeat
-		if self._lock_delete then
+		if not g_area_mgr:is_open(area_id) then
+			err = ErrorCode.AREA_NOT_OPEN
 			break
 		end
-		self._lock_delete = true
 
 		ret, err = self:_check_role_exists(area_id, role_id)
 		if not ret then
@@ -133,9 +134,52 @@ function User:delete_role(area_id, role_id)
 		if not ret then
 			break
 		end
-		self:core_delete_role(area_id, role_id)
+
+		-- local delete role
+		self._role_map[area_id] = self._role_map[area_id] or {}
+		for k, v in ipairs(self._role_map[area_id]) do
+			if v.role_id == role_id then
+				table.remove(self._role_map[area_id], k)
+			end
+		end
 	until true
 	self._lock_delete = nil
+	if err then
+		msg.result = err
+	end
+	user:send_msg(MID.DELETE_ROLE_RET, msg)
+
+end
+
+function User:select_role(area_id, role_id)
+	if self._lock_select then
+		return
+	end
+
+	self._lock_select = true
+
+	local msg =
+	{
+		result = ErrorCode.SUCCESS,
+		ip = "",
+		port = 0,
+		user_id = user._user_id,
+		token = "",
+	}
+	local ret, err
+	repeat
+		if not g_area_mgr:is_open(area_id) then
+			err = ErrorCode.AREA_NOT_OPEN
+			break
+		end
+		
+	until true
+	self._lock_select = nil
+
+	if err then
+		msg.result = err
+	end
+	user:send_msg(MID.SELECT_ROLE_RET, msg)
 end
 
 return User
