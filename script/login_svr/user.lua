@@ -80,7 +80,7 @@ function User:_area_delete_role(area_id, role_id)
 		return false, ret.result
 	end
 
-	return true
+	return ret
 end
 
 function User:_db_delete_role(role_id)
@@ -101,7 +101,7 @@ function User:_db_delete_role(role_id)
 		return false, ret.result
 	end
 
-	return true
+	return ret
 end
 
 function User:delete_role(area_id, role_id)
@@ -151,6 +151,26 @@ function User:delete_role(area_id, role_id)
 
 end
 
+function User:_area_select_role(area_id, role_id)
+	local server_id = g_area_mgr:get_server_id(area_id)
+	local rpc_data = 
+	{
+		user_id=user._user_id,
+		role_id=role_id,
+	}
+	local status, ret = g_rpc_mgr:call_by_server_id(server_id, "bridge_select_role", rpc_data)
+	if not status then
+		Log.err("User:_area_select_role rpc call fail")
+		return false, ErrorCode.SELECT_ROLE_FAIL
+	end
+	Log.debug("User:_area_select_role callback ret=%s", Util.table_to_string(ret))
+	if ret.result ~= ErrorCode.SUCCESS then
+		return false, ret.result
+	end
+
+	return ret
+end
+
 function User:select_role(area_id, role_id)
 	if self._lock_select then
 		return
@@ -172,12 +192,47 @@ function User:select_role(area_id, role_id)
 			err = ErrorCode.AREA_NOT_OPEN
 			break
 		end
+
+		-- 1. check role exists
+		local role_list = user._role_map[area_id]
+		if not role_list then
+			err = ErrorCode.SELECT_ROLE_FAIL
+			break
+		end
+
+		local is_exists = false
+		for k, v in ipairs(role_list) do
+			if v.role_id == role_id then
+				is_exists = true
+				break
+			end
+		end
+		if not is_exists then
+			err = ErrorCode.SELECT_ROLE_FAIL
+			break
+		end
+
+		ret, err = self:_area_select_role(area_id, role_id)
+		if not ret then
+			break
+		end
+
+		if not user:is_ok() then
+			-- user may offline, XXX need to send to area?
+			err = ErrorCode.SELECT_ROLE_FAIL
+			break
+		end
 		
 	until true
 	self._lock_select = nil
 
 	if err then
 		msg.result = err
+	else
+		msg.ip = ret.ip
+		msg.port = ret.port
+		msg.user_id = user._user_id
+		msg.token = ret.token
 	end
 	user:send_msg(MID.SELECT_ROLE_RET, msg)
 end
