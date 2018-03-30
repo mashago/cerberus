@@ -42,6 +42,61 @@ function User:add_role(area_id, role_id, role_name)
 	table.insert(self._role_map[area_id], role)
 end
 
+------------------------
+
+function User:_db_create_role(area_id, role_name)
+	local rpc_data = 
+	{
+		user_id=self._user_id, 
+		area_id=area_id, 
+		role_name=role_name,
+		max_role=5,
+	}
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_create_role", rpc_data, self._user_id)
+	if not status then
+		return false, ErrorCode.SYS_ERROR
+	end
+	Log.debug("_db_create_role: callback ret=%s", Util.table_to_string(ret))
+
+	if ret.result ~= ErrorCode.SUCCESS then
+		return false, ret.result
+	end
+
+	return ret
+end
+
+function User:create_role(area_id, role_name)
+	if self._lock_create then
+		return
+	end
+
+	self._lock_create = true
+	local msg =
+	{
+		result = ErrorCode.SUCCESS,
+		role_id = 0,
+	}
+	local ret, err
+	repeat
+		if not g_area_mgr:is_open(area_id) then
+			err = ErrorCode.AREA_NOT_OPEN
+			break
+		end
+		if not self._role_map then
+			err = ErrorCode.CREATE_ROLE_FAIL
+			break
+		end
+
+	until true
+	self._lock_create = nil
+	if err then
+		msg.result = err
+	end
+	self:send_msg(MID.CREATE_ROLE_RET, msg)
+end
+
+------------------------
+
 function User:_check_role_exists(area_id, role_id)
 	-- 1. check already get role_list
 	local role_list = self._role_map[area_id]
@@ -75,7 +130,7 @@ function User:_area_delete_role(area_id, role_id)
 	if not status then
 		return false, ErrorCode.DELETE_ROLE_FAIL
 	end
-	Log.debug("handle_delete_role: callback ret=%s", Util.table_to_string(ret))
+	Log.debug("_area_delete_role: callback ret=%s", Util.table_to_string(ret))
 	if ret.result ~= ErrorCode.SUCCESS then
 		return false, ret.result
 	end
@@ -95,7 +150,7 @@ function User:_db_delete_role(role_id)
 		Log.err("handle_delete_role rpc call fail")
 		return false, ErrorCode.DELETE_ROLE_FAIL
 	end
-	Log.debug("handle_delete_role: callback ret=%s", Util.table_to_string(ret))
+	Log.debug("_db_delete_role: callback ret=%s", Util.table_to_string(ret))
 
 	if ret.result ~= ErrorCode.SUCCESS then
 		return false, ret.result
@@ -147,7 +202,7 @@ function User:delete_role(area_id, role_id)
 	if err then
 		msg.result = err
 	end
-	user:send_msg(MID.DELETE_ROLE_RET, msg)
+	self:send_msg(MID.DELETE_ROLE_RET, msg)
 
 end
 
@@ -155,7 +210,7 @@ function User:_area_select_role(area_id, role_id)
 	local server_id = g_area_mgr:get_server_id(area_id)
 	local rpc_data = 
 	{
-		user_id=user._user_id,
+		user_id=self._user_id,
 		role_id=role_id,
 	}
 	local status, ret = g_rpc_mgr:call_by_server_id(server_id, "bridge_select_role", rpc_data)
@@ -183,7 +238,7 @@ function User:select_role(area_id, role_id)
 		result = ErrorCode.SUCCESS,
 		ip = "",
 		port = 0,
-		user_id = user._user_id,
+		user_id = self._user_id,
 		token = "",
 	}
 	local ret, err
@@ -194,7 +249,7 @@ function User:select_role(area_id, role_id)
 		end
 
 		-- 1. check role exists
-		local role_list = user._role_map[area_id]
+		local role_list = self._role_map[area_id]
 		if not role_list then
 			err = ErrorCode.SELECT_ROLE_FAIL
 			break
@@ -217,7 +272,7 @@ function User:select_role(area_id, role_id)
 			break
 		end
 
-		if not user:is_ok() then
+		if not self:is_ok() then
 			-- user may offline, XXX need to send to area?
 			err = ErrorCode.SELECT_ROLE_FAIL
 			break
@@ -231,10 +286,10 @@ function User:select_role(area_id, role_id)
 	else
 		msg.ip = ret.ip
 		msg.port = ret.port
-		msg.user_id = user._user_id
+		msg.user_id = self._user_id
 		msg.token = ret.token
 	end
-	user:send_msg(MID.SELECT_ROLE_RET, msg)
+	self:send_msg(MID.SELECT_ROLE_RET, msg)
 end
 
 return User

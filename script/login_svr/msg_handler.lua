@@ -471,7 +471,7 @@ local function handle_delete_role(user, data, mailbox_id, msg_id)
 	local area_id = data.area_id
 	local role_id = data.role_id
 
-	user:delete_role(area_id, role_id)
+	return user:delete_role(area_id, role_id)
 end
 
 local function handle_select_role(user, data, mailbox_id, msg_id)
@@ -480,6 +480,8 @@ local function handle_select_role(user, data, mailbox_id, msg_id)
 	local area_id = data.area_id
 	local role_id = data.role_id
 
+	return user:select_role(area_id, role_id)
+	--[[
 	local msg =
 	{
 		result = ErrorCode.SUCCESS,
@@ -550,6 +552,7 @@ local function handle_select_role(user, data, mailbox_id, msg_id)
 	msg.user_id = user._user_id
 	msg.token = ret.token
 	user:send_msg(MID.SELECT_ROLE_RET, msg)
+	--]]
 end
 
 local function register_msg_handler()
