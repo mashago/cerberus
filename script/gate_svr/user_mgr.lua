@@ -30,7 +30,7 @@ function UserMgr:add_user(user)
 	self._all_user_map[user._user_id] = user
 	self._all_user_num = self._all_user_num + 1 
 	self._role_user_map[user._role_id] = user
-	local connect_wait_interval_ms = 10 * 1000
+	local connect_wait_interval_ms = 30 * 1000
 	local timer_cb = function(user_id)
 		self:connect_timeout_cb(user_id)
 	end

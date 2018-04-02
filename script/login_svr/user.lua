@@ -43,6 +43,26 @@ end
 
 ------------------------
 
+function User:_db_get_role_list()
+	local rpc_data = 
+	{
+		table_name = "user_role",
+		fields = {"role_id", "role_name, area_id"},
+		conditions=
+		{
+			user_id = self._user_id, 
+			is_delete = 0,
+		}
+	}
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_login_select", rpc_data)
+	if not status then
+		Log.err("handle_role_list_req rpc call fail")
+		return false, ErrorCode.SYS_ERROR
+	end
+	Log.debug("handle_role_list_req: callback ret=%s", Util.table_to_string(ret))
+	return ret
+end
+
 function User:_db_create_role(area_id, role_name)
 	local rpc_data = 
 	{
@@ -180,6 +200,12 @@ function User:get_role_list()
 		return
 	end
 
+	local msg =
+	{
+		result = ErrorCode.SUCCESS,
+		area_role_list = {},
+	}
+
 	local function send_role_list()
 		for area_id, role_list in pairs(self._role_map) do
 			local node = {}
@@ -196,15 +222,9 @@ function User:get_role_list()
 	end
 
 	self._lock_get_role_list = true
-	local msg =
-	{
-		result = ErrorCode.SUCCESS,
-		area_role_list = {},
-	}
 	local ret, err
 	repeat
-		-- TODO
-		ret, err = self._db_get_role_list()
+		ret, err = self:_db_get_role_list()
 		if not ret then
 			break
 		end
@@ -253,14 +273,14 @@ function User:create_role(area_id, role_name)
 		end
 
 		-- rpc to db create role
-		ret, err = self._db_create_role(area_id, role_name)
+		ret, err = self:_db_create_role(area_id, role_name)
 		if not ret then
 			break
 		end
 		local role_id = ret.role_id
 
 		-- rpc to area bridge to create role data
-		ret, err = self._area_create_role(area_id, role_id, role_name)
+		ret, err = self:_area_create_role(area_id, role_id, role_name)
 		if not ret then
 			break
 		end

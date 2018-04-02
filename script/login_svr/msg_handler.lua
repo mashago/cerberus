@@ -185,6 +185,8 @@ local function handle_register_area(data, mailbox_id, msg_id)
 	server_info:send_msg(MID.REGISTER_AREA_RET, msg)
 end
 
+------------------------------------------------------------------
+
 local function handle_user_login(data, mailbox_id, msg_id)
 	Log.debug("handle_user_login: data=%s", Util.table_to_string(data))
 
@@ -259,7 +261,7 @@ local function handle_user_login(data, mailbox_id, msg_id)
 	else
 		-- create a user in memory with user_id
 		local User = require "login_svr.user"
-		local user = User.new(mailbox_id, user_id, username, channel_id)
+		user = User.new(mailbox_id, user_id, username, channel_id)
 		if not g_user_mgr:add_user(user) then
 			Log.warn("handle_user_login duplicate login2 [%s]", username)
 			msg.result = ErrorCode.USER_LOGIN_DUPLICATE_LOGIN
@@ -292,6 +294,8 @@ end
 local function handle_role_list_req(user, data, mailbox_id, msg_id)
 	Log.debug("handle_role_list_req: data=%s", Util.table_to_string(data))
 
+	user:get_role_list()
+	--[[
 	local msg =
 	{
 		result = ErrorCode.SUCCESS,
@@ -367,6 +371,7 @@ local function handle_role_list_req(user, data, mailbox_id, msg_id)
 	end
 
 	send_role_list()
+	--]]
 end
 
 local function handle_create_role(user, data, mailbox_id, msg_id)
