@@ -12,6 +12,7 @@ public:
 	~LuaNetwork();
 
 	int64_t ConnectTo(const char* ip, unsigned int port); // return mailboxId or negative
+	void ResetSendPluto();
 	void WriteMsgId(int msg_id);
 	void WriteExt(int ext);
 	bool WriteByte(char val);
@@ -41,7 +42,6 @@ public:
 	bool HttpRequest(const char *url, int64_t session_id, int request_type, const char *post_data, int post_data_len);
 
 private:
-	void initSendPluto();
 
 	Pluto *m_recvPluto;
 	Pluto *m_sendPluto;

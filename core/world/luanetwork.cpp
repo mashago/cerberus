@@ -19,7 +19,7 @@ int64_t LuaNetwork::ConnectTo(const char* ip, unsigned int port)
 	return m_world->ConnectTo(ip, port);
 }
 
-void LuaNetwork::initSendPluto()
+void LuaNetwork::ResetSendPluto()
 {
 	m_sendPluto->ResetCursor();
 }
@@ -77,7 +77,7 @@ bool LuaNetwork::Send(int64_t mailboxId)
 	pu->SetMailboxId(mailboxId);
 	m_world->SendPluto(pu);
 
-	initSendPluto();
+	ResetSendPluto();
 
 	return true;
 }

@@ -14,6 +14,7 @@ function Net.send_msg_ext(mailbox_id, msg_id, ext, data)
 	local flag = write_data_by_msgdef(data, msgdef, 0)
 	if not flag then
 		Log.err("Net.send_msg_ext write data error msg_id=%d", msg_id)
+		g_network:clear_write()
 		return false
 	end
 

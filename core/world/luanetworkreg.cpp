@@ -340,6 +340,18 @@ int luanetwork_write_string_array(lua_State* L)
 	return 1;
 }
 
+int luanetwork_clear_write(lua_State* L)
+{
+	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
+	luaL_argcheck(L, s != NULL, 1, "invalid user data");
+
+	(*s)->ResetSendPluto();
+
+	lua_pushboolean(L, true);
+
+	return 1;
+}
+
 int luanetwork_send(lua_State* L)
 {
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
@@ -837,6 +849,7 @@ static const luaL_Reg lua_reg_member_funcs[] =
 	{ "write_int64_array", luanetwork_write_int64_array },
 	{ "write_string_array", luanetwork_write_string_array },
 
+	{ "clear_write", luanetwork_clear_write },
 	{ "send", luanetwork_send },
 	{ "transfer", luanetwork_transfer },
 
