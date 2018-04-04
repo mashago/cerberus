@@ -105,14 +105,14 @@ local function recv_msg_handler(mailbox_id, msg_id)
 	local ext = g_network:read_ext()
 	-- Log.debug("recv_msg_handler ext=%d", ext)
 	
-
-	local msg_handler = Net.get_msg_handler(msg_id)
-	if not msg_handler then
+	-- check msg is local handle or transfer
+	local msg_name = MID._id_name_map[msg_id]
+	local msg_func = g_msg_handler[msg_name]
+	if not msg_func then
 		if g_net_event_transfer_msg then
-			g_net_event_transfer_msg(mailbox_id, msg_id, ext)
-		else
-			Log.warn("recv_msg_handler handler not exists msg_id=%d", msg_id)
+			return g_net_event_transfer_msg(mailbox_id, msg_id, ext)
 		end
+		Log.warn("recv_msg_handler handler not exists msg_id=%d", msg_id)
 		return
 	end
 
@@ -135,19 +135,19 @@ local function recv_msg_handler(mailbox_id, msg_id)
 		end
 	end
 
-	if not RAW_MID[msg_id] and g_net_event_client_msg then
-		g_rpc_mgr:run(g_net_event_client_msg, msg_handler, data, mailbox_id, msg_id, ext)
+	if msg_id == MID.s2s_rpc_req then
+		g_rpc_mgr:handle_call(data, mailbox_id, msg_id, false)
+	elseif msg_id == MID.s2s_rpc_nocb_req then
+		g_rpc_mgr:handle_call(data, mailbox_id, msg_id, true)
+	elseif msg_id == MID.s2s_rpc_ret then
+		g_rpc_mgr:handle_callback(data, mailbox_id, msg_id)
+	elseif not RAW_MID[msg_id] and g_net_event_client_msg then
+		-- check msg is need convert
+		g_rpc_mgr:run(g_net_event_client_msg, msg_func, data, mailbox_id, msg_id, ext)
 	else
-		if msg_id == MID.s2s_rpc_req then
-			g_rpc_mgr:handle_call(data, mailbox_id, msg_id, false)
-		elseif msg_id == MID.s2s_rpc_nocb_req then
-			g_rpc_mgr:handle_call(data, mailbox_id, msg_id, true)
-		elseif msg_id == MID.s2s_rpc_ret then
-			g_rpc_mgr:handle_callback(data, mailbox_id, msg_id)
-		else
-			g_rpc_mgr:run(msg_handler, data, mailbox_id, msg_id, ext)
-		end
+		g_rpc_mgr:run(msg_func, data, mailbox_id, msg_id, ext)
 	end
+
 end
 
 -------------- write

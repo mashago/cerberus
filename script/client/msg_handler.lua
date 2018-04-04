@@ -45,59 +45,59 @@ end
 
 ------------------------------------------------
 
-local function handle_rpc_test(data, mailbox_id, msg_id)
-	Log.debug("handle_rpc_test: data=%s", Util.table_to_string(data))
+function g_msg_handler.s2c_rpc_test_ret(data, mailbox_id, msg_id)
+	Log.debug("s2c_rpc_test_ret: data=%s", Util.table_to_string(data))
 	if data.result ~= ErrorCode.SUCCESS then
-		Log.warn("handle_rpc_test: result=%s", ErrorCodeText[data.result])
+		Log.warn("s2c_rpc_test_ret: result=%s", ErrorCodeText[data.result])
 	end
 	x_test_end()
 end
 
-local function handle_user_login(data, mailbox_id, msg_id)
-	Log.debug("handle_user_login: data=%s", Util.table_to_string(data))
+function g_msg_handler.s2c_user_login_ret(data, mailbox_id, msg_id)
+	Log.debug("s2c_user_login_ret: data=%s", Util.table_to_string(data))
 	if data.result ~= ErrorCode.SUCCESS then
-		Log.warn("handle_user_login: result=%s", ErrorCodeText[data.result])
+		Log.warn("s2c_user_login_ret: result=%s", ErrorCodeText[data.result])
 	end
 	x_test_end()
 end
 
-local function handle_area_list_ret(data, mailbox_id, msg_id)
-	Log.debug("handle_area_list_ret: data=%s", Util.table_to_string(data))
+function g_msg_handler.s2c_area_list_ret(data, mailbox_id, msg_id)
+	Log.debug("s2c_area_list_ret: data=%s", Util.table_to_string(data))
 
 	g_time_counter:print()
 end
 
-local function handle_role_list_ret(data, mailbox_id, msg_id)
-	Log.debug("handle_role_list_ret: data=%s", Util.table_to_string(data))
+function g_msg_handler.s2c_role_list_ret(data, mailbox_id, msg_id)
+	Log.debug("s2c_role_list_ret: data=%s", Util.table_to_string(data))
 	if data.result ~= ErrorCode.SUCCESS then
-		Log.warn("handle_role_list_ret: result=%s", ErrorCodeText[data.result])
+		Log.warn("s2c_role_list_ret: result=%s", ErrorCodeText[data.result])
 	end
 
 	g_time_counter:print()
 end
 
-local function handle_create_role(data, mailbox_id, msg_id)
-	Log.debug("handle_create_role: data=%s", Util.table_to_string(data))
+function g_msg_handler.s2c_create_role_ret(data, mailbox_id, msg_id)
+	Log.debug("s2c_create_role_ret: data=%s", Util.table_to_string(data))
 	if data.result ~= ErrorCode.SUCCESS then
-		Log.warn("handle_create_role: result=%s", ErrorCodeText[data.result])
+		Log.warn("s2c_create_role_ret: result=%s", ErrorCodeText[data.result])
 	end
 
 	g_time_counter:print()
 end
 
-local function handle_delete_role(data, mailbox_id, msg_id)
-	Log.debug("handle_delete_role: data=%s", Util.table_to_string(data))
+function g_msg_handler.s2c_delete_role_ret(data, mailbox_id, msg_id)
+	Log.debug("s2c_delete_role_ret: data=%s", Util.table_to_string(data))
 	if data.result ~= ErrorCode.SUCCESS then
-		Log.warn("handle_delete_role: result=%s", ErrorCodeText[data.result])
+		Log.warn("s2c_delete_role_ret: result=%s", ErrorCodeText[data.result])
 	end
 
 	g_time_counter:print()
 end
 
-local function handle_select_role(data, mailbox_id, msg_id)
-	Log.debug("handle_select_role: data=%s", Util.table_to_string(data))
+function g_msg_handler.s2c_select_role_ret(data, mailbox_id, msg_id)
+	Log.debug("s2c_select_role_ret: data=%s", Util.table_to_string(data))
 	if data.result ~= ErrorCode.SUCCESS then
-		Log.warn("handle_select_role: result=%s", ErrorCodeText[data.result])
+		Log.warn("s2c_select_role_ret: result=%s", ErrorCodeText[data.result])
 		return
 	end
 
@@ -114,17 +114,17 @@ local function handle_select_role(data, mailbox_id, msg_id)
 	g_time_counter:print()
 end
 
-local function handle_role_enter(data, mailbox_id, msg_id)
-	Log.debug("handle_role_enter: data=%s", Util.table_to_string(data))
+function g_msg_handler.s2c_role_enter_ret(data, mailbox_id, msg_id)
+	Log.debug("s2c_role_enter_ret: data=%s", Util.table_to_string(data))
 	if data.result ~= ErrorCode.SUCCESS then
-		Log.warn("handle_role_enter: result=%s", ErrorCodeText[data.result])
+		Log.warn("s2c_role_enter_ret: result=%s", ErrorCodeText[data.result])
 	end
 
 	g_time_counter:print()
 end
 
-local function handle_role_attr(data, mailbox_id, msg_id)
-	Log.debug("handle_role_attr: data=%s", Util.table_to_string(data))
+function g_msg_handler.s2c_role_attr_ret(data, mailbox_id, msg_id)
+	Log.debug("s2c_role_attr_ret: data=%s", Util.table_to_string(data))
 
 	local role_id = data.role_id
 	local attr_table = data.attr_table
@@ -135,8 +135,8 @@ local function handle_role_attr(data, mailbox_id, msg_id)
 	g_role:print()
 end
 
-local function handle_role_attr_change(data, mailbox_id, msg_id)
-	Log.debug("handle_role_attr_change: data=%s", Util.table_to_string(data))
+function g_msg_handler.s2c_role_attr_change_ret(data, mailbox_id, msg_id)
+	Log.debug("s2c_role_attr_change_ret: data=%s", Util.table_to_string(data))
 	
 	local attr_table = data.attr_table
 	if g_role then
@@ -145,8 +145,8 @@ local function handle_role_attr_change(data, mailbox_id, msg_id)
 	end
 end
 
-local function handle_attr_info(data, mailbox_id, msg_id)
-	Log.debug("handle_attr_info: data=%s", Util.table_to_string(data))
+function g_msg_handler.s2c_attr_info_ret(data, mailbox_id, msg_id)
+	Log.debug("s2c_attr_info_ret: data=%s", Util.table_to_string(data))
 
 	local sheet_name = data.sheet_name
 	if sheet_name == "role_info" then
@@ -159,16 +159,16 @@ local function handle_attr_info(data, mailbox_id, msg_id)
 	end
 end
 
-local function handle_attr_insert(data, mailbox_id, msg_id)
-	Log.debug("handle_attr_insert: data=%s", Util.table_to_string(data))
+function g_msg_handler.s2c_attr_insert_ret(data, mailbox_id, msg_id)
+	Log.debug("s2c_attr_insert_ret: data=%s", Util.table_to_string(data))
 end
 
-local function handle_attr_delete(data, mailbox_id, msg_id)
-	Log.debug("handle_attr_delete: data=%s", Util.table_to_string(data))
+function g_msg_handler.s2c_attr_delete_ret(data, mailbox_id, msg_id)
+	Log.debug("s2c_attr_delete_ret: data=%s", Util.table_to_string(data))
 end
 
-local function handle_attr_modify(data, mailbox_id, msg_id)
-	Log.debug("handle_attr_modify: data=%s", Util.table_to_string(data))
+function g_msg_handler.s2c_attr_modify_ret(data, mailbox_id, msg_id)
+	Log.debug("s2c_attr_modify_ret: data=%s", Util.table_to_string(data))
 
 	local sheet_name = data.sheet_name
 	if sheet_name == "role_info" then
@@ -179,24 +179,3 @@ local function handle_attr_modify(data, mailbox_id, msg_id)
 		g_role:print()
 	end
 end
-
-local function register_msg_handler()
-	Net.add_msg_handler(MID.s2c_rpc_test_ret, handle_rpc_test)
-
-	Net.add_msg_handler(MID.s2c_user_login_ret, handle_user_login)
-	Net.add_msg_handler(MID.s2c_area_list_ret, handle_area_list_ret)
-	Net.add_msg_handler(MID.s2c_role_list_ret, handle_role_list_ret)
-	Net.add_msg_handler(MID.s2c_create_role_ret, handle_create_role)
-	Net.add_msg_handler(MID.s2c_delete_role_ret, handle_delete_role)
-	Net.add_msg_handler(MID.s2c_select_role_ret, handle_select_role)
-	Net.add_msg_handler(MID.s2c_role_enter_ret, handle_role_enter)
-	Net.add_msg_handler(MID.s2c_role_attr_ret, handle_role_attr)
-	Net.add_msg_handler(MID.s2c_role_attr_change_ret, handle_role_attr_change)
-
-	Net.add_msg_handler(MID.s2c_attr_info_ret, handle_attr_info)
-	Net.add_msg_handler(MID.s2c_attr_insert_ret, handle_attr_insert)
-	Net.add_msg_handler(MID.s2c_attr_delete_ret, handle_attr_delete)
-	Net.add_msg_handler(MID.s2c_attr_modify_ret, handle_attr_modify)
-end
-
-register_msg_handler()

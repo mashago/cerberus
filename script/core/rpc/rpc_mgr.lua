@@ -298,34 +298,11 @@ function RpcMgr:handle_callback(data, mailbox_id, msg_id)
 	if from_server_id ~= g_server_conf._server_id then
 		Log.err("RpcMgr:handle_callback server_id mismatch from_server_id=%d local_server_id=%d", from_server_id, g_server_conf._server_id)
 		return
-		--[[
-		-- transfer rpc ret to from server
-		local server_info = g_service_mgr:get_server_by_id(from_server_id)
-		if not server_info then
-			Log.warn("RpcMgr.handle_callback cannot go back from_server_id=%d", from_server_id)
-			return
-		end
-
-		local msg =
-		{
-			result = true, 
-			from_server_id = from_server_id, 
-			to_server_id = to_server_id, 
-			session_id = session_id, 
-			param = data.param
-		}
-		server_info:send_msg(MID.s2s_rpc_ret, msg)
-		return
-		--]]
 	end
 
 	local param = Util.unserialize(data.param)
 	self:callback(session_id, result, param)
 
 end
-
-Net.add_msg_handler(MID.s2s_rpc_req, function() Log.err("s2s_rpc_req just take place should not enter") end)
-Net.add_msg_handler(MID.s2s_rpc_nocb_req, function() Log.err("s2s_rpc_nocb_req just take place should not enter") end)
-Net.add_msg_handler(MID.s2s_rpc_ret, function() Log.err("s2s_rpc_ret just take place should not enter") end)
 
 return RpcMgr

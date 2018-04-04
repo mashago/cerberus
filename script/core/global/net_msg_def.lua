@@ -51,8 +51,8 @@ MID._id_name_map =
 	[60010] = "s2s_register_area_req",
 	[60011] = "s2s_register_area_ret",
 
-	[60101] = "GATE_c2s_role_enter_req",
-	[60102] = "GATE_s2c_role_enter_ret",
+	[60101] = "s2s_gate_role_enter_req",
+	[60102] = "s2s_gate_role_enter_ret",
 	[60103] = "s2s_gate_role_disconnect",
 
 }
@@ -422,12 +422,12 @@ MSG_DEF_MAP =
 		{ "result", _Int },
 	},
 
-	[MID.GATE_c2s_role_enter_req] =
+	[MID.s2s_gate_role_enter_req] =
 	{
 		{ "role_id", _Int64 },
 		{ "scene_id", _Int },
 	},
-	[MID.GATE_s2c_role_enter_ret] =
+	[MID.s2s_gate_role_enter_ret] =
 	{
 		{ "result", _Int },
 		{ "role_id", _Int64 },
@@ -460,8 +460,8 @@ RAW_MID =
 	[MID.s2s_register_area_req] = true,
 	[MID.s2s_register_area_ret] = true,
 
-	[MID.GATE_c2s_role_enter_req] = true,
-	[MID.GATE_s2c_role_enter_ret] = true,
+	[MID.s2s_gate_role_enter_req] = true,
+	[MID.s2s_gate_role_enter_ret] = true,
 }
 
 --[[

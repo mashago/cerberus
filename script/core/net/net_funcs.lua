@@ -1,6 +1,5 @@
 
 Net = {}
-Net._msg_handler_map = {}
 Net._all_mailbox = {} -- {{mailbox_id=x, conn_type=x, ip=x, port=x}, }
 
 function Net.send_msg_ext(mailbox_id, msg_id, ext, data)
@@ -36,18 +35,6 @@ function Net.transfer_msg(mailbox_id, ext)
 		g_network:write_ext(ext)
 	end
 	return g_network:send(mailbox_id)
-end
-
-function Net.add_msg_handler(msg_id, func)
-	local f = Net._msg_handler_map[msg_id]
-	if f then
-		Log.warn("Net.add_msg_handler duplicate %d", msg_id)
-	end
-	Net._msg_handler_map[msg_id] = func
-end
-
-function Net.get_msg_handler(msg_id)
-	return Net._msg_handler_map[msg_id]
 end
 
 function Net.add_mailbox(mailbox_id, ip, port)

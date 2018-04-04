@@ -1,5 +1,5 @@
 
-local function handle_role_enter(data, mailbox_id)
+function g_msg_handler.c2s_role_enter_req(data, mailbox_id)
 
 	local user_id = data.user_id
 	local token = data.token
@@ -17,7 +17,7 @@ local function handle_role_enter(data, mailbox_id)
 	-- 1. check user and token
 	local user = g_user_mgr:get_user_by_id(user_id)
 	if not user then
-		Log.warn("handle_role_enter: user not exists %d", user_id)
+		Log.warn("c2s_role_enter_req: user not exists %d", user_id)
 		msg.result = ErrorCode.ROLE_ENTER_FAIL
 		Net.send_msg(mailbox_id, MID.s2c_role_enter_ret, msg)
 		return
@@ -25,7 +25,7 @@ local function handle_role_enter(data, mailbox_id)
 
 	if user:is_online() then
 		-- user already online
-		Log.warn("handle_role_enter: user already online %d", user_id)
+		Log.warn("c2s_role_enter_req: user already online %d", user_id)
 		msg.result = ErrorCode.ROLE_ENTER_FAIL
 		Net.send_msg(mailbox_id, MID.s2c_role_enter_ret, msg)
 		return
@@ -34,7 +34,7 @@ local function handle_role_enter(data, mailbox_id)
 	local role_id = user._role_id
 	local scene_id = user._scene_id
 	if user._token ~= token then
-		Log.warn("handle_role_enter: user token mismatch %d %s %s", user_id, token, user._token)
+		Log.warn("c2s_role_enter_req: user token mismatch %d %s %s", user_id, token, user._token)
 		msg.result = ErrorCode.ROLE_ENTER_FAIL
 		Net.send_msg(mailbox_id, MID.s2c_role_enter_ret, msg)
 		return
@@ -42,7 +42,7 @@ local function handle_role_enter(data, mailbox_id)
 
 	local u = g_user_mgr:get_user_by_mailbox(mailbox_id)
 	if u then
-		Log.warn("handle_role_enter: mailbox already connect to a user %d", user_id)
+		Log.warn("c2s_role_enter_req: mailbox already connect to a user %d", user_id)
 		msg.result = ErrorCode.ROLE_ENTER_FAIL
 		Net.send_msg(mailbox_id, MID.s2c_role_enter_ret, msg)
 		return
@@ -60,7 +60,7 @@ local function handle_role_enter(data, mailbox_id)
 
 	if not scene_server_info then
 		-- TODO fix user scene to a right scene
-		Log.err("handle_role_enter: scene server not exists scene_id=%d", scene_id)
+		Log.err("c2s_role_enter_req: scene server not exists scene_id=%d", scene_id)
 		msg.result = ErrorCode.ROLE_ENTER_FAIL
 		Net.send_msg(mailbox_id, MID.s2c_role_enter_ret, msg)
 		return
@@ -68,7 +68,7 @@ local function handle_role_enter(data, mailbox_id)
 
 	-- set when role enter success
 	-- user._scene_server_id = scene_server_info._server_id
-	-- Log.debug("handle_role_enter: user._scene_server_id=%d", user._scene_server_id)
+	-- Log.debug("c2s_role_enter_req: user._scene_server_id=%d", user._scene_server_id)
 
 	-- 3. send msg to scene
 	local msg =
@@ -76,18 +76,18 @@ local function handle_role_enter(data, mailbox_id)
 		role_id = role_id,
 		scene_id = scene_id,	
 	}
-	scene_server_info:send_msg(MID.GATE_c2s_role_enter_req, msg)
+	scene_server_info:send_msg(MID.s2s_gate_role_enter_req, msg)
 
 end
 
-local function handle_gate_role_enter_ret(data, mailbox_id)
-	Log.debug("handle_gate_role_enter_ret: data=%s", Util.table_to_string(data))	
+function g_msg_handler.s2s_gate_role_enter_ret(data, mailbox_id)
+	Log.debug("s2s_gate_role_enter_ret: data=%s", Util.table_to_string(data))	
 	
 	local result = data.result
 	local role_id = data.role_id
 	local user = g_user_mgr:get_user_by_role_id(role_id)
 	if not user then
-		Log.warn("handle_gate_role_enter_ret: user nil role_id=%d", role_id)
+		Log.warn("s2s_gate_role_enter_ret: user nil role_id=%d", role_id)
 		return
 	end
 
@@ -103,7 +103,7 @@ local function handle_gate_role_enter_ret(data, mailbox_id)
 
 	local scene_server_info = g_service_mgr:get_server_by_mailbox(mailbox_id)
 	if not scene_server_info then
-		Log.err("handle_gate_role_enter_ret: cannot get server_info %d", mailbox_id)
+		Log.err("s2s_gate_role_enter_ret: cannot get server_info %d", mailbox_id)
 		msg.result = ErrorCode.SYS_ERROR
 		user:send_msg(MID.s2c_role_enter_ret, msg)
 		return
@@ -114,14 +114,3 @@ local function handle_gate_role_enter_ret(data, mailbox_id)
 	user:send_msg(MID.s2c_role_enter_ret, msg)
 
 end
-
-local function register_msg_handler()
-	Net.add_msg_handler(MID.s2s_shake_hand_req, g_funcs.handle_shake_hand_req)
-	Net.add_msg_handler(MID.s2s_shake_hand_ret, g_funcs.handle_shake_hand_ret)
-	Net.add_msg_handler(MID.s2s_shake_hand_invite, g_funcs.handle_shake_hand_invite)
-
-	Net.add_msg_handler(MID.c2s_role_enter_req, handle_role_enter)
-	Net.add_msg_handler(MID.GATE_s2c_role_enter_ret, handle_gate_role_enter_ret)
-end
-
-register_msg_handler()

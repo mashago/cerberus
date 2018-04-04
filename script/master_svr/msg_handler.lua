@@ -1,5 +1,5 @@
 
-local function handle_shake_hand(data, mailbox_id)
+function g_msg_handler.s2s_shake_hand_req(data, mailbox_id)
 
 	local server_id = data.server_id
 	local server_type = data.server_type
@@ -12,9 +12,3 @@ local function handle_shake_hand(data, mailbox_id)
 
 end
 
-local function register_msg_handler()
-	Net.add_msg_handler(MID.s2s_shake_hand_req, handle_shake_hand)
-
-end
-
-register_msg_handler()
