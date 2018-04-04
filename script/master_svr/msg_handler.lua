@@ -13,7 +13,7 @@ local function handle_shake_hand(data, mailbox_id)
 end
 
 local function register_msg_handler()
-	Net.add_msg_handler(MID.SHAKE_HAND_REQ, handle_shake_hand)
+	Net.add_msg_handler(MID.s2s_shake_hand_req, handle_shake_hand)
 
 end
 

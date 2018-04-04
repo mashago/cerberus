@@ -213,7 +213,7 @@ function User:get_role_list()
 			node.role_list = role_list
 			table.insert(msg.area_role_list, node)
 		end
-		self:send_msg(MID.ROLE_LIST_RET, msg)
+		self:send_msg(MID.s2c_role_list_ret, msg)
 	end
 
 	if self._role_map then
@@ -242,7 +242,7 @@ function User:get_role_list()
 	self._lock_get_role_list = nil
 	if err then
 		msg.result = err
-		self:send_msg(MID.ROLE_LIST_RET, msg)
+		self:send_msg(MID.s2c_role_list_ret, msg)
 		return
 	end
 
@@ -293,7 +293,7 @@ function User:create_role(area_id, role_name)
 	if err then
 		msg.result = err
 	end
-	self:send_msg(MID.CREATE_ROLE_RET, msg)
+	self:send_msg(MID.s2c_create_role_ret, msg)
 end
 
 function User:delete_role(area_id, role_id)
@@ -343,7 +343,7 @@ function User:delete_role(area_id, role_id)
 	if err then
 		msg.result = err
 	end
-	self:send_msg(MID.DELETE_ROLE_RET, msg)
+	self:send_msg(MID.s2c_delete_role_ret, msg)
 
 end
 
@@ -399,7 +399,7 @@ function User:select_role(area_id, role_id)
 		msg.user_id = self._user_id
 		msg.token = ret.token
 	end
-	self:send_msg(MID.SELECT_ROLE_RET, msg)
+	self:send_msg(MID.s2c_select_role_ret, msg)
 end
 
 return User

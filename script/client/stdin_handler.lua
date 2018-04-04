@@ -235,7 +235,7 @@ function cmd_handler.do_rpc_test(params)
 		buff = buff,
 	}
 
-	send_to_login(MID.RPC_TEST_REQ, msg)
+	send_to_login(MID.c2s_rpc_test_req, msg)
 end
 
 -- [num]
@@ -253,7 +253,7 @@ function cmd_handler.do_rpc_testx(params)
 		buff = "aaa"
 	}
 	for i=1, num do
-		send_to_login(MID.RPC_TEST_REQ, msg)
+		send_to_login(MID.c2s_rpc_test_req, msg)
 	end
 
 	x_test_start(num)
@@ -271,7 +271,7 @@ function cmd_handler.do_rpc_nocb_test(params)
 		buff = buff,
 	}
 
-	send_to_login(MID.RPC_NOCB_TEST_REQ, msg)
+	send_to_login(MID.c2s_rpc_nocb_test_req, msg)
 end
 
 -- [num]
@@ -289,7 +289,7 @@ function cmd_handler.do_rpc_nocb_testx(params)
 		buff = "bbb"
 	}
 	for i=1, num do
-		send_to_login(MID.RPC_NOCB_TEST_REQ, msg)
+		send_to_login(MID.c2s_rpc_nocb_test_req, msg)
 	end
 end
 
@@ -305,7 +305,7 @@ function cmd_handler.do_rpc_mix_test(params)
 		buff = buff,
 	}
 
-	send_to_login(MID.RPC_MIX_TEST_REQ, msg)
+	send_to_login(MID.c2s_rpc_mix_test_req, msg)
 end
 
 -- [num]
@@ -323,7 +323,7 @@ function cmd_handler.do_rpc_mix_testx(params)
 		buff = "ccc"
 	}
 	for i=1, num do
-		send_to_login(MID.RPC_MIX_TEST_REQ, msg)
+		send_to_login(MID.c2s_rpc_mix_test_req, msg)
 	end
 
 	x_test_start(num)
@@ -404,7 +404,7 @@ function cmd_handler.do_login(params)
 		password = params[2],
 		channel_id = channel_id,
 	}
-	send_to_login(MID.USER_LOGIN_REQ, msg)
+	send_to_login(MID.c2s_user_login_req, msg)
 
 	x_test_start(1)
 end
@@ -428,7 +428,7 @@ function cmd_handler.do_loginx(params)
 			password = "qwerty",
 			channel_id = 0,
 		}
-		send_to_login(MID.USER_LOGIN_REQ, msg)
+		send_to_login(MID.c2s_user_login_req, msg)
 	end
 
 	x_test_start(num)
@@ -436,7 +436,7 @@ function cmd_handler.do_loginx(params)
 end
 
 function cmd_handler.do_area_list_req(params)
-	send_to_login(MID.AREA_LIST_REQ)
+	send_to_login(MID.c2s_area_list_req)
 
 	g_time_counter:start()
 end
@@ -447,7 +447,7 @@ function cmd_handler.do_role_list_req(params)
 	{
 	}
 
-	send_to_login(MID.ROLE_LIST_REQ, msg)
+	send_to_login(MID.c2s_role_list_req, msg)
 
 	g_time_counter:start()
 end
@@ -465,7 +465,7 @@ function cmd_handler.do_create_role(params)
 		role_name = params[1],
 	}
 
-	send_to_login(MID.CREATE_ROLE_REQ, msg)
+	send_to_login(MID.c2s_create_role_req, msg)
 
 	g_time_counter:start()
 end
@@ -483,7 +483,7 @@ function cmd_handler.do_delete_role(params)
 		role_id = tonumber(params[1]),
 	}
 
-	send_to_login(MID.DELETE_ROLE_REQ, msg)
+	send_to_login(MID.c2s_delete_role_req, msg)
 
 	g_time_counter:start()
 end
@@ -501,7 +501,7 @@ function cmd_handler.do_select_role(params)
 		role_id = tonumber(params[1]),
 	}
 
-	send_to_login(MID.SELECT_ROLE_REQ, msg)
+	send_to_login(MID.c2s_select_role_req, msg)
 
 	g_time_counter:start()
 end
@@ -514,7 +514,7 @@ function cmd_handler.do_enter(params)
 		token = g_client._user_token,
 	}
 
-	send_to_gate(MID.ROLE_ENTER_REQ, msg)
+	send_to_gate(MID.c2s_role_enter_req, msg)
 
 	g_time_counter:start()
 end
@@ -564,7 +564,7 @@ function cmd_handler.do_attr_change(params)
 		attr_table = out_attr_table,
 	}
 
-	send_to_gate(MID.ROLE_ATTR_CHANGE_REQ, msg)
+	send_to_gate(MID.c2s_role_attr_change_req, msg)
 end
 
 function cmd_handler.do_role_print(params)

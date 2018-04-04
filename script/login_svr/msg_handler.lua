@@ -25,7 +25,7 @@ local function handle_rpc_test(data, mailbox_id, msg_id)
 	if not status then
 		Log.err("handle_rpc_test rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
-		Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
+		Net.send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 		return
 	end
 	Log.debug("handle_rpc_test: callback ret=%s", Util.table_to_string(ret))
@@ -41,7 +41,7 @@ local function handle_rpc_test(data, mailbox_id, msg_id)
 	if not status then
 		Log.err("handle_rpc_test rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
-		Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
+		Net.send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 		return
 	end
 	Log.debug("handle_rpc_test: callback ret=%s", Util.table_to_string(ret))
@@ -52,7 +52,7 @@ local function handle_rpc_test(data, mailbox_id, msg_id)
 	msg.buff = buff
 	msg.sum = sum
 
-	Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
+	Net.send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 end
 
 
@@ -114,7 +114,7 @@ local function handle_rpc_mix_test(data, mailbox_id, msg_id)
 	if not status then
 		Log.err("handle_rpc_mix_test rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
-		Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
+		Net.send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 		return
 	end
 	Log.debug("handle_rpc_mix_test: callback ret=%s", Util.table_to_string(ret))
@@ -145,7 +145,7 @@ local function handle_rpc_mix_test(data, mailbox_id, msg_id)
 	if not status then
 		Log.err("handle_rpc_mix_test rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
-		Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
+		Net.send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 		return
 	end
 	Log.debug("handle_rpc_mix_test: callback ret=%s", Util.table_to_string(ret))
@@ -156,7 +156,7 @@ local function handle_rpc_mix_test(data, mailbox_id, msg_id)
 	msg.buff = buff
 	msg.sum = sum
 
-	Net.send_msg(mailbox_id, MID.RPC_TEST_RET, msg)
+	Net.send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 end
 
 
@@ -178,11 +178,11 @@ local function handle_register_area(data, mailbox_id, msg_id)
 	if not g_area_mgr:register_area(server_info._server_id, data.area_list) then
 		Log.warn("handle_register_area: register_area duplicate %s %s", server_info._server_id, Util.table_to_string(data.area_list))
 		msg.result = ErrorCode.REGISTER_AREA_DUPLICATE
-		server_info:send_msg(MID.REGISTER_AREA_RET, msg)
+		server_info:send_msg(MID.s2s_register_area_ret, msg)
 		return
 	end
 
-	server_info:send_msg(MID.REGISTER_AREA_RET, msg)
+	server_info:send_msg(MID.s2s_register_area_ret, msg)
 end
 
 ------------------------------------------------------------------
@@ -199,7 +199,7 @@ local function handle_user_login(data, mailbox_id, msg_id)
 	if user then
 		Log.warn("handle_user_login duplicate login [%s]", data.username)
 		msg.result = ErrorCode.USER_LOGIN_DUPLICATE_LOGIN
-		Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, msg)
+		Net.send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 		return
 	end
 
@@ -217,7 +217,7 @@ local function handle_user_login(data, mailbox_id, msg_id)
 	if not status then
 		Log.err("handle_user_login rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
-		Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, msg)
+		Net.send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 		return
 	end
 
@@ -234,7 +234,7 @@ local function handle_user_login(data, mailbox_id, msg_id)
 	-- check result
 	if ret.result ~= ErrorCode.SUCCESS then
 		msg.result = ret.result
-		Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, msg)
+		Net.send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 		return
 	end
 
@@ -243,7 +243,7 @@ local function handle_user_login(data, mailbox_id, msg_id)
 	if user then
 		Log.warn("handle_user_login duplicate login [%s]", data.username)
 		msg.result = ErrorCode.USER_LOGIN_DUPLICATE_LOGIN
-		Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, msg)
+		Net.send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 		return
 	end
 	--
@@ -256,7 +256,7 @@ local function handle_user_login(data, mailbox_id, msg_id)
 		-- kick old connection, and change user mailbox
 		Log.warn("handle_user_login login other place [%s]", data.username)
 		msg.result = ErrorCode.USER_LOGIN_OTHER_PLACE
-		user:send_msg(MID.USER_LOGIN_RET, msg)
+		user:send_msg(MID.s2c_user_login_ret, msg)
 		g_user_mgr:change_user_mailbox(user, mailbox_id)
 	else
 		-- create a user in memory with user_id
@@ -265,13 +265,13 @@ local function handle_user_login(data, mailbox_id, msg_id)
 		if not g_user_mgr:add_user(user) then
 			Log.warn("handle_user_login duplicate login2 [%s]", username)
 			msg.result = ErrorCode.USER_LOGIN_DUPLICATE_LOGIN
-			Net.send_msg(mailbox_id, MID.USER_LOGIN_RET, msg)
+			Net.send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 			return
 		end
 	end
 
 	msg.result = ErrorCode.SUCCESS
-	user:send_msg(MID.USER_LOGIN_RET, msg)
+	user:send_msg(MID.s2c_user_login_ret, msg)
 
 end
 
@@ -288,7 +288,7 @@ local function handler_area_list_req(user, data, mailbox_id, msg_id)
 		area_list = area_list
 	}
 
-	user:send_msg(MID.AREA_LIST_RET, msg)
+	user:send_msg(MID.s2c_area_list_ret, msg)
 end
 
 local function handle_role_list_req(user, data, mailbox_id, msg_id)
@@ -312,7 +312,7 @@ local function handle_role_list_req(user, data, mailbox_id, msg_id)
 			node.role_list = role_list
 			table.insert(msg.area_role_list, node)
 		end
-		user:send_msg(MID.ROLE_LIST_RET, msg)
+		user:send_msg(MID.s2c_role_list_ret, msg)
 	end
 	
 	-- already get role list
@@ -336,7 +336,7 @@ local function handle_role_list_req(user, data, mailbox_id, msg_id)
 	if not status then
 		Log.err("handle_role_list_req rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
-		user:send_msg(MID.ROLE_LIST_RET, msg)
+		user:send_msg(MID.s2c_role_list_ret, msg)
 		return
 	end
 	Log.debug("handle_role_list_req: callback ret=%s", Util.table_to_string(ret))
@@ -347,7 +347,7 @@ local function handle_role_list_req(user, data, mailbox_id, msg_id)
 
 	if ret.result ~= ErrorCode.SUCCESS then
 		msg.result = ret.result
-		user:send_msg(MID.ROLE_LIST_RET, msg)
+		user:send_msg(MID.s2c_role_list_ret, msg)
 		return
 	end
 
@@ -405,21 +405,21 @@ end
 local function register_msg_handler()
 
 	-- for test
-	Net.add_msg_handler(MID.RPC_TEST_REQ, handle_rpc_test)
-	Net.add_msg_handler(MID.RPC_NOCB_TEST_REQ, handle_rpc_nocb_test)
-	Net.add_msg_handler(MID.RPC_MIX_TEST_REQ, handle_rpc_mix_test)
+	Net.add_msg_handler(MID.c2s_rpc_test_req, handle_rpc_test)
+	Net.add_msg_handler(MID.c2s_rpc_nocb_test_req, handle_rpc_nocb_test)
+	Net.add_msg_handler(MID.c2s_rpc_mix_test_req, handle_rpc_mix_test)
 
-	Net.add_msg_handler(MID.SHAKE_HAND_REQ, g_funcs.handle_shake_hand_req)
-	Net.add_msg_handler(MID.SHAKE_HAND_RET, g_funcs.handle_shake_hand_ret)
+	Net.add_msg_handler(MID.s2s_shake_hand_req, g_funcs.handle_shake_hand_req)
+	Net.add_msg_handler(MID.s2s_shake_hand_ret, g_funcs.handle_shake_hand_ret)
 
-	Net.add_msg_handler(MID.REGISTER_AREA_REQ, handle_register_area)
+	Net.add_msg_handler(MID.s2s_register_area_req, handle_register_area)
 
-	Net.add_msg_handler(MID.USER_LOGIN_REQ, handle_user_login)
-	Net.add_msg_handler(MID.AREA_LIST_REQ, handler_area_list_req)
-	Net.add_msg_handler(MID.ROLE_LIST_REQ, handle_role_list_req)
-	Net.add_msg_handler(MID.CREATE_ROLE_REQ, handle_create_role)
-	Net.add_msg_handler(MID.DELETE_ROLE_REQ, handle_delete_role)
-	Net.add_msg_handler(MID.SELECT_ROLE_REQ, handle_select_role)
+	Net.add_msg_handler(MID.c2s_user_login_req, handle_user_login)
+	Net.add_msg_handler(MID.c2s_area_list_req, handler_area_list_req)
+	Net.add_msg_handler(MID.c2s_role_list_req, handle_role_list_req)
+	Net.add_msg_handler(MID.c2s_create_role_req, handle_create_role)
+	Net.add_msg_handler(MID.c2s_delete_role_req, handle_delete_role)
+	Net.add_msg_handler(MID.c2s_select_role_req, handle_select_role)
 end
 
 register_msg_handler()

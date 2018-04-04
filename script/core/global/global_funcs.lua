@@ -155,7 +155,7 @@ function g_funcs.connect_to_mysql(xml_doc)
 end
 
 -- about shake hand
--- a common handle for MID.SHAKE_HAND_REQ
+-- a common handle for MID.s2s_shake_hand_req
 -- master server NOT use this function
 function g_funcs.handle_shake_hand_req(data, mailbox_id)
 	Log.debug("g_funcs.handle_shake_hand_req data=%s", Util.table_to_string(data))
@@ -181,18 +181,18 @@ function g_funcs.handle_shake_hand_req(data, mailbox_id)
 	if not server_info then
 		Log.warning("g_funcs.handle_shake_hand_req add_server fail server_id=%d server_type=%d", server_id, server_type)
 		msg.result = ErrorCode.SHAKE_HAND_FAIL
-		Net.send_msg(mailbox_id, MID.SHAKE_HAND_RET, msg)
+		Net.send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
 		return
 	end
 
-	server_info:send_msg(MID.SHAKE_HAND_RET, msg)
+	server_info:send_msg(MID.s2s_shake_hand_ret, msg)
 
 	if g_net_event_server_connect then
 		g_net_event_server_connect(server_id)
 	end
 end
 
--- a common handle for MID.SHAKE_HAND_RET
+-- a common handle for MID.s2s_shake_hand_ret
 function g_funcs.handle_shake_hand_ret(data, mailbox_id)
 	Log.debug("g_funcs.handle_shake_hand_ret data=%s", Util.table_to_string(data))
 	if data.result ~= ErrorCode.SUCCESS then
@@ -215,7 +215,7 @@ function g_funcs.handle_shake_hand_ret(data, mailbox_id)
 	end
 end
 
--- a common handle for MID.SHAKE_HAND_INVITE
+-- a common handle for MID.s2s_shake_hand_invite
 function g_funcs.handle_shake_hand_invite(data, mailbox_id)
 	Log.debug("g_funcs.handle_shake_hand_invite data=%s", Util.table_to_string(data))
 	for k, v in ipairs(data.server_list) do

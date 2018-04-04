@@ -251,7 +251,7 @@ function ServiceMgr:connect_to_success(mailbox_id)
 			ip = g_server_conf._ip,
 			port = g_server_conf._port,
 		}
-		Net.send_msg(mailbox_id, MID.SHAKE_HAND_REQ, msg)
+		Net.send_msg(mailbox_id, MID.s2s_shake_hand_req, msg)
 	else
 		-- no_shakehand, add server by service
 		-- only use by client

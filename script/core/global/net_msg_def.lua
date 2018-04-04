@@ -3,62 +3,58 @@ MID = {}
 MID._id_name_map = 
 {
 	-- msg for test
-	[1] = "CLIENT_TEST",
-	[2] = "CLIENT_TEST_RET",
-	[3] = "RPC_TEST_REQ",
-	[4] = "RPC_TEST_RET",
-	[5] = "RPC_NOCB_TEST_REQ",
-	[6] = "RPC_MIX_TEST_REQ",
+	[1] = "c2s_client_test_req",
+	[2] = "s2c_client_test_ret",
+	[3] = "c2s_rpc_test_req",
+	[4] = "s2c_rpc_test_ret",
+	[5] = "c2s_rpc_nocb_test_req",
+	[6] = "c2s_rpc_mix_test_req",
 
 	-- login server handle
-	[10005] = "USER_LOGIN_REQ",
-	[10006] = "USER_LOGIN_RET",
-	[10007] = "AREA_LIST_REQ",
-	[10008] = "AREA_LIST_RET",
-	[10009] = "ROLE_LIST_REQ",
-	[10010] = "ROLE_LIST_RET",
-	[10011] = "CREATE_ROLE_REQ",
-	[10012] = "CREATE_ROLE_RET",
-	[10013] = "DELETE_ROLE_REQ",
-	[10014] = "DELETE_ROLE_RET",
-	[10015] = "SELECT_ROLE_REQ",
-	[10016] = "SELECT_ROLE_RET",
+	[10005] = "c2s_user_login_req",
+	[10006] = "s2c_user_login_ret",
+	[10007] = "c2s_area_list_req",
+	[10008] = "s2c_area_list_ret",
+	[10009] = "c2s_role_list_req",
+	[10010] = "s2c_role_list_ret",
+	[10011] = "c2s_create_role_req",
+	[10012] = "s2c_create_role_ret",
+	[10013] = "c2s_delete_role_req",
+	[10014] = "s2c_delete_role_ret",
+	[10015] = "c2s_select_role_req",
+	[10016] = "s2c_select_role_ret",
 
 	-- gate server handle
-	[20001] = "ROLE_KICK_MSG",
-	[20021] = "ROLE_ENTER_REQ",
-	[20022] = "ROLE_ENTER_RET",
-	[20023] = "ROLE_ATTR_RET",
-	[20024] = "ROLE_ATTR_CHANGE_REQ",
-	[20025] = "ROLE_ATTR_CHANGE_RET",
+	[20001] = "s2c_role_kick",
+	[20021] = "c2s_role_enter_req",
+	[20022] = "s2c_role_enter_ret",
+	[20023] = "s2c_role_attr_ret",
+	[20024] = "c2s_role_attr_change_req",
+	[20025] = "s2c_role_attr_change_ret",
 
-	[20026] = "ATTR_INFO_RET",
-	[20027] = "ATTR_INSERT_RET",
-	[20028] = "ATTR_DELETE_RET",
-	[20029] = "ATTR_MODIFY_RET",
+	[20026] = "s2c_attr_info_ret",
+	[20027] = "s2c_attr_insert_ret",
+	[20028] = "s2c_attr_delete_ret",
+	[20029] = "s2c_attr_modify_ret",
 
 	-- msg for server
 	-- about master_svr
 	
-	[60004] = "SHAKE_HAND_REQ", -- after connect to success, send this
-	[60005] = "SHAKE_HAND_RET",
-	[60006] = "SHAKE_HAND_INVITE",
+	[60004] = "s2s_shake_hand_req", -- after connect to success, send this
+	[60005] = "s2s_shake_hand_ret",
+	[60006] = "s2s_shake_hand_invite",
 
-	[60007] = "REMOTE_CALL_REQ",
-	[60008] = "REMOTE_CALL_NOCB_REQ",
-	[60009] = "REMOTE_CALL_RET",
+	[60007] = "s2s_rpc_req",
+	[60008] = "s2s_rpc_nocb_req",
+	[60009] = "s2s_rpc_ret",
 
-	[60010] = "REGISTER_AREA_REQ",
-	[60011] = "REGISTER_AREA_RET",
+	[60010] = "s2s_register_area_req",
+	[60011] = "s2s_register_area_ret",
 
-	[60101] = "GATE_ROLE_ENTER_REQ",
-	[60102] = "GATE_ROLE_ENTER_RET",
-	[60103] = "GATE_ROLE_DISCONNECT",
+	[60101] = "GATE_c2s_role_enter_req",
+	[60102] = "GATE_s2c_role_enter_ret",
+	[60103] = "s2s_gate_role_disconnect",
 
-	-- msg for db
-	[70001] = "DB_INSERT",
-	[70002] = "DB_DELETE",
-	[70003] = "DB_UPDATE",
 }
 
 local function create_msg_id_array()
@@ -178,7 +174,7 @@ local ModifyAttrTableStruct =
 MSG_DEF_MAP = {}
 MSG_DEF_MAP =
 {
-	[MID.CLIENT_TEST] =
+	[MID.c2s_client_test_req] =
 	{
 		{ "byte", _Byte },
 		{ "bool", _Bool },
@@ -199,7 +195,7 @@ MSG_DEF_MAP =
 		{ "structarray", _StructArray, TestStruct },
 	},
 
-	[MID.CLIENT_TEST_RET] =
+	[MID.s2c_client_test_ret] =
 	{
 		{ "byte", _Byte },
 		{ "bool", _Bool },
@@ -220,83 +216,83 @@ MSG_DEF_MAP =
 		{ "structarray", _StructArray, TestStruct },
 	},
 
-	[MID.RPC_TEST_REQ] =
+	[MID.c2s_rpc_test_req] =
 	{
 		{ "buff", _String },
 	},
-	[MID.RPC_TEST_RET] =
+	[MID.s2c_rpc_test_ret] =
 	{
 		{ "result", _Int },
 		{ "buff", _String },
 		{ "sum", _Int },
 	},
-	[MID.RPC_NOCB_TEST_REQ] =
+	[MID.c2s_rpc_nocb_test_req] =
 	{
 		{ "buff", _String },
 	},
-	[MID.RPC_MIX_TEST_REQ] =
+	[MID.c2s_rpc_mix_test_req] =
 	{
 		{ "buff", _String },
 	},
 
 	-----------------------------------------------------------
 
-	[MID.USER_LOGIN_REQ] =
+	[MID.c2s_user_login_req] =
 	{
 		{ "username", _String },
 		{ "password", _String },
 		{ "channel_id", _Int },
 	},
-	[MID.USER_LOGIN_RET] =
+	[MID.s2c_user_login_ret] =
 	{
 		{ "result", _Int },
 	},
 
-	[MID.AREA_LIST_REQ] =
+	[MID.c2s_area_list_req] =
 	{
 	},
-	[MID.AREA_LIST_RET] =
+	[MID.s2c_area_list_ret] =
 	{
 		{ "area_list", _StructArray, AreaListStruct },
 	},
 
-	[MID.ROLE_LIST_REQ] =
+	[MID.c2s_role_list_req] =
 	{
 	},
-	[MID.ROLE_LIST_RET] =
+	[MID.s2c_role_list_ret] =
 	{
 		{ "result", _Int },
 		{ "area_role_list", _StructArray, AreaRoleListStruct },
 	},
 
-	[MID.CREATE_ROLE_REQ] =
+	[MID.c2s_create_role_req] =
 	{
 		{ "area_id", _Int },
 		{ "role_name", _String },
 	},
-	[MID.CREATE_ROLE_RET] =
+	[MID.s2c_create_role_ret] =
 	{
 		{ "result", _Int },
 		{ "role_id", _Int64 },
 	},
 
-	[MID.DELETE_ROLE_REQ] =
+	[MID.c2s_delete_role_req] =
 	{
 		{ "area_id", _Int },
 		{ "role_id", _Int64 },
 	},
-	[MID.DELETE_ROLE_RET] =
+	[MID.s2c_delete_role_ret] =
 	{
 		{ "result", _Int },
 		{ "role_id", _Int64 },
 	},
 
-	[MID.SELECT_ROLE_REQ] =
+	[MID.c2s_select_role_req] =
 	{
 		{ "area_id", _Int },
 		{ "role_id", _Int64 },
 	},
-	[MID.SELECT_ROLE_RET] =
+	[MID.s2c_select_role_ret] =
 	{
 		{ "result", _Int },
 		{ "ip", _String },
@@ -306,57 +302,57 @@ MSG_DEF_MAP =
 	},
 
 	----------------------------------------
-	[MID.ROLE_KICK_MSG] =
+	[MID.s2c_role_kick] =
 	{
 		{ "reason", _Int },
 	},
 
-	[MID.ROLE_ENTER_REQ] =
+	[MID.c2s_role_enter_req] =
 	{
 		{ "user_id", _Int64 },
 		{ "token", _String },
 	},
-	[MID.ROLE_ENTER_RET] =
+	[MID.s2c_role_enter_ret] =
 	{
 		{ "result", _Int },
 	},
 
-	[MID.ROLE_ATTR_RET] =
+	[MID.s2c_role_attr_ret] =
 	{
 		{ "role_id", _Int64 },
 		{ "attr_table", _Struct, AttrTableStruct },
 	},
 
-	[MID.ROLE_ATTR_CHANGE_REQ] =
+	[MID.c2s_role_attr_change_req] =
 	{
 		{ "attr_table", _Struct, AttrTableStruct },
 	},
 
-	[MID.ROLE_ATTR_CHANGE_RET] =
+	[MID.s2c_role_attr_change_ret] =
 	{
 		{ "role_id", _Int64 },
 		{ "attr_table", _Struct, AttrTableStruct },
 	},
 
-	[MID.ATTR_INFO_RET] =
+	[MID.s2c_attr_info_ret] =
 	{
 		{ "sheet_name", _String },
 		{ "rows", _StructArray, AttrTableStruct },
 	},
 
-	[MID.ATTR_INSERT_RET] =
+	[MID.s2c_attr_insert_ret] =
 	{
 		{ "sheet_name", _String },
 		{ "rows", _StructArray, AttrTableStruct },
 	},
 
-	[MID.ATTR_DELETE_RET] =
+	[MID.s2c_attr_delete_ret] =
 	{
 		{ "sheet_name", _String },
 		{ "rows", _StructArray, AttrTableStruct },
 	},
 
-	[MID.ATTR_MODIFY_RET] =
+	[MID.s2c_attr_modify_ret] =
 	{
 		{ "sheet_name", _String },
 		{ "rows", _StructArray, ModifyAttrTableStruct },
@@ -364,7 +360,7 @@ MSG_DEF_MAP =
 
 	----------------------------------------
 
-	[MID.SHAKE_HAND_REQ] =
+	[MID.s2s_shake_hand_req] =
 	{
 		{ "server_id", _Int },
 		{ "server_type", _Int },
@@ -374,7 +370,7 @@ MSG_DEF_MAP =
 		{ "port", _Int },
 	},
 
-	[MID.SHAKE_HAND_RET] =
+	[MID.s2s_shake_hand_ret] =
 	{
 		{ "result", _Int },
 		{ "server_id", _Int },
@@ -383,13 +379,13 @@ MSG_DEF_MAP =
 		{ "from_to_scene_list", _IntArray },
 	},
 
-	[MID.SHAKE_HAND_INVITE] =
+	[MID.s2s_shake_hand_invite] =
 	{
 		{ "server_list", _StructArray, ServerAddrStruct },
 	},
 
 
-	[MID.REMOTE_CALL_REQ] =
+	[MID.s2s_rpc_req] =
 	{
 		{ "from_server_id", _Int },
 		{ "to_server_id", _Int },
@@ -398,7 +394,7 @@ MSG_DEF_MAP =
 		{ "param", _String },
 	},
 
-	[MID.REMOTE_CALL_NOCB_REQ] =
+	[MID.s2s_rpc_nocb_req] =
 	{
 		{ "from_server_id", _Int },
 		{ "to_server_id", _Int },
@@ -407,7 +403,7 @@ MSG_DEF_MAP =
 		{ "param", _String },
 	},
 
-	[MID.REMOTE_CALL_RET] =
+	[MID.s2s_rpc_ret] =
 	{
 		{ "result", _Bool },
 		{ "from_server_id", _Int },
@@ -416,46 +412,29 @@ MSG_DEF_MAP =
 		{ "param", _String },
 	},
 
-	[MID.REGISTER_AREA_REQ] =
+	[MID.s2s_register_area_req] =
 	{
 		{ "area_list", _IntArray },
 	},
 
-	[MID.REGISTER_AREA_RET] =
+	[MID.s2s_register_area_ret] =
 	{
 		{ "result", _Int },
 	},
 
-	[MID.GATE_ROLE_ENTER_REQ] =
+	[MID.GATE_c2s_role_enter_req] =
 	{
 		{ "role_id", _Int64 },
 		{ "scene_id", _Int },
 	},
-	[MID.GATE_ROLE_ENTER_RET] =
+	[MID.GATE_s2c_role_enter_ret] =
 	{
 		{ "result", _Int },
 		{ "role_id", _Int64 },
 	},
 
-	[MID.GATE_ROLE_DISCONNECT] =
+	[MID.s2s_gate_role_disconnect] =
 	{
-	},
-
-	-----------------------------------------------------------
-
-	[MID.DB_INSERT] =
-	{
-		{ "db_name", _String },
-		{ "table_name", _String },
-		{ "fields", _StringArray },
-		{ "values", _StringArray },
-	},
-
-	[MID.DB_DELETE] =
-	{
-		{ "db_name", _String },
-		{ "table_name", _String },
-		{ "conditions", _String }, -- a table string
 	},
 
 }
@@ -463,36 +442,36 @@ MSG_DEF_MAP =
 -- do msg handler function directly
 RAW_MID = 
 {
-	[MID.CLIENT_TEST] = true,
-	[MID.RPC_TEST_REQ] = true,
-	[MID.RPC_NOCB_TEST_REQ] = true,
-	[MID.RPC_MIX_TEST_REQ] = true,
+	[MID.c2s_client_test_req] = true,
+	[MID.c2s_rpc_test_req] = true,
+	[MID.c2s_rpc_nocb_test_req] = true,
+	[MID.c2s_rpc_mix_test_req] = true,
 
-	[MID.SHAKE_HAND_REQ] = true,
-	[MID.SHAKE_HAND_RET] = true,
-	[MID.SHAKE_HAND_INVITE] = true,
+	[MID.s2s_shake_hand_req] = true,
+	[MID.s2s_shake_hand_ret] = true,
+	[MID.s2s_shake_hand_invite] = true,
 
-	[MID.USER_LOGIN_REQ] = true,
-	[MID.ROLE_ENTER_REQ] = true,
+	[MID.c2s_user_login_req] = true,
+	[MID.c2s_role_enter_req] = true,
 
-	[MID.REMOTE_CALL_REQ] = true,
-	[MID.REMOTE_CALL_NOCB_REQ] = true,
-	[MID.REMOTE_CALL_RET] = true,
-	[MID.REGISTER_AREA_REQ] = true,
-	[MID.REGISTER_AREA_RET] = true,
+	[MID.s2s_rpc_req] = true,
+	[MID.s2s_rpc_nocb_req] = true,
+	[MID.s2s_rpc_ret] = true,
+	[MID.s2s_register_area_req] = true,
+	[MID.s2s_register_area_ret] = true,
 
-	[MID.GATE_ROLE_ENTER_REQ] = true,
-	[MID.GATE_ROLE_ENTER_RET] = true,
+	[MID.GATE_c2s_role_enter_req] = true,
+	[MID.GATE_s2c_role_enter_ret] = true,
 }
 
 --[[
 -- handle these msg which only from trust mailbox
 TRUST_MID =
 {
-	[MID.REMOTE_CALL_REQ] = true,
-	[MID.REMOTE_CALL_RET] = true,
-	[MID.REGISTER_AREA_REQ] = true,
-	[MID.REGISTER_AREA_RET] = true,
+	[MID.s2s_rpc_req] = true,
+	[MID.s2s_rpc_ret] = true,
+	[MID.s2s_register_area_req] = true,
+	[MID.s2s_register_area_ret] = true,
 }
 --]]
 

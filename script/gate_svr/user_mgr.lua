@@ -41,7 +41,7 @@ end
 function UserMgr:kick_user(user)
 	Log.warn("UserMgr:kick_user user_id=%d role_id=%d", user._user_id, user._role_id)
 
-	user:send_msg(MID.ROLE_KICK_MSG, {reason = 1})
+	user:send_msg(MID.s2c_role_kick, {reason = 1})
 	
 	self:offline(user)
 

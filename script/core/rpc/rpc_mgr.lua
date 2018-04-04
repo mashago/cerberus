@@ -84,7 +84,7 @@ function RpcMgr:call(server_info, func_name, data)
 		func_name = func_name, 
 		param = Util.serialize(data),
 	}
-	if not server_info:send_msg(MID.REMOTE_CALL_REQ, msg) then
+	if not server_info:send_msg(MID.s2s_rpc_req, msg) then
 		return false
 	end
 	return coroutine.yield(self._cur_session_id)
@@ -116,7 +116,7 @@ function RpcMgr:call_nocb(server_info, func_name, data)
 	}
 
 	-- async call, will not yield
-	return server_info:send_msg(MID.REMOTE_CALL_NOCB_REQ, msg)
+	return server_info:send_msg(MID.s2s_rpc_nocb_req, msg)
 end
 
 function RpcMgr:call_nocb_by_server_type(server_type, func_name, data, opt_key)
@@ -148,7 +148,7 @@ function RpcMgr:handle_call(data, mailbox_id, msg_id, is_nocb)
 			session_id = session_id, 
 			param = tostring(errno),
 		}
-		Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, msg)
+		Net.send_msg(mailbox_id, MID.s2s_rpc_ret, msg)
 	end
 
 	-- server_id mismatch
@@ -215,7 +215,7 @@ function RpcMgr:handle_call(data, mailbox_id, msg_id, is_nocb)
 			session_id = session_id, 
 			param = Util.serialize(result)
 		}
-		Net.send_msg(mailbox_id, MID.REMOTE_CALL_RET, msg)
+		Net.send_msg(mailbox_id, MID.s2s_rpc_ret, msg)
 		return
 	else
 		-- else is error
@@ -284,7 +284,7 @@ function RpcMgr:callback(session_id, result, data)
 		session_id = origin_route.session_id, 
 		param = Util.serialize(result)
 	}
-	server_info:send_msg(MID.REMOTE_CALL_RET, msg)
+	server_info:send_msg(MID.s2s_rpc_ret, msg)
 
 end
 
@@ -314,7 +314,7 @@ function RpcMgr:handle_callback(data, mailbox_id, msg_id)
 			session_id = session_id, 
 			param = data.param
 		}
-		server_info:send_msg(MID.REMOTE_CALL_RET, msg)
+		server_info:send_msg(MID.s2s_rpc_ret, msg)
 		return
 		--]]
 	end
@@ -324,8 +324,8 @@ function RpcMgr:handle_callback(data, mailbox_id, msg_id)
 
 end
 
-Net.add_msg_handler(MID.REMOTE_CALL_REQ, function() Log.err("REMOTE_CALL_REQ just take place should not enter") end)
-Net.add_msg_handler(MID.REMOTE_CALL_NOCB_REQ, function() Log.err("REMOTE_CALL_NOCB_REQ just take place should not enter") end)
-Net.add_msg_handler(MID.REMOTE_CALL_RET, function() Log.err("REMOTE_CALL_RET just take place should not enter") end)
+Net.add_msg_handler(MID.s2s_rpc_req, function() Log.err("s2s_rpc_req just take place should not enter") end)
+Net.add_msg_handler(MID.s2s_rpc_nocb_req, function() Log.err("s2s_rpc_nocb_req just take place should not enter") end)
+Net.add_msg_handler(MID.s2s_rpc_ret, function() Log.err("s2s_rpc_ret just take place should not enter") end)
 
 return RpcMgr

@@ -36,7 +36,7 @@ function Role:send_module_data()
 		sheet_name = self._sheet_name,
 		rows = rows,
 	}
-	self:send_msg(MID.ATTR_INFO_RET, msg)
+	self:send_msg(MID.s2c_attr_info_ret, msg)
 end
 
 function Role:modify_attr_table(attr_table)
@@ -57,7 +57,7 @@ function Role:modify_attr_table(attr_table)
 		role_id = self._role_id,
 		attr_table = attr_table,
 	}
-	self:send_msg(MID.ROLE_ATTR_CHANGE_RET, msg)
+	self:send_msg(MID.s2c_role_attr_change_ret, msg)
 	--]]
 end
 
@@ -85,10 +85,10 @@ function Role:active_sync()
 end
 
 function Role:do_sync(insert_rows, delete_rows, modify_rows)
-	-- self:send_msg(MID.ATTR_INSERT_RET)
-	-- self:send_msg(MID.ATTR_DELETE_RET)
+	-- self:send_msg(MID.s2c_attr_insert_ret)
+	-- self:send_msg(MID.s2c_attr_delete_ret)
 
-	self:send_msg(MID.ATTR_MODIFY_RET,
+	self:send_msg(MID.s2c_attr_modify_ret,
 	{
 		sheet_name = self._sheet_name,
 		rows = modify_rows,

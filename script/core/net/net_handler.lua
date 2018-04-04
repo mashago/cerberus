@@ -105,6 +105,7 @@ local function recv_msg_handler(mailbox_id, msg_id)
 	local ext = g_network:read_ext()
 	-- Log.debug("recv_msg_handler ext=%d", ext)
 	
+
 	local msg_handler = Net.get_msg_handler(msg_id)
 	if not msg_handler then
 		if g_net_event_transfer_msg then
@@ -137,11 +138,11 @@ local function recv_msg_handler(mailbox_id, msg_id)
 	if not RAW_MID[msg_id] and g_net_event_client_msg then
 		g_rpc_mgr:run(g_net_event_client_msg, msg_handler, data, mailbox_id, msg_id, ext)
 	else
-		if msg_id == MID.REMOTE_CALL_REQ then
+		if msg_id == MID.s2s_rpc_req then
 			g_rpc_mgr:handle_call(data, mailbox_id, msg_id, false)
-		elseif msg_id == MID.REMOTE_CALL_NOCB_REQ then
+		elseif msg_id == MID.s2s_rpc_nocb_req then
 			g_rpc_mgr:handle_call(data, mailbox_id, msg_id, true)
-		elseif msg_id == MID.REMOTE_CALL_RET then
+		elseif msg_id == MID.s2s_rpc_ret then
 			g_rpc_mgr:handle_callback(data, mailbox_id, msg_id)
 		else
 			g_rpc_mgr:run(msg_handler, data, mailbox_id, msg_id, ext)

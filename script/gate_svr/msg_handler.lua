@@ -19,7 +19,7 @@ local function handle_role_enter(data, mailbox_id)
 	if not user then
 		Log.warn("handle_role_enter: user not exists %d", user_id)
 		msg.result = ErrorCode.ROLE_ENTER_FAIL
-		Net.send_msg(mailbox_id, MID.ROLE_ENTER_RET, msg)
+		Net.send_msg(mailbox_id, MID.s2c_role_enter_ret, msg)
 		return
 	end
 
@@ -27,7 +27,7 @@ local function handle_role_enter(data, mailbox_id)
 		-- user already online
 		Log.warn("handle_role_enter: user already online %d", user_id)
 		msg.result = ErrorCode.ROLE_ENTER_FAIL
-		Net.send_msg(mailbox_id, MID.ROLE_ENTER_RET, msg)
+		Net.send_msg(mailbox_id, MID.s2c_role_enter_ret, msg)
 		return
 	end
 
@@ -36,7 +36,7 @@ local function handle_role_enter(data, mailbox_id)
 	if user._token ~= token then
 		Log.warn("handle_role_enter: user token mismatch %d %s %s", user_id, token, user._token)
 		msg.result = ErrorCode.ROLE_ENTER_FAIL
-		Net.send_msg(mailbox_id, MID.ROLE_ENTER_RET, msg)
+		Net.send_msg(mailbox_id, MID.s2c_role_enter_ret, msg)
 		return
 	end
 
@@ -44,7 +44,7 @@ local function handle_role_enter(data, mailbox_id)
 	if u then
 		Log.warn("handle_role_enter: mailbox already connect to a user %d", user_id)
 		msg.result = ErrorCode.ROLE_ENTER_FAIL
-		Net.send_msg(mailbox_id, MID.ROLE_ENTER_RET, msg)
+		Net.send_msg(mailbox_id, MID.s2c_role_enter_ret, msg)
 		return
 	end
 
@@ -62,7 +62,7 @@ local function handle_role_enter(data, mailbox_id)
 		-- TODO fix user scene to a right scene
 		Log.err("handle_role_enter: scene server not exists scene_id=%d", scene_id)
 		msg.result = ErrorCode.ROLE_ENTER_FAIL
-		Net.send_msg(mailbox_id, MID.ROLE_ENTER_RET, msg)
+		Net.send_msg(mailbox_id, MID.s2c_role_enter_ret, msg)
 		return
 	end
 
@@ -76,7 +76,7 @@ local function handle_role_enter(data, mailbox_id)
 		role_id = role_id,
 		scene_id = scene_id,	
 	}
-	scene_server_info:send_msg(MID.GATE_ROLE_ENTER_REQ, msg)
+	scene_server_info:send_msg(MID.GATE_c2s_role_enter_req, msg)
 
 end
 
@@ -97,7 +97,7 @@ local function handle_gate_role_enter_ret(data, mailbox_id)
 	}
 
 	if result ~= ErrorCode.SUCCESS then
-		user:send_msg(MID.ROLE_ENTER_RET, msg)
+		user:send_msg(MID.s2c_role_enter_ret, msg)
 		return
 	end
 
@@ -105,23 +105,23 @@ local function handle_gate_role_enter_ret(data, mailbox_id)
 	if not scene_server_info then
 		Log.err("handle_gate_role_enter_ret: cannot get server_info %d", mailbox_id)
 		msg.result = ErrorCode.SYS_ERROR
-		user:send_msg(MID.ROLE_ENTER_RET, msg)
+		user:send_msg(MID.s2c_role_enter_ret, msg)
 		return
 	end
 
 	user._scene_server_id = scene_server_info._server_id
 
-	user:send_msg(MID.ROLE_ENTER_RET, msg)
+	user:send_msg(MID.s2c_role_enter_ret, msg)
 
 end
 
 local function register_msg_handler()
-	Net.add_msg_handler(MID.SHAKE_HAND_REQ, g_funcs.handle_shake_hand_req)
-	Net.add_msg_handler(MID.SHAKE_HAND_RET, g_funcs.handle_shake_hand_ret)
-	Net.add_msg_handler(MID.SHAKE_HAND_INVITE, g_funcs.handle_shake_hand_invite)
+	Net.add_msg_handler(MID.s2s_shake_hand_req, g_funcs.handle_shake_hand_req)
+	Net.add_msg_handler(MID.s2s_shake_hand_ret, g_funcs.handle_shake_hand_ret)
+	Net.add_msg_handler(MID.s2s_shake_hand_invite, g_funcs.handle_shake_hand_invite)
 
-	Net.add_msg_handler(MID.ROLE_ENTER_REQ, handle_role_enter)
-	Net.add_msg_handler(MID.GATE_ROLE_ENTER_RET, handle_gate_role_enter_ret)
+	Net.add_msg_handler(MID.c2s_role_enter_req, handle_role_enter)
+	Net.add_msg_handler(MID.GATE_s2c_role_enter_ret, handle_gate_role_enter_ret)
 end
 
 register_msg_handler()

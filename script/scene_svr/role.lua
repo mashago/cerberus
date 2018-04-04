@@ -111,7 +111,7 @@ function Role:send_module_data()
 		role_id = self._role_id,
 		attr_table = out_attr_table,
 	}
-	self:send_msg(MID.ROLE_ATTR_RET, msg)
+	self:send_msg(MID.s2c_role_attr_ret, msg)
 end
 
 function Role:db_save(is_timeout)
@@ -187,7 +187,7 @@ function Role:modify_attr_table(attr_table)
 		role_id = self._role_id,
 		attr_table = attr_table,
 	}
-	self:send_msg(MID.ROLE_ATTR_CHANGE_RET, msg)
+	self:send_msg(MID.s2c_role_attr_change_ret, msg)
 end
 
 function Role:on_disconnect()

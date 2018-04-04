@@ -54,7 +54,7 @@ local function handle_client_test(data, mailbox_id, msg_id)
 		},
 
 	}
-	Net.send_msg(mailbox_id, MID.CLIENT_TEST_RET, msg)
+	Net.send_msg(mailbox_id, MID.s2c_client_test_ret, msg)
 end
 
 local function handle_gate_role_enter_req(data, mailbox_id)
@@ -91,7 +91,7 @@ local function handle_gate_role_enter_req(data, mailbox_id)
 		result = ErrorCode.SUCCESS,
 		role_id = role_id,
 	}
-	local ret = Net.send_msg(mailbox_id, MID.GATE_ROLE_ENTER_RET, msg)
+	local ret = Net.send_msg(mailbox_id, MID.GATE_s2c_role_enter_ret, msg)
 
 end
 
@@ -113,17 +113,17 @@ local function handle_role_attr_change_req(role, data, mailbox_id)
 end
 
 local function register_msg_handler()
-	Net.add_msg_handler(MID.SHAKE_HAND_REQ, g_funcs.handle_shake_hand_req)
-	Net.add_msg_handler(MID.SHAKE_HAND_RET, g_funcs.handle_shake_hand_ret)
-	Net.add_msg_handler(MID.SHAKE_HAND_INVITE, g_funcs.handle_shake_hand_invite)
+	Net.add_msg_handler(MID.s2s_shake_hand_req, g_funcs.handle_shake_hand_req)
+	Net.add_msg_handler(MID.s2s_shake_hand_ret, g_funcs.handle_shake_hand_ret)
+	Net.add_msg_handler(MID.s2s_shake_hand_invite, g_funcs.handle_shake_hand_invite)
 
-	Net.add_msg_handler(MID.CLIENT_TEST, handle_client_test)
+	Net.add_msg_handler(MID.c2s_client_test_req, handle_client_test)
 
-	Net.add_msg_handler(MID.GATE_ROLE_ENTER_REQ, handle_gate_role_enter_req)
-	Net.add_msg_handler(MID.GATE_ROLE_DISCONNECT, handle_gate_role_disconnect)
+	Net.add_msg_handler(MID.GATE_c2s_role_enter_req, handle_gate_role_enter_req)
+	Net.add_msg_handler(MID.s2s_gate_role_disconnect, handle_gate_role_disconnect)
 
 
-	Net.add_msg_handler(MID.ROLE_ATTR_CHANGE_REQ, handle_role_attr_change_req)
+	Net.add_msg_handler(MID.c2s_role_attr_change_req, handle_role_attr_change_req)
 end
 
 register_msg_handler()
