@@ -118,7 +118,7 @@ function CommonMgr:gen_user_token()
 	return "0000"
 end
 
-function CommonMgr:get_enter_user(user_id, role_id)
+function CommonMgr:create_enter_user(user_id, role_id)
 
 	local enter_user = self._online_user_map[user_id]
 
@@ -177,7 +177,7 @@ function CommonMgr:rpc_select_role(user_id, role_id)
 	local scene_id = ret.data[1].scene_id
 
 	-- rpc gate select role
-	local enter_user = self:get_enter_user(user_id, role_id)
+	local enter_user = self:create_enter_user(user_id, role_id)
 	if not enter_user then
 		return {result = ret.result}
 	end

@@ -251,7 +251,7 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 	local user_id = ret.user_id
 	Log.debug("c2s_user_login_req: user_id=%d", user_id)
 
-	local user = g_user_mgr:get_user_by_id(ret.user_id)
+	local user = g_user_mgr:get_user_by_id(user_id)
 	if user then
 		-- kick old connection, and change user mailbox
 		Log.warn("c2s_user_login_req login other place [%s]", data.username)
@@ -294,7 +294,7 @@ end
 function g_msg_handler.c2s_role_list_req(user, data, mailbox_id, msg_id)
 	Log.debug("c2s_role_list_req: data=%s", Util.table_to_string(data))
 
-	user:get_role_list()
+	return user:get_role_list()
 end
 
 function g_msg_handler.c2s_create_role_req(user, data, mailbox_id, msg_id)
@@ -304,7 +304,6 @@ function g_msg_handler.c2s_create_role_req(user, data, mailbox_id, msg_id)
 	local role_name = data.role_name
 
 	return user:create_role(area_id, role_name)
-
 end
 
 function g_msg_handler.c2s_delete_role_req(user, data, mailbox_id, msg_id)
