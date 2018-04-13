@@ -71,6 +71,8 @@ struct EventNodeMsg : public EventNode
 	EventNodeMsg() : EventNode(EVENT_TYPE::EVENT_TYPE_MSG)
 	{
 	}
+	// note:
+	// will not do delete pu in ~(), because pu may send by net
 	Pluto *pu;
 };
 

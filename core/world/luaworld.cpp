@@ -72,8 +72,9 @@ static int get_time_ms_c(lua_State *L)
 	return 1;
 }
 
-bool LuaWorld::Init(int server_id, int server_type, const char *conf_file, const char *entry_path)
+bool LuaWorld::CoreInit(int server_id, int server_type, const char *conf_file, const char *entry_path)
 {
+
 	m_luanetwork = new LuaNetwork(this);
 
 	m_L = luaL_newstate();

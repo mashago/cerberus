@@ -50,7 +50,7 @@ public:
 	NetService();
 	~NetService();
 
-	int Init(const char *addr, unsigned int port, bool isDaemon, EventPipe *net2worldPipe, EventPipe *world2netPipe);
+	bool Init(const char *addr, unsigned int port, bool isDaemon, EventPipe *net2worldPipe, EventPipe *world2netPipe);
 	int Dispatch();
 
 	// return >= 0 as mailboxId, < 0 as error

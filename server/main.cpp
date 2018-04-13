@@ -98,7 +98,6 @@ int main(int argc, char ** argv)
 	int auto_shutdown = root->IntAttribute("auto_shutdown");
 	int no_broadcast = root->IntAttribute("no_broadcast");
 
-
 	printf("server_id=%d server_type=%d ip=%s port=%d entry_path=%s auto_shutdown=%d no_broadcast=%d\n"
 	, server_id, server_type, ip, port, entry_path, auto_shutdown, no_broadcast);
 	if (!strcmp(entry_path, ""))
@@ -114,11 +113,15 @@ int main(int argc, char ** argv)
 
 	// init msg pipe
 	EventPipe *net2worldPipe = new EventPipe();
-	EventPipe *world2newPipe = new EventPipe(false);
+	EventPipe *world2netPipe = new EventPipe(false);
 
+	// net dispatch will block, so world dispatch first, order is important
 	World *world = new LuaWorld();
-	world->SetEventPipe(net2worldPipe, world2newPipe);
-	world->Init(server_id, server_type, conf_file, entry_path);
+	if (!world->Init(server_id, server_type, conf_file, entry_path, net2worldPipe, world2netPipe))
+	{
+		printf("world init error\n");
+		return 0;
+	}
 
 	if (auto_shutdown)
 	{
@@ -129,7 +132,7 @@ int main(int argc, char ** argv)
 	world->Dispatch();
 
 	NetService *net = new NetService();
-	if (net->Init(ip, port, is_daemon, net2worldPipe, world2newPipe) != 0)
+	if (!net->Init(ip, port, is_daemon, net2worldPipe, world2netPipe))
 	{
 		printf("net service init error\n");
 		return 0;

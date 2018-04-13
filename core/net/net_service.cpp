@@ -61,33 +61,32 @@ NetService::~NetService()
 }
 
 
-int NetService::Init(const char *addr, unsigned int port, bool isDaemon, EventPipe *net2worldPipe, EventPipe *world2netPipe)
+bool NetService::Init(const char *addr, unsigned int port, bool isDaemon, EventPipe *net2worldPipe, EventPipe *world2netPipe)
 {
 	// new event_base
 	m_mainEvent = event_base_new();
 	if (!m_mainEvent)
 	{
 		LOG_ERROR("event_base_new fail");
-		return -1;
+		return false;
 	}
 
 	// listen
 	if (port > 0 && !Listen(addr, port))
 	{
 		LOG_ERROR("listen fail");
-		return -1;
+		return false;
 	}
 
-	// init work timer, for net_server handle logic
+	// init work timer, for net_service handle logic
 	m_mainLoopEvent = event_new(m_mainEvent, -1, EV_PERSIST, main_loop_cb, this);
 	struct timeval tv;
 	tv.tv_sec = 0;
-	// tv.tv_sec = 3;
 	tv.tv_usec = 50 * 1000;
 	if (event_add(m_mainLoopEvent, &tv) != 0)
 	{
 		LOG_ERROR("add work timer fail");
-		return -1;
+		return false;
 	}
 
 	// init tick timer, for world timer
@@ -97,10 +96,10 @@ int NetService::Init(const char *addr, unsigned int port, bool isDaemon, EventPi
 	if (event_add(m_tickTimerEvent, &tv) != 0)
 	{
 		LOG_ERROR("add tick timer fail");
-		return -1;
+		return false;
 	}
 
-	// init stdin event
+	// init stdin event if not daemon
 	// in win32, cannot add stdin fd into libevent
 	// so have to create a timer to check keyboard input
 	// good job, microsoft.
@@ -118,14 +117,14 @@ int NetService::Init(const char *addr, unsigned int port, bool isDaemon, EventPi
 		if (event_add(m_stdinEvent, ptr) != 0)
 		{
 			LOG_ERROR("add stdin event fail");
-			return -1;
+			return false;
 		}
 	}
 
 	m_net2worldPipe = net2worldPipe;
 	m_world2netPipe = world2netPipe;
 
-	return 0;
+	return true;
 }
 
 int NetService::Dispatch()
@@ -213,11 +212,6 @@ int64_t NetService::ConnectTo(const char *addr, unsigned int port)
 
 bool NetService::Listen(const char *addr, unsigned int port)
 {
-	// 1. new event_base
-	// 2. init listener
-	// 3. set nonblock
-	// 4. init timer
-
 	// init listener
 	struct sockaddr_in sin;
 	memset(&sin, 0, sizeof(sin));
@@ -881,9 +875,24 @@ static void stdin_cb(evutil_socket_t fd, short event, void *user_data)
 				tmp[0] = cInput;
 				tmp[1] = '\0';
 				buffer.append(tmp);
+            	putch(nInput);
+			}
+			else if (nInput == 8)
+			{
+				// backspace
+				if (buffer.size() > 0)
+				{
+					buffer.pop_back();
+            		putch(nInput);
+            		putch(' ');
+            		putch(nInput);
+				}
+			}
+			else
+			{
+            	putch(nInput);
 			}
 
-            putch(nInput);
 
             if (cInput == '\r')
             {
@@ -922,43 +931,55 @@ static void stdin_cb(evutil_socket_t fd, short event, void *user_data)
 static void stdin_cb(evutil_socket_t fd, short event, void *user_data)
 {
 	const int MAX_BUFFER = 1024;
-	char buffer[MAX_BUFFER+1] = {0};
-	int len = read(fd, buffer, MAX_BUFFER+1);
-	if (len == 0)
-	{
-		// EOF
-		return;
-	}
+	char *ptr = new char[MAX_BUFFER+1]();
+	bool bSuccess = true;
 
-	if (len > MAX_BUFFER)
+	do
 	{
-		LOG_WARN("stdin buffer too big");
-		return;
-	}
+		int len = read(fd, ptr, MAX_BUFFER);
+		if (len == 0)
+		{
+			// EOF
+			bSuccess = false;
+			break;
+		}
 
-	if (len < 0)
-	{
-		LOG_ERROR("read stdin fail");
-		return;
-	}
+		if (len >= MAX_BUFFER)
+		{
+			LOG_WARN("stdin buffer too big");
+			bSuccess = false;
+			break;
+		}
 
-	// trim /n
-	while (len >= 1 && buffer[len-1] == '\n')
-	{
-		buffer[len-1] = '\0';
-		len -= 1;
-	}
+		if (len < 0)
+		{
+			LOG_ERROR("read stdin fail");
+			bSuccess = false;
+			break;
+		}
 
-	if (len == 0)
+		// trim /n
+		while (len >= 1 && ptr[len-1] == '\n')
+		{
+			ptr[len-1] = '\0';
+			len -= 1;
+		}
+
+		if (len == 0)
+		{
+			bSuccess = false;
+			break;
+		}
+
+	} while(false);
+
+	if (!bSuccess)
 	{
+		delete ptr;
 		return;
 	}
 
 	NetService *ns = (NetService *)user_data;
-
-	char *ptr = new char[len+1];
-	memcpy(ptr, buffer, len+1);
-
 	EventNodeStdin *node = new EventNodeStdin();
 	node->buffer = ptr;
 	ns->SendEvent(node);

@@ -25,6 +25,8 @@ int main(int argc, char ** argv)
 		return 0;
 	}
 	const char *conf_file = argv[1];
+
+	// load config
 	tinyxml2::XMLDocument doc;
 	if (doc.LoadFile(conf_file) != tinyxml2::XMLError::XML_SUCCESS)
 	{
@@ -36,8 +38,8 @@ int main(int argc, char ** argv)
 	const char *ip = (char*)root->Attribute("ip");
 	int port = root->IntAttribute("port");
 	const char *entry_path = (char*)root->Attribute("path");
-	printf("ip=%s port=%d entry_path=%s\n", ip, port, entry_path);
 
+	printf("ip=%s port=%d entry_path=%s\n", ip, port, entry_path);
 	if (!strcmp(entry_path, ""))
 	{
 		printf("entry_path error\n");
@@ -49,15 +51,22 @@ int main(int argc, char ** argv)
 
 	// init msg pipe
 	EventPipe *net2worldPipe = new EventPipe();
-	EventPipe *world2newPipe = new EventPipe(false);
+	EventPipe *world2netPipe = new EventPipe(false);
 
 	World *world = new LuaClient();
-	world->SetEventPipe(net2worldPipe, world2newPipe);
-	world->Init(0, 0, conf_file, entry_path);
+	if (!world->Init(0, 0, conf_file, entry_path, net2worldPipe, world2netPipe))
+	{
+		printf("world init error\n");
+		return 0;
+	}
 	world->Dispatch();
 
 	NetService *net = new NetService();
-	net->Init("", 0, false, net2worldPipe, world2newPipe);
+	if (!net->Init("", 0, false, net2worldPipe, world2netPipe))
+	{
+		printf("net service init error\n");
+		return 0;
+	}
 	net->Dispatch();
 
 	return 0;

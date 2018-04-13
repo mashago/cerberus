@@ -5,7 +5,7 @@ function cmd_handler.execute(buffer)
 	Log.debug("buffer=%s", buffer)
 	local input_list = Util.split_string(buffer, " ")
 
-	local cmd = input_list[1]
+	local cmd = input_list[1] or "nil"
 	local params = { table.unpack(input_list, 2)}
 	Log.debug("cmd=%s params=%s", cmd, Util.table_to_string(params))
 

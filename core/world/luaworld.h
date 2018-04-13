@@ -11,8 +11,6 @@ public:
 	LuaWorld();
 	virtual ~LuaWorld();
 
-	virtual bool Init(int server_id, int server_type, const char *conf_file, const char *entry_path) override;
-
 	virtual void HandleNewConnection(int64_t mailboxId, const char *ip, int port) override;
 	virtual void HandleConnectToSuccess(int64_t mailboxId) override;
 	virtual void HandleDisconnect(int64_t mailboxId) override;
@@ -33,5 +31,8 @@ public:
 	lua_State *m_L;
 	LuaNetwork *m_luanetwork;
 	int64_t m_connIndex;
+
+private:
+	virtual bool CoreInit(int server_id, int server_type, const char *conf_file, const char *entry_path) override;
 };
 

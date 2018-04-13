@@ -19,13 +19,19 @@ World::~World()
 	delete m_timerMgr;
 }
 
+bool World::Init(int server_id, int server_type, const char *conf_file, const char *entry_path, EventPipe *net2worldPipe, EventPipe *world2netPipe)
+{
+	SetEventPipe(net2worldPipe, world2netPipe);
+	return CoreInit(server_id, server_type, conf_file, entry_path);
+}
+
 void World::SetEventPipe(EventPipe *net2worldPipe, EventPipe *world2netPipe)
 {
 	m_net2worldPipe = net2worldPipe;
 	m_world2netPipe = world2netPipe;
 }
 
-bool World::Init(int server_id, int server_type, const char *conf_file, const char *entry_path)
+bool World::CoreInit(int server_id, int server_type, const char *conf_file, const char *entry_path)
 {
 	return true;
 }
