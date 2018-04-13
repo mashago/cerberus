@@ -71,11 +71,12 @@ void Pluto::WriteExt(int ext)
 	*(int *)(m_buffer+MSGLEN_HEAD+MSGLEN_MSGID) = ext;
 }
 
-#define write_val(val) \
+#define write_val(val, ret) \
 do { \
 	if (m_cursor + sizeof(val) - m_buffer > m_bufferSize) \
 	{ \
-		return false; \
+		ret = false; \
+		break; \
 	} \
 	memcpy(m_cursor, &val, sizeof(val)); \
 	m_cursor += sizeof(val); \
@@ -84,38 +85,42 @@ do { \
 
 bool Pluto::WriteByte(char val)
 {
-	write_val(val);
-	return true;
+	bool ret = true;
+	write_val(val, ret);
+	return ret;
 }
 
 bool Pluto::WriteInt(int val)
 {
-	write_val(val);
-	return true;
+	bool ret = true;
+	write_val(val, ret);
+	return ret;
 }
 
 bool Pluto::WriteFloat(float val)
 {
-	write_val(val);
-	return true;
+	bool ret = true;
+	write_val(val, ret);
+	return ret;
 }
 
 bool Pluto::WriteBool(bool val)
 {
-	WriteByte(val ? '1' : '0');
-	return true;
+	return WriteByte(val ? '1' : '0');
 }
 
 bool Pluto::WriteShort(short val)
 {
-	write_val(val);
-	return true;
+	bool ret = true;
+	write_val(val, ret);
+	return ret;
 }
 
 bool Pluto::WriteInt64(int64_t val)
 {
-	write_val(val);
-	return true;
+	bool ret = true;
+	write_val(val, ret);
+	return ret;
 }
 
 bool Pluto::WriteString(int len, const char* str)
@@ -147,25 +152,12 @@ int Pluto::ReadExt()
 	return *(int *)(m_buffer + MSGLEN_HEAD + MSGLEN_MSGID);
 }
 
-/*
-template<typename T>
-bool read_val(char * &cursor, const char *buffer_end, T &out_val)
-{
-	if (cursor + sizeof(T) > buffer_end)
-	{
-		return false;
-	}
-	out_val = *((T *)(cursor));
-	cursor += sizeof(T);
-	return true;
-}
-*/
-
-#define read_val(out_val) \
+#define read_val(out_val, ret) \
 do { \
 	if (m_cursor + sizeof(out_val) - m_buffer > m_bufferSize) \
 	{ \
-		return false; \
+		ret = false; \
+		break; \
 	} \
 	memcpy(&out_val, m_cursor, sizeof(out_val)); \
 	m_cursor += sizeof(out_val); \
@@ -173,74 +165,55 @@ do { \
 
 bool Pluto::ReadByte(char &out_val)
 {
-	// return read_val<char>(m_cursor, m_buffer + m_bufferSize, out_val);
-	read_val(out_val);
-	return true;
+	bool ret = true;
+	read_val(out_val, ret);
+	return ret;
 }
 
 bool Pluto::ReadInt(int &out_val)
 {
-	// return read_val<int>(m_cursor, m_buffer + m_bufferSize, out_val);
-	read_val(out_val);
-	return true;
+	bool ret = true;
+	read_val(out_val, ret);
+	return ret;
 }
 
 bool Pluto::ReadFloat(float &out_val)
 {
-	// return read_val<float>(m_cursor, m_buffer + m_bufferSize, out_val);
-	read_val(out_val);
-	return true;
+	bool ret = true;
+	read_val(out_val, ret);
+	return ret;
 }
 
 bool Pluto::ReadBool(bool &out_val)
 {
-	/*
+	bool ret = true;
 	char val = '0';
-	if (!read_val<char>(m_cursor, m_buffer + m_bufferSize, val))
-	{
-		return false;
-	}
+	ret = ReadByte(val);
 	out_val = (val == '1');
-	return true;
-	*/
-	char val = '0';
-	read_val(val);
-	out_val = (val == '1');
-	return true;
+	return ret;
 }
 
 bool Pluto::ReadShort(short &out_val)
 {
-	// return read_val<short>(m_cursor, m_buffer + m_bufferSize, out_val);
-	read_val(out_val);
-	return true;
+	bool ret = true;
+	read_val(out_val, ret);
+	return ret;
 }
 
 bool Pluto::ReadInt64(int64_t &out_val)
 {
-	// return read_val<int64_t>(m_cursor, m_buffer + m_bufferSize, out_val);
-	read_val(out_val);
-	return true;
+	bool ret = true;
+	read_val(out_val, ret);
+	return ret;
 }
 
 bool Pluto::ReadString(int &out_len, char *out_val)
 {
-	/*
 	if (!ReadInt(out_len))
 	{
 		return false;
 	}
 
-	if (m_cursor + out_len > m_buffer + m_bufferSize)
-	{
-		return false;
-	}
-
-	memcpy(out_val, m_cursor, out_len);
-	m_cursor += out_len;
-	return true;
-	*/
-	read_val(out_len);
 	if (m_cursor + out_len > m_buffer + m_bufferSize)
 	{
 		return false;

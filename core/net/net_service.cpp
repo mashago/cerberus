@@ -181,7 +181,7 @@ int64_t NetService::ConnectTo(const char *addr, unsigned int port)
 		return -1;
 	}
 	bufferevent_setcb(bev, read_cb, NULL, event_cb, (void *)this);
-	bufferevent_enable(bev, EV_READ); // XXX consider set EV_PERSIST ?
+	bufferevent_enable(bev, EV_READ);
 
 	// non-block connect
 	int ret = bufferevent_socket_connect(bev, (struct sockaddr *)&sin, sizeof(sin));
@@ -345,20 +345,11 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 {
 	LOG_DEBUG("fd=%d", fd);
 
-	// 1. check connection is valide
-	// 2. set fd non-block
-	// 3. accept clinet
-	// 4. new mailbox
-	// 5. send to world
-	
+	// connection info
 	struct sockaddr_in *sin = (struct sockaddr_in *)sa;
 	const char *clientHost = inet_ntoa(sin->sin_addr);
 	uint16_t clientPort = ntohs(sin->sin_port);
 	LOG_DEBUG("clientHost=%s clientPort=%d", clientHost, clientPort);
-
-	std::string ip(clientHost);
-	
-	// TODO check connection is valid
 
 	// set fd non-block
 	evutil_make_socket_nonblocking(fd);
@@ -373,7 +364,7 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 		return -1;
 	}
 	bufferevent_setcb(bev, read_cb, NULL, event_cb, (void *)this);
-	bufferevent_enable(bev, EV_READ); // XXX consider set EV_PERSIST ?
+	bufferevent_enable(bev, EV_READ);
 	
 	// new mailbox
 	Mailbox *pmb = NewMailbox(fd);
@@ -499,8 +490,8 @@ int NetService::SocketReadMessage(struct bufferevent *bev)
 		// no more data
 		return READ_MSG_WAIT;
 	}
-
 	evbuffer_drain(input, nLen);
+
 	if (nLen != nWanted)
 	{
 		// data not recv finish
