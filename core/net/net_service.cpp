@@ -825,6 +825,7 @@ static void event_cb(struct bufferevent *bev, short event, void *user_data)
 	else
 	{
 		LOG_ERROR("??????? unknow event fd=%d event=%d errno=%d", fd, event, errno);
+		ns->HandleSocketError(fd);
 	}
 }
 
@@ -1003,6 +1004,7 @@ static void http_done_cb(struct evhttp_request *http_request, void *user_data)
 		
 		struct evbuffer *input_buffer = evhttp_request_get_input_buffer(http_request);
 		size_t input_len = evbuffer_get_length(input_buffer);
+		LOG_DEBUG("input_len=%d", input_len);
 
 		if (input_len > 0)
 		{

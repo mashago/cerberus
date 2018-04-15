@@ -521,12 +521,14 @@ end
 
 function cmd_handler.do_http_request(params)
 	-- http
-	local url = "http://www.baidu.com"
-	local session_id = 1
-	local request_type = 1
-	Net.http_request_get(url, session_id, request_type)
-	-- Net.http_request_get(url, session_id, request_type)
-	-- Net.http_request_get(url, session_id, request_type)
+	local http_req = function()
+		local url = "http://www.sina.com.cn"
+		-- local url = "http://www.qq.com"
+		local session_id = 1
+		local request_type = 1
+		Net.http_request_get(url, session_id, request_type)
+	end
+	http_req()
 end
 
 -- [attr_name] [value]
