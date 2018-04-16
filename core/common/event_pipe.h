@@ -37,10 +37,11 @@ struct EventNodeNewConnection : public EventNode
 {
 	EventNodeNewConnection() : EventNode(EVENT_TYPE::EVENT_TYPE_NEW_CONNECTION)
 	{
+		memset(ip, 0, sizeof(ip));
 	}
-	int64_t mailboxId;
-	char ip[50];	
-	int port;
+	int64_t mailboxId = -1;
+	char ip[50];
+	int port = 0;
 };
 
 struct EventNodeConnectToSuccess : public EventNode
@@ -48,7 +49,7 @@ struct EventNodeConnectToSuccess : public EventNode
 	EventNodeConnectToSuccess() : EventNode(EVENT_TYPE::EVENT_TYPE_CONNECT_TO_SUCCESS)
 	{
 	}
-	int64_t mailboxId;
+	int64_t mailboxId = -1;
 };
 
 struct EventNodeDisconnect : public EventNode
@@ -56,7 +57,7 @@ struct EventNodeDisconnect : public EventNode
 	EventNodeDisconnect() : EventNode(EVENT_TYPE::EVENT_TYPE_DISCONNECT)
 	{
 	}
-	int64_t mailboxId;
+	int64_t mailboxId = -1;
 };
 
 struct EventNodeTimer : public EventNode
@@ -73,7 +74,7 @@ struct EventNodeMsg : public EventNode
 	}
 	// note:
 	// will not do delete pu in ~(), because pu may send by net
-	Pluto *pu;
+	Pluto *pu = nullptr;
 };
 
 struct EventNodeStdin : public EventNode
@@ -92,10 +93,11 @@ struct EventNodeConnectToReq : public EventNode
 {
 	EventNodeConnectToReq() : EventNode(EVENT_TYPE::EVENT_TYPE_CONNECT_TO_REQ)
 	{
+		memset(ip, 0, sizeof(ip));
 	}
-	char ip[50];	
-	unsigned int port;
-	int64_t ext;
+	char ip[50];
+	unsigned int port = 0;
+	int64_t ext = 0;
 };
 
 struct EventNodeConnectToRet : public EventNode
@@ -103,8 +105,8 @@ struct EventNodeConnectToRet : public EventNode
 	EventNodeConnectToRet() : EventNode(EVENT_TYPE::EVENT_TYPE_CONNECT_TO_RET)
 	{
 	}
-	int64_t ext;
-	int64_t mailboxId;
+	int64_t ext = 0;
+	int64_t mailboxId = -1;
 };
 
 struct EventNodeHttpReq : public EventNode
@@ -118,8 +120,8 @@ struct EventNodeHttpReq : public EventNode
 		delete [] post_data;
 	}
 	char *url = NULL;
-	int64_t session_id;
-	int32_t request_type; // 1 for get, 2 for post
+	int64_t session_id = 0;
+	int32_t request_type = 0; // 1 for get, 2 for post
 	char *post_data = NULL;
 	int32_t post_data_len = 0;
 };
@@ -130,8 +132,8 @@ struct EventNodeHttpRsp : public EventNode
 	{
 		delete [] content;
 	}
-	int64_t session_id;
-	int response_code;
+	int64_t session_id = 0;
+	int response_code = 0;
 	char *content = NULL;
 	int32_t content_len = 0;
 
