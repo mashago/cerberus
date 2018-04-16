@@ -72,22 +72,27 @@ function RpcMgr:run(func, ...)
 	self._all_session_map[session_id] = cor	
 end
 
+function RpcMgr:gen_session_id()
+	self._cur_session_id = self._cur_session_id + 1
+	return self._cur_session_id
+end
+
 -- rpc call function
 function RpcMgr:call(server_info, func_name, data)
 	local data_str = Util.serialize(data)
-	self._cur_session_id = self._cur_session_id + 1
+	local session_id = self:gen_session_id()
 	local msg = 
 	{
 		from_server_id = g_server_conf._server_id, 
 		to_server_id = server_info._server_id, 
-		session_id = self._cur_session_id, 
+		session_id = session_id, 
 		func_name = func_name, 
 		param = Util.serialize(data),
 	}
 	if not server_info:send_msg(MID.s2s_rpc_req, msg) then
 		return false
 	end
-	return coroutine.yield(self._cur_session_id)
+	return coroutine.yield(session_id)
 end
 
 function RpcMgr:call_by_server_type(server_type, func_name, data, opt_key)

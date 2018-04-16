@@ -59,12 +59,12 @@ function Net.del_mailbox(mailbox_id)
 	Net._all_mailbox[mailbox_id] = nil
 end
 
-function Net.http_request_get(url, session_id, request_type)
+function Net.http_request_get(url, session_id)
 	local post_data = ""
 	local post_data_len = 0;
-	g_network:http_request(url, session_id, request_type, post_data, post_data_len)
+	g_network:http_request(url, session_id, HttpRequestType.GET, post_data, post_data_len)
 end
 
-function Net.http_request_post(url, session_id, request_type, post_data, post_data_len)
-	g_network:http_request(url, session_id, request_type, post_data, post_data_len)
+function Net.http_request_post(url, session_id, post_data, post_data_len)
+	g_network:http_request(url, session_id, HttpRequestType.POST, post_data, post_data_len)
 end

@@ -678,6 +678,12 @@ void NetService::HandleHttpConnClose(struct evhttp_connection *http_conn)
 	}
 }
 
+enum HTTP_REQUEST_TYPE
+{
+	HTTP_REQUEST_GET 	= 1,
+	HTTP_REQUEST_POST 	= 2,
+};
+
 bool NetService::HttpRequest(const char *url, int64_t session_id, int request_type, const char *post_data, int post_data_len)
 {
 
@@ -730,11 +736,11 @@ bool NetService::HttpRequest(const char *url, int64_t session_id, int request_ty
 		arg->session_id = session_id;
 		struct evhttp_request *http_request = evhttp_request_new(http_done_cb, (void *)arg);
 		evhttp_add_header(evhttp_request_get_output_headers(http_request), "Host", host);
-		if (request_type == 1)
+		if (request_type == HTTP_REQUEST_GET)
 		{
 			evhttp_make_request(http_conn, http_request, EVHTTP_REQ_GET, path);
 		}
-		else if (request_type == 2)
+		else if (request_type == HTTP_REQUEST_POST)
 		{
 			evbuffer_add(evhttp_request_get_output_buffer(http_request), post_data, post_data_len);
 			evhttp_make_request(http_conn, http_request, EVHTTP_REQ_POST, path);

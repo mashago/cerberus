@@ -63,6 +63,12 @@ ServiceConnectStatus =
 	CONNECTED 	= 3,
 }
 
+HttpRequestType =
+{
+	GET = 1,
+	POST = 2,
+}
+
 ErrorCode =
 {
 	SUCCESS 						= 1,

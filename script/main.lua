@@ -30,6 +30,7 @@ local function main()
 	g_timer = Timer.new()
 	g_service_mgr = ServiceMgr.new()
 	g_rpc_mgr = RpcMgr.new()
+	g_http_mgr = HttpMgr.new()
 
 	g_funcs.connect_to_servers(xml_doc)
 

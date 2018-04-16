@@ -520,15 +520,16 @@ function cmd_handler.do_enter(params)
 end
 
 function cmd_handler.do_http_request(params)
-	-- http
-	local http_req = function()
-		local url = "http://www.sina.com.cn"
-		-- local url = "http://www.qq.com"
-		local session_id = 1
-		local request_type = 1
-		Net.http_request_get(url, session_id, request_type)
+	-- http [url]
+	local url = "http://www.sina.com.cn"
+	-- local url = "http://www.qq.com"
+	if params[1] then
+		url = "http://" .. params[1]
 	end
-	http_req()
+	local cb = function(response_code, content)
+		Log.debug("cmd_handler.do_http_request url=%s response_code=%d", url, response_code)
+	end
+	g_http_mgr:request_get(url, cb)
 end
 
 -- [attr_name] [value]

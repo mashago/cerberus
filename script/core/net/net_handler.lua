@@ -357,8 +357,6 @@ end
 
 function ccall_http_response_handler(session_id, response_code, content)
 	session_id = math.floor(session_id)
-	-- Log.info("ccall_http_response_handler session_id=%d response_code=%d", session_id, response_code)
-	Log.info("ccall_http_response_handler session_id=%d response_code=%d content=%s", session_id, response_code, content)
 
 	local function error_handler(msg, session_id, response_code)
 		local msg = debug.traceback(msg, 3)
@@ -366,14 +364,12 @@ function ccall_http_response_handler(session_id, response_code, content)
 		return msg 
 	end
 	
-	--[[
-	local status, msg = xpcall(handle_func
+	local status, msg = xpcall(g_http_mgr.handle_request
 	, function(msg) return error_handler(msg, session_id, response_code) end
-	, session_id, response_code, content)
+	, g_http_mgr, session_id, response_code, content)
 
 	if not status then
 		Log.err(msg)
 	end
-	--]]
 end
 
