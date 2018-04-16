@@ -38,7 +38,7 @@ function HttpMgr:request_post(url, post_data, post_data_len, cb)
 end
 
 function HttpMgr:handle_request(session_id, response_code, content)
-	Log.info("HttpMgr:handle_request session_id=%d response_code=%d content=%s", session_id, response_code, content)
+	Log.info("HttpMgr:handle_request session_id=%d response_code=%d len=%d content=%s", session_id, response_code, #content, content)
 
 	local data = self._all_session_map[session_id]
 	if not data then

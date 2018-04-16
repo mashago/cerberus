@@ -1,6 +1,6 @@
 
 -- [
-local function bridge_rpc_test(data)
+function g_rpc_mgr.bridge_rpc_test(data)
 	
 	Log.debug("bridge_rpc_test: data=%s", Util.table_to_string(data))
 
@@ -33,7 +33,7 @@ local function bridge_rpc_test(data)
 	return {result = ErrorCode.SUCCESS, buff=buff, sum=sum}
 end
 
-local function bridge_rpc_nocb_test(data)
+function g_rpc_mgr.bridge_rpc_nocb_test(data)
 	Log.debug("bridge_rpc_nocb_test: data=%s", Util.table_to_string(data))
 
 
@@ -83,7 +83,7 @@ local function bridge_rpc_nocb_test(data)
 
 end
 
-local function bridge_rpc_mix_test(data)
+function g_rpc_mgr.bridge_rpc_mix_test(data)
 	
 	Log.debug("bridge_rpc_mix_test: data=%s", Util.table_to_string(data))
 
@@ -162,7 +162,7 @@ end
 
 -----------------------------------------------------------
 
-local function bridge_sync_gate_conn_num(data, mailbox_id)
+function g_rpc_mgr.bridge_sync_gate_conn_num(data, mailbox_id)
 	-- Log.debug("bridge_sync_gate_conn_num data=%s", Util.table_to_string(data))
 	
 	local server_info = g_service_mgr:get_server_by_mailbox(mailbox_id)
@@ -183,14 +183,14 @@ end
 
 -----------------------------------------------------------
 
-local function bridge_create_role(data)
+function g_rpc_mgr.bridge_create_role(data)
 	
 	Log.debug("bridge_create_role data=%s", Util.table_to_string(data))
 
 	return g_common_mgr:rpc_create_role(data)
 end
 
-local function bridge_delete_role(data)
+function g_rpc_mgr.bridge_delete_role(data)
 	
 	Log.debug("bridge_delete_role: data=%s", Util.table_to_string(data))
 
@@ -200,7 +200,7 @@ local function bridge_delete_role(data)
 	return g_common_mgr:rpc_delete_role(user_id, role_id)
 end
 
-local function bridge_select_role(data)
+function g_rpc_mgr.bridge_select_role(data)
 	
 	Log.debug("bridge_select_role: data=%s", Util.table_to_string(data))
 
@@ -209,22 +209,4 @@ local function bridge_select_role(data)
 
 	return g_common_mgr:rpc_select_role(user_id, role_id)
 end
-
-local function register_rpc_handler()
-
-	-- for test
-	g_rpc_mgr:register_func("bridge_rpc_test", bridge_rpc_test)
-	g_rpc_mgr:register_func("bridge_rpc_nocb_test", bridge_rpc_nocb_test)
-	g_rpc_mgr:register_func("bridge_rpc_mix_test", bridge_rpc_mix_test)
-
-	g_rpc_mgr:register_func("bridge_sync_gate_conn_num", bridge_sync_gate_conn_num)
-	g_rpc_mgr:register_func("bridge_wait_connect_timeout", bridge_wait_connect_timeout)
-
-	g_rpc_mgr:register_func("bridge_create_role", bridge_create_role)
-	g_rpc_mgr:register_func("bridge_delete_role", bridge_delete_role)
-	g_rpc_mgr:register_func("bridge_select_role", bridge_select_role)
-
-end
-
-register_rpc_handler()
 

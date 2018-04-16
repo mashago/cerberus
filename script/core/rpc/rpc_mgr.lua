@@ -167,7 +167,7 @@ function RpcMgr:handle_call(data, mailbox_id, msg_id, is_nocb)
 
 	-- handle rpc
 	local param = Util.unserialize(data.param)
-	local func = self._all_call_func[func_name]
+	local func = self[func_name] or self._all_call_func[func_name]
 	if not func then
 		Log.err("RpcMgr:handle_call func not exists %s", func_name)
 		if not is_nocb then
