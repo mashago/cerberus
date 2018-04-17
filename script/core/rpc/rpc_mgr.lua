@@ -6,7 +6,6 @@ RpcMgr = class()
 function RpcMgr:ctor()
 	self._cur_session_id = 0
 	self._all_session_map = {} -- {[session_id] = coroutine}
-	self._all_call_func = {} -- { func_name = function(data){return {}} }
 	self._origin_route_map = {} -- { [new_session_id] = {from_server_id=x, to_server_id=y, session_id=z} }
 end
 
@@ -32,22 +31,16 @@ end
 if not call by nocb, MUST return a table
 e.g.
 for a normal rpc:
-g_rpc_mgr:register_func("mycb", function(data)
+function g_rpc_mgr.mycb(data)
 	... -- logic
 	return { ... } -- return result
 end)
 for a nocb rpc:
-g_rpc_mgr:register_func("mynocb", function(data)
+function g_rpc_mgr.mynocb(data)
 	... -- logic
 	-- nil return
 end)
 --]]
-function RpcMgr:register_func(name, func)
-	if self._all_call_func[name] then
-		Log.warn("RpcMgr:register_func duplicate register name=%s", name)
-	end
-	self._all_call_func[name] = func
-end
 
 -- rpc warpper
 function RpcMgr:run(func, ...)
@@ -167,7 +160,7 @@ function RpcMgr:handle_call(data, mailbox_id, msg_id, is_nocb)
 
 	-- handle rpc
 	local param = Util.unserialize(data.param)
-	local func = self[func_name] or self._all_call_func[func_name]
+	local func = self[func_name]
 	if not func then
 		Log.err("RpcMgr:handle_call func not exists %s", func_name)
 		if not is_nocb then

@@ -1,5 +1,5 @@
 
-local function master_rpc_test(data)
+function g_rpc_mgr.master_rpc_test(data)
 	
 	Log.debug("master_rpc_test: data=%s", Util.table_to_string(data))
 
@@ -12,7 +12,7 @@ local function master_rpc_test(data)
 	return {result = ErrorCode.SUCCESS, buff=buff, sum=sum}
 end
 
-local function master_rpc_nocb_test(data)
+function g_rpc_mgr.master_rpc_nocb_test(data)
 	Log.debug("master_rpc_nocb_test: data=%s", Util.table_to_string(data))
 
 	XXX_g_rpc_nocb_map = XXX_g_rpc_nocb_map or {}
@@ -35,14 +35,3 @@ local function master_rpc_nocb_test(data)
 
 end
 
----------------------------------------------------------
-
-
-local function register_rpc_handler()
-	-- for test
-	g_rpc_mgr:register_func("master_rpc_test" ,master_rpc_test)
-	g_rpc_mgr:register_func("master_rpc_nocb_test" ,master_rpc_nocb_test)
-
-end
-
-register_rpc_handler()

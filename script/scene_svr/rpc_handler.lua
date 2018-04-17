@@ -1,5 +1,5 @@
 
-local function scene_rpc_test(data)
+function g_rpc_mgr.scene_rpc_test(data)
 	Log.debug("scene_rpc_test: data=%s", Util.table_to_string(data))
 
 	local buff = data.buff
@@ -11,7 +11,7 @@ local function scene_rpc_test(data)
 	return {result = ErrorCode.SUCCESS, buff=buff, sum=sum}
 end
 
-local function scene_rpc_nocb_test(data)
+function g_rpc_mgr.scene_rpc_nocb_test(data)
 	Log.debug("scene_rpc_nocb_test: data=%s", Util.table_to_string(data))
 
 	XXX_g_rpc_nocb_map = XXX_g_rpc_nocb_map or {}
@@ -34,12 +34,3 @@ local function scene_rpc_nocb_test(data)
 
 end
 
-local function register_rpc_handler()
-	-- for test
-	g_rpc_mgr:register_func("scene_rpc_test", scene_rpc_test)
-	g_rpc_mgr:register_func("scene_rpc_nocb_test", scene_rpc_nocb_test)
-
-
-end
-
-register_rpc_handler()

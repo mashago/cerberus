@@ -1,5 +1,5 @@
 
-local function gate_rpc_test(data)
+function g_rpc_mgr.gate_rpc_test(data)
 	
 	Log.debug("gate_rpc_test: data=%s", Util.table_to_string(data))
 
@@ -12,7 +12,7 @@ local function gate_rpc_test(data)
 	return {result = ErrorCode.SUCCESS, buff=buff, sum=sum}
 end
 
-local function gate_rpc_nocb_test(data)
+function g_rpc_mgr.gate_rpc_nocb_test(data)
 	Log.debug("gate_rpc_nocb_test: data=%s", Util.table_to_string(data))
 
 	XXX_g_rpc_nocb_map = XXX_g_rpc_nocb_map or {}
@@ -37,7 +37,7 @@ end
 
 ---------------------------------------------------------
 
-local function gate_select_role(data)
+function g_rpc_mgr.gate_select_role(data)
 	
 	Log.debug("gate_select_role: data=%s", Util.table_to_string(data))
 
@@ -73,7 +73,7 @@ local function gate_select_role(data)
 	return msg
 end
 
-local function gate_kick_role(data)
+function g_rpc_mgr.gate_kick_role(data)
 	local user_id = data.user_id
 	local role_id = data.role_id
 
@@ -90,7 +90,7 @@ local function gate_kick_role(data)
 	return msg
 end
 
-local function gate_check_role_online(data)
+function g_rpc_mgr.gate_check_role_online(data)
 	
 	Log.debug("gate_check_role_online: data=%s", Util.table_to_string(data))
 
@@ -115,14 +115,3 @@ local function gate_check_role_online(data)
 	return msg
 end
 
-local function register_rpc_handler()
-	-- for test
-	g_rpc_mgr:register_func("gate_rpc_test" ,gate_rpc_test)
-	g_rpc_mgr:register_func("gate_rpc_nocb_test" ,gate_rpc_nocb_test)
-
-	g_rpc_mgr:register_func("gate_select_role" ,gate_select_role)
-	g_rpc_mgr:register_func("gate_delete_role" ,gate_delete_role)
-	g_rpc_mgr:register_func("gate_check_role_online" ,gate_check_role_online)
-end
-
-register_rpc_handler()

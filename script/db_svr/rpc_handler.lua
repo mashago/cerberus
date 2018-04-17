@@ -1,6 +1,6 @@
 
 
-local function db_rpc_test(data)
+function g_rpc_mgr.db_rpc_test(data)
 	Log.debug("db_rpc_test: data=%s", Util.table_to_string(data))
 
 	local buff = data.buff
@@ -13,7 +13,7 @@ local function db_rpc_test(data)
 end
 
 
-local function db_rpc_nocb_test(data)
+function g_rpc_mgr.db_rpc_nocb_test(data)
 	Log.debug("db_rpc_nocb_test: data=%s", Util.table_to_string(data))
 
 	XXX_g_rpc_nocb_map = XXX_g_rpc_nocb_map or {}
@@ -37,7 +37,7 @@ end
 
 --------------------------------------------------------
 
-local function db_user_login(data)
+function g_rpc_mgr.db_user_login(data)
 	
 	Log.debug("db_user_login: data=%s", Util.table_to_string(data))
 
@@ -74,7 +74,7 @@ local function db_user_login(data)
 	return {result = ErrorCode.SUCCESS, user_id = user_id}
 end
 
-local function db_create_role(data)
+function g_rpc_mgr.db_create_role(data)
 	
 	Log.debug("db_create_role: data=%s", Util.table_to_string(data))
 
@@ -109,7 +109,7 @@ end
 
 -------------------------------------------------
 
-local function db_select(data)
+function g_rpc_mgr.db_select(data)
 	
 	Log.debug("db_select: data=%s", Util.table_to_string(data))
 
@@ -130,7 +130,7 @@ local function db_select(data)
 	return {result = ErrorCode.SUCCESS, data = ret}
 end
 
-local function db_insert(data)
+function g_rpc_mgr.db_insert(data)
 	
 	Log.debug("db_insert: data=%s", Util.table_to_string(data))
 
@@ -167,7 +167,7 @@ local function db_insert(data)
 	return ret_data
 end
 
-local function db_insert_multi(data)
+function g_rpc_mgr.db_insert_multi(data)
 
 	local ret_data =
 	{
@@ -188,7 +188,7 @@ local function db_insert_multi(data)
 	return ret_data
 end
 
-local function db_delete(data)
+function g_rpc_mgr.db_delete(data)
 	
 	Log.debug("db_delete: data=%s", Util.table_to_string(data))
 
@@ -211,7 +211,7 @@ local function db_delete(data)
 	return {result = ErrorCode.SUCCESS}
 end
 
-local function db_delete_multi(data)
+function g_rpc_mgr.db_delete_multi(data)
 
 	local ret_data =
 	{
@@ -232,7 +232,7 @@ local function db_delete_multi(data)
 	return ret_data
 end
 
-local function db_update(data)
+function g_rpc_mgr.db_update(data)
 	
 	Log.debug("db_update: data=%s", Util.table_to_string(data))
 
@@ -256,7 +256,7 @@ local function db_update(data)
 	return {result = ErrorCode.SUCCESS}
 end
 
-local function db_update_multi(data)
+function g_rpc_mgr.db_update_multi(data)
 	local ret_data =
 	{
 		result = ErrorCode.SUCCESS,
@@ -279,28 +279,28 @@ end
 
 ------------------------------------------------------
 
-local function db_login_select(data)
+function g_rpc_mgr.db_login_select(data)
 	
 	local db_name = g_server_conf._db_name_map[DBType.LOGIN]
 	data.db_name = db_name
 	return db_select(data)
 end
 
-local function db_login_insert(data)
+function g_rpc_mgr.db_login_insert(data)
 	
 	local db_name = g_server_conf._db_name_map[DBType.LOGIN]
 	data.db_name = db_name
 	return db_insert(data)
 end
 
-local function db_login_delete(data)
+function g_rpc_mgr.db_login_delete(data)
 	
 	local db_name = g_server_conf._db_name_map[DBType.LOGIN]
 	data.db_name = db_name
 	return db_delete(data)
 end
 
-local function db_login_update(data)
+function g_rpc_mgr.db_login_update(data)
 	
 	local db_name = g_server_conf._db_name_map[DBType.LOGIN]
 	data.db_name = db_name
@@ -308,7 +308,7 @@ local function db_login_update(data)
 end
 
 -- will convert data by DataStructDef
-local function db_game_select(data)
+function g_rpc_mgr.db_game_select(data)
 	
 	local db_name = g_server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
@@ -354,78 +354,45 @@ local function db_game_select(data)
 	return ret
 end
 
-local function db_game_insert(data)
+function g_rpc_mgr.db_game_insert(data)
 	
 	local db_name = g_server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
 	return db_insert(data)
 end
 
-local function db_game_insert_multi(data)
+function g_rpc_mgr.db_game_insert_multi(data)
 	
 	local db_name = g_server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
 	return db_insert_multi(data)
 end
 
-local function db_game_delete(data)
+function g_rpc_mgr.db_game_delete(data)
 	
 	local db_name = g_server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
 	return db_delete(data)
 end
 
-local function db_game_delete_multi(data)
+function g_rpc_mgr.db_game_delete_multi(data)
 	
 	local db_name = g_server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
 	return db_delete_multi(data)
 end
 
-local function db_game_update(data)
+function g_rpc_mgr.db_game_update(data)
 	
 	local db_name = g_server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
 	return db_update(data)
 end
 
-local function db_game_update_multi(data)
+function g_rpc_mgr.db_game_update_multi(data)
 	
 	local db_name = g_server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
 	return db_update_multi(data)
 end
 
---------------------------------------------------------
-
-local function register_rpc_handler()
-
-	g_rpc_mgr:register_func("db_rpc_test", db_rpc_test)
-	g_rpc_mgr:register_func("db_rpc_nocb_test", db_rpc_nocb_test)
-
-	g_rpc_mgr:register_func("db_user_login", db_user_login)
-	g_rpc_mgr:register_func("db_create_role", db_create_role) -- call by login
-
-	g_rpc_mgr:register_func("db_select", db_select)
-	g_rpc_mgr:register_func("db_insert", db_insert)
-	g_rpc_mgr:register_func("db_insert_multi", db_insert_multi)
-	g_rpc_mgr:register_func("db_delete", db_delete)
-	g_rpc_mgr:register_func("db_delete_multi", db_delete_multi)
-	g_rpc_mgr:register_func("db_update", db_update)
-	g_rpc_mgr:register_func("db_update_multi", db_update_multi)
-
-	g_rpc_mgr:register_func("db_login_select", db_login_select)
-	g_rpc_mgr:register_func("db_login_insert", db_login_insert)
-	g_rpc_mgr:register_func("db_login_delete", db_login_delete)
-	g_rpc_mgr:register_func("db_login_update", db_login_update)
-
-	g_rpc_mgr:register_func("db_game_select", db_game_select)
-	g_rpc_mgr:register_func("db_game_insert", db_game_insert)
-	g_rpc_mgr:register_func("db_game_insert_multi", db_game_insert_multi)
-	g_rpc_mgr:register_func("db_game_delete", db_game_delete)
-	g_rpc_mgr:register_func("db_game_delete_multi", db_game_delete_multi)
-	g_rpc_mgr:register_func("db_game_update", db_game_update)
-	g_rpc_mgr:register_func("db_game_update_multi", db_game_update_multi)
-end
-
-register_rpc_handler()
