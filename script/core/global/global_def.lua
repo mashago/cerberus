@@ -58,9 +58,10 @@ DBType =
 
 ServiceConnectStatus =
 {
-	DISCONNECT 	= 1,
-	CONNECTING 	= 2,
-	CONNECTED 	= 3,
+	DISCONNECT 		= 1,
+	DISCONNECTING 	= 2,
+	CONNECTING 		= 3,
+	CONNECTED 		= 4,
 }
 
 HttpRequestType =
@@ -68,6 +69,8 @@ HttpRequestType =
 	GET = 1,
 	POST = 2,
 }
+
+MAILBOX_ID_NIL = 0
 
 ErrorCode =
 {

@@ -52,6 +52,8 @@ function cmd_handler.execute(buffer)
 	
 	elseif cmd == "pserver" then
 		cmd_handler.do_print_server_list(params)
+	elseif cmd == "netprint" then
+		cmd_handler.do_netprint(params)
 	elseif cmd == "c" then
 		cmd_handler.do_connect(params)
 	elseif cmd == "close" then
@@ -335,6 +337,10 @@ function cmd_handler.do_print_server_list(params)
 	Log.debug("cmd_handler.do_print_server_list server_list=%s", Util.table_to_string(g_client._server_list))
 end
 
+function cmd_handler.do_netprint(params)
+	g_service_mgr:print()
+end
+
 -- [login/gate]
 function cmd_handler.do_connect(params)
 	if #params < 1 then
@@ -362,9 +368,9 @@ function cmd_handler.do_connect(params)
 	local ip = server_info.ip
 	local port = server_info.port
 	local server_id = server_info.server_id
-	local no_shakehand = 1
-	local no_reconnect = 0
-	local no_delay = 1
+	local no_shakehand = true
+	local no_reconnect = false
+	local no_delay = true
 	g_service_mgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect, no_delay)
 
 end

@@ -269,11 +269,11 @@ function ccall_disconnect_handler(mailbox_id)
 
 	local function handle_disconnect(mailbox_id)
 		
-		if g_service_mgr:is_server(mailbox_id) then
+		local server_info = g_service_mgr:get_server_by_mailbox(mailbox_id)
+		if server_info then
+			-- service disconnect
 			Log.warn("ccall_disconnect_handler service_client disconnect %d", mailbox_id)
-			-- service client disconnect
-			local server_info = g_service_mgr:get_server_by_mailbox(mailbox_id)
-			if g_net_event_server_disconnect then
+			if g_net_event_server_disconnect and server_info._connect_status == ServiceConnectStatus.CONNECTED then
 				g_net_event_server_disconnect(server_info._server_id)
 			end
 			g_service_mgr:handle_disconnect(mailbox_id)

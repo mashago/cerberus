@@ -40,10 +40,11 @@ function g_funcs.connect_to_servers(xml_doc)
 		local port = address_ele:int_attribute("port")
 		local server_id = address_ele:int_attribute("id")
 		local server_type = address_ele:int_attribute("type")
-		local no_shakehand = address_ele:int_attribute("no_shakehand")
-		local no_reconnect = address_ele:int_attribute("no_reconnect")
-		local no_delay = address_ele:int_attribute("no_delay")
-		Log.info("g_funcs.connect_to_servers ip=%s port=%d server_id=%d server_type=%d no_shakehand=%d no_reconnect=%d no_delay=%d", ip, port, server_id, server_type, no_shakehand, no_reconnect, no_delay)
+		local no_shakehand = (address_ele:int_attribute("no_shakehand") == 1) and true or false
+		local no_reconnect = (address_ele:int_attribute("no_reconnect") == 1) and true or false
+		local no_delay = (address_ele:int_attribute("no_delay") == 1) and true or false
+
+		Log.info("g_funcs.connect_to_servers ip=%s port=%d server_id=%d server_type=%d no_shakehand=%s no_reconnect=%s no_delay=%s", ip, port, server_id, server_type, no_shakehand, no_reconnect, no_delay)
 		g_service_mgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect, no_delay)
 
 		address_ele = address_ele:next_sibling_element()
@@ -223,8 +224,8 @@ function g_funcs.handle_shake_hand_invite(data, mailbox_id)
 		local port = v.port
 		local server_id = 0
 		local server_type = 0
-		local no_shakehand = 0
-		local no_reconnect = 0
+		local no_shakehand = false
+		local no_reconnect = false
 		
 		g_service_mgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect)
 	end

@@ -109,7 +109,7 @@ end
 
 -------------------------------------------------
 
-function g_rpc_mgr.db_select(data)
+local function db_select(data)
 	
 	Log.debug("db_select: data=%s", Util.table_to_string(data))
 
@@ -130,7 +130,7 @@ function g_rpc_mgr.db_select(data)
 	return {result = ErrorCode.SUCCESS, data = ret}
 end
 
-function g_rpc_mgr.db_insert(data)
+local function db_insert(data)
 	
 	Log.debug("db_insert: data=%s", Util.table_to_string(data))
 
@@ -167,7 +167,7 @@ function g_rpc_mgr.db_insert(data)
 	return ret_data
 end
 
-function g_rpc_mgr.db_insert_multi(data)
+local function db_insert_multi(data)
 
 	local ret_data =
 	{
@@ -188,7 +188,7 @@ function g_rpc_mgr.db_insert_multi(data)
 	return ret_data
 end
 
-function g_rpc_mgr.db_delete(data)
+local function db_delete(data)
 	
 	Log.debug("db_delete: data=%s", Util.table_to_string(data))
 
@@ -211,7 +211,7 @@ function g_rpc_mgr.db_delete(data)
 	return {result = ErrorCode.SUCCESS}
 end
 
-function g_rpc_mgr.db_delete_multi(data)
+local function db_delete_multi(data)
 
 	local ret_data =
 	{
@@ -232,7 +232,7 @@ function g_rpc_mgr.db_delete_multi(data)
 	return ret_data
 end
 
-function g_rpc_mgr.db_update(data)
+local function db_update(data)
 	
 	Log.debug("db_update: data=%s", Util.table_to_string(data))
 
@@ -256,7 +256,7 @@ function g_rpc_mgr.db_update(data)
 	return {result = ErrorCode.SUCCESS}
 end
 
-function g_rpc_mgr.db_update_multi(data)
+local function db_update_multi(data)
 	local ret_data =
 	{
 		result = ErrorCode.SUCCESS,
