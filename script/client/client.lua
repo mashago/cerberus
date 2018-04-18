@@ -10,6 +10,8 @@ function Client:ctor()
 
 	self._user_id = 0
 	self._user_token = ""
+
+	self._area_role_list = {}
 end
 
 return Client

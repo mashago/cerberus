@@ -24,6 +24,7 @@ function UserMgr:add_user(user)
 
 	if self._all_user_map[user._user_id] then
 		-- duplicate login
+		Log.err("UserMgr:add_user duplicate add user_id=%d", user._user_id)
 		return false
 	end
 

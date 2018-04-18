@@ -39,7 +39,20 @@ function cmd_handler.execute(buffer)
 		params = {}
 		cmd_handler.do_role_list_req(params)
 	elseif cmd == "4" then
-		params = {"10001"}
+		local area_id = nil
+		local role_id = nil
+		for k, v in ipairs(g_client._area_role_list) do
+			for _, role in ipairs(v.role_list) do
+				area_id = v.area_id
+				role_id = role.role_id
+				break
+			end
+		end
+
+		if not role_id then
+			return
+		end
+		params = {role_id, area_id}
 		cmd_handler.do_select_role(params)
 	elseif cmd == "5" then
 		params = {"gate"}
@@ -393,7 +406,7 @@ function cmd_handler.do_close_connect(params)
 		return
 	end
 
-	g_service_mgr:close_connection_by_type(server_type)
+	g_service_mgr:close_connection_by_type(server_type, true)
 end
 
 -- [username] [password] [channel_id]
@@ -506,6 +519,7 @@ function cmd_handler.do_select_role(params)
 		area_id = tonumber(params[2] or "1"),
 		role_id = tonumber(params[1]),
 	}
+	Log.debug("cmd_handler.do_select_role role_id=%d, area_id=%d", msg.role_id, msg.area_id) 
 
 	send_to_login(MID.c2s_select_role_req, msg)
 

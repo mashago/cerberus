@@ -58,13 +58,15 @@ function g_rpc_mgr.gate_select_role(data)
 	if user then
 		-- user exists, use that scene_id
 		scene_id = user._scene_id
+		-- update token
+		user._token = token
 		g_user_mgr:kick_user(user)
+	else
+		-- create user
+		local User = require "gate_svr.user"
+		user = User.new(user_id, role_id, scene_id, token)
+		g_user_mgr:add_user(user)
 	end
-
-	-- create user
-	local User = require "gate_svr.user"
-	user = User.new(user_id, role_id, scene_id, token)
-	g_user_mgr:add_user(user)
 	
 	msg.result = ErrorCode.SUCCESS
 	msg.ip = g_server_conf._ip

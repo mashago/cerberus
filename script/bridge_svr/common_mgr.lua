@@ -114,8 +114,7 @@ function CommonMgr:get_free_gate()
 end
 
 function CommonMgr:gen_user_token()
-	-- TODO
-	return "0000"
+	return tostring(math.random(10000, 99999))
 end
 
 function CommonMgr:create_enter_user(user_id, role_id)

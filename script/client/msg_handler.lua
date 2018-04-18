@@ -73,6 +73,7 @@ function g_msg_handler.s2c_role_list_ret(data, mailbox_id, msg_id)
 		Log.warn("s2c_role_list_ret: result=%s", ErrorCodeText[data.result])
 	end
 
+	g_client._area_role_list = data.area_role_list
 	g_time_counter:print()
 end
 
@@ -178,4 +179,9 @@ function g_msg_handler.s2c_attr_modify_ret(data, mailbox_id, msg_id)
 		g_role:update_data(data.rows[1].attrs)
 		g_role:print()
 	end
+end
+
+function g_msg_handler.s2c_role_kick(data, mailbox_id, msg_id)
+	g_service_mgr:close_connection_by_type(ServerType.LOGIN, true)
+	g_service_mgr:close_connection_by_type(ServerType.GATE, true)
 end

@@ -370,7 +370,7 @@ end
 function ServiceMgr:close_connection(server_info, no_reconnect)
 	server_info._no_reconnect = no_reconnect
 	server_info._connect_status = ServiceConnectStatus.DISCONNECTING
-	g_network:close_mailbox(mailbox_id)
+	g_network:close_mailbox(server_info._mailbox_id)
 end
 
 function ServiceMgr:close_connection_by_type(server_type, no_reconnect)
