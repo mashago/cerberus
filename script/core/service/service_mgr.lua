@@ -131,6 +131,29 @@ function ServiceMgr:create_connect_timer()
 	self._connect_timer_index = g_timer:add_timer(self._connect_interval_ms, timer_cb, 0, true)
 end
 
+function ServiceMgr:check_all_connected()
+	local is_all_connected = true
+	for _, server_info in ipairs(self._wait_server_list) do
+		Log.debug("ServiceMgr:_connect_core server_info ip=%s port=%d connect_status=%d", server_info._ip, server_info._port, server_info._connect_status)
+		if server_info._connect_status ~= ServiceConnectStatus.CONNECTED then
+			is_all_connected = false
+			break
+		end
+	end
+
+	if not is_all_connected then
+		return
+	end
+
+	if self._connect_timer_index ~= 0 then
+		g_timer:del_timer(self._connect_timer_index)
+		self._connect_timer_index = 0
+	end
+
+	self:print()
+	Log.debug("ServiceMgr:check_all_connected all connected *******")
+end
+
 --------------------------------------------------
 
 -- register a connect to server
@@ -274,6 +297,7 @@ function ServiceMgr:connect_to_success(mailbox_id)
 		self:register_server(server_info)
 		-- remove from connection list
 		table.remove(self._wait_server_list, index_in_list)
+		self:check_all_connected()
 		return
 	end
 
@@ -313,6 +337,7 @@ function ServiceMgr:shake_hand_success(mailbox_id, server_id, server_type, singl
 		return false
 	end
 	table.remove(self._wait_server_list, index_in_list)
+	self:check_all_connected()
 
 	return true
 end
@@ -445,20 +470,10 @@ function ServiceMgr:get_server_by_type(server_type, opt_key)
 	return self:get_server_by_id(server_id)
 end
 
--- luaclient use this now
-function ServiceMgr:send_to_type_server(server_type, msg_id, msg)
-	local server_info = self:get_server_by_type(server_type)
-	if not server_info then
-		return false
-	end
-
-    return server_info:send_msg(msg_id, msg)
-end
-
 function ServiceMgr:send_by_server_type(server_type, msg_id, data, opt_key)
 	local server_info = self:get_server_by_type(server_type, opt_key)
 	if not server_info then
-		Log.err("ServiceMgr:send_server_by_type nil %s %d", server_type, opt_key)
+		Log.err("ServiceMgr:send_server_by_type nil %s %d", server_type, opt_key or 0)
 		return false
 	end
 

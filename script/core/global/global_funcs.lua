@@ -397,6 +397,10 @@ function g_funcs.attr_table_to_attr_map(table_def, attr_table, out_map)
 	return attr_map
 end
 
+function g_funcs.get_msg_name(msg_id)
+	return MID._id_name_map[msg_id] or "NIL_MSG"
+end
+
 ----------------
 
 return g_funcs

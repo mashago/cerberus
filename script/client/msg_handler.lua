@@ -1,14 +1,4 @@
 
-function send_to_login(msg_id, msg)
-	g_service_mgr:send_to_type_server(ServerType.LOGIN, msg_id, msg)
-end
-
-function send_to_gate(msg_id, msg)
-	g_service_mgr:send_to_type_server(ServerType.GATE, msg_id, msg)
-end
-
-------------------------------------------------
-
 g_x_test_num = g_x_test_num or -1 -- x test end
 g_x_test_total_num = g_x_test_total_num or 0
 g_x_test_start_time = g_x_test_start_time or 0
@@ -59,6 +49,10 @@ function g_msg_handler.s2c_user_login_ret(data, mailbox_id, msg_id)
 		Log.warn("s2c_user_login_ret: result=%s", ErrorCodeText[data.result])
 	end
 	x_test_end()
+end
+
+function g_msg_handler.s2c_user_kick(data)
+	g_service_mgr:close_connection_by_type(ServerType.LOGIN, true)
 end
 
 function g_msg_handler.s2c_area_list_ret(data, mailbox_id, msg_id)
@@ -113,6 +107,7 @@ function g_msg_handler.s2c_select_role_ret(data, mailbox_id, msg_id)
 	g_client._user_token = data.token
 
 	g_time_counter:print()
+	g_service_mgr:close_connection_by_type(ServerType.LOGIN, true)
 end
 
 function g_msg_handler.s2c_role_enter_ret(data, mailbox_id, msg_id)
@@ -182,6 +177,5 @@ function g_msg_handler.s2c_attr_modify_ret(data, mailbox_id, msg_id)
 end
 
 function g_msg_handler.s2c_role_kick(data, mailbox_id, msg_id)
-	g_service_mgr:close_connection_by_type(ServerType.LOGIN, true)
 	g_service_mgr:close_connection_by_type(ServerType.GATE, true)
 end

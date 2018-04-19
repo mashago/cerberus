@@ -256,7 +256,11 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 		-- kick old connection, and change user mailbox
 		Log.warn("c2s_user_login_req login other place [%s]", data.username)
 		msg.result = ErrorCode.USER_LOGIN_OTHER_PLACE
-		user:send_msg(MID.s2c_user_login_ret, msg)
+		local msg =
+		{
+			reason = ErrorCode.USER_LOGIN_OTHER_PLACE,
+		}
+		user:send_msg(MID.s2c_user_kick, msg)
 		g_user_mgr:change_user_mailbox(user, mailbox_id)
 	else
 		-- create a user in memory with user_id

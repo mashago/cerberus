@@ -8,14 +8,18 @@ function User:ctor(user_id, role_id, scene_id, token)
 	self._token = token
 
 	self._scene_server_id = 0
-	self._mailbox_id = 0
+	self._mailbox_id = MAILBOX_ID_NIL
 end
 
 function User:is_online()
-	return self._mailbox_id ~= 0
+	return self._mailbox_id ~= MAILBOX_ID_NIL
 end
 
 function User:send_msg(msg_id, msg)
+	if self._mailbox_id == MAILBOX_ID_NIL then
+		Log.warn("User:send_msg mailbox_id nil msg_id=%s", g_funcs.get_msg_name(msg_id))
+		return false
+	end
 	return Net.send_msg(self._mailbox_id, msg_id, msg)
 end
 

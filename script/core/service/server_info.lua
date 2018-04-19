@@ -68,6 +68,11 @@ function ServerInfo:send_msg_ext(msg_id, ext, msg)
 		Log.warn("ServerInfo:send_msg mailbox nil msg_id=%d", msg_id)
 		return false
 	end
+
+	if self._connect_status ~= ServiceConnectStatus.CONNECTED then
+		Log.warn("ServerInfo:send_msg not connected msg_id=%d", msg_id)
+		return false
+	end
 	return Net.send_msg_ext(mailbox_id, msg_id, ext, msg)
 end
 

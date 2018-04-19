@@ -23,6 +23,7 @@ MID._id_name_map =
 	[10014] = "s2c_delete_role_ret",
 	[10015] = "c2s_select_role_req",
 	[10016] = "s2c_select_role_ret",
+	[10017] = "s2c_user_kick",
 
 	-- gate server handle
 	[20001] = "s2c_role_kick",
@@ -170,11 +171,10 @@ local ModifyAttrTableStruct =
 
 -----------------------------------
 
-
 MSG_DEF_MAP = {}
-MSG_DEF_MAP =
+MSG_DEF_MAP._def_map =
 {
-	[MID.c2s_client_test_req] =
+	c2s_client_test_req =
 	{
 		{ "byte", _Byte },
 		{ "bool", _Bool },
@@ -195,7 +195,7 @@ MSG_DEF_MAP =
 		{ "structarray", _StructArray, TestStruct },
 	},
 
-	[MID.s2c_client_test_ret] =
+	s2c_client_test_ret =
 	{
 		{ "byte", _Byte },
 		{ "bool", _Bool },
@@ -216,83 +216,83 @@ MSG_DEF_MAP =
 		{ "structarray", _StructArray, TestStruct },
 	},
 
-	[MID.c2s_rpc_test_req] =
+	c2s_rpc_test_req =
 	{
 		{ "buff", _String },
 	},
-	[MID.s2c_rpc_test_ret] =
+	s2c_rpc_test_ret =
 	{
 		{ "result", _Int },
 		{ "buff", _String },
 		{ "sum", _Int },
 	},
-	[MID.c2s_rpc_nocb_test_req] =
+	c2s_rpc_nocb_test_req =
 	{
 		{ "buff", _String },
 	},
-	[MID.c2s_rpc_mix_test_req] =
+	c2s_rpc_mix_test_req =
 	{
 		{ "buff", _String },
 	},
 
 	-----------------------------------------------------------
 
-	[MID.c2s_user_login_req] =
+	c2s_user_login_req =
 	{
 		{ "username", _String },
 		{ "password", _String },
 		{ "channel_id", _Int },
 	},
-	[MID.s2c_user_login_ret] =
+	s2c_user_login_ret =
 	{
 		{ "result", _Int },
 	},
 
-	[MID.c2s_area_list_req] =
+	c2s_area_list_req =
 	{
 	},
-	[MID.s2c_area_list_ret] =
+	s2c_area_list_ret =
 	{
 		{ "area_list", _StructArray, AreaListStruct },
 	},
 
-	[MID.c2s_role_list_req] =
+	c2s_role_list_req =
 	{
 	},
-	[MID.s2c_role_list_ret] =
+	s2c_role_list_ret =
 	{
 		{ "result", _Int },
 		{ "area_role_list", _StructArray, AreaRoleListStruct },
 	},
 
-	[MID.c2s_create_role_req] =
+	c2s_create_role_req =
 	{
 		{ "area_id", _Int },
 		{ "role_name", _String },
 	},
-	[MID.s2c_create_role_ret] =
+	s2c_create_role_ret =
 	{
 		{ "result", _Int },
 		{ "role_id", _Int64 },
 	},
 
-	[MID.c2s_delete_role_req] =
+	c2s_delete_role_req =
 	{
 		{ "area_id", _Int },
 		{ "role_id", _Int64 },
 	},
-	[MID.s2c_delete_role_ret] =
+	s2c_delete_role_ret =
 	{
 		{ "result", _Int },
 		{ "role_id", _Int64 },
 	},
 
-	[MID.c2s_select_role_req] =
+	c2s_select_role_req =
 	{
 		{ "area_id", _Int },
 		{ "role_id", _Int64 },
 	},
-	[MID.s2c_select_role_ret] =
+	s2c_select_role_ret =
 	{
 		{ "result", _Int },
 		{ "ip", _String },
@@ -301,58 +301,63 @@ MSG_DEF_MAP =
 		{ "token", _String },
 	},
 
-	----------------------------------------
-	[MID.s2c_role_kick] =
+	s2c_user_kick =
 	{
 		{ "reason", _Int },
 	},
 
-	[MID.c2s_role_enter_req] =
+	----------------------------------------
+	s2c_role_kick =
+	{
+		{ "reason", _Int },
+	},
+
+	c2s_role_enter_req =
 	{
 		{ "user_id", _Int64 },
 		{ "token", _String },
 	},
-	[MID.s2c_role_enter_ret] =
+	s2c_role_enter_ret =
 	{
 		{ "result", _Int },
 	},
 
-	[MID.s2c_role_attr_ret] =
+	s2c_role_attr_ret =
 	{
 		{ "role_id", _Int64 },
 		{ "attr_table", _Struct, AttrTableStruct },
 	},
 
-	[MID.c2s_role_attr_change_req] =
+	c2s_role_attr_change_req =
 	{
 		{ "attr_table", _Struct, AttrTableStruct },
 	},
 
-	[MID.s2c_role_attr_change_ret] =
+	s2c_role_attr_change_ret =
 	{
 		{ "role_id", _Int64 },
 		{ "attr_table", _Struct, AttrTableStruct },
 	},
 
-	[MID.s2c_attr_info_ret] =
+	s2c_attr_info_ret =
 	{
 		{ "sheet_name", _String },
 		{ "rows", _StructArray, AttrTableStruct },
 	},
 
-	[MID.s2c_attr_insert_ret] =
+	s2c_attr_insert_ret =
 	{
 		{ "sheet_name", _String },
 		{ "rows", _StructArray, AttrTableStruct },
 	},
 
-	[MID.s2c_attr_delete_ret] =
+	s2c_attr_delete_ret =
 	{
 		{ "sheet_name", _String },
 		{ "rows", _StructArray, AttrTableStruct },
 	},
 
-	[MID.s2c_attr_modify_ret] =
+	s2c_attr_modify_ret =
 	{
 		{ "sheet_name", _String },
 		{ "rows", _StructArray, ModifyAttrTableStruct },
@@ -360,7 +365,7 @@ MSG_DEF_MAP =
 
 	----------------------------------------
 
-	[MID.s2s_shake_hand_req] =
+	s2s_shake_hand_req =
 	{
 		{ "server_id", _Int },
 		{ "server_type", _Int },
@@ -370,7 +375,7 @@ MSG_DEF_MAP =
 		{ "port", _Int },
 	},
 
-	[MID.s2s_shake_hand_ret] =
+	s2s_shake_hand_ret =
 	{
 		{ "result", _Int },
 		{ "server_id", _Int },
@@ -379,13 +384,13 @@ MSG_DEF_MAP =
 		{ "from_to_scene_list", _IntArray },
 	},
 
-	[MID.s2s_shake_hand_invite] =
+	s2s_shake_hand_invite =
 	{
 		{ "server_list", _StructArray, ServerAddrStruct },
 	},
 
 
-	[MID.s2s_rpc_req] =
+	s2s_rpc_req =
 	{
 		{ "from_server_id", _Int },
 		{ "to_server_id", _Int },
@@ -394,7 +399,7 @@ MSG_DEF_MAP =
 		{ "param", _String },
 	},
 
-	[MID.s2s_rpc_nocb_req] =
+	s2s_rpc_nocb_req =
 	{
 		{ "from_server_id", _Int },
 		{ "to_server_id", _Int },
@@ -403,7 +408,7 @@ MSG_DEF_MAP =
 		{ "param", _String },
 	},
 
-	[MID.s2s_rpc_ret] =
+	s2s_rpc_ret =
 	{
 		{ "result", _Bool },
 		{ "from_server_id", _Int },
@@ -412,32 +417,39 @@ MSG_DEF_MAP =
 		{ "param", _String },
 	},
 
-	[MID.s2s_register_area_req] =
+	s2s_register_area_req =
 	{
 		{ "area_list", _IntArray },
 	},
 
-	[MID.s2s_register_area_ret] =
+	s2s_register_area_ret =
 	{
 		{ "result", _Int },
 	},
 
-	[MID.s2s_gate_role_enter_req] =
+	s2s_gate_role_enter_req =
 	{
 		{ "role_id", _Int64 },
 		{ "scene_id", _Int },
 	},
-	[MID.s2s_gate_role_enter_ret] =
+	s2s_gate_role_enter_ret =
 	{
 		{ "result", _Int },
 		{ "role_id", _Int64 },
 	},
 
-	[MID.s2s_gate_role_disconnect] =
+	s2s_gate_role_disconnect =
 	{
 	},
 
 }
+
+local function create_msg_def_array()
+	for k, v in pairs(MSG_DEF_MAP._def_map) do
+		MSG_DEF_MAP[MID[k]] = v
+	end
+end
+create_msg_def_array()
 
 -- do msg handler function directly
 RAW_MID = 
