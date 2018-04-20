@@ -129,10 +129,16 @@ bool LuaWorld::CoreInit(int server_id, int server_type, const char *conf_file, c
 	lua_setglobal(m_L, "g_entry_path");
 
 	// push this to lua
-	lua_pushlightuserdata(m_L, (void *)this);
+	LuaWorld **ptr = (LuaWorld **)lua_newuserdata(m_L, sizeof(LuaWorld **));
+	*ptr = this;
 	luaL_newmetatable(m_L, "LuaWorldPtr");
 	lua_setmetatable(m_L, -2);
 	lua_setglobal(m_L, "g_luaworld_ptr");
+
+	// push luanetwork to lua
+	LuaNetwork **ptr2 = (LuaNetwork **)lua_newuserdata(m_L, sizeof(LuaNetwork **));
+	*ptr2 = m_luanetwork;
+	lua_setglobal(m_L, "g_luanetwork_ptr");
 
 	if (luaL_dofile(m_L, "../script/main.lua"))
 	{

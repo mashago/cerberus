@@ -9,8 +9,6 @@ extern "C"
 #include <map>
 #include <queue>
 
-class NetService;
-
 class TimerMgr
 {
 public:

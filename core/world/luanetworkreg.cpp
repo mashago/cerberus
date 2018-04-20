@@ -13,14 +13,14 @@ extern "C"
 
 int luanetwork_instance(lua_State *L)
 {
-	LuaWorld* luaworld = (LuaWorld*)luaL_checkudata(L, 2, "LuaWorldPtr");
+	// LuaWorld* luaworld = (LuaWorld*)luaL_checkudata(L, 2, "LuaWorldPtr");
 	// LuaWorld* s = (LuaWorld*)lua_touserdata(L, 2);
 
-	LuaNetwork **ptr = (LuaNetwork**)lua_newuserdata(L, sizeof(LuaNetwork **));
-	*ptr = luaworld->m_luanetwork;
+	// LuaNetwork **ptr = (LuaNetwork**)lua_newuserdata(L, sizeof(LuaNetwork **));
+	// *ptr = luaworld->m_luanetwork;
 
+	lua_getglobal(L, "g_luanetwork_ptr");
 	luaL_getmetatable(L, "LuaNetwork");
-
 	lua_setmetatable(L, -2);
 
 	return 1;

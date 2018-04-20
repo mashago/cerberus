@@ -12,7 +12,8 @@ extern "C"
 
 int add_timer_c(lua_State *L)
 {
-	LuaWorld* luaworld = (LuaWorld*)luaL_checkudata(L, 1, "LuaWorldPtr");
+	LuaWorld** ptr = (LuaWorld**)luaL_checkudata(L, 1, "LuaWorldPtr");
+	LuaWorld *luaworld = *ptr;
 	luaL_checktype(L, 2, LUA_TNUMBER);
 	luaL_checktype(L, 3, LUA_TBOOLEAN);
 
@@ -31,7 +32,8 @@ int add_timer_c(lua_State *L)
 
 int del_timer_c(lua_State *L)
 {
-	LuaWorld* luaworld = (LuaWorld*)luaL_checkudata(L, 1, "LuaWorldPtr");
+	LuaWorld** ptr = (LuaWorld**)luaL_checkudata(L, 1, "LuaWorldPtr");
+	LuaWorld *luaworld = *ptr;
 	luaL_checktype(L, 2, LUA_TNUMBER);
 	int64_t timer_index = lua_tointeger(L, 2);
 
