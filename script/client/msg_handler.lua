@@ -1,38 +1,4 @@
 
-g_x_test_num = g_x_test_num or -1 -- x test end
-g_x_test_total_num = g_x_test_total_num or 0
-g_x_test_start_time = g_x_test_start_time or 0
-g_x_test_total_time = g_x_test_total_time or 0
-g_x_test_min_time = g_x_test_min_time or 0
-
-function x_test_start(num)
-	g_x_test_num = num
-	g_x_test_total_num = num
-	g_x_test_start_time = get_time_ms_c()
-	g_x_test_total_time = 0
-	g_x_test_min_time = 0
-end
-
-function x_test_end()
-	local time_ms = get_time_ms_c()
-	if g_x_test_num > 0 then
-		g_x_test_num = g_x_test_num - 1
-		local time_ms_offset = time_ms - g_x_test_start_time
-		g_x_test_total_time = g_x_test_total_time + time_ms_offset
-		if g_x_test_min_time == 0 then
-			g_x_test_min_time = time_ms_offset
-		end
-	end
-	if g_x_test_num == 0 then
-		Log.debug("******* x test time use time=%fms", time_ms - g_x_test_start_time)
-		Log.debug("******* g_x_test_total_num=%d", g_x_test_total_num)
-		Log.debug("******* g_x_test_total_time=%fms", g_x_test_total_time)
-		Log.debug("******* average time=%fms", g_x_test_total_time/ g_x_test_total_num)
-		Log.debug("******* min time=%fms", g_x_test_min_time)
-		g_x_test_num = -1  -- x test end
-	end
-end
-
 ------------------------------------------------
 
 function g_msg_handler.s2c_rpc_test_ret(data, mailbox_id, msg_id)
@@ -40,7 +6,7 @@ function g_msg_handler.s2c_rpc_test_ret(data, mailbox_id, msg_id)
 	if data.result ~= ErrorCode.SUCCESS then
 		Log.warn("s2c_rpc_test_ret: result=%s", ErrorCodeText[data.result])
 	end
-	x_test_end()
+	g_client:x_test_end()
 end
 
 function g_msg_handler.s2c_user_login_ret(data, mailbox_id, msg_id)
@@ -48,7 +14,7 @@ function g_msg_handler.s2c_user_login_ret(data, mailbox_id, msg_id)
 	if data.result ~= ErrorCode.SUCCESS then
 		Log.warn("s2c_user_login_ret: result=%s", ErrorCodeText[data.result])
 	end
-	x_test_end()
+	g_client:x_test_end()
 end
 
 function g_msg_handler.s2c_user_kick(data)

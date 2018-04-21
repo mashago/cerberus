@@ -271,7 +271,7 @@ function cmd_handler.do_rpc_testx(params)
 		g_client:send_to_login(MID.c2s_rpc_test_req, msg)
 	end
 
-	x_test_start(num)
+	g_client:x_test_start(num)
 end
 
 -- [buff]
@@ -341,7 +341,7 @@ function cmd_handler.do_rpc_mix_testx(params)
 		g_client:send_to_login(MID.c2s_rpc_mix_test_req, msg)
 	end
 
-	x_test_start(num)
+	g_client:x_test_start(num)
 end
 
 ---------------------------------------
@@ -425,7 +425,7 @@ function cmd_handler.do_login(params)
 	}
 	g_client:send_to_login(MID.c2s_user_login_req, msg)
 
-	x_test_start(1)
+	g_client:x_test_start(1)
 end
 
 -- [num]
@@ -436,10 +436,10 @@ function cmd_handler.do_loginx(params)
 	end
 
 	local num = tonumber(params[1])
+	local str_date = os.date("%Y%m%d%H%M%S")
 
 	for i=1, num do
-		local x = math.random(1000000)
-		local username = "test" .. tostring(x)
+		local username = "t" .. str_date .. i
 
 		local msg =
 		{
@@ -450,7 +450,7 @@ function cmd_handler.do_loginx(params)
 		g_client:send_to_login(MID.c2s_user_login_req, msg)
 	end
 
-	x_test_start(num)
+	g_client:x_test_start(num)
 
 end
 
