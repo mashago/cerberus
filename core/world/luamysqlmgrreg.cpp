@@ -12,7 +12,7 @@ extern "C"
 
 int luamysqlmgr_create(lua_State *L)
 {
-	MysqlMgr **ptr = (MysqlMgr**)lua_newuserdata(L, sizeof(MysqlMgr **));
+	MysqlMgr **ptr = (MysqlMgr**)lua_newuserdata(L, sizeof(MysqlMgr *));
 	*ptr = new MysqlMgr();
 
 	luaL_getmetatable(L, "LuaMysqlMgr");

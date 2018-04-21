@@ -12,17 +12,21 @@ extern "C"
 
 int add_timer_c(lua_State *L)
 {
-	LuaWorld** ptr = (LuaWorld**)luaL_checkudata(L, 1, "LuaWorldPtr");
+	luaL_checktype(L, 1, LUA_TNUMBER);
+	luaL_checktype(L, 2, LUA_TBOOLEAN);
+
+	int ms = (int)lua_tointeger(L, 1);
+	bool is_loop = (bool)lua_toboolean(L, 2);
+
+	lua_getglobal(L, "g_luaworld_ptr");
+	LuaWorld **ptr = (LuaWorld **)lua_touserdata(L, -1);
 	LuaWorld *luaworld = *ptr;
-	luaL_checktype(L, 2, LUA_TNUMBER);
-	luaL_checktype(L, 3, LUA_TBOOLEAN);
+	lua_pop(L, 1);
 
-	int ms = lua_tointeger(L, 2);
-	bool is_loop = lua_toboolean(L, 3);
+	TimerMgr *timerMgr = luaworld->GetTimerMgr();
 
-	int64_t new_timer_index = luaworld->m_timerMgr->GetCurTimerIndex();
-	// int64_t ret_timer_index = luaworld->m_timerMgr->AddTimer(ms, handler_timer, (void *)new_timer_index, is_loop);
-	int64_t ret_timer_index = luaworld->m_timerMgr->AddTimer(ms, std::bind(&LuaWorld::HandleTimer, luaworld, std::placeholders::_1, std::placeholders::_2), (void *)new_timer_index, is_loop);
+	int64_t new_timer_index = timerMgr->GetCurTimerIndex();
+	int64_t ret_timer_index = timerMgr->AddTimer(ms, std::bind(&LuaWorld::HandleTimer, luaworld, std::placeholders::_1, std::placeholders::_2), (void *)new_timer_index, is_loop);
 
 	lua_pushinteger(L, new_timer_index);
 	lua_pushboolean(L, new_timer_index == ret_timer_index);
@@ -32,12 +36,17 @@ int add_timer_c(lua_State *L)
 
 int del_timer_c(lua_State *L)
 {
-	LuaWorld** ptr = (LuaWorld**)luaL_checkudata(L, 1, "LuaWorldPtr");
-	LuaWorld *luaworld = *ptr;
-	luaL_checktype(L, 2, LUA_TNUMBER);
-	int64_t timer_index = lua_tointeger(L, 2);
+	luaL_checktype(L, 1, LUA_TNUMBER);
+	int64_t timer_index = lua_tointeger(L, 1);
 
-	bool ret = luaworld->m_timerMgr->DelTimer(timer_index);
+	lua_getglobal(L, "g_luaworld_ptr");
+	LuaWorld **ptr = (LuaWorld **)lua_touserdata(L, -1);
+	LuaWorld *luaworld = *ptr;
+	lua_pop(L, 1);
+
+	TimerMgr *timerMgr = luaworld->GetTimerMgr();
+
+	bool ret = timerMgr->DelTimer(timer_index);
 
 	lua_pushboolean(L, ret);
 

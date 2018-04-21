@@ -6,7 +6,7 @@
 
 int luatinyxmldoc_create(lua_State *L)
 {
-	tinyxml2::XMLDocument **p_doc = (tinyxml2::XMLDocument**)lua_newuserdata(L, sizeof(tinyxml2::XMLDocument**));
+	tinyxml2::XMLDocument **p_doc = (tinyxml2::XMLDocument**)lua_newuserdata(L, sizeof(tinyxml2::XMLDocument*));
 	*p_doc = new tinyxml2::XMLDocument();
 
 	luaL_getmetatable(L, "LuaTinyXMLDoc");
@@ -22,9 +22,8 @@ int luatinyxmldoc_load_file(lua_State *L)
 	tinyxml2::XMLDocument **p_doc = (tinyxml2::XMLDocument**)luaL_checkudata(L, 1, "LuaTinyXMLDoc");
 	luaL_argcheck(L, p_doc != NULL, 1, "invalid user data");
 
-	luaL_checktype(L, -1, LUA_TSTRING);
-
-	const char* file_name = lua_tostring(L, -1);
+	luaL_checktype(L, 2, LUA_TSTRING);
+	const char* file_name = lua_tostring(L, 2);
 
 	tinyxml2::XMLError ret = (*p_doc)->LoadFile(file_name);
 
@@ -45,15 +44,15 @@ int luatinyxmldoc_first_child_element(lua_State *L)
 	const char *ele_name = NULL;
 	if (args_count > 1)
 	{
-		luaL_checktype(L, -1, LUA_TSTRING);
-		ele_name = lua_tostring(L, -1);
+		luaL_checktype(L, 2, LUA_TSTRING);
+		ele_name = lua_tostring(L, 2);
 	}
 	ele = (*p_doc)->FirstChildElement(ele_name);
 
 	// push element
 	if (ele)
 	{
-		tinyxml2::XMLElement **p_ele = (tinyxml2::XMLElement **)lua_newuserdata(L, sizeof(tinyxml2::XMLElement **));
+		tinyxml2::XMLElement **p_ele = (tinyxml2::XMLElement **)lua_newuserdata(L, sizeof(tinyxml2::XMLElement *));
 		*p_ele = ele;
 		luaL_getmetatable(L, "LuaTinyXMLEle");
 		lua_setmetatable(L, -2);
@@ -123,15 +122,15 @@ int luatinyxmlele_first_child_element(lua_State *L)
 	const char *ele_name = NULL;
 	if (args_count > 1)
 	{
-		luaL_checktype(L, -1, LUA_TSTRING);
-		ele_name = lua_tostring(L, -1);
+		luaL_checktype(L, 2, LUA_TSTRING);
+		ele_name = lua_tostring(L, 2);
 	}
 	ele = (*p_ele)->FirstChildElement(ele_name);
 
 	// push element
 	if (ele)
 	{
-		tinyxml2::XMLElement **p_ele = (tinyxml2::XMLElement **)lua_newuserdata(L, sizeof(tinyxml2::XMLElement **));
+		tinyxml2::XMLElement **p_ele = (tinyxml2::XMLElement **)lua_newuserdata(L, sizeof(tinyxml2::XMLElement *));
 		*p_ele = ele;
 		luaL_getmetatable(L, "LuaTinyXMLEle");
 		lua_setmetatable(L, -2);
@@ -155,15 +154,15 @@ int luatinyxmlele_next_sibling_element(lua_State *L)
 	const char *ele_name = NULL;
 	if (args_count > 1)
 	{
-		luaL_checktype(L, -1, LUA_TSTRING);
-		ele_name = lua_tostring(L, -1);
+		luaL_checktype(L, 2, LUA_TSTRING);
+		ele_name = lua_tostring(L, 2);
 	}
 	ele = (*p_ele)->NextSiblingElement(ele_name);
 
 	// push element
 	if (ele)
 	{
-		tinyxml2::XMLElement **p_ele = (tinyxml2::XMLElement **)lua_newuserdata(L, sizeof(tinyxml2::XMLElement **));
+		tinyxml2::XMLElement **p_ele = (tinyxml2::XMLElement **)lua_newuserdata(L, sizeof(tinyxml2::XMLElement *));
 		*p_ele = ele;
 		luaL_getmetatable(L, "LuaTinyXMLEle");
 		lua_setmetatable(L, -2);
@@ -181,7 +180,7 @@ int luatinyxmlele_int_attribute(lua_State *L)
 	tinyxml2::XMLElement **p_ele = (tinyxml2::XMLElement**)luaL_checkudata(L, 1, "LuaTinyXMLEle");
 	luaL_argcheck(L, p_ele != NULL, 1, "invalid user data");
 
-	luaL_checktype(L, -1, LUA_TSTRING);
+	luaL_checktype(L, 2, LUA_TSTRING);
 
 	int attr = (*p_ele)->IntAttribute(lua_tostring(L, -1));
 
@@ -195,7 +194,7 @@ int luatinyxmlele_bool_attribute(lua_State *L)
 	tinyxml2::XMLElement **p_ele = (tinyxml2::XMLElement**)luaL_checkudata(L, 1, "LuaTinyXMLEle");
 	luaL_argcheck(L, p_ele != NULL, 1, "invalid user data");
 
-	luaL_checktype(L, -1, LUA_TSTRING);
+	luaL_checktype(L, 2, LUA_TSTRING);
 
 	bool attr = (*p_ele)->BoolAttribute(lua_tostring(L, -1));
 
@@ -209,7 +208,7 @@ int luatinyxmlele_string_attribute(lua_State *L)
 	tinyxml2::XMLElement **p_ele = (tinyxml2::XMLElement**)luaL_checkudata(L, 1, "LuaTinyXMLEle");
 	luaL_argcheck(L, p_ele != NULL, 1, "invalid user data");
 
-	luaL_checktype(L, -1, LUA_TSTRING);
+	luaL_checktype(L, 2, LUA_TSTRING);
 
 	const char *attr = (*p_ele)->Attribute(lua_tostring(L, -1));
 
@@ -223,7 +222,7 @@ int luatinyxmlele_double_attribute(lua_State *L)
 	tinyxml2::XMLElement **p_ele = (tinyxml2::XMLElement**)luaL_checkudata(L, 1, "LuaTinyXMLEle");
 	luaL_argcheck(L, p_ele != NULL, 1, "invalid user data");
 
-	luaL_checktype(L, -1, LUA_TSTRING);
+	luaL_checktype(L, 2, LUA_TSTRING);
 
 	double attr = (*p_ele)->DoubleAttribute(lua_tostring(L, -1));
 
@@ -237,7 +236,7 @@ int luatinyxmlele_int64_attribute(lua_State *L)
 	tinyxml2::XMLElement **p_ele = (tinyxml2::XMLElement**)luaL_checkudata(L, 1, "LuaTinyXMLEle");
 	luaL_argcheck(L, p_ele != NULL, 1, "invalid user data");
 
-	luaL_checktype(L, -1, LUA_TSTRING);
+	luaL_checktype(L, 2, LUA_TSTRING);
 
 	int64_t attr = (*p_ele)->Int64Attribute(lua_tostring(L, -1));
 
