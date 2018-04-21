@@ -110,6 +110,7 @@ function CommonMgr:get_free_gate()
 			min_conn_num = v
 		end
 	end
+
 	return gate_server_id
 end
 
@@ -178,7 +179,8 @@ function CommonMgr:rpc_select_role(user_id, role_id)
 	-- rpc gate select role
 	local enter_user = self:create_enter_user(user_id, role_id)
 	if not enter_user then
-		return {result = ret.result}
+		Log.err("rpc_select_role create_enter_user fail %d %d", user_id, role_id)
+		return {result = ErrorCode.SYS_ERROR}
 	end
 
 	local token = enter_user.token

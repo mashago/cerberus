@@ -109,28 +109,28 @@ local function recv_msg_handler(mailbox_id, msg_id)
 	local msg_name = MID._id_name_map[msg_id]
 	local msg_func = g_msg_handler[msg_name]
 	if not msg_func then
-		if g_net_event_transfer_msg then
-			return g_net_event_transfer_msg(mailbox_id, msg_id, ext)
+		if not g_msg_handler.transfer_msg then
+			Log.warn("recv_msg_handler handler not exists msg_name=%s", msg_name)
+			return
 		end
-		Log.warn("recv_msg_handler handler not exists msg_id=%d", msg_id)
-		return
+		return g_msg_handler.transfer_msg(mailbox_id, msg_id, ext)
 	end
 
 	local flag, data = unpack_msg(msg_id)
 	if not flag then
-		Log.err("recv_msg_handler unpack_msg fail mailbox_id=%d msg_id=%d", mailbox_id, msg_id)
+		Log.err("recv_msg_handler unpack_msg fail mailbox_id=%d msg_name=%s", mailbox_id, msg_name)
 		return
 	end
 
 	if is_trust_msg(msg_id) then
 		local mailbox = Net.get_mailbox(mailbox_id)
 		if not mailbox then
-			Log.warn("recv_msg_handler mailbox nil mailbox_id=%d msg_id=%d", mailbox_id, msg_id)
+			Log.warn("recv_msg_handler mailbox nil mailbox_id=%d msg_name=%s", mailbox_id, msg_name)
 			return
 		end
 
 		if mailbox.conn_type ~= ConnType.TRUST then
-			Log.warn("recv_msg_handler mailbox untrust mailbox_id=%d msg_id=%d", mailbox_id, msg_id)
+			Log.warn("recv_msg_handler mailbox untrust mailbox_id=%d msg_name=%s", mailbox_id, msg_name)
 			return
 		end
 	end
