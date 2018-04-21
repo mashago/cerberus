@@ -17,6 +17,7 @@ extern "C"
 #include "luatinyxmlreg.h"
 #include "luamysqlmgrreg.h"
 #include "luatimerreg.h"
+#include "luautilreg.h"
 
 LuaWorld::LuaWorld() : m_L(nullptr), m_luanetwork(nullptr), m_connIndex(0)
 {
@@ -100,6 +101,7 @@ bool LuaWorld::CoreInit(int server_id, int server_type, const char *conf_file, c
 		{ "LuaTinyXMLDoc", luaopen_luatinyxmldoc },
 		{ "LuaTinyXMLEle", luaopen_luatinyxmlele },
 		{ "LuaMysqlMgr", luaopen_luamysqlmgr },
+		{ "LuaUtil", luaopen_luautil },
 		{ "lfs", luaopen_lfs },
 		{ NULL, NULL },
 	};

@@ -46,6 +46,9 @@ local function main_entry(xml_doc)
 	require "client.stdin_handler"
 
 	load_server_list(xml_doc)
+
+	-- local time_ms = LuaUtil:get_time_ms()
+	-- Log.debug("time_ms=%d", time_ms)
 end
 
 return main_entry
