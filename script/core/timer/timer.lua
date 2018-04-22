@@ -6,7 +6,7 @@ function Timer:ctor()
 end
 
 function Timer:add_timer(ms, cb_func, arg, is_loop)
-	local timer_index, ret = add_timer_c(ms, is_loop)
+	local timer_index, ret = LuaTimer:add_timer(ms, is_loop)
 	if not ret then
 		return false
 	end
@@ -20,7 +20,7 @@ function Timer:del_timer(timer_index)
 		return false
 	end
 	self._timer_index_map[timer_index] = nil
-	return del_timer_c(timer_index)
+	return LuaTimer:del_timer(timer_index)
 end
 
 function Timer:on_timer(timer_index, is_loop)

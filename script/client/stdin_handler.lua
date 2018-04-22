@@ -204,6 +204,12 @@ function cmd_handler.do_test(params)
 			table.insert(test3_timer_index_list, g_timer:add_timer(5 * 1000, timer_cb3, 0, true))
 
 		end,
+
+		[4] = function(last_params)
+
+			local time_ms = LuaUtil:get_time_ms()
+			Log.debug("time_ms=%d", time_ms)
+		end,
 	}
 
 	local func = switch[testn]

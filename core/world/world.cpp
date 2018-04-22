@@ -38,6 +38,10 @@ bool World::CoreInit(int server_id, int server_type, const char *conf_file, cons
 
 void World::Dispatch()
 {
+	if (m_isRunning)
+	{
+		return;
+	}
 	auto world_run = [](World *world)
 	{
 		while (world->m_isRunning)

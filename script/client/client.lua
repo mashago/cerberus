@@ -33,13 +33,13 @@ end
 function Client:x_test_start(num)
 	self.g_x_test_num = num
 	self.g_x_test_total_num = num
-	self.g_x_test_start_time = get_time_ms_c()
+	self.g_x_test_start_time = LuaUtil:get_time_ms()
 	self.g_x_test_total_time = 0
 	self.g_x_test_min_time = 0
 end
 
 function Client:x_test_end()
-	local time_ms = get_time_ms_c()
+	local time_ms = LuaUtil:get_time_ms()
 	if self.g_x_test_num > 0 then
 		self.g_x_test_num = self.g_x_test_num - 1
 		local time_ms_offset = time_ms - self.g_x_test_start_time

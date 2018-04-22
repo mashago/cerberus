@@ -32,10 +32,9 @@ public:
 	{
 		return m_timerMgr;
 	}
-	
-	bool m_isRunning;
 
 private:
+	bool m_isRunning;
 	EventPipe *m_net2worldPipe;
 	EventPipe *m_world2netPipe;
 	std::thread m_thread;

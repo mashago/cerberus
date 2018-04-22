@@ -26,7 +26,6 @@ public:
 	void SendPluto(Pluto *pu);
 	void CloseMailbox(int64_t mailboxId);
 	bool HttpRequest(const char *url, int64_t session_id, int request_type, const char *post_data, int post_data_len);
-	
 
 private:
 	virtual bool CoreInit(int server_id, int server_type, const char *conf_file, const char *entry_path) override;

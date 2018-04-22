@@ -3,4 +3,4 @@
 
 #include <lua.hpp>
 
-void reg_timer_funcs(lua_State *L);
+int luaopen_luatimer(lua_State *L);

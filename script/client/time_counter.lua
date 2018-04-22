@@ -7,11 +7,11 @@ function TimeCounter:ctor()
 end
 
 function TimeCounter:start()
-	self._start_time = get_time_ms_c()
+	self._start_time = LuaUtil:get_time_ms()
 end
 
 function TimeCounter:print()
-	local end_time = get_time_ms_c()
+	local end_time = LuaUtil:get_time_ms()
 	Log.debug("******* use time=%fms", end_time - self._start_time)
 end
 

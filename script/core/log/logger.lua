@@ -12,9 +12,9 @@ Log.LEVEL =
 local function log(level, format, ...)
 	local function log_handler(level, format, ...)
 		local str = string.format("%s", string.format(format,...))
-		logger_c(level, str)
+		LuaUtil:log(level, str)
 		if level == Log.LEVEL.ERROR then
-			logger_c(level, debug.traceback())
+			LuaUtil:log(level, debug.traceback())
 		end
 	end
 
@@ -23,7 +23,7 @@ local function log(level, format, ...)
 	, level, format, ...)
 
 	if not status then
-		logger_c(Log.LEVEL.ERROR, err_msg)
+		LuaUtil:log(Log.LEVEL.ERROR, err_msg)
 	end  
 end
 

@@ -28,51 +28,6 @@ LuaWorld::~LuaWorld()
 	delete m_luanetwork;
 }
 
-static int logger_c(lua_State *L)
-{
-	luaL_checktype(L, 1, LUA_TNUMBER);
-	luaL_checktype(L, 2, LUA_TSTRING);
-
-	int type = lua_tointeger(L, 1);
-	const char * str =  lua_tostring(L, 2);
-
-	switch (type)
-	{
-		case LOG_TYPE_DEBUG:
-		{
-			LOG_RAW_STRING(LOG_TYPE_DEBUG, __FILE__, __FUNCTION__, 0,  str);
-			break;
-		}
-		case LOG_TYPE_INFO:
-		{
-			LOG_RAW_STRING(LOG_TYPE_INFO, __FILE__, __FUNCTION__, 0, str);
-			break;
-		}
-		case LOG_TYPE_WARN:
-		{
-			LOG_RAW_STRING(LOG_TYPE_WARN, __FILE__, __FUNCTION__, 0, str);
-			break;
-		}
-		case LOG_TYPE_ERROR:
-		{
-			LOG_RAW_STRING(LOG_TYPE_ERROR, __FILE__, __FUNCTION__, 0, str);
-			break;
-		}
-	};
-	
-	return 0;
-}
-
-static int get_time_ms_c(lua_State *L)
-{
-	struct timeval tv;    
-	gettimeofday(&tv, NULL);
-	double time_ms = tv.tv_sec * 1000.0 + tv.tv_usec / 1000.0;
-	lua_pushnumber(L, time_ms);
-
-	return 1;
-}
-
 bool LuaWorld::CoreInit(int server_id, int server_type, const char *conf_file, const char *entry_path)
 {
 
@@ -101,6 +56,7 @@ bool LuaWorld::CoreInit(int server_id, int server_type, const char *conf_file, c
 		{ "LuaTinyXMLDoc", luaopen_luatinyxmldoc },
 		{ "LuaTinyXMLEle", luaopen_luatinyxmlele },
 		{ "LuaMysqlMgr", luaopen_luamysqlmgr },
+		{ "LuaTimer", luaopen_luatimer },
 		{ "LuaUtil", luaopen_luautil },
 		{ "lfs", luaopen_lfs },
 		{ NULL, NULL },
@@ -111,14 +67,6 @@ bool LuaWorld::CoreInit(int server_id, int server_type, const char *conf_file, c
 		luaL_requiref(m_L, libptr->name, libptr->func, 1);
 		lua_pop(m_L, 1);
 	}
-
-	// register timer function
-	reg_timer_funcs(m_L);
-
-	// register logger for lua
-	lua_register(m_L, "logger_c", logger_c);
-	lua_register(m_L, "get_time_ms_c", get_time_ms_c);
-	
 
 	// set global params
 	lua_pushinteger(m_L, server_id);

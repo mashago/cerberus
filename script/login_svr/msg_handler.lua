@@ -187,6 +187,7 @@ end
 
 ------------------------------------------------------------------
 
+local XXX_DEBUG_TEST_LOGINX = false
 function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 	Log.debug("c2s_user_login_req: data=%s", Util.table_to_string(data))
 
@@ -246,10 +247,14 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 		Net.send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 		return
 	end
-	--
 
 	local user_id = ret.user_id
 	Log.debug("c2s_user_login_req: user_id=%d", user_id)
+
+	if XXX_DEBUG_TEST_LOGINX then
+		Net.send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
+		return
+	end
 
 	local user = g_user_mgr:get_user_by_id(user_id)
 	if user then

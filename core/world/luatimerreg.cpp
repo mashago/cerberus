@@ -10,13 +10,13 @@ extern "C"
 #include "timermgr.h"
 #include "luaworld.h"
 
-int add_timer_c(lua_State *L)
+static int luatimer_add_timer(lua_State *L)
 {
-	luaL_checktype(L, 1, LUA_TNUMBER);
-	luaL_checktype(L, 2, LUA_TBOOLEAN);
+	luaL_checktype(L, 2, LUA_TNUMBER);
+	luaL_checktype(L, 3, LUA_TBOOLEAN);
 
-	int ms = (int)lua_tointeger(L, 1);
-	bool is_loop = (bool)lua_toboolean(L, 2);
+	int ms = (int)lua_tointeger(L, 2);
+	bool is_loop = (bool)lua_toboolean(L, 3);
 
 	lua_getglobal(L, "g_luaworld_ptr");
 	LuaWorld **ptr = (LuaWorld **)lua_touserdata(L, -1);
@@ -34,10 +34,10 @@ int add_timer_c(lua_State *L)
 	return 2;
 }
 
-int del_timer_c(lua_State *L)
+static int luatimer_del_timer(lua_State *L)
 {
-	luaL_checktype(L, 1, LUA_TNUMBER);
-	int64_t timer_index = lua_tointeger(L, 1);
+	luaL_checktype(L, 2, LUA_TNUMBER);
+	int64_t timer_index = lua_tointeger(L, 2);
 
 	lua_getglobal(L, "g_luaworld_ptr");
 	LuaWorld **ptr = (LuaWorld **)lua_touserdata(L, -1);
@@ -53,9 +53,16 @@ int del_timer_c(lua_State *L)
 	return 1;
 }
 
-void reg_timer_funcs(lua_State *L)
+static const luaL_Reg lua_reg_funcs[] =
 {
-	lua_register(L, "add_timer_c", add_timer_c);
-	lua_register(L, "del_timer_c", del_timer_c);
-}
+	{ "add_timer", luatimer_add_timer },
+	{ "del_timer", luatimer_del_timer },
+	{ NULL, NULL},
+};
 
+int luaopen_luatimer(lua_State *L)
+{
+	luaL_newlib(L, lua_reg_funcs);
+
+	return 1;
+}
