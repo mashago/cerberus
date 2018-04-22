@@ -145,3 +145,4 @@ end
 function g_msg_handler.s2c_role_kick(data, mailbox_id, msg_id)
 	g_service_mgr:close_connection_by_type(ServerType.GATE, true)
 end
+

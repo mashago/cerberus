@@ -46,7 +46,7 @@ local global_objects = {
     xpcall,
 }
 
-function M.check()
+function M.check(startup_time)
     local MOD_NAME = "hotfix.helper.hotfix_module_names"
     if not package.searchpath(MOD_NAME, package.path) then return end
     package.loaded[MOD_NAME] = nil
@@ -62,6 +62,7 @@ function M.check()
         end
 
         local file_time = lfs.attributes (path, "modification")
+		if file_time < startup_time then goto continue end
         if file_time == path_to_time[path] then goto continue end
 
         -- print(string.format("Hot fix module %s (%s)", module_name, path))
