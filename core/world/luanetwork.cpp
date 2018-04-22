@@ -40,6 +40,14 @@ bool LuaNetwork::Transfer()
 {
 	// copy recv pluto data to send pluto
 	m_sendPluto->Copy(m_recvPluto);
+
+	// TODO just clone from recv pluto and copy header from send pluto
+	// Pluto *pu = m_recvPluto->Clone();
+	// pu->SetMailboxId(mailboxId);
+	// pu->WriteExt(m_sendPluto->ReadExt());
+	// m_world->SendPluto(pu);
+	// ResetSendPluto();
+
 	return true;
 }
 

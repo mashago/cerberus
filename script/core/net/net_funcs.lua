@@ -35,6 +35,15 @@ function Net.transfer_msg(mailbox_id, ext)
 		g_network:write_ext(ext)
 	end
 	return g_network:send(mailbox_id)
+
+
+	-- TODO
+	--[[
+	if ext then
+		g_network:write_ext(ext)
+	end
+	return g_network:transfer()
+	--]]
 end
 
 function Net.add_mailbox(mailbox_id, ip, port)
