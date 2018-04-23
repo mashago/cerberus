@@ -339,7 +339,7 @@ int luanetwork_clear_write(lua_State* L)
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
 	luaL_argcheck(L, s != NULL, 1, "invalid user data");
 
-	(*s)->ResetSendPluto();
+	(*s)->GetSendPluto()->Cleanup();
 
 	lua_pushboolean(L, true);
 
@@ -365,7 +365,9 @@ int luanetwork_transfer(lua_State* L)
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
 	luaL_argcheck(L, s != NULL, 1, "invalid user data");
 
-	bool ret = (*s)->Transfer();
+	luaL_checktype(L, 2, LUA_TNUMBER);
+
+	bool ret = (*s)->Transfer((int64_t)lua_tonumber(L, 2));
 
 	lua_pushboolean(L, ret);
 

@@ -140,6 +140,8 @@ function g_msg_handler.s2c_attr_modify_ret(data, mailbox_id, msg_id)
 		g_role:update_data(data.rows[1].attrs)
 		g_role:print()
 	end
+
+	g_client:x_test_end()
 end
 
 function g_msg_handler.s2c_role_kick(data, mailbox_id, msg_id)

@@ -436,16 +436,16 @@ int NetService::SocketReadMessage(struct bufferevent *bev)
 	{
 		// no pluto in mailbox
 
-		if (input_len < MSGLEN_HEAD)
+		if (input_len < MSGLEN_SIZE)
 		{
-			// data less then msg head
+			// data less then msg size
 			return READ_MSG_WAIT;
 		}
 
 		// get msg head len
-		char head[MSGLEN_HEAD];
-		nLen= evbuffer_copyout(input, head, MSGLEN_HEAD);
-		if (nLen < MSGLEN_HEAD)
+		char head[MSGLEN_SIZE];
+		nLen= evbuffer_copyout(input, head, MSGLEN_SIZE);
+		if (nLen < MSGLEN_SIZE)
 		{
 			return READ_MSG_WAIT;
 		}
@@ -469,11 +469,11 @@ int NetService::SocketReadMessage(struct bufferevent *bev)
 
 		// copy msghead to buffer
 		buffer = pu->GetBuffer();
-		memcpy(buffer, head, MSGLEN_HEAD);
-		buffer += MSGLEN_HEAD;
+		memcpy(buffer, head, MSGLEN_SIZE);
+		buffer += MSGLEN_SIZE;
 
-		pu->SetRecvLen(MSGLEN_HEAD);
-		nWanted = msgLen - MSGLEN_HEAD;
+		pu->SetRecvLen(MSGLEN_SIZE);
+		nWanted = msgLen - MSGLEN_SIZE;
 	}
 
 	else

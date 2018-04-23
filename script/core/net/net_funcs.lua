@@ -30,20 +30,10 @@ end
 function Net.transfer_msg(mailbox_id, ext)
 	-- Log.debug("Net.transfer_msg msgdef mailbox_id=%d ext=%d", mailbox_id, ext or 0)
 
-	g_network:transfer()
 	if ext then
 		g_network:write_ext(ext)
 	end
-	return g_network:send(mailbox_id)
-
-
-	-- TODO
-	--[[
-	if ext then
-		g_network:write_ext(ext)
-	end
-	return g_network:transfer()
-	--]]
+	return g_network:transfer(mailbox_id)
 end
 
 function Net.add_mailbox(mailbox_id, ip, port)

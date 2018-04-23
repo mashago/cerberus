@@ -61,7 +61,12 @@ function cmd_handler.execute(buffer)
 		params = {}
 		cmd_handler.do_enter(params)
 	elseif cmd == "7" then
+		params = {"pos_x", "123", "pos_y", "456"}
+		cmd_handler.do_attr_change(params)
 	elseif cmd == "8" then
+		local num_str = params[1] or "1"
+		params = {num_str, "pos_x", "123", "pos_y", "456"}
+		cmd_handler.do_attr_changex(params)
 	
 	elseif cmd == "pserver" then
 		cmd_handler.do_print_server_list(params)
@@ -95,6 +100,8 @@ function cmd_handler.execute(buffer)
 
 	elseif cmd == "attr" then
 		cmd_handler.do_attr_change(params)
+	elseif cmd == "attrx" then
+		cmd_handler.do_attr_changex(params)
 	elseif cmd == "roleprint" then
 		cmd_handler.do_role_print(params)
 
@@ -594,6 +601,51 @@ function cmd_handler.do_attr_change(params)
 	}
 
 	g_client:send_to_gate(MID.c2s_role_attr_change_req, msg)
+	g_client:x_test_start(1)
+end
+
+-- [num] [attr_name] [value]
+function cmd_handler.do_attr_changex(params)
+	if #params < 3 then
+		Log.warn("cmd_handler.do_attr_changex params not enough")
+		return
+	end
+
+	Log.debug("do_attr_changex params=%s", Util.table_to_string(params))
+	local num = tonumber(params[1]) or 1
+
+	local out_attr_table = g_funcs.get_empty_attr_table()
+	local table_def = DataStructDef.data.role_info
+
+	for n=2, math.huge, 2 do
+		local attr_name = params[n]
+		local attr_str = params[n+1]
+		if not attr_name or not attr_str then
+			break
+		end
+		local field_def = table_def[attr_name]
+		if not field_def then
+			break
+		end
+		local value = g_funcs.str_to_value(attr_str, field_def.type)
+		if value == nil then
+			Log.warn("cmd_handler.do_attr_changex attr convert fail %s %s", attr_name, attr_str)
+			break
+		end
+		g_funcs.set_attr_table(out_attr_table, table_def, attr_name, value)
+	end
+
+	Log.debug("cmd_handler.do_attr_changex out_attr_table=%s", Util.table_to_string(out_attr_table))
+
+	for i = 1, num do
+		local msg =
+		{
+			attr_table = out_attr_table,
+		}
+
+		g_client:send_to_gate(MID.c2s_role_attr_change_req, msg)
+	end
+	g_client:x_test_start(1)
 end
 
 function cmd_handler.do_role_print(params)

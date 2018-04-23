@@ -19,11 +19,6 @@ int64_t LuaNetwork::ConnectTo(const char* ip, unsigned int port)
 	return m_world->ConnectTo(ip, port);
 }
 
-void LuaNetwork::ResetSendPluto()
-{
-	m_sendPluto->ResetCursor();
-}
-
 bool LuaNetwork::Send(int64_t mailboxId)
 {
 	// no need to check pluto size, if over size, write will not success
@@ -31,22 +26,19 @@ bool LuaNetwork::Send(int64_t mailboxId)
 	Pluto *pu = m_sendPluto->Clone();
 	pu->SetMailboxId(mailboxId);
 	m_world->SendPluto(pu);
-	ResetSendPluto();
+	m_sendPluto->Cleanup();
 
 	return true;
 }
 
-bool LuaNetwork::Transfer()
+bool LuaNetwork::Transfer(int64_t mailboxId)
 {
-	// copy recv pluto data to send pluto
-	m_sendPluto->Copy(m_recvPluto);
-
-	// TODO just clone from recv pluto and copy header from send pluto
-	// Pluto *pu = m_recvPluto->Clone();
-	// pu->SetMailboxId(mailboxId);
-	// pu->WriteExt(m_sendPluto->ReadExt());
-	// m_world->SendPluto(pu);
-	// ResetSendPluto();
+	// just clone from recv pluto and copy ext from send pluto
+	Pluto *pu = m_recvPluto->Clone();
+	pu->SetMailboxId(mailboxId);
+	pu->WriteExt(m_sendPluto->ReadExt());
+	m_world->SendPluto(pu);
+	m_sendPluto->Cleanup();
 
 	return true;
 }

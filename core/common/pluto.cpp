@@ -14,7 +14,7 @@
 Pluto::Pluto(int bufferSize) : m_buffer(nullptr), m_cursor(nullptr), m_bufferSize(bufferSize), m_recvLen(0)
 {
 	m_buffer = new char[m_bufferSize];
-	m_cursor = m_buffer + MSGLEN_TEXT_POS;
+	m_cursor = m_buffer + MSGLEN_CONTENT_POS;
 }
 
 Pluto::~Pluto()
@@ -46,29 +46,35 @@ char * Pluto::GetBuffer()
 
 char * Pluto::GetContent()
 {
-	return m_buffer + MSGLEN_TEXT_POS;
+	return m_buffer + MSGLEN_CONTENT_POS;
 }
 
 int Pluto::GetContentLen()
 {
-	return GetMsgLen() - MSGLEN_TEXT_POS;
+	return GetMsgLen() - MSGLEN_CONTENT_POS;
 }
 
 void Pluto::ResetCursor()
 {
-	m_cursor = m_buffer + MSGLEN_TEXT_POS;
+	m_cursor = m_buffer + MSGLEN_CONTENT_POS;
+}
+
+void Pluto::Cleanup()
+{
+	ResetCursor();
+	memset(m_buffer, 0, MSGLEN_HEADER);
 }
 
 //////////////////////////////////////////////
 
 void Pluto::WriteMsgId(int msgId)
 {
-	*(int *)(m_buffer+MSGLEN_HEAD) = msgId;
+	*(int *)(m_buffer+MSGLEN_SIZE) = msgId;
 }
 
 void Pluto::WriteExt(int ext)
 {
-	*(int *)(m_buffer+MSGLEN_HEAD+MSGLEN_MSGID) = ext;
+	*(int *)(m_buffer+MSGLEN_SIZE+MSGLEN_MSGID) = ext;
 }
 
 #define write_val(val, ret) \
@@ -144,12 +150,12 @@ bool Pluto::WriteString(int len, const char* str)
 
 int Pluto::ReadMsgId()
 {
-	return *(int *)(m_buffer + MSGLEN_HEAD);
+	return *(int *)(m_buffer + MSGLEN_SIZE);
 }
 
 int Pluto::ReadExt()
 {
-	return *(int *)(m_buffer + MSGLEN_HEAD + MSGLEN_MSGID);
+	return *(int *)(m_buffer + MSGLEN_SIZE + MSGLEN_MSGID);
 }
 
 #define read_val(out_val, ret) \
@@ -246,3 +252,4 @@ void Pluto::Copy(const Pluto *pu)
 	memcpy(m_buffer, buffer, len);
 	m_cursor = m_buffer + len; // update m_cursor pos to buffer end, for SetMsgLen right
 }
+

@@ -46,6 +46,7 @@ public:
 	}
 
 	void ResetCursor();
+	void Cleanup();
 
 	void WriteMsgId(int msgId);
 	void WriteExt(int ext);

@@ -12,10 +12,8 @@ public:
 	~LuaNetwork();
 
 	int64_t ConnectTo(const char* ip, unsigned int port); // return mailboxId or negative
-	void ResetSendPluto();
-
 	bool Send(int64_t mailboxId);
-	bool Transfer();
+	bool Transfer(int64_t mailboxId);
 
 	void SetRecvPluto(Pluto *pu);
 
