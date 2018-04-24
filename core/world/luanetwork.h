@@ -11,11 +11,10 @@ public:
 	LuaNetwork(LuaWorld *world);
 	~LuaNetwork();
 
+	void SetRecvPluto(Pluto *pu);
 	int64_t ConnectTo(const char* ip, unsigned int port); // return mailboxId or negative
 	bool Send(int64_t mailboxId);
 	bool Transfer(int64_t mailboxId);
-
-	void SetRecvPluto(Pluto *pu);
 
 	void CloseMailbox(int64_t mailboxId);
 

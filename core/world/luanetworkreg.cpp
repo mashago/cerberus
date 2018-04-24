@@ -139,10 +139,10 @@ int luanetwork_write_string(lua_State* L)
 }
 
 
-#define write_table_len(count) \
+#define write_table_len(len) \
 do { \
-count = (int)luaL_len(L, 2); \
-bool ret = (*s)->GetSendPluto()->WriteInt(count); \
+len = (int)luaL_len(L, 2); \
+bool ret = (*s)->GetSendPluto()->WriteInt(len); \
 if (!ret) \
 { \
 	lua_pushboolean(L, ret); \
@@ -157,10 +157,10 @@ int luanetwork_write_byte_array(lua_State* L)
 
 	luaL_checktype(L, 2, LUA_TTABLE);
 
-	int count = 0;
-	write_table_len(count);
+	int len = 0;
+	write_table_len(len);
 
-	for (int i = 1; i <= count; ++i)
+	for (int i = 1; i <= len; ++i)
 	{
 		lua_pushinteger(L,i);
 		lua_rawget(L, 2);
@@ -184,10 +184,10 @@ int luanetwork_write_int_array(lua_State* L)
 
 	luaL_checktype(L, 2, LUA_TTABLE);
 
-	int count = 0;
-	write_table_len(count);
+	int len = 0;
+	write_table_len(len);
 
-	for (int i = 1; i <= count; ++i)
+	for (int i = 1; i <= len; ++i)
 	{
 		lua_pushinteger(L, i);
 		lua_rawget(L, 2);
@@ -211,10 +211,10 @@ int luanetwork_write_float_array(lua_State* L)
 
 	luaL_checktype(L, 2, LUA_TTABLE);
 
-	int count = 0;
-	write_table_len(count);
+	int len = 0;
+	write_table_len(len);
 
-	for (int i = 1; i <= count; ++i){
+	for (int i = 1; i <= len; ++i){
 		lua_pushinteger(L, i);
 		lua_rawget(L, 2);
 		bool ret = (*s)->GetSendPluto()->WriteFloat((float)lua_tonumber(L,-1));
@@ -237,10 +237,10 @@ int luanetwork_write_bool_array(lua_State* L)
 
 	luaL_checktype(L, 2, LUA_TTABLE);
 
-	int count = 0;
-	write_table_len(count);
+	int len = 0;
+	write_table_len(len);
 
-	for (int i = 1; i <= count; ++i){
+	for (int i = 1; i <= len; ++i){
 		lua_pushinteger(L, i);
 		lua_rawget(L, 2);
 		bool ret = (*s)->GetSendPluto()->WriteBool(lua_toboolean(L, -1) != 0);
@@ -263,10 +263,10 @@ int luanetwork_write_short_array(lua_State* L)
 
 	luaL_checktype(L, 2, LUA_TTABLE);
 
-	int count = 0;
-	write_table_len(count);
+	int len = 0;
+	write_table_len(len);
 
-	for (int i = 1; i <= count; ++i){
+	for (int i = 1; i <= len; ++i){
 		lua_pushinteger(L, i);
 		lua_rawget(L, 2);
 		bool ret = (*s)->GetSendPluto()->WriteShort((short)lua_tointeger(L, -1));
@@ -289,10 +289,10 @@ int luanetwork_write_int64_array(lua_State* L)
 
 	luaL_checktype(L, 2, LUA_TTABLE);
 
-	int count = 0;
-	write_table_len(count);
+	int len = 0;
+	write_table_len(len);
 
-	for (int i = 1; i <= count; ++i){
+	for (int i = 1; i <= len; ++i){
 		lua_pushinteger(L, i);
 		lua_rawget(L, 2);
 		bool ret = (*s)->GetSendPluto()->WriteInt64(lua_tointeger(L, -1));
@@ -315,10 +315,10 @@ int luanetwork_write_string_array(lua_State* L)
 
 	luaL_checktype(L, 2, LUA_TTABLE);
 
-	int count = 0;
-	write_table_len(count);
+	int len = 0;
+	write_table_len(len);
 
-	for (int i = 1; i <= count; ++i){
+	for (int i = 1; i <= len; ++i){
 		lua_pushinteger(L, i);
 		lua_rawget(L, 2);
 		bool ret = (*s)->GetSendPluto()->WriteString((int)luaL_len(L, -1), lua_tostring(L, -1));
@@ -506,8 +506,8 @@ int luanetwork_read_byte_array(lua_State* L)
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
 	luaL_argcheck(L, s != NULL, 1, "invalid user data");
 
-	int count = 0;
-	bool ret = (*s)->GetRecvPluto()->ReadInt(count);
+	int len = 0;
+	bool ret = (*s)->GetRecvPluto()->ReadInt(len);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -516,7 +516,7 @@ int luanetwork_read_byte_array(lua_State* L)
 
 	lua_newtable(L);
 
-	for (int i = 1; i <= count; ++i){
+	for (int i = 1; i <= len; ++i){
 		char out_val = 0;
 		bool ret = (*s)->GetRecvPluto()->ReadByte(out_val);
 		if (!ret)
@@ -542,8 +542,8 @@ int luanetwork_read_int_array(lua_State* L)
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
 	luaL_argcheck(L, s != NULL, 1, "invalid user data");
 
-	int count = 0;
-	bool ret = (*s)->GetRecvPluto()->ReadInt(count);
+	int len = 0;
+	bool ret = (*s)->GetRecvPluto()->ReadInt(len);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -552,7 +552,7 @@ int luanetwork_read_int_array(lua_State* L)
 
 	lua_newtable(L);
 
-	for (int i = 1; i <= count; ++i){
+	for (int i = 1; i <= len; ++i){
 		int out_val = 0;
 		bool ret = (*s)->GetRecvPluto()->ReadInt(out_val);
 		if (!ret)
@@ -578,8 +578,8 @@ int luanetwork_read_float_array(lua_State* L)
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
 	luaL_argcheck(L, s != NULL, 1, "invalid user data");
 
-	int count = 0;
-	bool ret = (*s)->GetRecvPluto()->ReadInt(count);
+	int len = 0;
+	bool ret = (*s)->GetRecvPluto()->ReadInt(len);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -588,7 +588,7 @@ int luanetwork_read_float_array(lua_State* L)
 
 	lua_newtable(L);
 
-	for (int i = 1; i <= count; ++i){
+	for (int i = 1; i <= len; ++i){
 		float out_val = 0;
 		bool ret = (*s)->GetRecvPluto()->ReadFloat(out_val);
 		if (!ret)
@@ -614,8 +614,8 @@ int luanetwork_read_bool_array(lua_State* L)
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
 	luaL_argcheck(L, s != NULL, 1, "invalid user data");
 
-	int count = 0;
-	bool ret = (*s)->GetRecvPluto()->ReadInt(count);
+	int len = 0;
+	bool ret = (*s)->GetRecvPluto()->ReadInt(len);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -624,7 +624,7 @@ int luanetwork_read_bool_array(lua_State* L)
 
 	lua_newtable(L);
 
-	for (int i = 1; i <= count; ++i){
+	for (int i = 1; i <= len; ++i){
 		bool out_val = 0;
 		bool ret = (*s)->GetRecvPluto()->ReadBool(out_val);
 		if (!ret)
@@ -650,8 +650,8 @@ int luanetwork_read_int64_array(lua_State* L)
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
 	luaL_argcheck(L, s != NULL, 1, "invalid user data");
 
-	int count = 0;
-	bool ret = (*s)->GetRecvPluto()->ReadInt(count);
+	int len = 0;
+	bool ret = (*s)->GetRecvPluto()->ReadInt(len);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -660,7 +660,7 @@ int luanetwork_read_int64_array(lua_State* L)
 
 	lua_newtable(L);
 
-	for (int i = 1; i <= count; ++i){
+	for (int i = 1; i <= len; ++i){
 		int64_t out_val = 0;
 		bool ret = (*s)->GetRecvPluto()->ReadInt64(out_val);
 		if (!ret)
@@ -686,8 +686,8 @@ int luanetwork_read_short_array(lua_State* L)
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
 	luaL_argcheck(L, s != NULL, 1, "invalid user data");
 
-	int count = 0;
-	bool ret = (*s)->GetRecvPluto()->ReadInt(count);
+	int len = 0;
+	bool ret = (*s)->GetRecvPluto()->ReadInt(len);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -696,7 +696,7 @@ int luanetwork_read_short_array(lua_State* L)
 
 	lua_newtable(L);
 
-	for (int i = 1; i <= count; ++i){
+	for (int i = 1; i <= len; ++i){
 		short out_val = 0;
 		bool ret = (*s)->GetRecvPluto()->ReadShort(out_val);
 		if (!ret)
@@ -722,8 +722,8 @@ int luanetwork_read_string_array(lua_State* L)
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
 	luaL_argcheck(L, s != NULL, 1, "invalid user data");
 
-	int count = 0;
-	bool ret = (*s)->GetRecvPluto()->ReadInt(count);
+	int len = 0;
+	bool ret = (*s)->GetRecvPluto()->ReadInt(len);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -732,7 +732,7 @@ int luanetwork_read_string_array(lua_State* L)
 
 	lua_newtable(L);
 
-	for (int i = 1; i <= count; ++i){
+	for (int i = 1; i <= len; ++i){
 		int out_len = 0;
 		char out_val[MSGLEN_MAX+1] = {};
 		bool ret = (*s)->GetRecvPluto()->ReadString(out_len, out_val);

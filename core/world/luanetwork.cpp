@@ -14,6 +14,11 @@ LuaNetwork::~LuaNetwork()
 	delete m_sendPluto;
 }
 
+void LuaNetwork::SetRecvPluto(Pluto *pu)
+{
+	m_recvPluto = pu;
+}
+
 int64_t LuaNetwork::ConnectTo(const char* ip, unsigned int port)
 {
 	return m_world->ConnectTo(ip, port);
@@ -41,11 +46,6 @@ bool LuaNetwork::Transfer(int64_t mailboxId)
 	m_sendPluto->Cleanup();
 
 	return true;
-}
-
-void LuaNetwork::SetRecvPluto(Pluto *pu)
-{
-	m_recvPluto = pu;
 }
 
 void LuaNetwork::CloseMailbox(int64_t mailboxId)
