@@ -7,7 +7,7 @@
 #include "event_pipe.h"
 #include "timermgr.h"
 
-World::World() : m_isRunning(false), m_timerMgr(nullptr), m_net2worldPipe(nullptr), m_world2netPipe(nullptr)
+World::World() : m_isRunning(false), m_net2worldPipe(nullptr), m_world2netPipe(nullptr), m_timerMgr(nullptr)
 {
 	m_timerMgr = new TimerMgr();
 }

@@ -973,7 +973,7 @@ static void stdin_cb(evutil_socket_t fd, short event, void *user_data)
 
 	if (!bSuccess)
 	{
-		delete ptr;
+		delete [] ptr;
 		return;
 	}
 

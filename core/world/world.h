@@ -37,8 +37,8 @@ private:
 	bool m_isRunning;
 	EventPipe *m_net2worldPipe;
 	EventPipe *m_world2netPipe;
-	std::thread m_thread;
 	TimerMgr *m_timerMgr;
+	std::thread m_thread;
 
 	void SetEventPipe(EventPipe *net2worldPipe, EventPipe *world2netPipe);
 	virtual bool CoreInit(int server_id, int server_type, const char *conf_file, const char * entry_path);
