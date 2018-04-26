@@ -353,7 +353,7 @@ int luanetwork_send(lua_State* L)
 
 	luaL_checktype(L, 2, LUA_TNUMBER);
 
-	bool ret = (*s)->Send((int64_t)lua_tonumber(L, 2));
+	bool ret = (*s)->Send(lua_tointeger(L, 2));
 
 	lua_pushboolean(L, ret);
 
@@ -367,7 +367,7 @@ int luanetwork_transfer(lua_State* L)
 
 	luaL_checktype(L, 2, LUA_TNUMBER);
 
-	bool ret = (*s)->Transfer((int64_t)lua_tonumber(L, 2));
+	bool ret = (*s)->Transfer(lua_tointeger(L, 2));
 
 	lua_pushboolean(L, ret);
 
@@ -392,8 +392,7 @@ int luanetwork_read_ext(lua_State* L)
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
 	luaL_argcheck(L, s != NULL, 1, "invalid user data");
 
-	int ext = (*s)->GetRecvPluto()->ReadExt();
-	lua_pushinteger(L, ext);
+	lua_pushinteger(L, (*s)->GetRecvPluto()->ReadExt());
 
 	return 1;
 }
@@ -781,7 +780,7 @@ int luanetwork_close_mailbox(lua_State* L)
 
 	luaL_checktype(L, 2, LUA_TNUMBER);
 
-	int64_t mailboxId = (int64_t)lua_tonumber(L, 2);
+	int64_t mailboxId = lua_tointeger(L, 2);
 
 	(*s)->CloseMailbox(mailboxId);
 
@@ -801,7 +800,7 @@ int luanetwork_http_request(lua_State* L)
 	luaL_checktype(L, 6, LUA_TNUMBER);
 
 	const char *url = lua_tostring(L, 2);
-	int64_t session_id = (int64_t)lua_tonumber(L, 3);
+	int64_t session_id = lua_tointeger(L, 3);
 	int request_type = lua_tointeger(L, 4);
 	const char *post_data = lua_tostring(L, 5);
 	int post_data_len = lua_tointeger(L, 6);

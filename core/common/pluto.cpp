@@ -72,9 +72,9 @@ void Pluto::WriteMsgId(int msgId)
 	*(int *)(m_buffer+MSGLEN_SIZE) = msgId;
 }
 
-void Pluto::WriteExt(int ext)
+void Pluto::WriteExt(int64_t ext)
 {
-	*(int *)(m_buffer+MSGLEN_SIZE+MSGLEN_MSGID) = ext;
+	*(int64_t *)(m_buffer+MSGLEN_SIZE+MSGLEN_MSGID) = ext;
 }
 
 #define write_val(val, ret) \
@@ -153,9 +153,9 @@ int Pluto::ReadMsgId()
 	return *(int *)(m_buffer + MSGLEN_SIZE);
 }
 
-int Pluto::ReadExt()
+int64_t Pluto::ReadExt()
 {
-	return *(int *)(m_buffer + MSGLEN_SIZE + MSGLEN_MSGID);
+	return *(int64_t *)(m_buffer + MSGLEN_SIZE + MSGLEN_MSGID);
 }
 
 #define read_val(out_val, ret) \

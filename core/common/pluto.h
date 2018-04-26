@@ -49,7 +49,7 @@ public:
 	void Cleanup();
 
 	void WriteMsgId(int msgId);
-	void WriteExt(int ext);
+	void WriteExt(int64_t ext);
 	bool WriteByte(char val);
 	bool WriteInt(int val);
 	bool WriteFloat(float val);
@@ -59,7 +59,7 @@ public:
 	bool WriteString(int len, const char* str);
 
 	int  ReadMsgId();
-	int  ReadExt();
+	int64_t  ReadExt();
 	bool ReadByte(char &out_val);
 	bool ReadInt(int &out_val);
 	bool ReadFloat(float &out_val);
