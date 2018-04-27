@@ -1,6 +1,6 @@
-## MassNet
+## OpenGS
 
-MassNet is a simple game server framework, build by C++ and lua, config use xml.
+OpenGS is an open source, cross platform online game server, developed in C++ and lua, and can run on windows, macos, linux.
 
 ## Topology
 
@@ -29,6 +29,7 @@ copy libmysql.dll to $PROJECT_DIR/bin when build as debug project in win64.
 `cmake .`
 
 ## Run
+run on centos or macos
 1. build db
 `cd conf`
 `mysql -uroot -p < conf/db_login_init.sql`
