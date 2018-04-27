@@ -5,12 +5,12 @@ OpenGS is an open source, cross platform online game server, developed in C++ an
 ## Topology
 
 Main framework:  
-![main](pictures/MassNet-main.png)
+![main](pictures/opengs-main.png)
 In the Server Pack, every server connect to other server directly.  
 
 
 Server core:  
-![core](pictures/MassNet-core.png)
+![core](pictures/opengs-core.png)
 
 ## Depend
 
