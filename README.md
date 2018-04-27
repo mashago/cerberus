@@ -42,7 +42,7 @@ run on centos or macos
 `./run_client.sh`
 
 ## Test
-In MassNetClient, enter 'help'.
+In opengs_client, enter 'help'.
 
 
 

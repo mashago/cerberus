@@ -6,7 +6,7 @@
 #6.set output path
 
 #1.define target
-SET(TARGET_NAME MassNetServer)
+SET(TARGET_NAME opengs_server)
 
 #2.include and lib
 INCLUDE_DIRECTORIES(

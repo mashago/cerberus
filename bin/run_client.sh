@@ -1,4 +1,4 @@
 #!/bin/bash
 
 echo "Start Lua Client..."
-./MassNetClient ../conf/client_conf.xml
+./opengs_client ../conf/client_conf.xml
