@@ -2,7 +2,7 @@
 g_funcs = {}
 
 function g_funcs.debug_timer_cb()
-	Log.debug("********* g_funcs.debug_timer_cb")
+	-- Log.debug("********* g_funcs.debug_timer_cb")
 	-- g_rpc_mgr:print()
 	-- local count = collectgarbage("count")
 	-- Log.debug("mem count=%f", count)
