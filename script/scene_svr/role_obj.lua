@@ -70,7 +70,7 @@ function Role:force_save()
 	end
 	g_timer:del_timer(timer_index)
 	self._db_save_timer_index = 0
-	role:save_dirty()
+	self:save_dirty()
 end
 
 function Role:on_disconnect()
