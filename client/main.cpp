@@ -57,6 +57,7 @@ int main(int argc, char ** argv)
 	if (!world->Init(0, 0, conf_file, entry_path, net2worldPipe, world2netPipe))
 	{
 		printf("world init error\n");
+		getchar();
 		return 0;
 	}
 	world->Dispatch();
@@ -65,6 +66,7 @@ int main(int argc, char ** argv)
 	if (!net->Init("", 0, false, net2worldPipe, world2netPipe))
 	{
 		printf("net service init error\n");
+		getchar();
 		return 0;
 	}
 	net->Dispatch();

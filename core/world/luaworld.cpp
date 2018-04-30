@@ -92,7 +92,7 @@ bool LuaWorld::CoreInit(int server_id, int server_type, const char *conf_file, c
 		lua_setglobal(m_L, "g_luanetwork_ptr");
 	}
 
-	if (luaL_dofile(m_L, "../script/main.lua"))
+	if (luaL_dofile(m_L, "script/main.lua"))
 	{
 		const char * msg = lua_tostring(m_L, -1);
 		LOG_ERROR("msg=%s", msg);

@@ -1,5 +1,5 @@
 
-package.path = package.path .. ";../script/?.lua"
+package.path = package.path .. ";script/?.lua"
 
 require "core.init"
 
