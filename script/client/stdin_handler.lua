@@ -64,9 +64,8 @@ function cmd_handler.execute(buffer)
 		params = {"pos_x", "123", "pos_y", "456"}
 		cmd_handler.do_attr_change(params)
 	elseif cmd == "8" then
-		local num_str = params[1] or "1"
-		params = {num_str, "pos_x", "123", "pos_y", "456"}
-		cmd_handler.do_attr_changex(params)
+		params = {}
+		cmd_handler.do_loop_random_attr_change(params)
 	
 	elseif cmd == "pserver" then
 		cmd_handler.do_print_server_list(params)
@@ -102,6 +101,11 @@ function cmd_handler.execute(buffer)
 		cmd_handler.do_attr_change(params)
 	elseif cmd == "attrx" then
 		cmd_handler.do_attr_changex(params)
+	elseif cmd == "randomattr" then
+		cmd_handler.do_random_attr_change(params)
+	elseif cmd == "looprandomattr" then
+		cmd_handler.do_loop_random_attr_change(params)
+
 	elseif cmd == "roleprint" then
 		cmd_handler.do_role_print(params)
 
@@ -646,6 +650,14 @@ function cmd_handler.do_attr_changex(params)
 		g_client:send_to_gate(MID.c2s_role_attr_change_req, msg)
 	end
 	g_client:x_test_start(1)
+end
+
+function cmd_handler.do_random_attr_change(params)
+	g_client:random_change_attr()
+end
+
+function cmd_handler.do_loop_random_attr_change(params)
+	g_client:loop_random_change_attr()
 end
 
 function cmd_handler.do_role_print(params)

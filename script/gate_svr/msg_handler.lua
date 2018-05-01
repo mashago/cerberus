@@ -157,10 +157,12 @@ function g_msg_handler.transfer_msg(mailbox_id, msg_id, ext)
 	local user = g_user_mgr:get_user_by_role_id(role_id)
 	if not user then
 		-- user nil 
+		Log.warn("g_msg_handler.transfer_msg user nil role_id=%d", role_id)
 		return
 	end
 
 	if not user:is_online() then
+		Log.warn("g_msg_handler.transfer_msg user not online role_id=%d", role_id)
 		return
 	end
 
