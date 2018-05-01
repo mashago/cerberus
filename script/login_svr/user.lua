@@ -195,6 +195,21 @@ end
 
 ---------------------------------------------
 
+function User:send_role_list()
+	local msg =
+	{
+		result = ErrorCode.SUCCESS,
+		area_role_list = {},
+	}
+	for area_id, role_list in pairs(self._role_map) do
+		local node = {}
+		node.area_id = area_id
+		node.role_list = role_list
+		table.insert(msg.area_role_list, node)
+	end
+	self:send_msg(MID.s2c_role_list_ret, msg)
+end
+
 function User:get_role_list()
 	if self._lock_get_role_list then
 		return
@@ -206,18 +221,8 @@ function User:get_role_list()
 		area_role_list = {},
 	}
 
-	local function send_role_list()
-		for area_id, role_list in pairs(self._role_map) do
-			local node = {}
-			node.area_id = area_id
-			node.role_list = role_list
-			table.insert(msg.area_role_list, node)
-		end
-		self:send_msg(MID.s2c_role_list_ret, msg)
-	end
-
 	if self._role_map then
-		send_role_list()
+		self:send_role_list()
 		return
 	end
 
@@ -246,7 +251,7 @@ function User:get_role_list()
 		return
 	end
 
-	send_role_list()
+	self:send_role_list()
 end
 
 function User:create_role(area_id, role_name)
@@ -294,6 +299,9 @@ function User:create_role(area_id, role_name)
 		msg.result = err
 	end
 	self:send_msg(MID.s2c_create_role_ret, msg)
+	if not err then
+		self:send_role_list()
+	end
 end
 
 function User:delete_role(area_id, role_id)

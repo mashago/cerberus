@@ -403,6 +403,28 @@ function g_funcs.get_msg_name(msg_id)
 	return MID._id_name_map[msg_id] or "NIL_MSG"
 end
 
+function g_funcs.gen_random_name()
+	math.randomseed(LuaUtil:get_time_ms())
+	local ascii_table = {}
+	for i=48, 57 do
+		table.insert(ascii_table, i)
+	end
+	for i=97, 122 do
+		table.insert(ascii_table, i)
+	end
+
+	local name = ""
+	local name_len = 10
+	for i=1, name_len do
+		local r = math.random(1, #ascii_table)
+		local n = ascii_table[r]
+		local c = string.char(n)
+		name = name .. c
+	end
+
+	return name
+end
+
 ----------------
 
 return g_funcs

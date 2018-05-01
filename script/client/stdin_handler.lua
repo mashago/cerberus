@@ -33,12 +33,15 @@ function cmd_handler.execute(buffer)
 		params = {"login"}
 		cmd_handler.do_connect(params)
 	elseif cmd == "2" then
-		params = {"masha", "1"}
+		params = {}
 		cmd_handler.do_login(params)
 	elseif cmd == "3" then
 		params = {}
 		cmd_handler.do_role_list_req(params)
 	elseif cmd == "4" then
+		params = {}
+		cmd_handler.do_create_role(params)
+	elseif cmd == "5" then
 		local area_id = nil
 		local role_id = nil
 		for k, v in ipairs(g_client._area_role_list) do
@@ -54,16 +57,16 @@ function cmd_handler.execute(buffer)
 		end
 		params = {role_id, area_id}
 		cmd_handler.do_select_role(params)
-	elseif cmd == "5" then
+	elseif cmd == "6" then
 		params = {"gate"}
 		cmd_handler.do_connect(params)
-	elseif cmd == "6" then
+	elseif cmd == "7" then
 		params = {}
 		cmd_handler.do_enter(params)
-	elseif cmd == "7" then
+	elseif cmd == "8" then
 		params = {"pos_x", "123", "pos_y", "456"}
 		cmd_handler.do_attr_change(params)
-	elseif cmd == "8" then
+	elseif cmd == "9" then
 		params = {}
 		cmd_handler.do_loop_random_attr_change(params)
 	
@@ -426,18 +429,25 @@ function cmd_handler.do_close_connect(params)
 	g_service_mgr:close_connection_by_type(server_type, true)
 end
 
--- [username] [password] [channel_id]
+-- [opt username] [opt password] [opt channel_id]
 function cmd_handler.do_login(params)
-	if #params < 2 then
-		Log.warn("cmd_handler.do_login params not enough")
-		return
+
+	local username = params[1]
+	local password = params[2]
+	local channel_id = tonumber(params[3] or 0)
+
+	if not username then
+		username = g_funcs.gen_random_name()
 	end
 
-	local channel_id = tonumber(params[3] or 0)
+	if not password then
+		password = "123456"
+	end
+
 	local msg =
 	{
-		username = params[1],
-		password = params[2],
+		username = username,
+		password = password,
 		channel_id = channel_id,
 	}
 	g_client:send_to_login(MID.c2s_user_login_req, msg)
@@ -488,17 +498,18 @@ function cmd_handler.do_role_list_req(params)
 	g_time_counter:start()
 end
 
--- [role_name] [opt area_id]
+-- [opt role_name] [opt area_id]
 function cmd_handler.do_create_role(params)
-	if #params < 1 then
-		Log.warn("cmd_handler.do_create_role params not enough")
-		return
+
+	local role_name = params[1]
+	if not role_name then
+		role_name = g_funcs.gen_random_name()
 	end
 
 	local msg =
 	{
 		area_id = tonumber(params[2] or "1"),
-		role_name = params[1],
+		role_name = role_name
 	}
 
 	g_client:send_to_login(MID.c2s_create_role_req, msg)
