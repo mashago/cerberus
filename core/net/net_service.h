@@ -50,7 +50,7 @@ public:
 	NetService();
 	~NetService();
 
-	bool Init(const char *addr, unsigned int port, bool isDaemon, EventPipe *net2worldPipe, EventPipe *world2netPipe);
+	bool Init(const char *addr, unsigned int port, bool isDaemon, EventPipe *inputPipe, EventPipe *outputPipe);
 	int Dispatch();
 
 	// return >= 0 as mailboxId, < 0 as error
@@ -93,13 +93,13 @@ private:
 	struct event *m_stdinEvent;
 	struct evconnlistener *m_evconnlistener;
 
+	EventPipe *m_inputPipe;
+	EventPipe *m_outputPipe;
+
 	std::map<int, Mailbox *> m_fds;
 	std::map<int64_t, Mailbox *> m_mailboxs;
 	std::list<Mailbox *> m_delMailboxs;
 	std::set<Mailbox *> m_sendMailboxs;
-
-	EventPipe *m_net2worldPipe;
-	EventPipe *m_world2netPipe;
 
 	std::map<std::string, struct evhttp_connection *> m_httpConnMap; // "host:port" : conn
 };

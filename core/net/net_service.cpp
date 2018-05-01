@@ -52,7 +52,7 @@ static void http_conn_close_cb(struct evhttp_connection *http_conn, void *user_d
 static void http_done_cb(struct evhttp_request *http_request, void *user_data);
 
 
-NetService::NetService() : m_mainEvent(nullptr), m_mainLoopEvent(nullptr), m_tickTimerEvent(nullptr), m_stdinEvent(nullptr), m_evconnlistener(nullptr)
+NetService::NetService() : m_mainEvent(nullptr), m_mainLoopEvent(nullptr), m_tickTimerEvent(nullptr), m_stdinEvent(nullptr), m_evconnlistener(nullptr), m_inputPipe(nullptr), m_outputPipe(nullptr)
 {
 }
 
@@ -61,7 +61,7 @@ NetService::~NetService()
 }
 
 
-bool NetService::Init(const char *addr, unsigned int port, bool isDaemon, EventPipe *net2worldPipe, EventPipe *world2netPipe)
+bool NetService::Init(const char *addr, unsigned int port, bool isDaemon, EventPipe *inputPipe, EventPipe *outputPipe)
 {
 	// new event_base
 	m_mainEvent = event_base_new();
@@ -121,8 +121,8 @@ bool NetService::Init(const char *addr, unsigned int port, bool isDaemon, EventP
 		}
 	}
 
-	m_net2worldPipe = net2worldPipe;
-	m_world2netPipe = world2netPipe;
+	m_inputPipe = inputPipe;
+	m_outputPipe = outputPipe;
 
 	return true;
 }
@@ -338,7 +338,7 @@ void NetService::CloseMailboxByMailboxId(int64_t mailboxId)
 
 void NetService::SendEvent(EventNode *node)
 {
-	m_net2worldPipe->Push(node);
+	m_outputPipe->Push(node);
 }
 
 int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int socklen)
@@ -548,7 +548,7 @@ int NetService::HandleSocketConnectToSuccess(evutil_socket_t fd)
 
 void NetService::HandleWorldEvent()
 {
-	const std::list<EventNode *> &node_list = m_world2netPipe->Pop();
+	const std::list<EventNode *> &node_list = m_inputPipe->Pop();
 	for (auto iter = node_list.begin(); iter != node_list.end(); iter++)
 	{
 		const EventNode &node = **iter;

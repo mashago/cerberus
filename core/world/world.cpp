@@ -7,7 +7,7 @@
 #include "event_pipe.h"
 #include "timermgr.h"
 
-World::World() : m_isRunning(false), m_net2worldPipe(nullptr), m_world2netPipe(nullptr), m_timerMgr(nullptr)
+World::World() : m_isRunning(false), m_inputPipe(nullptr), m_outputPipe(nullptr), m_timerMgr(nullptr)
 {
 	m_timerMgr = new TimerMgr();
 }
@@ -19,16 +19,16 @@ World::~World()
 	delete m_timerMgr;
 }
 
-bool World::Init(int server_id, int server_type, const char *conf_file, const char *entry_path, EventPipe *net2worldPipe, EventPipe *world2netPipe)
+bool World::Init(int server_id, int server_type, const char *conf_file, const char *entry_path, EventPipe *inputPipe, EventPipe *outputPipe)
 {
-	SetEventPipe(net2worldPipe, world2netPipe);
+	SetEventPipe(inputPipe, outputPipe);
 	return CoreInit(server_id, server_type, conf_file, entry_path);
 }
 
-void World::SetEventPipe(EventPipe *net2worldPipe, EventPipe *world2netPipe)
+void World::SetEventPipe(EventPipe *inputPipe, EventPipe *outputPipe)
 {
-	m_net2worldPipe = net2worldPipe;
-	m_world2netPipe = world2netPipe;
+	m_inputPipe = inputPipe;
+	m_outputPipe = outputPipe;
 }
 
 bool World::CoreInit(int server_id, int server_type, const char *conf_file, const char *entry_path)
@@ -119,7 +119,7 @@ void World::HandleEvent(const EventNode &node)
 
 void World::RecvEvent()
 {
-	const std::list<EventNode *> &eventList = m_net2worldPipe->Pop();
+	const std::list<EventNode *> &eventList = m_inputPipe->Pop();
 	for (auto iter = eventList.begin(); iter != eventList.end(); ++iter)
 	{
 		HandleEvent(**iter);
@@ -129,5 +129,5 @@ void World::RecvEvent()
 
 void World::SendEvent(EventNode *node)
 {
-	m_world2netPipe->Push(node);
+	m_outputPipe->Push(node);
 }

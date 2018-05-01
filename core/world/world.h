@@ -14,7 +14,7 @@ public:
 	World();
 	virtual ~World();
 
-	bool Init(int server_id, int server_type, const char *conf_file, const char * entry_path, EventPipe *net2worldPipe, EventPipe *world2netPipe);
+	bool Init(int server_id, int server_type, const char *conf_file, const char * entry_path, EventPipe *inputPipe, EventPipe *outputPipe);
 	void Dispatch();
 
 	virtual void HandleNewConnection(int64_t mailboxId, const char *ip, int port) = 0;
@@ -35,12 +35,12 @@ public:
 
 private:
 	bool m_isRunning;
-	EventPipe *m_net2worldPipe;
-	EventPipe *m_world2netPipe;
+	EventPipe *m_inputPipe;
+	EventPipe *m_outputPipe;
 	TimerMgr *m_timerMgr;
 	std::thread m_thread;
 
-	void SetEventPipe(EventPipe *net2worldPipe, EventPipe *world2netPipe);
+	void SetEventPipe(EventPipe *inputPipe, EventPipe *outputPipe);
 	virtual bool CoreInit(int server_id, int server_type, const char *conf_file, const char * entry_path);
 	void HandleEvent(const EventNode &node);
 };
