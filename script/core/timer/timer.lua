@@ -51,7 +51,6 @@ function Timer:on_timer(timer_index, is_loop)
 end
 
 function ccall_timer_handler(timer_index, is_loop)
-	timer_index = math.floor(timer_index)
 	-- Log.debug("timer_index=%d", timer_index)
 	g_timer:on_timer(timer_index, is_loop)
 end

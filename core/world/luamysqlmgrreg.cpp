@@ -147,7 +147,7 @@ int luamysqlmgr_get_insert_id(lua_State* L)
 
 	int64_t insert_id = (*s)->GetInsertId();
 
-	lua_pushnumber(L, insert_id);
+	lua_pushinteger(L, insert_id);
 
 	return 1;
 }

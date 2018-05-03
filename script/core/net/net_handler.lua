@@ -242,7 +242,6 @@ end
 
 
 function ccall_recv_msg_handler(mailbox_id, msg_id)
-	mailbox_id = math.floor(mailbox_id)
 	Log.info("ccall_recv_msg_handler: mailbox_id=%d msg_id=%d", mailbox_id, msg_id)
 	local msg_name = MID._id_name_map[msg_id] or "unknow msg"
 	Log.info("msg_name=%s", msg_name)
@@ -258,7 +257,6 @@ function ccall_recv_msg_handler(mailbox_id, msg_id)
 end
 
 function ccall_disconnect_handler(mailbox_id)
-	mailbox_id = math.floor(mailbox_id)
 	Log.warn("ccall_disconnect_handler mailbox_id=%d", mailbox_id)
 
 	local function error_handler(msg, mailbox_id)
@@ -298,8 +296,6 @@ function ccall_disconnect_handler(mailbox_id)
 end
 
 function ccall_connect_to_ret_handler(connect_index, mailbox_id)
-	connect_index = math.floor(connect_index)
-	mailbox_id = math.floor(mailbox_id)
 	Log.info("ccall_connect_to_ret_handler connect_index=%d mailbox_id=%d", connect_index, mailbox_id)
 
 	local function error_handler(msg, connect_index, mailbox_id)
@@ -318,7 +314,6 @@ function ccall_connect_to_ret_handler(connect_index, mailbox_id)
 end
 
 function ccall_connect_to_success_handler(mailbox_id)
-	mailbox_id = math.floor(mailbox_id)
 	Log.info("ccall_connect_to_success_handler mailbox_id=%d", mailbox_id)
 
 	local function error_handler(msg, mailbox_id)
@@ -337,7 +332,6 @@ function ccall_connect_to_success_handler(mailbox_id)
 end
 
 function ccall_new_connection(mailbox_id, ip, port)
-	mailbox_id = math.floor(mailbox_id)
 	Log.info("ccall_new_connection mailbox_id=%d ip=%s, port=%d", mailbox_id, ip, port)
 
 	local function error_handler(msg, mailbox_id)
@@ -356,7 +350,6 @@ function ccall_new_connection(mailbox_id, ip, port)
 end
 
 function ccall_http_response_handler(session_id, response_code, content)
-	session_id = math.floor(session_id)
 
 	local function error_handler(msg, session_id, response_code)
 		local msg = debug.traceback(msg, 3)

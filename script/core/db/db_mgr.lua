@@ -150,7 +150,7 @@ function DBMgr.get_insert_id(db_name)
 		return -1
 	end
 
-	local insert_id = math.floor(mysqlmgr:get_insert_id())
+	local insert_id = mysqlmgr:get_insert_id()
 	return insert_id
 end
 

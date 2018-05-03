@@ -11,7 +11,7 @@ static int luautil_get_time_ms(lua_State *L)
 {
 	struct timeval tv;    
 	gettimeofday(&tv, NULL);
-	int64_t time_ms = tv.tv_sec * 1000.0 + tv.tv_usec / 1000.0;
+	int64_t time_ms = int64_t(tv.tv_sec * 1000.0 + tv.tv_usec / 1000.0);
 	lua_pushinteger(L, time_ms);
 
 	return 1;

@@ -107,7 +107,7 @@ void LuaWorld::HandleNewConnection(int64_t mailboxId, const char *ip, int port)
 	LOG_DEBUG("mailboxId=%ld ip=%s port=%d", mailboxId, ip, port);
 
 	lua_getglobal(m_L, "ccall_new_connection");
-	lua_pushnumber(m_L, mailboxId);
+	lua_pushinteger(m_L, mailboxId);
 	lua_pushstring(m_L, ip);
 	lua_pushinteger(m_L, port);
 	lua_call(m_L, 3, 0);
@@ -118,7 +118,7 @@ void LuaWorld::HandleDisconnect(int64_t mailboxId)
 	LOG_DEBUG("mailboxId=%ld", mailboxId);
 
 	lua_getglobal(m_L, "ccall_disconnect_handler");
-	lua_pushnumber(m_L, mailboxId);
+	lua_pushinteger(m_L, mailboxId);
 	lua_call(m_L, 1, 0);
 }
 
@@ -127,7 +127,7 @@ void LuaWorld::HandleConnectToSuccess(int64_t mailboxId)
 	LOG_DEBUG("mailboxId=%ld", mailboxId);
 
 	lua_getglobal(m_L, "ccall_connect_to_success_handler");
-	lua_pushnumber(m_L, mailboxId);
+	lua_pushinteger(m_L, mailboxId);
 	lua_call(m_L, 1, 0);
 }
 
@@ -139,7 +139,7 @@ void LuaWorld::HandleMsg(Pluto &u)
 
 	m_luanetwork->SetRecvPluto(&u);
 	lua_getglobal(m_L, "ccall_recv_msg_handler");
-	lua_pushnumber(m_L, mailboxId);
+	lua_pushinteger(m_L, mailboxId);
 	lua_pushinteger(m_L, msgId);
 	lua_call(m_L, 2, 0);
 }
@@ -149,8 +149,8 @@ void LuaWorld::HandleConnectToRet(int64_t connIndex, int64_t mailboxId)
 	LOG_DEBUG("connIndex=%ld mailboxId=%ld", connIndex, mailboxId);
 
 	lua_getglobal(m_L, "ccall_connect_to_ret_handler");
-	lua_pushnumber(m_L, connIndex);
-	lua_pushnumber(m_L, mailboxId);
+	lua_pushinteger(m_L, connIndex);
+	lua_pushinteger(m_L, mailboxId);
 	lua_call(m_L, 2, 0);
 }
 
@@ -159,7 +159,7 @@ void LuaWorld::HandleHttpResponse(int64_t session_id, int response_code, const c
 	// LOG_DEBUG("session_id=%ld response_code=%d content_len=%d content=%s", session_id, response_code, content_len, content);
 
 	lua_getglobal(m_L, "ccall_http_response_handler");
-	lua_pushnumber(m_L, session_id);
+	lua_pushinteger(m_L, session_id);
 	lua_pushinteger(m_L, response_code);
 	if (content)
 	{

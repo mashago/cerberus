@@ -768,7 +768,7 @@ int luanetwork_connect_to(lua_State* L)
 	int64_t connect_index = (*s)->ConnectTo(ip, port);
 
 	lua_pushboolean(L, connect_index >= 0);
-	lua_pushnumber(L, connect_index);
+	lua_pushinteger(L, connect_index);
 
 	return 2;
 }
