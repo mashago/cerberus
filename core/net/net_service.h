@@ -8,12 +8,8 @@ extern "C"
 #include <winsock2.h>
 #else
 #include <unistd.h>
-#include <sys/socket.h>
 #include <netinet/in.h>
-#include <netinet/tcp.h>
-#include <arpa/inet.h>
 #endif
-#include <sys/types.h>
 #include <event2/util.h>
 }
 

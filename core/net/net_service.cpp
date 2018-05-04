@@ -9,12 +9,10 @@ extern "C"
 #include <conio.h>
 #else
 #include <unistd.h>
+#include <sys/types.h>
 #include <sys/socket.h>
-#include <netinet/in.h>
-#include <netinet/tcp.h>
 #include <arpa/inet.h>
 #endif
-#include <sys/types.h>
 #include <time.h>
 #include <errno.h>
 
