@@ -3,13 +3,8 @@
 
 extern "C"
 {
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <stdint.h>
 #ifdef WIN32
-#include <io.h>  
-#include <process.h>
 #include <winsock2.h>
 #else
 #include <unistd.h>
@@ -19,9 +14,6 @@ extern "C"
 #include <arpa/inet.h>
 #endif
 #include <sys/types.h>
-#include <time.h>
-#include <errno.h>
-
 #include <event2/util.h>
 }
 
@@ -29,8 +21,6 @@ extern "C"
 #include <set>
 #include <map>
 #include <list>
-
-#include "common.h"
 
 struct event_base;
 struct event;

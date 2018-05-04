@@ -1,11 +1,8 @@
 
 #include "logger.h"
 #include "world.h"
-#include "pluto.h"
-#include "mailbox.h"
 #include "timermgr.h"
 #include "event_pipe.h"
-#include "timermgr.h"
 
 World::World() : m_isRunning(false), m_inputPipe(nullptr), m_outputPipe(nullptr), m_timerMgr(nullptr)
 {

@@ -1,10 +1,8 @@
 
-#ifdef WIN32
-// #include<Winsock2.h>
-#else
-// #include <arpa/inet.h>
-#endif
+extern "C"
+{
 #include <string.h>
+}
 #include <string>
 
 #include "common.h"

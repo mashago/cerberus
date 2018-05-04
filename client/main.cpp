@@ -1,4 +1,8 @@
 
+#ifdef WIN32
+#else
+#endif
+
 #include <set>
 #include <string>
 

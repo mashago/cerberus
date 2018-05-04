@@ -1,5 +1,8 @@
 
+extern "C"
+{
 #include <stdint.h>
+}
 #include "logger.h"
 #include "luatinyxmlreg.h"
 #include "tinyxml2.h"

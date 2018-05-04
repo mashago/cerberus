@@ -3,7 +3,6 @@
 
 #ifdef _WIN32
 #include <winsock2.h>
-#include <Windows.h>
 #else
 #include <unistd.h>
 #include <sys/time.h>

@@ -1,8 +1,11 @@
 
 #pragma once
 
+extern "C"
+{
 #include <stdint.h>
 #include <mysql.h>
+}
 #include <string>
 
 class MysqlMgr

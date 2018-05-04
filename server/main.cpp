@@ -1,7 +1,8 @@
 
 extern "C"
 {
-#ifndef WIN32
+#ifdef WIN32
+#else
 #include <unistd.h>
 #endif
 #include <stdlib.h>

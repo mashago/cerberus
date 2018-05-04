@@ -1,6 +1,9 @@
 #pragma once
 
+extern "C"
+{
 #include <stdint.h>
+}
 
 class Pluto;
 class LuaWorld;

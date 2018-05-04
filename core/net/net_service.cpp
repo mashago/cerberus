@@ -6,8 +6,6 @@ extern "C"
 #include <string.h>
 #ifdef WIN32
 #include <io.h>  
-#include <process.h>
-#include <winsock2.h>
 #include <conio.h>
 #else
 #include <unistd.h>
@@ -26,14 +24,14 @@ extern "C"
 #include <event2/buffer.h>
 #include <event2/http.h>
 }
-#include <string>
 
+#include "common.h"
 #include "logger.h"
 #include "util.h"
-#include "net_service.h"
 #include "event_pipe.h"
 #include "pluto.h"
 #include "mailbox.h"
+#include "net_service.h"
 
 enum READ_MSG_RESULT
 {

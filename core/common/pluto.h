@@ -1,13 +1,16 @@
 
 #pragma once
 
+extern "C"
+{
 #include <stdint.h>
+}
 
 class Mailbox;
 
 /*
  * msg:
- * [msgLen:4] [msgId:4] [ext:4] [content] 
+ * [msgLen:4] [msgId:4] [ext:8] [content] 
  * msgLen is total msg len, msgLen size + msgId size + ext size + content size
  *
  */

@@ -6,7 +6,6 @@ extern "C"
 #include <string.h>
 }
 #include "logger.h"
-#include "pluto.h"
 #include "luamysqlmgrreg.h"
 #include "mysqlmgr.h"
 
