@@ -42,7 +42,7 @@ end
 function Role:modify_attr_table(attr_table)
 	
 	local attr_map = g_funcs.attr_table_to_attr_map(self._table_def, attr_table)
-	Log.debug("Role:modify_attr_table attr_map=%s", Util.table_to_string(attr_map))
+	-- Log.debug("Role:modify_attr_table attr_map=%s", Util.table_to_string(attr_map))
 
 	for k, v in pairs(attr_map) do
 		local func_name = "set_" .. k

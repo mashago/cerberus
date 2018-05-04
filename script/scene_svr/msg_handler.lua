@@ -98,9 +98,9 @@ function g_msg_handler.s2s_gate_role_disconnect(role, data, mailbox_id)
 end
 
 function g_msg_handler.c2s_role_attr_change_req(role, data, mailbox_id)
-	Log.debug("c2s_role_attr_change_req data=%s", Util.table_to_string(data))
+	-- Log.debug("c2s_role_attr_change_req data=%s", Util.table_to_string(data))
 	local attr_table = data.attr_table
-	Log.debug("c2s_role_attr_change_req attr_table=%s", Util.table_to_string(attr_table))
+	-- Log.debug("c2s_role_attr_change_req attr_table=%s", Util.table_to_string(attr_table))
 
 	role:modify_attr_table(attr_table)
 

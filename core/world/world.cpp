@@ -3,6 +3,7 @@
 #include "world.h"
 #include "timermgr.h"
 #include "event_pipe.h"
+#include "pluto.h"
 
 World::World() : m_isRunning(false), m_inputPipe(nullptr), m_outputPipe(nullptr), m_timerMgr(nullptr)
 {
