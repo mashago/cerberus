@@ -564,17 +564,16 @@ void NetService::HandleWorldEvent()
 			{
 				// add pluto into mailbox, set not auto delete pluto from node
 				const EventNodeMsg &real_node = (EventNodeMsg&)node;
-				Pluto *pu = real_node.pu;
-				int64_t mailboxId = pu->GetMailboxId();
+				int64_t mailboxId = real_node.pu->GetMailboxId();
 				// LOG_DEBUG("mailboxId=%ld", mailboxId);
 				Mailbox *pmb = GetMailboxByMailboxId(mailboxId);
 				if (!pmb)
 				{
 					LOG_WARN("mail box null %ld", mailboxId);
-					delete pu; // world new, net delete
+					delete real_node.pu; // world new, net delete
 					break;
 				}
-				pmb->PushSendPluto(pu);
+				pmb->PushSendPluto(real_node.pu);
 				m_sendMailboxs.insert(pmb);
 				break;
 			}

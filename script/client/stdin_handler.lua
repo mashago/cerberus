@@ -3,6 +3,10 @@ local cmd_handler = {}
 
 function cmd_handler.execute(buffer)
 	Log.debug("buffer=%s", buffer)
+	if not buffer then
+		Log.warn("cmd_handler.execute buffer nil")
+		return
+	end
 	local input_list = Util.split_string(buffer, " ")
 
 	local cmd = input_list[1] or "nil"
@@ -64,8 +68,8 @@ function cmd_handler.execute(buffer)
 		params = {}
 		cmd_handler.do_enter(params)
 	elseif cmd == "8" then
-		params = {"pos_x", "123", "pos_y", "456"}
-		cmd_handler.do_attr_change(params)
+		params = {}
+		cmd_handler.do_random_attr_change(params)
 	elseif cmd == "9" then
 		params = {}
 		cmd_handler.do_loop_random_attr_change(params)

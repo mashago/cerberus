@@ -21,6 +21,40 @@ function Client:ctor()
 	self.g_x_test_min_time = 0
 end
 
+function Client:load_server_list(xml_doc)
+	-- init server list
+	local root_ele = xml_doc:first_child_element()
+	if not root_ele then
+		Log.err("tinyxml root_ele nil %s", g_conf_file)
+		return false
+	end
+
+	local server_list_ele = root_ele:first_child_element("server_list")
+	if not server_list_ele then
+		Log.err("tinyxml server_list_ele nil %s", g_conf_file)
+		return false
+	end
+
+	local address_ele = server_list_ele:first_child_element("address")
+	while address_ele do
+		local ip = address_ele:string_attribute("ip")
+		local port = address_ele:int_attribute("port")
+		local server_id = address_ele:int_attribute("id")
+		local server_type = address_ele:int_attribute("type")
+		Log.info("ip=%s port=%d server_id=%d server_type=%d", ip, port, server_id, server_type)
+
+		self._server_list[server_type] =
+		{
+			ip = ip,
+			port = port,
+			server_id = server_id,
+		}
+
+		address_ele = address_ele:next_sibling_element()
+	end
+end
+
+
 function Client:send_to_login(msg_id, msg)
 	g_service_mgr:send_by_server_type(ServerType.LOGIN, msg_id, msg)
 end
@@ -72,6 +106,38 @@ function Client:loop_random_change_attr()
 	end
 
 	self._loop_random_change_attr_timer_index = g_timer:add_timer(200, timer_cb, 0, true)
+end
+
+function Client:auto_run_cmd_once()
+	
+	if self._auto_run_cmd_timer_index then
+		return
+	end
+
+	local cmd_list =
+	{
+		"1",
+		"2",
+		"3",
+		"4",
+		"5",
+		"6",
+		"7",
+		"9",
+	}
+	local cmd_index = 1
+	local timer_cb = function()
+		if cmd_index > #cmd_list then
+			g_timer:del_timer(self._auto_run_cmd_timer_index)
+			return
+		end
+		
+		ccall_stdin_handler(cmd_list[cmd_index])
+		cmd_index = cmd_index + 1
+	end
+
+	self._auto_run_cmd_timer_index = g_timer:add_timer(1000, timer_cb, 0, true)
+	
 end
 
 function Client:x_test_start(num)
