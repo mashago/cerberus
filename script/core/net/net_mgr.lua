@@ -6,7 +6,7 @@ function NetMgr:ctor()
 	self._c_network = c_network
 	self._all_mailbox = {}
 
-	self.read_value =
+	self._read_val_funcs =
 	{
 		[_Byte] = function() return c_network:read_byte() end,
 		[_Bool] = function() return c_network:read_bool() end,
@@ -25,7 +25,7 @@ function NetMgr:ctor()
 		[_StringArray] = function() return c_network:read_string_array() end,
 	}
 
-	self.write_val_action = 
+	self._write_val_funcs = 
 	{
 		[_Byte] = function(val) return c_network:write_byte(val) end,
 		[_Bool] = function(val) return c_network:write_bool(val) end,
@@ -45,37 +45,20 @@ function NetMgr:ctor()
 	}
 end
 
-function NetMgr:read_struct_array(structdef, deep)
-	local ret = {}
-	local flag, count = self._c_network:read_int()
-	if not flag then
-		Log.warn("NetMgr:read_struct_array count error")
-		return flag, ret
-	end
-
-	for i = 1, count do
-		local flag, st = self:read_data_by_msgdef(structdef, deep)
-		if not flag then
-			Log.warn("NetMgr:read_struct_array read data error")
-			return flag, ret
-		end
-		table.insert(ret, st)
-	end
-	return flag, ret
-end
-
 local VALUE_NAME_INDEX = 1
 local VALUE_TYPE_INDEX = 2
 local VALUE_STRUCT_INDEX = 3
 
 function NetMgr:read_data_by_msgdef(msgdef, deep)
 	if deep > 10 then
-		Log.warn("NetMgr:read_data_by_msgdef too deep")
+		Log.warn("NetMgr:read_data_by_msgdef too deep %d", deep)
 	end
+
+	local read_val_funcs = self._read_val_funcs
 
 	local flag = true
 	local ret = { }
-	for idx, v in ipairs(msgdef) do
+	for k, v in ipairs(msgdef) do
 		local val_name = v[VALUE_NAME_INDEX]
 		local val_type = v[VALUE_TYPE_INDEX]
 
@@ -84,19 +67,38 @@ function NetMgr:read_data_by_msgdef(msgdef, deep)
 		elseif (val_type == _StructArray) then
 			flag, ret[val_name] = self:read_struct_array(v[VALUE_STRUCT_INDEX], deep + 1)
 		elseif (val_type == _StructString) then
-			flag, ret[val_name] = self.read_value[_String]()
+			flag, ret[val_name] = read_val_funcs[_String]()
 			if flag then
 				ret[val_name] = Util.unserialize(ret[val_name])
 			end
-
 		else
-			flag, ret[val_name] = self.read_value[val_type]()
+			flag, ret[val_name] = read_val_funcs[val_type]()
 		end
 		if not flag then
-			Log.warn("NetMgr:read_data_by_msgdef read error val_type=%d", val_type)
+			Log.warn("NetMgr:read_data_by_msgdef read error k=%d val_type=%d", k, val_type)
 			flag = false
 			break
 		end
+	end
+	return flag, ret
+end
+
+function NetMgr:read_struct_array(structdef, deep)
+	local ret = {}
+
+	local flag, size = self._read_val_funcs[_Int]()
+	if not flag then
+		Log.warn("NetMgr:read_struct_array read size error")
+		return flag, ret
+	end
+
+	for i = 1, size do
+		local flag, st = self:read_data_by_msgdef(structdef, deep)
+		if not flag then
+			Log.warn("NetMgr:read_struct_array read data error")
+			return flag, ret
+		end
+		table.insert(ret, st)
 	end
 	return flag, ret
 end
@@ -108,7 +110,7 @@ function NetMgr:unpack_msg(msg_id)
 		return false
 	end
 
-	local flag, data = read_data_by_msgdef(msgdef, 0)
+	local flag, data = self:read_data_by_msgdef(msgdef, 0)
 	return flag, data
 end
 
@@ -175,36 +177,17 @@ end
 
 -------------- write
 
-local function NetMgr:write_struct_array(data, structdef, deep)
-	if not data then
-		Log.err("NetMgr:write_struct_array data nil")
-		return false
-	end
-
-	local ret = self._c_network:write_int(#data)
-	if not ret then
-		Log.err("NetMgr:write_struct_array write size error")
-		return false
-	end
-	for k, v in ipairs(data) do
-		ret = self:write_data_by_msgdef(v, structdef, deep)
-		if not ret then
-			Log.err("NetMgr:write_struct_array write struct error")
-			return false
-		end
-	end
-	return true
-end
-
 function NetMgr:write_data_by_msgdef(data, msgdef, deep)
+	
+	local write_val_funcs = self._write_val_funcs
 
 	local flag = true
-	for idx, v in ipairs(msgdef) do
-		local val_name = v[1]
-		local val_type = v[2]
+	for k, v in ipairs(msgdef) do
+		local val_name = v[VALUE_NAME_INDEX]
+		local val_type = v[VALUE_TYPE_INDEX]
 
 		local value = data[val_name]
-		if value == nil then
+		if not value then
 			Log.warn("NetMgr:write_data_by_msgdef value[%s] nil", val_name)
 			return false
 		end
@@ -218,24 +201,25 @@ function NetMgr:write_data_by_msgdef(data, msgdef, deep)
 			and val_type ~= _ShortArray and val_type ~= _IntArray
 			and val_type ~= _FloatArray and val_type ~= _Int64Array
 			and val_type ~= _BoolArray and val_type ~= _StringArray
-			and val_type ~= _Struct and val_type ~= _StructArray and val_type ~= _StructString))
+			and val_type ~= _Struct and val_type ~= _StructArray 
+			and val_type ~= _StructString))
 		then
 			Log.warn("NetMgr:write_data_by_msgdef value[%s] type error type(value)=%s val_type=%d", val_name, type(value), val_type)
 			return false
 		end
 
 		if (val_type == _Struct) then
-			flag = self:write_data_by_msgdef(value, v[3], deep+1)
+			flag = self:write_data_by_msgdef(value, v[VALUE_STRUCT_INDEX], deep+1)
 		elseif (val_type == _StructArray) then
-			flag = write_struct_array(value, v[3], deep+1)
+			flag = write_struct_array(value, v[VALUE_STRUCT_INDEX], deep+1)
 		elseif (val_type == _StructString) then
 			value = Util.serialize(value)
-			flag = self.write_val_action[_String](value)
+			flag = write_val_funcs[_String](value)
 		else
-			flag = self.write_val_action[val_type](value)
+			flag = write_val_funcs[val_type](value)
 		end
 		if not flag then
-			Log.warn("NetMgr:write_data_by_msgdef write error val_type=%d", val_type)
+			Log.warn("NetMgr:write_data_by_msgdef write error k=%d val_type=%d", k, val_type)
 			flag = false
 			break
 		end
@@ -244,6 +228,26 @@ function NetMgr:write_data_by_msgdef(data, msgdef, deep)
 	
 end
 
+function NetMgr:write_struct_array(data, structdef, deep)
+	if not data then
+		Log.err("NetMgr:write_struct_array data nil")
+		return false
+	end
+
+	local ret = self._write_val_funcs[_Int](#data)
+	if not ret then
+		Log.err("NetMgr:write_struct_array write size error")
+		return false
+	end
+	for k, v in ipairs(data) do
+		ret = self:write_data_by_msgdef(v, structdef, deep)
+		if not ret then
+			Log.err("NetMgr:write_struct_array write data error")
+			return false
+		end
+	end
+	return true
+end
 
 
 function NetMgr:send_msg_ext(mailbox_id, msg_id, ext, data)
@@ -254,16 +258,17 @@ function NetMgr:send_msg_ext(mailbox_id, msg_id, ext, data)
 		return false
 	end
 
+	local c_network = self._c_network
 	local flag = self:write_data_by_msgdef(data, msgdef, 0)
 	if not flag then
 		Log.err("NetMgr:send_msg_ext write data error msg_id=%d", msg_id)
-		self._c_network:clear_write()
+		c_network:clear_write()
 		return false
 	end
 
-	self._c_network:write_msg_id(msg_id)
-	self._c_network:write_ext(ext)
-	return self._c_network:send(mailbox_id)
+	c_network:write_msg_id(msg_id)
+	c_network:write_ext(ext)
+	return c_network:send(mailbox_id)
 end
 
 function NetMgr:send_msg(mailbox_id, msg_id, data)
@@ -274,10 +279,9 @@ end
 function NetMgr:transfer_msg(mailbox_id, ext)
 	-- Log.debug("NetMgr:transfer_msg msgdef mailbox_id=%d ext=%d", mailbox_id, ext or 0)
 
-	if ext then
-		self._c_network:write_ext(ext)
-	end
-	return self._c_network:transfer(mailbox_id)
+	local c_network = self._c_network
+	c_network:write_ext(ext or 0)
+	return c_network:transfer(mailbox_id)
 end
 
 function NetMgr:add_mailbox(mailbox_id, ip, port)
@@ -310,134 +314,6 @@ end
 
 function NetMgr:http_request_post(url, session_id, post_data, post_data_len)
 	self._c_network:http_request(url, session_id, HttpRequestType.POST, post_data, post_data_len)
-end
-
--------------------------------------------------------
-
--- for c call
-function ccall_recv_msg_handler(mailbox_id, msg_id)
-	Log.info("ccall_recv_msg_handler: mailbox_id=%d msg_id=%d", mailbox_id, msg_id)
-	local msg_name = MID._id_name_map[msg_id] or "unknow msg"
-	Log.info("msg_name=%s", msg_name)
-
-	local function error_handler(msg, mailbox_id, msg_id)
-		Log.err("error_handler=%s mailbox_id=%d msg_id=%d", msg, mailbox_id, msg_id)
-	end
-	
-	local status = xpcall(g_net_mgr.recv_msg_handler
-	, function(msg) return error_handler(msg, mailbox_id, msg_id) end
-	, g_net_mgr, mailbox_id, msg_id)
-
-end
-
-function ccall_disconnect_handler(mailbox_id)
-	Log.warn("ccall_disconnect_handler mailbox_id=%d", mailbox_id)
-
-	local function error_handler(msg, mailbox_id)
-		local msg = debug.traceback(msg, 3)
-		msg = string.format("ccall_disconnect_handler error : mailbox_id = %d \n%s", mailbox_id, msg)
-		return msg 
-	end
-
-	local function handle_disconnect(mailbox_id)
-		
-		local server_info = g_service_mgr:get_server_by_mailbox(mailbox_id)
-		if server_info then
-			-- service disconnect
-			Log.warn("ccall_disconnect_handler service_client disconnect %d", mailbox_id)
-			if g_net_event_server_disconnect and server_info._connect_status == ServiceConnectStatus.CONNECTED then
-				g_net_event_server_disconnect(server_info._server_id)
-			end
-			g_service_mgr:handle_disconnect(mailbox_id)
-		else
-			-- client disconnect, login and gate handle
-			Log.warn("ccall_disconnect_handler client disconnect %d", mailbox_id)
-			if g_net_event_client_disconnect then
-				g_net_event_client_disconnect(mailbox_id)
-			end
-		end
-
-		Net.del_mailbox(mailbox_id)
-	end
-	
-	local status, msg = xpcall(handle_disconnect
-	, function(msg) return error_handler(msg, mailbox_id) end
-	, mailbox_id)
-
-	if not status then
-		Log.err(msg)
-	end
-end
-
-function ccall_connect_to_ret_handler(connect_index, mailbox_id)
-	Log.info("ccall_connect_to_ret_handler connect_index=%d mailbox_id=%d", connect_index, mailbox_id)
-
-	local function error_handler(msg, connect_index, mailbox_id)
-		local msg = debug.traceback(msg, 3)
-		msg = string.format("ccall_connect_to_ret_handler error : connect_index = %d mailbox_id = %d \n%s", connect_index, mailbox_id, msg)
-		return msg 
-	end
-	
-	local status, msg = xpcall(g_service_mgr.connect_to_ret
-	, function(msg) return error_handler(msg, connect_index, mailbox_id) end
-	, g_service_mgr, connect_index, mailbox_id)
-
-	if not status then
-		Log.err(msg)
-	end
-end
-
-function ccall_connect_to_success_handler(mailbox_id)
-	Log.info("ccall_connect_to_success_handler mailbox_id=%d", mailbox_id)
-
-	local function error_handler(msg, mailbox_id)
-		local msg = debug.traceback(msg, 3)
-		msg = string.format("ccall_connect_to_success_handler error : mailbox_id = %d \n%s", mailbox_id, msg)
-		return msg 
-	end
-	
-	local status, msg = xpcall(g_service_mgr.connect_to_success
-	, function(msg) return error_handler(msg, mailbox_id) end
-	, g_service_mgr, mailbox_id)
-
-	if not status then
-		Log.err(msg)
-	end
-end
-
-function ccall_new_connection(mailbox_id, ip, port)
-	Log.info("ccall_new_connection mailbox_id=%d ip=%s, port=%d", mailbox_id, ip, port)
-
-	local function error_handler(msg, mailbox_id)
-		local msg = debug.traceback(msg, 3)
-		msg = string.format("ccall_new_connection error : mailbox_id = %d \n%s", mailbox_id, msg)
-		return msg 
-	end
-	
-	local status, msg = xpcall(g_net_mgr.add_mailbox
-	, function(msg) return error_handler(msg, mailbox_id) end
-	, g_net_mgr, mailbox_id, ip, port)
-
-	if not status then
-		Log.err(msg)
-	end
-end
-
-function ccall_http_response_handler(session_id, response_code, content)
-
-	local function error_handler(msg, session_id, response_code)
-		local msg = debug.traceback(msg, 3)
-		msg = string.format("ccall_http_response_handler error : session_id = %d response_code = %d \n%s", session_id, response_code, msg)
-		return msg 
-	end
-	
-	local status, msg = xpcall(g_http_mgr.handle_request
-	, function(msg) return error_handler(msg, session_id, response_code) end
-	, g_http_mgr, session_id, response_code, content)
-
-	if not status then
-		Log.err(msg)
-	end
 end
 
 return NetMgr
