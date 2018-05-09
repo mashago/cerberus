@@ -49,6 +49,7 @@ local VALUE_NAME_INDEX = 1
 local VALUE_TYPE_INDEX = 2
 local VALUE_STRUCT_INDEX = 3
 
+
 function NetMgr:read_data_by_msgdef(msgdef, deep)
 	if deep > 10 then
 		Log.warn("NetMgr:read_data_by_msgdef too deep %d", deep)

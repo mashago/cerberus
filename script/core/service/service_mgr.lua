@@ -65,7 +65,7 @@ function ServiceMgr:_connect_core()
 		if server_info._connect_status == ServiceConnectStatus.DISCONNECT then
 			-- not connecting, do connect
 			-- only return a connect_index, get mailbox_id later
-			local ret, connect_index = g_network:connect_to(server_info._ip, server_info._port)
+			local ret, connect_index = Net.connect_to(server_info._ip, server_info._port)
 			if ret then
 				server_info._connect_index = connect_index
 				server_info._connect_status = ServiceConnectStatus.CONNECTING
@@ -395,7 +395,7 @@ end
 function ServiceMgr:close_connection(server_info, no_reconnect)
 	server_info._no_reconnect = no_reconnect
 	server_info._connect_status = ServiceConnectStatus.DISCONNECTING
-	g_network:close_mailbox(server_info._mailbox_id)
+	Net.close_mailbox(server_info._mailbox_id)
 end
 
 function ServiceMgr:close_connection_by_type(server_type, no_reconnect)

@@ -67,3 +67,11 @@ end
 function Net.http_request_post(url, session_id, post_data, post_data_len)
 	g_network:http_request(url, session_id, HttpRequestType.POST, post_data, post_data_len)
 end
+
+function Net.connect_to(ip, port)
+	return g_network:connect_to(ip, port)
+end
+
+function Net.close_mailbox(mailbox_id)
+	return g_network:close_mailbox(mailbox_id)
+end

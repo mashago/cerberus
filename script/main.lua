@@ -27,6 +27,7 @@ local function main()
 	g_server_conf = ServerConfig.new(g_server_id, g_server_type)
 	g_funcs.load_address(xml_doc)
 
+	g_net_mgr = NetMgr.new()
 	g_timer = Timer.new()
 	g_service_mgr = ServiceMgr.new()
 	g_rpc_mgr = RpcMgr.new()
