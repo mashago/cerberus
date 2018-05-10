@@ -2,17 +2,17 @@
 Net = {}
 Net._all_mailbox = {} -- {{mailbox_id=x, conn_type=x, ip=x, port=x}, }
 
-function Net.send_msg_ext(mailbox_id, msg_id, ext, data)
-	-- Log.debug("Net.send_msg_ext msgdef mailbox_id=%d msg_id=%d ext=%d", mailbox_id, msg_id, ext)
+function g_net_mgr:send_msg_ext(mailbox_id, msg_id, ext, data)
+	-- Log.debug("g_net_mgr:send_msg_ext msgdef mailbox_id=%d msg_id=%d ext=%d", mailbox_id, msg_id, ext)
 	local msgdef = MSG_DEF_MAP[msg_id]
 	if not msgdef then
-		Log.err("Net.send_msg_ext msgdef not exists msg_id=%d", msg_id)
+		Log.err("g_net_mgr:send_msg_ext msgdef not exists msg_id=%d", msg_id)
 		return false
 	end
 
 	local flag = write_data_by_msgdef(data, msgdef, 0)
 	if not flag then
-		Log.err("Net.send_msg_ext write data error msg_id=%d", msg_id)
+		Log.err("g_net_mgr:send_msg_ext write data error msg_id=%d", msg_id)
 		g_network:clear_write()
 		return false
 	end
@@ -22,8 +22,8 @@ function Net.send_msg_ext(mailbox_id, msg_id, ext, data)
 	return g_network:send(mailbox_id)
 end
 
-function Net.send_msg(mailbox_id, msg_id, data)
-	return Net.send_msg_ext(mailbox_id, msg_id, 0, data)
+function g_net_mgr:send_msg(mailbox_id, msg_id, data)
+	return g_net_mgr:send_msg_ext(mailbox_id, msg_id, 0, data)
 end
 
 -- transfer msg, copy data from recv pluto to send pluto, update ext if necessary

@@ -50,9 +50,11 @@ function Timer:on_timer(timer_index, is_loop)
 	end
 end
 
+--[[
 function ccall_timer_handler(timer_index, is_loop)
 	-- Log.debug("timer_index=%d", timer_index)
 	g_timer:on_timer(timer_index, is_loop)
 end
+--]]
 
 return Timer

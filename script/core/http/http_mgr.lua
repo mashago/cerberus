@@ -25,7 +25,7 @@ function HttpMgr:request_get(url, cb)
 	{
 		cb = cb,
 	}
-	Net.http_request_get(url, session_id)
+	g_net_mgr:http_request_get(url, session_id)
 end
 
 function HttpMgr:request_post(url, post_data, post_data_len, cb)
@@ -34,7 +34,7 @@ function HttpMgr:request_post(url, post_data, post_data_len, cb)
 	{
 		cb = cb,
 	}
-	Net.http_request_post(url, session_id, post_data, post_data_len)
+	g_net_mgr:http_request_post(url, session_id, post_data, post_data_len)
 end
 
 function HttpMgr:handle_request(session_id, response_code, content)

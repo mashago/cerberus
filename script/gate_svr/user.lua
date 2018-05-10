@@ -20,11 +20,11 @@ function User:send_msg(msg_id, msg)
 		Log.warn("User:send_msg mailbox_id nil msg_id=%s", g_funcs.get_msg_name(msg_id))
 		return false
 	end
-	return Net.send_msg(self._mailbox_id, msg_id, msg)
+	return g_net_mgr:send_msg(self._mailbox_id, msg_id, msg)
 end
 
 function User:transfer_msg()
-	return Net.transfer_msg(self._mailbox_id)
+	return g_net_mgr:transfer_msg(self._mailbox_id)
 end
 
 function User:offline()

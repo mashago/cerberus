@@ -54,7 +54,7 @@ function g_msg_handler.c2s_client_test_req(data, mailbox_id, msg_id)
 		},
 
 	}
-	Net.send_msg(mailbox_id, MID.s2c_client_test_ret, msg)
+	g_net_mgr:send_msg(mailbox_id, MID.s2c_client_test_ret, msg)
 end
 
 function g_msg_handler.s2s_gate_role_enter_req(data, mailbox_id)
@@ -83,7 +83,7 @@ function g_msg_handler.s2s_gate_role_enter_req(data, mailbox_id)
 		result = ErrorCode.SUCCESS,
 		role_id = role_id,
 	}
-	local ret = Net.send_msg(mailbox_id, MID.s2s_gate_role_enter_ret, msg)
+	local ret = g_net_mgr:send_msg(mailbox_id, MID.s2s_gate_role_enter_ret, msg)
 
 	-- 4. sync to client
 	role:send_module_data()

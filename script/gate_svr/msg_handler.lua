@@ -19,7 +19,7 @@ function g_msg_handler.c2s_role_enter_req(data, mailbox_id)
 	if not user then
 		Log.warn("c2s_role_enter_req: user not exists %d", user_id)
 		msg.result = ErrorCode.ROLE_ENTER_FAIL
-		Net.send_msg(mailbox_id, MID.s2c_role_enter_ret, msg)
+		g_net_mgr:send_msg(mailbox_id, MID.s2c_role_enter_ret, msg)
 		return
 	end
 
@@ -27,7 +27,7 @@ function g_msg_handler.c2s_role_enter_req(data, mailbox_id)
 		-- user already online
 		Log.warn("c2s_role_enter_req: user already online %d", user_id)
 		msg.result = ErrorCode.ROLE_ENTER_FAIL
-		Net.send_msg(mailbox_id, MID.s2c_role_enter_ret, msg)
+		g_net_mgr:send_msg(mailbox_id, MID.s2c_role_enter_ret, msg)
 		return
 	end
 
@@ -36,7 +36,7 @@ function g_msg_handler.c2s_role_enter_req(data, mailbox_id)
 	if user._token ~= token then
 		Log.warn("c2s_role_enter_req: user token mismatch %d %s %s", user_id, token, user._token)
 		msg.result = ErrorCode.ROLE_ENTER_FAIL
-		Net.send_msg(mailbox_id, MID.s2c_role_enter_ret, msg)
+		g_net_mgr:send_msg(mailbox_id, MID.s2c_role_enter_ret, msg)
 		return
 	end
 
@@ -44,7 +44,7 @@ function g_msg_handler.c2s_role_enter_req(data, mailbox_id)
 	if u then
 		Log.warn("c2s_role_enter_req: mailbox already connect to a user %d", user_id)
 		msg.result = ErrorCode.ROLE_ENTER_FAIL
-		Net.send_msg(mailbox_id, MID.s2c_role_enter_ret, msg)
+		g_net_mgr:send_msg(mailbox_id, MID.s2c_role_enter_ret, msg)
 		return
 	end
 
@@ -62,7 +62,7 @@ function g_msg_handler.c2s_role_enter_req(data, mailbox_id)
 		-- TODO fix user scene to a right scene
 		Log.err("c2s_role_enter_req: scene server not exists scene_id=%d", scene_id)
 		msg.result = ErrorCode.ROLE_ENTER_FAIL
-		Net.send_msg(mailbox_id, MID.s2c_role_enter_ret, msg)
+		g_net_mgr:send_msg(mailbox_id, MID.s2c_role_enter_ret, msg)
 		return
 	end
 

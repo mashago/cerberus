@@ -146,7 +146,7 @@ function RpcMgr:handle_call(data, mailbox_id, msg_id, is_nocb)
 			session_id = session_id, 
 			param = tostring(errno),
 		}
-		Net.send_msg(mailbox_id, MID.s2s_rpc_ret, msg)
+		g_net_mgr:send_msg(mailbox_id, MID.s2s_rpc_ret, msg)
 	end
 
 	-- server_id mismatch
@@ -213,7 +213,7 @@ function RpcMgr:handle_call(data, mailbox_id, msg_id, is_nocb)
 			session_id = session_id, 
 			param = Util.serialize(result)
 		}
-		Net.send_msg(mailbox_id, MID.s2s_rpc_ret, msg)
+		g_net_mgr:send_msg(mailbox_id, MID.s2s_rpc_ret, msg)
 		return
 	else
 		-- else is error

@@ -31,7 +31,7 @@ function User:send_msg(msg_id, msg)
 	if not self._is_online then
 		return false
 	end
-	return Net.send_msg(self._mailbox_id, msg_id, msg)
+	return g_net_mgr:send_msg(self._mailbox_id, msg_id, msg)
 end
 
 function User:add_role(area_id, role_id, role_name)

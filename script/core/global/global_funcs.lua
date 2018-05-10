@@ -184,7 +184,7 @@ function g_funcs.handle_shake_hand_req(data, mailbox_id)
 	if not server_info then
 		Log.warning("g_funcs.handle_shake_hand_req add_server fail server_id=%d server_type=%d", server_id, server_type)
 		msg.result = ErrorCode.SHAKE_HAND_FAIL
-		Net.send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
+		g_net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
 		return
 	end
 

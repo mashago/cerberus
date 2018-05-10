@@ -65,7 +65,7 @@ function ServiceMgr:_connect_core()
 		if server_info._connect_status == ServiceConnectStatus.DISCONNECT then
 			-- not connecting, do connect
 			-- only return a connect_index, get mailbox_id later
-			local ret, connect_index = Net.connect_to(server_info._ip, server_info._port)
+			local ret, connect_index = g_net_mgr:connect_to(server_info._ip, server_info._port)
 			if ret then
 				server_info._connect_index = connect_index
 				server_info._connect_status = ServiceConnectStatus.CONNECTING
@@ -286,7 +286,7 @@ function ServiceMgr:connect_to_success(mailbox_id)
 		return
 	end
 
-	Net.add_mailbox(mailbox_id, server_info._ip, server_info._port)
+	g_net_mgr:add_mailbox(mailbox_id, server_info._ip, server_info._port)
 
 	server_info._connect_status = ServiceConnectStatus.CONNECTED
 
@@ -311,7 +311,7 @@ function ServiceMgr:connect_to_success(mailbox_id)
 		ip = g_server_conf._ip,
 		port = g_server_conf._port,
 	}
-	Net.send_msg(mailbox_id, MID.s2s_shake_hand_req, msg)
+	g_net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_req, msg)
 end
 
 function ServiceMgr:shake_hand_success(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
@@ -395,7 +395,7 @@ end
 function ServiceMgr:close_connection(server_info, no_reconnect)
 	server_info._no_reconnect = no_reconnect
 	server_info._connect_status = ServiceConnectStatus.DISCONNECTING
-	Net.close_mailbox(server_info._mailbox_id)
+	g_net_mgr:close_mailbox(server_info._mailbox_id)
 end
 
 function ServiceMgr:close_connection_by_type(server_type, no_reconnect)

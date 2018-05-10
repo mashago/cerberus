@@ -212,7 +212,7 @@ function NetMgr:write_data_by_msgdef(data, msgdef, deep)
 		if (val_type == _Struct) then
 			flag = self:write_data_by_msgdef(value, v[VALUE_STRUCT_INDEX], deep+1)
 		elseif (val_type == _StructArray) then
-			flag = write_struct_array(value, v[VALUE_STRUCT_INDEX], deep+1)
+			flag = self:write_struct_array(value, v[VALUE_STRUCT_INDEX], deep+1)
 		elseif (val_type == _StructString) then
 			value = Util.serialize(value)
 			flag = write_val_funcs[_String](value)
@@ -250,6 +250,11 @@ function NetMgr:write_struct_array(data, structdef, deep)
 	return true
 end
 
+------------------------------------
+
+function NetMgr:connect_to(ip, port)
+	return self._c_network:connect_to(ip, port)
+end
 
 function NetMgr:send_msg_ext(mailbox_id, msg_id, ext, data)
 	-- Log.debug("NetMgr:send_msg_ext msgdef mailbox_id=%d msg_id=%d ext=%d", mailbox_id, msg_id, ext)
@@ -273,7 +278,7 @@ function NetMgr:send_msg_ext(mailbox_id, msg_id, ext, data)
 end
 
 function NetMgr:send_msg(mailbox_id, msg_id, data)
-	return NetMgr:send_msg_ext(mailbox_id, msg_id, 0, data)
+	return self:send_msg_ext(mailbox_id, msg_id, 0, data)
 end
 
 -- transfer msg, copy data from recv pluto to send pluto, update ext if necessary
@@ -283,6 +288,10 @@ function NetMgr:transfer_msg(mailbox_id, ext)
 	local c_network = self._c_network
 	c_network:write_ext(ext or 0)
 	return c_network:transfer(mailbox_id)
+end
+
+function NetMgr:close_mailbox(mailbox_id)
+	return self._c_network:close_mailbox(mailbox_id)
 end
 
 function NetMgr:add_mailbox(mailbox_id, ip, port)

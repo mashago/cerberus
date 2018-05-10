@@ -35,7 +35,7 @@ function ServerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_l
 	local new_server_info = g_service_mgr:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
 	if not new_server_info then
 		msg.result = ErrorCode.SHAKE_HAND_FAIL
-		Net.send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
+		g_net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
 		return false
 	end
 
@@ -56,7 +56,7 @@ function ServerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_l
 		if node.mailbox_id ~= 0 then
 			Log.err("ServerMgr:shake_hand duplicate server_id register %d", server_id)
 			msg.result = ErrorCode.SHAKE_HAND_FAIL
-			Net.send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
+			g_net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
 			return false
 		end
 
@@ -68,7 +68,7 @@ function ServerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_l
 		::continue::
 	end
 
-	Net.send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
+	g_net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
 
 	-- shake hand server is reconnect server
 	if reconn_server_index > 0 then
@@ -77,7 +77,7 @@ function ServerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_l
 		{
 			server_list = server_list
 		}
-		Net.send_msg(mailbox_id, MID.s2s_shake_hand_invite, msg)
+		g_net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_invite, msg)
 
 		-- send reconnect server addr to behind server
 
@@ -94,7 +94,7 @@ function ServerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_l
 		for i=reconn_server_index+1, #self._register_server_list do
 			local node = self._register_server_list[i]
 			if node.mailbox_id > 0 then
-				Net.send_msg(node.mailbox_id, MID.s2s_shake_hand_invite, msg)
+				g_net_mgr:send_msg(node.mailbox_id, MID.s2s_shake_hand_invite, msg)
 			end
 		end
 		self:print()
@@ -115,7 +115,7 @@ function ServerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_l
 				port = node.port,
 			})
 		end
-		Net.send_msg(mailbox_id, MID.s2s_shake_hand_invite, msg)
+		g_net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_invite, msg)
 	end
 
 	-- push back into server list

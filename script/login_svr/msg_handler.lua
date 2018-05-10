@@ -25,7 +25,7 @@ function g_msg_handler.c2s_rpc_test_req(data, mailbox_id, msg_id)
 	if not status then
 		Log.err("c2s_rpc_test_req rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
-		Net.send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
+		g_net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 		return
 	end
 	Log.debug("c2s_rpc_test_req: callback ret=%s", Util.table_to_string(ret))
@@ -41,7 +41,7 @@ function g_msg_handler.c2s_rpc_test_req(data, mailbox_id, msg_id)
 	if not status then
 		Log.err("c2s_rpc_test_req rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
-		Net.send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
+		g_net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 		return
 	end
 	Log.debug("c2s_rpc_test_req: callback ret=%s", Util.table_to_string(ret))
@@ -52,7 +52,7 @@ function g_msg_handler.c2s_rpc_test_req(data, mailbox_id, msg_id)
 	msg.buff = buff
 	msg.sum = sum
 
-	Net.send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
+	g_net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 end
 
 
@@ -114,7 +114,7 @@ function g_msg_handler.c2s_rpc_mix_test_req(data, mailbox_id, msg_id)
 	if not status then
 		Log.err("c2s_rpc_mix_test_req rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
-		Net.send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
+		g_net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 		return
 	end
 	Log.debug("c2s_rpc_mix_test_req: callback ret=%s", Util.table_to_string(ret))
@@ -145,7 +145,7 @@ function g_msg_handler.c2s_rpc_mix_test_req(data, mailbox_id, msg_id)
 	if not status then
 		Log.err("c2s_rpc_mix_test_req rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
-		Net.send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
+		g_net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 		return
 	end
 	Log.debug("c2s_rpc_mix_test_req: callback ret=%s", Util.table_to_string(ret))
@@ -156,7 +156,7 @@ function g_msg_handler.c2s_rpc_mix_test_req(data, mailbox_id, msg_id)
 	msg.buff = buff
 	msg.sum = sum
 
-	Net.send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
+	g_net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 end
 
 
@@ -200,7 +200,7 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 	if user then
 		Log.warn("c2s_user_login_req duplicate login [%s]", data.username)
 		msg.result = ErrorCode.USER_LOGIN_DUPLICATE_LOGIN
-		Net.send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
+		g_net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 		return
 	end
 
@@ -218,7 +218,7 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 	if not status then
 		Log.err("c2s_user_login_req rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
-		Net.send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
+		g_net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 		return
 	end
 
@@ -226,7 +226,7 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 
 	-- check after rpc
 	-- check connection
-	local mailbox = Net.get_mailbox(mailbox_id)
+	local mailbox = g_net_mgr:get_mailbox(mailbox_id)
 	if not mailbox then
 		Log.warn("c2s_user_login_req: connect close username=%s", username)
 		return
@@ -235,7 +235,7 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 	-- check result
 	if ret.result ~= ErrorCode.SUCCESS then
 		msg.result = ret.result
-		Net.send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
+		g_net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 		return
 	end
 
@@ -244,7 +244,7 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 	if user then
 		Log.warn("c2s_user_login_req duplicate login [%s]", data.username)
 		msg.result = ErrorCode.USER_LOGIN_DUPLICATE_LOGIN
-		Net.send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
+		g_net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 		return
 	end
 
@@ -252,7 +252,7 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 	Log.debug("c2s_user_login_req: user_id=%d", user_id)
 
 	if XXX_DEBUG_TEST_LOGINX then
-		Net.send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
+		g_net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 		return
 	end
 
@@ -274,7 +274,7 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 		if not g_user_mgr:add_user(user) then
 			Log.warn("c2s_user_login_req duplicate login2 [%s]", username)
 			msg.result = ErrorCode.USER_LOGIN_DUPLICATE_LOGIN
-			Net.send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
+			g_net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 			return
 		end
 	end
