@@ -415,6 +415,10 @@ function ServiceMgr:close_connection_by_type(server_type, no_reconnect)
 	self:close_connection(server_info, no_reconnect)
 end
 
+function ServiceMgr:close_connection_by_type(ip, port, no_reconnect)
+	-- TODO
+end
+
 ----------------------------------------------
 
 function ServiceMgr:get_server_by_id(server_id)

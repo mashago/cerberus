@@ -36,4 +36,9 @@ function CommonHandler:del_sync_conn_num_timer()
 	self._sync_conn_num_timer_index = 0
 end
 
+function CommonHandler:master_down()
+	
+	-- TODO all user offline
+end
+
 return CommonHandler

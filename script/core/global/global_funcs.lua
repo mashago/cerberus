@@ -234,6 +234,17 @@ function g_funcs.handle_shake_hand_invite(data, mailbox_id)
 end
 --
 
+-- a common handle for MID.s2s_shake_hand_cancel
+function g_funcs.handle_shake_hand_cancel(data, mailbox_id)
+	Log.debug("g_funcs.handle_shake_hand_cancel data=%s", Util.table_to_string(data))
+
+	local server_id = data.server_id
+	local ip = data.ip
+	local port = data.port
+	g_service_mgr:close_connection_by_host(ip, port, true)
+end
+--
+
 -------- for attr data and string convert
 
 function g_funcs.register_attr_func(obj_class, obj_def)

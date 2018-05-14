@@ -41,20 +41,21 @@ MID._id_name_map =
 	-- msg for server
 	-- about master_svr
 	
-	[60004] = "s2s_shake_hand_req", -- after connect to success, send this
-	[60005] = "s2s_shake_hand_ret",
-	[60006] = "s2s_shake_hand_invite",
+	[60001] = "s2s_shake_hand_req", -- after connect to success, send this
+	[60002] = "s2s_shake_hand_ret",
+	[60003] = "s2s_shake_hand_invite",
+	[60004] = "s2s_shake_hand_cancel",
 
-	[60007] = "s2s_rpc_req",
-	[60008] = "s2s_rpc_nocb_req",
-	[60009] = "s2s_rpc_ret",
+	[60011] = "s2s_rpc_req",
+	[60012] = "s2s_rpc_nocb_req",
+	[60013] = "s2s_rpc_ret",
 
-	[60010] = "s2s_register_area_req",
-	[60011] = "s2s_register_area_ret",
+	[60021] = "s2s_register_area_req",
+	[60022] = "s2s_register_area_ret",
 
-	[60101] = "s2s_gate_role_enter_req",
-	[60102] = "s2s_gate_role_enter_ret",
-	[60103] = "s2s_gate_role_disconnect",
+	[60031] = "s2s_gate_role_enter_req",
+	[60032] = "s2s_gate_role_enter_ret",
+	[60033] = "s2s_gate_role_disconnect",
 
 }
 
@@ -389,6 +390,13 @@ MSG_DEF_MAP._def_map =
 		{ "server_list", _StructArray, ServerAddrStruct },
 	},
 
+	s2s_shake_hand_cancel =
+	{
+		{ "server_id", _Int },
+		{ "ip", _String },
+		{ "port", _Int },
+	},
+
 
 	s2s_rpc_req =
 	{
@@ -462,6 +470,7 @@ RAW_MID =
 	[MID.s2s_shake_hand_req] = true,
 	[MID.s2s_shake_hand_ret] = true,
 	[MID.s2s_shake_hand_invite] = true,
+	[MID.s2s_shake_hand_cancel] = true,
 
 	[MID.c2s_user_login_req] = true,
 	[MID.c2s_role_enter_req] = true,

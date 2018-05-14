@@ -136,12 +136,24 @@ function ServerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_l
 end
 
 function ServerMgr:server_disconnect(server_id)
+	local server_node
 	for _, node in ipairs(self._register_server_list) do
 		if node.server_id == server_id then
 			node.mailbox_id = 0
+			server_node = node
 			break
 		end
 	end
+	if not server_node then
+		return
+	end
+
+	for index, node in ipairs(self._register_server_list) do
+		if node.mailbox_id ~= 0 then
+			g_net_mgr:send_msg(node.mailbox_id, MID.s2s_shake_hand_cancel, server_node)
+		end
+	end
+
 	self:print()
 end
 
