@@ -86,9 +86,9 @@ function ServerInfo:transfer_msg(ext)
 end
 
 function ServerInfo:print()
-	Log.info("ServerInfo:print\nip=%s port=%d connect_index=%d connect_status=%d\n_mailbox_id=%d _server_id=%d _server_type=%d\n_single_scene_list=[%s] _from_to_scene_list=[%s]\n"
+	Log.info("ServerInfo:print\nip=%s port=%d connect_index=%d connect_status=%d\n_mailbox_id=%d _server_id=%d _server_type=[%d:%s]\n_single_scene_list=[%s] _from_to_scene_list=[%s]\n"
 	, self._ip, self._port, self._connect_index, self._connect_status
-	, self._mailbox_id, self._server_id, self._server_type
+	, self._mailbox_id, self._server_id, self._server_type, ServerTypeName[self._server_type]
 	, table.concat(self._single_scene_list, ",")
 	, table.concat(self._from_to_scene_list, ","))
 end

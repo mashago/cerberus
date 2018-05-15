@@ -49,6 +49,15 @@ function ServiceMgr:do_connect(ip, port, server_id, server_type, no_shakehand, n
 	end
 end
 
+function ServiceMgr:do_reconnect(server_info, no_delay)
+	table.insert(self._wait_server_list, server_info)
+	if no_delay then
+		self:connect_immediately()
+	else
+		self:create_connect_timer()
+	end
+end
+
 function ServiceMgr:_connect_core()
 
 	-- Log.debug("ServiceMgr:_connect_core: self._wait_server_list=%s", Util.table_to_string(self._wait_server_list))
@@ -345,7 +354,6 @@ end
 function ServiceMgr:handle_disconnect(mailbox_id)
 	Log.info("ServiceMgr:handle_disconnect mailbox_id=%d", mailbox_id)
 
-	local is_connected = false
 	local server_info = nil
 	repeat
 		for k, v in ipairs(self._wait_server_list) do
@@ -360,7 +368,7 @@ function ServiceMgr:handle_disconnect(mailbox_id)
 		for _, v in pairs(self._all_server_map) do
 			if v._mailbox_id == mailbox_id then
 				server_info = v
-				is_connected = true
+				self:unregister_server(server_info)
 				break
 			end
 		end
@@ -370,13 +378,9 @@ function ServiceMgr:handle_disconnect(mailbox_id)
 		Log.info("ServiceMgr:handle_disconnect server nil mailbox_id=%d", mailbox_id)
 	end
 
-	if is_connected then
-		self:unregister_server(server_info)
-	end
-
 	if server_info._no_reconnect or server_info._port == 0 then
 		-- no reconnect or connect in, do nothing
-		Log.info("ServiceMgr:handle_disconnect")
+		Log.warn("ServiceMgr:handle_disconnect no need reconnect [%d:%s]", server_info._server_type, ServerTypeName[server_info._server_type])
 		self:print()
 		return
 	end
@@ -384,9 +388,7 @@ function ServiceMgr:handle_disconnect(mailbox_id)
 	server_info._mailbox_id = MAILBOX_ID_NIL
 	server_info._connect_status = ServiceConnectStatus.DISCONNECT
 
-	-- create connect timer to reconnect
-	table.insert(self._wait_server_list, server_info)
-	self:create_connect_timer()
+	self:do_reconnect(server_info, true)
 
 	Log.info("ServiceMgr:handle_disconnect")
 	self:print()
@@ -395,7 +397,9 @@ end
 function ServiceMgr:close_connection(server_info, no_reconnect)
 	server_info._no_reconnect = no_reconnect
 	server_info._connect_status = ServiceConnectStatus.DISCONNECTING
-	g_net_mgr:close_mailbox(server_info._mailbox_id)
+	if server_info._mailbox_id ~= MAILBOX_ID_NIL then
+		g_net_mgr:close_mailbox(server_info._mailbox_id)
+	end
 end
 
 function ServiceMgr:close_connection_by_type(server_type, no_reconnect)
@@ -415,8 +419,28 @@ function ServiceMgr:close_connection_by_type(server_type, no_reconnect)
 	self:close_connection(server_info, no_reconnect)
 end
 
-function ServiceMgr:close_connection_by_type(ip, port, no_reconnect)
-	-- TODO
+function ServiceMgr:close_connection_by_host(ip, port, no_reconnect)
+	local server_info = nil
+	for k, v in pairs(self._all_server_map) do
+		if v._ip == ip and v._port == port then
+			server_info = v
+			break
+		end
+	end
+	if not server_info then
+		for k, v in ipairs(self._wait_server_list) do
+			if v._ip == ip and v._port == port then
+				server_info = v
+				break
+			end
+		end
+	end
+
+	if not server_info then
+		Log.warn("ServiceMgr:close_connection_by_host no such host %s:%d", ip, port)
+		return
+	end
+	self:close_connection(server_info, no_reconnect)
 end
 
 ----------------------------------------------

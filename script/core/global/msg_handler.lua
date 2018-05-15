@@ -14,7 +14,7 @@ function g_msg_handler.s2s_shake_hand_invite(data, mailbox_id)
 end
 
 function g_msg_handler.s2s_shake_hand_cancel(data, mailbox_id)
-	g_funcs.handle_shake_hand_cancel(data, mailbox_id)
+	return g_funcs.handle_shake_hand_cancel(data, mailbox_id)
 end
 
 function g_msg_handler.s2s_rpc_req()

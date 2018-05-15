@@ -29,7 +29,7 @@ start "gate_svr" %BIN_PATH%/opengs_server.exe %CONF_PATH%/server_conf_gate.xml
 start "scene_svr" %BIN_PATH%/opengs_server.exe %CONF_PATH%/server_conf_scene.xml
 
 :: client
-@echo "Start Lua Client..."
-start "client" %BIN_PATH%/opengs_client.exe %CONF_PATH%/client_conf.xml
+::@echo "Start Lua Client..."
+::start "client" %BIN_PATH%/opengs_client.exe %CONF_PATH%/client_conf.xml
 
 exit

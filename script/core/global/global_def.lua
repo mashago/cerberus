@@ -29,15 +29,15 @@ ServerType =
 	MASTER			= 3,
 	BRIDGE 			= 4,
 	GATE 			= 5,
-
-	-- BASE 			= 6,
-	SCENE 			= 6, -- TODO rename
-
-	--CELL 			= 7,
+	SCENE 			= 6,
 
 	PUBLIC 			= 8,
-
 }
+
+ServerTypeName = { }
+for k, v in pairs(ServerType) do
+	ServerTypeName[v] = k
+end
 
 TrustIPList =
 {
