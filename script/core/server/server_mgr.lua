@@ -3,13 +3,13 @@ ServerMgr = class()
 
 function ServerMgr:ctor()
 
-	-- store not connected server
+	-- store not connected or not shake hand server
 	-- {server_info, server_info, ...}
 	self._wait_server_list = {} 
 
-	-- store connected server map
+	-- store active server map
 	-- {server_id = server_info, ...}
-	self._all_server_map = {}
+	self._active_server_map = {}
 
 	-- {server_type = {server_id, server_id, ...}
 	self._type_server_map = {}
@@ -31,7 +31,7 @@ function ServerMgr:do_connect(ip, port, server_id, server_type, no_shakehand, no
 		end
 	end
 
-	for k, v in pairs(self._all_server_map) do
+	for k, v in pairs(self._active_server_map) do
 		if v._ip == ip and v._port == port then
 			Log.warn("ServerMgr:do_connect connected ip=%s port=%d", ip, port)
 			return
@@ -175,14 +175,14 @@ function ServerMgr:register_server(server_info)
 	local server_id = server_info._server_id
 	local server_type = server_info._server_type
 
-	if self._all_server_map[server_id] then
+	if self._active_server_map[server_id] then
 		-- if exists in all_server_map, duplicate add
 		Log.err("ServerMgr:register_server duplicate add mailbox_id=%d server_id=%d", mailbox_id, server_id)
 		return false
 	end
 
 	-- add into all_server_map
-	self._all_server_map[server_id] = server_info
+	self._active_server_map[server_id] = server_info
 	
 	-- add into type_server_map
 	self._type_server_map[server_type] = self._type_server_map[server_type] or {}
@@ -203,7 +203,7 @@ function ServerMgr:add_server(mailbox_id, server_id, server_type, single_scene_l
 	Log.debug("ServerMgr:add_server mailbox_id=%d server_id=%d server_type=%d"
 	, mailbox_id, server_id, server_type)
 
-	local server_info = self._all_server_map[server_id]
+	local server_info = self._active_server_map[server_id]
 	if server_info then
 		-- if exists in all_server_map, duplicate add
 		Log.err("ServerMgr:add_server duplicate add mailbox_id=%d server_id=%d", mailbox_id, server_id)
@@ -253,7 +253,7 @@ function ServerMgr:unregister_server(server_info)
 	end
 
 	-- remove this server in all_server_map
-	self._all_server_map[server_id] = nil
+	self._active_server_map[server_id] = nil
 end
 
 --------------------------------------------
@@ -365,7 +365,7 @@ function ServerMgr:handle_disconnect(mailbox_id)
 			end
 		end
 		if server_info then break end
-		for _, v in pairs(self._all_server_map) do
+		for _, v in pairs(self._active_server_map) do
 			if v._mailbox_id == mailbox_id then
 				server_info = v
 				self:unregister_server(server_info)
@@ -405,7 +405,7 @@ end
 function ServerMgr:close_connection_by_type(server_type, no_reconnect)
 
 	local server_info = nil
-	for k, v in pairs(self._all_server_map) do
+	for k, v in pairs(self._active_server_map) do
 		if v._server_type == server_type then
 			server_info = v
 			break
@@ -421,7 +421,7 @@ end
 
 function ServerMgr:close_connection_by_host(ip, port, no_reconnect)
 	local server_info = nil
-	for k, v in pairs(self._all_server_map) do
+	for k, v in pairs(self._active_server_map) do
 		if v._ip == ip and v._port == port then
 			server_info = v
 			break
@@ -446,7 +446,7 @@ end
 ----------------------------------------------
 
 function ServerMgr:get_server_by_id(server_id)
-	return self._all_server_map[server_id]
+	return self._active_server_map[server_id]
 end
 
 function ServerMgr:get_server_by_mailbox(mailbox_id)
@@ -455,7 +455,7 @@ function ServerMgr:get_server_by_mailbox(mailbox_id)
 			return server_info
 		end
 	end
-	for _, server_info in pairs(self._all_server_map) do
+	for _, server_info in pairs(self._active_server_map) do
 		if server_info._mailbox_id == mailbox_id then
 			return server_info
 		end
@@ -510,13 +510,13 @@ end
 
 
 function ServerMgr:print()
-	Log.info("\n******* ServerMgr *******")
-	Log.info("_wait_server_list=")
+	Log.debug("\n******* ServerMgr *******")
+	Log.debug("_wait_server_list=")
 	for k, server_info in ipairs(self._wait_server_list) do
 		server_info:print()
 	end
-	Log.info("_all_server_map=")
-	for k, server_info in pairs(self._all_server_map) do
+	Log.debug("_active_server_map=")
+	for k, server_info in pairs(self._active_server_map) do
 		server_info:print()
 	end
 	Log.info("_type_server_map=%s", Util.table_to_string(self._type_server_map))
