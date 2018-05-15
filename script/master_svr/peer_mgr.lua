@@ -1,7 +1,7 @@
 
-local ServerMgr = class()
+local PeerMgr = class()
 
-function ServerMgr:ctor()
+function PeerMgr:ctor()
 	--[[
 	{[1] = {
 		mailbox_id=x,
@@ -12,16 +12,15 @@ function ServerMgr:ctor()
 		ip=x,
 		port=x,
 	--]]
-	self._register_server_list = {} 
+	self._register_peer_list = {} 
 
 end
 
 -- when other server connect to master server, send s2s_shake_hand_req, will call this function
 -- will invite new server connect to forward other server, so send other server addr to new server. and new server will push back into server list
 -- if server disconnect, will not remove from server list, just set mailbox_id = 0
-function ServerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list, ip, port)
+function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list, ip, port)
 
-	
 	local msg = 
 	{
 		result = ErrorCode.SUCCESS,
@@ -40,29 +39,29 @@ function ServerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_l
 	end
 
 	-- check if exists same server_id
-	local reconn_server_index = 0
-	local server_list = {}
-	for index, node in ipairs(self._register_server_list) do
-		if node.server_id ~= server_id then
-			table.insert(server_list, 
+	local reconn_peer_index = 0
+	local peer_list = {}
+	for index, peer in ipairs(self._register_peer_list) do
+		if peer.server_id ~= server_id then
+			table.insert(peer_list, 
 			{
-				ip = node.ip,
-				port = node.port,
+				ip = peer.ip,
+				port = peer.port,
 			})
 			goto continue
 		end
 
 		-- duplicate server_id
-		if node.mailbox_id ~= 0 then
-			Log.err("ServerMgr:shake_hand duplicate server_id register %d", server_id)
+		if peer.mailbox_id ~= 0 then
+			Log.err("PeerMgr:shake_hand duplicate server_id register %d", server_id)
 			msg.result = ErrorCode.SHAKE_HAND_FAIL
 			g_net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
 			return false
 		end
 
 		-- server reconnect
-		node.mailbox_id = mailbox_id
-		reconn_server_index = index
+		peer.mailbox_id = mailbox_id
+		reconn_peer_index = index
 		break
 
 		::continue::
@@ -71,11 +70,11 @@ function ServerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_l
 	g_net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
 
 	-- shake hand server is reconnect server
-	if reconn_server_index > 0 then
-		-- send before server_list to reconnect server
+	if reconn_peer_index > 0 then
+		-- send before peer_list to reconnect server
 		local msg =
 		{
-			server_list = server_list
+			peer_list = peer_list
 		}
 		g_net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_invite, msg)
 
@@ -83,7 +82,7 @@ function ServerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_l
 
 		local msg = 
 		{
-			server_list =
+			peer_list =
 			{
 				{
 					ip = ip,
@@ -91,35 +90,35 @@ function ServerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_l
 				}
 			}
 		}
-		for i=reconn_server_index+1, #self._register_server_list do
-			local node = self._register_server_list[i]
-			if node.mailbox_id > 0 then
-				g_net_mgr:send_msg(node.mailbox_id, MID.s2s_shake_hand_invite, msg)
+		for i=reconn_peer_index+1, #self._register_peer_list do
+			local peer = self._register_peer_list[i]
+			if peer.mailbox_id > 0 then
+				g_net_mgr:send_msg(peer.mailbox_id, MID.s2s_shake_hand_invite, msg)
 			end
 		end
 		self:print()
 		return true
 	end
 
-	-- shake hand server is new server
-	-- invite new server to connect them
-	if #self._register_server_list > 0 then
+	-- shake hand peer is new peer
+	-- invite new peer to connect them
+	if #self._register_peer_list > 0 then
 		local msg = 
 		{
-			server_list = {}
+			peer_list = {}
 		}
-		for _, node in ipairs(self._register_server_list) do
-			table.insert(msg.server_list, 
+		for _, peer in ipairs(self._register_peer_list) do
+			table.insert(msg.peer_list, 
 			{
-				ip = node.ip,
-				port = node.port,
+				ip = peer.ip,
+				port = peer.port,
 			})
 		end
 		g_net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_invite, msg)
 	end
 
-	-- push back into server list
-	local node = 
+	-- push back into peer list
+	local peer = 
 	{
 		mailbox_id = mailbox_id,
 		server_id = server_id, 
@@ -129,41 +128,41 @@ function ServerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_l
 		ip = ip,
 		port = port,
 	}
-	table.insert(self._register_server_list, node)
+	table.insert(self._register_peer_list, peer)
 	
 	self:print()
 	return true
 end
 
-function ServerMgr:server_disconnect(server_id)
-	local server_node
-	for _, node in ipairs(self._register_server_list) do
-		if node.server_id == server_id then
-			node.mailbox_id = 0
-			server_node = node
+function PeerMgr:server_disconnect(server_id)
+	local target_peer
+	for _, peer in ipairs(self._register_peer_list) do
+		if peer.server_id == server_id then
+			peer.mailbox_id = 0
+			target_peer = peer
 			break
 		end
 	end
-	if not server_node then
+	if not target_peer then
 		return
 	end
 
-	for index, node in ipairs(self._register_server_list) do
-		if node.mailbox_id ~= 0 then
-			g_net_mgr:send_msg(node.mailbox_id, MID.s2s_shake_hand_cancel, server_node)
+	for index, peer in ipairs(self._register_peer_list) do
+		if peer.mailbox_id ~= 0 then
+			g_net_mgr:send_msg(peer.mailbox_id, MID.s2s_shake_hand_cancel, target_peer)
 		end
 	end
 
 	self:print()
 end
 
-function ServerMgr:print()
-	Log.info("\n####### ServerMgr:print #######")
-	for k, v in ipairs(self._register_server_list) do
+function PeerMgr:print()
+	Log.info("\n####### PeerMgr:print #######")
+	for k, v in ipairs(self._register_peer_list) do
 		Log.info("[%d] mailbox_id=%d server_id=%d server_type=%d single_scene_list=[%s] from_to_scene_list=[%s] ip=%s port=%d"
 		, k, v.mailbox_id, v.server_id, v.server_type, table.concat(v.single_scene_list, ","), table.concat(v.from_to_scene_list, ","), v.ip, v.port)
 	end
 	Log.info("#######\n")
 end
 
-return ServerMgr
+return PeerMgr

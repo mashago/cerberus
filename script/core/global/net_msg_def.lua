@@ -96,7 +96,7 @@ local AreaRoleListStruct =
 	{ "role_list", _StructArray, AreaRoleStruct },
 }
 
-local ServerAddrStruct =
+local PeerAddrStruct =
 {
 	{ "ip", _String },
 	{ "port", _Int },
@@ -387,7 +387,7 @@ MSG_DEF_MAP._def_map =
 
 	s2s_shake_hand_invite =
 	{
-		{ "server_list", _StructArray, ServerAddrStruct },
+		{ "peer_list", _StructArray, PeerAddrStruct },
 	},
 
 	s2s_shake_hand_cancel =

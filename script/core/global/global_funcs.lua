@@ -221,7 +221,7 @@ end
 -- a common handle for MID.s2s_shake_hand_invite
 function g_funcs.handle_shake_hand_invite(data, mailbox_id)
 	Log.debug("g_funcs.handle_shake_hand_invite data=%s", Util.table_to_string(data))
-	for k, v in ipairs(data.server_list) do
+	for k, v in ipairs(data.peer_list) do
 		local ip = v.ip
 		local port = v.port
 		local server_id = 0

@@ -7,8 +7,8 @@ local function main_entry(xml_doc)
 	require "master_svr.msg_handler"
 	require "master_svr.rpc_handler"
 	
-	local ServerMgr = require "master_svr.server_mgr"
-	g_server_mgr = ServerMgr.new()
+	local PeerMgr = require "master_svr.peer_mgr"
+	g_peer_mgr = PeerMgr.new()
 end
 
 return main_entry
