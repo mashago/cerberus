@@ -29,7 +29,7 @@ local function main()
 
 	g_net_mgr = NetMgr.new()
 	g_timer = Timer.new()
-	g_service_mgr = ServiceMgr.new()
+	g_server_mgr = ServerMgr.new()
 	g_rpc_mgr = RpcMgr.new()
 	g_http_mgr = HttpMgr.new()
 

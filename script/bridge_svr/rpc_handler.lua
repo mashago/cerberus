@@ -58,7 +58,7 @@ function g_rpc_mgr.bridge_rpc_nocb_test(data)
 	g_rpc_mgr:call_nocb_by_server_type(ServerType.GATE, "gate_rpc_nocb_test", rpc_data)
 
 	-- rpc nocb to scene
-	local server_info = g_service_mgr:get_server_by_type(ServerType.SCENE)
+	local server_info = g_server_mgr:get_server_by_type(ServerType.SCENE)
 	if not server_info then
 		Log.warn("bridge_rpc_nocb_test server_info nil")
 		return
@@ -122,7 +122,7 @@ function g_rpc_mgr.bridge_rpc_mix_test(data)
 	g_rpc_mgr:call_nocb_by_server_type(ServerType.GATE, "gate_rpc_nocb_test", rpc_data)
 
 
-	local server_info = g_service_mgr:get_server_by_type(ServerType.SCENE)
+	local server_info = g_server_mgr:get_server_by_type(ServerType.SCENE)
 	if not server_info then
 		Log.warn("bridge_rpc_mix_test server_info nil")
 		return
@@ -165,7 +165,7 @@ end
 function g_rpc_mgr.bridge_sync_gate_conn_num(data, mailbox_id)
 	-- Log.debug("bridge_sync_gate_conn_num data=%s", Util.table_to_string(data))
 	
-	local server_info = g_service_mgr:get_server_by_mailbox(mailbox_id)
+	local server_info = g_server_mgr:get_server_by_mailbox(mailbox_id)
 	if not server_info then
 		Log.err("bridge_sync_gate_conn_num not server")
 		return

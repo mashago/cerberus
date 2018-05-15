@@ -165,7 +165,7 @@ end
 function g_msg_handler.s2s_register_area_req(data, mailbox_id, msg_id)
 	Log.debug("s2s_register_area_req: data=%s", Util.table_to_string(data))
 
-	local server_info = g_service_mgr:get_server_by_mailbox(mailbox_id)
+	local server_info = g_server_mgr:get_server_by_mailbox(mailbox_id)
 	if not server_info then
 		Log.warn("s2s_register_area_req: unknow server mailbox_id=%d", mailbox_id)
 	end

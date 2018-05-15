@@ -27,14 +27,14 @@ function ccall_disconnect_handler(mailbox_id)
 
 	local function handle_disconnect(mailbox_id)
 		
-		local server_info = g_service_mgr:get_server_by_mailbox(mailbox_id)
+		local server_info = g_server_mgr:get_server_by_mailbox(mailbox_id)
 		if server_info then
-			-- service disconnect
-			Log.warn("ccall_disconnect_handler service_client disconnect %d", mailbox_id)
+			-- server disconnect
+			Log.warn("ccall_disconnect_handler server disconnect %d", mailbox_id)
 			if g_net_event_server_disconnect and server_info._connect_status == ServiceConnectStatus.CONNECTED then
 				g_net_event_server_disconnect(server_info._server_id)
 			end
-			g_service_mgr:handle_disconnect(mailbox_id)
+			g_server_mgr:handle_disconnect(mailbox_id)
 		else
 			-- client disconnect, login and gate handle
 			Log.warn("ccall_disconnect_handler client disconnect %d", mailbox_id)
@@ -64,9 +64,9 @@ function ccall_connect_to_ret_handler(connect_index, mailbox_id)
 		return msg 
 	end
 	
-	local status, msg = xpcall(g_service_mgr.connect_to_ret
+	local status, msg = xpcall(g_server_mgr.connect_to_ret
 	, function(msg) return error_handler(msg, connect_index, mailbox_id) end
-	, g_service_mgr, connect_index, mailbox_id)
+	, g_server_mgr, connect_index, mailbox_id)
 
 	if not status then
 		Log.err(msg)
@@ -82,9 +82,9 @@ function ccall_connect_to_success_handler(mailbox_id)
 		return msg 
 	end
 	
-	local status, msg = xpcall(g_service_mgr.connect_to_success
+	local status, msg = xpcall(g_server_mgr.connect_to_success
 	, function(msg) return error_handler(msg, mailbox_id) end
-	, g_service_mgr, mailbox_id)
+	, g_server_mgr, mailbox_id)
 
 	if not status then
 		Log.err(msg)

@@ -31,7 +31,7 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 	}
 
 	-- add server
-	local new_server_info = g_service_mgr:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
+	local new_server_info = g_server_mgr:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
 	if not new_server_info then
 		msg.result = ErrorCode.SHAKE_HAND_FAIL
 		g_net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)

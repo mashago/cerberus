@@ -89,13 +89,13 @@ function RpcMgr:call(server_info, func_name, data)
 end
 
 function RpcMgr:call_by_server_type(server_type, func_name, data, opt_key)
-	local server_info = g_service_mgr:get_server_by_type(server_type, opt_key)
+	local server_info = g_server_mgr:get_server_by_type(server_type, opt_key)
 	if not server_info then return false end
 	return self:call(server_info, func_name, data)
 end
 
 function RpcMgr:call_by_server_id(server_id, func_name, data)
-	local server_info = g_service_mgr:get_server_by_id(server_id)
+	local server_info = g_server_mgr:get_server_by_id(server_id)
 	if not server_info then return false end
 	return self:call(server_info, func_name, data)
 end
@@ -118,13 +118,13 @@ function RpcMgr:call_nocb(server_info, func_name, data)
 end
 
 function RpcMgr:call_nocb_by_server_type(server_type, func_name, data, opt_key)
-	local server_info = g_service_mgr:get_server_by_type(server_type, opt_key)
+	local server_info = g_server_mgr:get_server_by_type(server_type, opt_key)
 	if not server_info then return false end
 	return self:call_nocb(server_info, func_name, data)
 end
 
 function RpcMgr:call_nocb_by_server_id(server_id, func_name, data)
-	local server_info = g_service_mgr:get_server_by_id(server_id)
+	local server_info = g_server_mgr:get_server_by_id(server_id)
 	if not server_info then return false end
 	return self:call_nocb(server_info, func_name, data)
 end
@@ -263,7 +263,7 @@ function RpcMgr:callback(session_id, result, data)
 	self._origin_route_map[session_id] = nil
 	assert(origin_route.session_id ~= RPC_NOCB_SESSION_ID)
 
-	local server_info = g_service_mgr:get_server_by_id(origin_route.from_server_id)
+	local server_info = g_server_mgr:get_server_by_id(origin_route.from_server_id)
 	if not server_info then
 		Log.warn("RpcMgr:callback cannot go back from_server_id=%d", origin_route.from_server_id)
 		return

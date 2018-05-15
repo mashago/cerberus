@@ -18,7 +18,7 @@ function g_msg_handler.s2c_user_login_ret(data, mailbox_id, msg_id)
 end
 
 function g_msg_handler.s2c_user_kick(data)
-	g_service_mgr:close_connection_by_type(ServerType.LOGIN, true)
+	g_server_mgr:close_connection_by_type(ServerType.LOGIN, true)
 end
 
 function g_msg_handler.s2c_area_list_ret(data, mailbox_id, msg_id)
@@ -73,7 +73,7 @@ function g_msg_handler.s2c_select_role_ret(data, mailbox_id, msg_id)
 	g_client._user_token = data.token
 
 	g_time_counter:print()
-	g_service_mgr:close_connection_by_type(ServerType.LOGIN, true)
+	g_server_mgr:close_connection_by_type(ServerType.LOGIN, true)
 end
 
 function g_msg_handler.s2c_role_enter_ret(data, mailbox_id, msg_id)
@@ -145,6 +145,6 @@ function g_msg_handler.s2c_attr_modify_ret(data, mailbox_id, msg_id)
 end
 
 function g_msg_handler.s2c_role_kick(data, mailbox_id, msg_id)
-	g_service_mgr:close_connection_by_type(ServerType.GATE, true)
+	g_server_mgr:close_connection_by_type(ServerType.GATE, true)
 end
 

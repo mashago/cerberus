@@ -53,9 +53,9 @@ function g_msg_handler.c2s_role_enter_req(data, mailbox_id)
 
 	local scene_server_info = nil
 	if user._scene_server_id == 0 then
-		scene_server_info = g_service_mgr:get_server_by_scene(scene_id)
+		scene_server_info = g_server_mgr:get_server_by_scene(scene_id)
 	else
-		scene_server_info = g_service_mgr:get_server_by_id(user._scene_server_id)
+		scene_server_info = g_server_mgr:get_server_by_id(user._scene_server_id)
 	end
 
 	if not scene_server_info then
@@ -101,7 +101,7 @@ function g_msg_handler.s2s_gate_role_enter_ret(data, mailbox_id)
 		return
 	end
 
-	local scene_server_info = g_service_mgr:get_server_by_mailbox(mailbox_id)
+	local scene_server_info = g_server_mgr:get_server_by_mailbox(mailbox_id)
 	if not scene_server_info then
 		Log.err("s2s_gate_role_enter_ret: cannot get server_info %d", mailbox_id)
 		msg.result = ErrorCode.SYS_ERROR
@@ -135,7 +135,7 @@ function g_msg_handler.transfer_msg(mailbox_id, msg_id, ext)
 			return
 		end
 		
-		local scene_server_info = g_service_mgr:get_server_by_id(scene_server_id)
+		local scene_server_info = g_server_mgr:get_server_by_id(scene_server_id)
 		if not scene_server_info then
 			Log.warn("g_msg_handler.transfer_msg: scene server nil %d", scene_server_id)
 			return
@@ -147,7 +147,7 @@ function g_msg_handler.transfer_msg(mailbox_id, msg_id, ext)
 
 	-- if ext non zero, its from server to client
 	-- ext is a role_id, so get user by role_id. check if mailbox is from a server
-	local server_info = g_service_mgr:get_server_by_mailbox(mailbox_id)
+	local server_info = g_server_mgr:get_server_by_mailbox(mailbox_id)
 	if not server_info then
 		Log.warn("g_msg_handler.transfer_msg not server msg_id=%d", msg_id)
 		return

@@ -6,7 +6,7 @@ function ServerInfo:ctor(ip, port, no_shakehand, no_reconnect, mailbox_id, serve
 	-- connection info
 	self._ip = ip 
 	self._port = port 
-	self._no_shakehand = no_shakehand -- send my scene info to target service
+	self._no_shakehand = no_shakehand -- send my scene info to target server
 	self._no_reconnect = no_reconnect -- default do reconnect
 	self._connect_index = 0
 	self._connect_status = ServiceConnectStatus.DISCONNECT

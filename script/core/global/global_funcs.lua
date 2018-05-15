@@ -47,7 +47,7 @@ function g_funcs.connect_to_servers(xml_doc)
 		local no_delay = (address_ele:int_attribute("no_delay") == 1) and true or false
 
 		Log.info("g_funcs.connect_to_servers ip=%s port=%d server_id=%d server_type=%d no_shakehand=%s no_reconnect=%s no_delay=%s", ip, port, server_id, server_type, no_shakehand, no_reconnect, no_delay)
-		g_service_mgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect, no_delay)
+		g_server_mgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect, no_delay)
 
 		address_ele = address_ele:next_sibling_element()
 	end
@@ -180,7 +180,7 @@ function g_funcs.handle_shake_hand_req(data, mailbox_id)
 	}
 
 	-- add server
-	local server_info = g_service_mgr:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
+	local server_info = g_server_mgr:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
 	if not server_info then
 		Log.warning("g_funcs.handle_shake_hand_req add_server fail server_id=%d server_type=%d", server_id, server_type)
 		msg.result = ErrorCode.SHAKE_HAND_FAIL
@@ -207,7 +207,7 @@ function g_funcs.handle_shake_hand_ret(data, mailbox_id)
 	local single_scene_list = data.single_scene_list
 	local from_to_scene_list = data.from_to_scene_list
 
-	local ret = g_service_mgr:shake_hand_success(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
+	local ret = g_server_mgr:shake_hand_success(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
 
 	if not ret then
 		return
@@ -229,7 +229,7 @@ function g_funcs.handle_shake_hand_invite(data, mailbox_id)
 		local no_shakehand = false
 		local no_reconnect = false
 		
-		g_service_mgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect)
+		g_server_mgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect)
 	end
 end
 --
@@ -241,7 +241,7 @@ function g_funcs.handle_shake_hand_cancel(data, mailbox_id)
 	local server_id = data.server_id
 	local ip = data.ip
 	local port = data.port
-	g_service_mgr:close_connection_by_host(ip, port, true)
+	g_server_mgr:close_connection_by_host(ip, port, true)
 end
 --
 

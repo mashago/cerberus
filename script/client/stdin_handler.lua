@@ -375,7 +375,7 @@ function cmd_handler.do_print_server_list(params)
 end
 
 function cmd_handler.do_netprint(params)
-	g_service_mgr:print()
+	g_server_mgr:print()
 end
 
 -- [login/gate]
@@ -408,7 +408,7 @@ function cmd_handler.do_connect(params)
 	local no_shakehand = true
 	local no_reconnect = false
 	local no_delay = true
-	g_service_mgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect, no_delay)
+	g_server_mgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect, no_delay)
 
 end
 
@@ -426,11 +426,11 @@ function cmd_handler.do_close_connect(params)
 		server_type = ServerType.GATE
 	end
 	if not server_type then
-		Log.warn("cmd_handler.do_close_connect no such service")
+		Log.warn("cmd_handler.do_close_connect no such server")
 		return
 	end
 
-	g_service_mgr:close_connection_by_type(server_type, true)
+	g_server_mgr:close_connection_by_type(server_type, true)
 end
 
 -- [opt username] [opt password] [opt channel_id]

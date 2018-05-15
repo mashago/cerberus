@@ -56,11 +56,11 @@ end
 
 
 function Client:send_to_login(msg_id, msg)
-	g_service_mgr:send_by_server_type(ServerType.LOGIN, msg_id, msg)
+	g_server_mgr:send_by_server_type(ServerType.LOGIN, msg_id, msg)
 end
 
 function Client:send_to_gate(msg_id, msg)
-	g_service_mgr:send_by_server_type(ServerType.GATE, msg_id, msg)
+	g_server_mgr:send_by_server_type(ServerType.GATE, msg_id, msg)
 end
 
 function Client:random_change_attr()

@@ -1,5 +1,4 @@
 local hotfix_module_names = {
-	-- "core.service.service_client",
 	-- "client.stdin_handler",
 	-- "client.msg_handler",
 	-- "db_svr.rpc_handler",
