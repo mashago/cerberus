@@ -68,6 +68,7 @@ function Role:force_save()
 		-- nothing change
 		return
 	end
+	g_role_mgr:unmark_save_role(self._role_id)
 	g_timer:del_timer(timer_index)
 	self._db_save_timer_index = 0
 	self:save_dirty()
@@ -99,8 +100,10 @@ function Role:active_save()
 	if self._db_save_timer_index > 0 then
 		return
 	end
+	g_role_mgr:mark_save_role(self._role_id)
 
 	local timer_cb = function(role)
+		g_role_mgr:unmark_save_role(self._role_id)
 		self._db_save_timer_index = 0
 		role:save_dirty()
 	end

@@ -40,14 +40,16 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 
 	-- check if exists same server_id
 	local reconn_peer_index = 0
-	local peer_list = {}
+	local front_peer_list = {}
 	for index, peer in ipairs(self._register_peer_list) do
 		if peer.server_id ~= server_id then
-			table.insert(peer_list, 
-			{
-				ip = peer.ip,
-				port = peer.port,
-			})
+			if peer.mailbox_id ~= MAILBOX_ID_NIL then
+				table.insert(front_peer_list, 
+				{
+					ip = peer.ip,
+					port = peer.port,
+				})
+			end
 			goto continue
 		end
 
@@ -61,6 +63,13 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 
 		-- server reconnect
 		peer.mailbox_id = mailbox_id
+		peer.server_id = server_id
+		peer.server_type = server_type
+		peer.single_scene_list = single_scene_list
+		peer.from_to_scene_list = from_to_scene_list
+		peer.ip = ip
+		peer.port = port
+
 		reconn_peer_index = index
 		break
 
@@ -71,10 +80,10 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 
 	-- shake hand server is reconnect server
 	if reconn_peer_index > 0 then
-		-- send before peer_list to reconnect server
+		-- send front_peer_list to reconnect server
 		local msg =
 		{
-			peer_list = peer_list
+			peer_list = front_peer_list
 		}
 		g_net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_invite, msg)
 
@@ -92,7 +101,7 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 		}
 		for i=reconn_peer_index+1, #self._register_peer_list do
 			local peer = self._register_peer_list[i]
-			if peer.mailbox_id > 0 then
+			if peer.mailbox_id ~= MAILBOX_ID_NIL then
 				g_net_mgr:send_msg(peer.mailbox_id, MID.s2s_shake_hand_invite, msg)
 			end
 		end
@@ -108,11 +117,13 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 			peer_list = {}
 		}
 		for _, peer in ipairs(self._register_peer_list) do
-			table.insert(msg.peer_list, 
-			{
-				ip = peer.ip,
-				port = peer.port,
-			})
+			if peer.mailbox_id ~= MAILBOX_ID_NIL then
+				table.insert(msg.peer_list, 
+				{
+					ip = peer.ip,
+					port = peer.port,
+				})
+			end
 		end
 		g_net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_invite, msg)
 	end
@@ -131,6 +142,7 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 	table.insert(self._register_peer_list, peer)
 	
 	self:print()
+	self:save_peer_list()
 	return true
 end
 
@@ -147,20 +159,73 @@ function PeerMgr:server_disconnect(server_id)
 		return
 	end
 
+	--[[
 	for index, peer in ipairs(self._register_peer_list) do
 		if peer.mailbox_id ~= 0 then
 			g_net_mgr:send_msg(peer.mailbox_id, MID.s2s_shake_hand_cancel, target_peer)
 		end
 	end
+	--]]
 
 	self:print()
+end
+
+-- write current peer into file
+-- NOTE: DO NOT DELETE peer data file when server is running!
+function PeerMgr:save_peer_list()
+	local peer_list = {}
+	for k, v in ipairs(self._register_peer_list) do
+		table.insert(peer_list,
+		{
+			server_id = v.server_id,
+		})
+	end
+
+	local str = Util.serialize(peer_list)
+	-- Log.debug("PeerMgr:save_peer_list str=%s", str)
+	local file_name = string.format("dat/peer%d.dat", g_server_id)
+	local file = io.open(file_name, "w")
+	file:write(str)
+	file:close()
+end
+
+function PeerMgr:load_peer_list()
+	local file_name = string.format("dat/peer%d.dat", g_server_id)
+	local file = io.open(file_name, "r")
+	if not file then
+		Log.warn("PeerMgr:load_peer_list peer data not exists")
+		return
+	end
+
+	local str = file:read("*all")
+	Log.debug("PeerMgr:load_peer_list str=%s", str)
+	file:close()
+	local peer_list = Util.unserialize(str)
+	if type(peer_list) ~= "table" then
+		Log.warn("PeerMgr:load_peer_list peer_list error")
+		return
+	end
+
+	for k, v in ipairs(peer_list) do
+		table.insert(self._register_peer_list,
+		{
+			mailbox_id = MAILBOX_ID_NIL,
+			server_id = v.server_id,
+			server_type = ServerType.NULL,
+			single_scene_list = {},
+			from_to_scene_list = {},
+			ip = "",
+			port = 0,
+		})
+	end
+
 end
 
 function PeerMgr:print()
 	Log.info("\n####### PeerMgr:print #######")
 	for k, v in ipairs(self._register_peer_list) do
-		Log.info("[%d] mailbox_id=%d server_id=%d server_type=%d single_scene_list=[%s] from_to_scene_list=[%s] ip=%s port=%d"
-		, k, v.mailbox_id, v.server_id, v.server_type, table.concat(v.single_scene_list, ","), table.concat(v.from_to_scene_list, ","), v.ip, v.port)
+		Log.info("[%d] mailbox_id=%d server_id=%d server_type=[%d:%s] single_scene_list=[%s] from_to_scene_list=[%s] ip=%s port=%d"
+		, k, v.mailbox_id, v.server_id, v.server_type, ServerTypeName[v.server_type], table.concat(v.single_scene_list, ","), table.concat(v.from_to_scene_list, ","), v.ip, v.port)
 	end
 	Log.info("#######\n")
 end

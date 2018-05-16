@@ -1,5 +1,10 @@
 
 function g_net_event_server_disconnect(server_id)
+	local server_info = g_server_mgr:get_server_by_id(server_id)
+	if server_info._server_type == ServerType.MASTER then
+		-- save all role
+		g_role_mgr:force_save_all_role()
+	end
 end
 
 function g_net_event_client_msg(msg_handler, data, mailbox_id, msg_id, ext)
