@@ -58,6 +58,10 @@ function ServerInfo:get_mailbox_id()
 	return self._mailbox_id
 end
 
+function ServerInfo:set_no_reconnect(flag)
+	self._no_reconnect = flag
+end
+
 function ServerInfo:send_msg(msg_id, msg)
 	return self:send_msg_ext(msg_id, 0, msg)
 end

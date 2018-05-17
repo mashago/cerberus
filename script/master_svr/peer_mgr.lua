@@ -16,9 +16,9 @@ function PeerMgr:ctor()
 
 end
 
--- when other server connect to master server, send s2s_shake_hand_req, will call this function
--- will invite new server connect to forward other server, so send other server addr to new server. and new server will push back into server list
--- if server disconnect, will not remove from server list, just set mailbox_id = 0
+-- when new peer connect to master server, send s2s_shake_hand_req, will call this function
+-- this function will invite new peer connect to forward other peer. and new peer will push back into peer list
+-- if peer disconnect, will not remove from peer list, just set mailbox_id invalid
 function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list, ip, port)
 
 	local msg = 
@@ -61,7 +61,7 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 			return false
 		end
 
-		-- server reconnect
+		-- peer reconnect
 		peer.mailbox_id = mailbox_id
 		peer.server_id = server_id
 		peer.server_type = server_type
@@ -78,17 +78,18 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 
 	g_net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
 
-	-- shake hand server is reconnect server
+	-- in peer is reconnect peer
 	if reconn_peer_index > 0 then
-		-- send front_peer_list to reconnect server
-		local msg =
-		{
-			peer_list = front_peer_list
-		}
-		g_net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_invite, msg)
+		-- send front_peer_list to in peer
+		if next(front_peer_list) then
+			local msg =
+			{
+				peer_list = front_peer_list
+			}
+			g_net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_invite, msg)
+		end
 
-		-- send reconnect server addr to behind server
-
+		-- send new peer addr to back peer
 		local msg = 
 		{
 			peer_list =
@@ -159,13 +160,11 @@ function PeerMgr:server_disconnect(server_id)
 		return
 	end
 
-	--[[
 	for index, peer in ipairs(self._register_peer_list) do
 		if peer.mailbox_id ~= 0 then
 			g_net_mgr:send_msg(peer.mailbox_id, MID.s2s_shake_hand_cancel, target_peer)
 		end
 	end
-	--]]
 
 	self:print()
 end

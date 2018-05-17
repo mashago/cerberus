@@ -229,19 +229,33 @@ function g_funcs.handle_shake_hand_invite(data, mailbox_id)
 		local no_shakehand = false
 		local no_reconnect = false
 		
-		g_server_mgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect)
+		local server_info = g_server_mgr:get_server_by_host(ip, port)
+		if server_info then
+			server_info:set_no_reconnect(no_reconnect)
+		else
+			g_server_mgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect)
+		end
 	end
 end
 --
 
 -- a common handle for MID.s2s_shake_hand_cancel
+-- master detect one peer disconnect
+-- that server connection may close later or may invite again
+-- so mark mark server no_reconnect, 
 function g_funcs.handle_shake_hand_cancel(data, mailbox_id)
 	Log.debug("g_funcs.handle_shake_hand_cancel data=%s", Util.table_to_string(data))
 
 	local server_id = data.server_id
 	local ip = data.ip
 	local port = data.port
-	g_server_mgr:close_connection_by_host(ip, port, true)
+
+	local server_info = g_server_mgr:get_server_by_host(ip, port)
+	if not server_info then
+		return
+	end
+
+	server_info:set_no_reconnect(true)
 end
 --
 

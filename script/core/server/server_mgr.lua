@@ -24,18 +24,10 @@ end
 function ServerMgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect, no_delay)
 	
 	-- check duplicate connect server
-	for k, v in ipairs(self._wait_server_list) do
-		if v._ip == ip and v._port == port then
-			Log.warn("ServerMgr:do_connect connecting ip=%s port=%d", ip, port)
-			return
-		end
-	end
-
-	for k, v in pairs(self._active_server_map) do
-		if v._ip == ip and v._port == port then
-			Log.warn("ServerMgr:do_connect connected ip=%s port=%d", ip, port)
-			return
-		end
+	local server_info = self:get_server_by_host(ip, port)
+	if server_info then
+		Log.warn("ServerMgr:do_connect host exists ip=%s port=%d", ip, port)
+		return
 	end
 	
 	local ServerInfo = require "core.server.server_info"
@@ -375,7 +367,8 @@ function ServerMgr:handle_disconnect(mailbox_id)
 	until true
 
 	if not server_info then
-		Log.info("ServerMgr:handle_disconnect server nil mailbox_id=%d", mailbox_id)
+		Log.warn("ServerMgr:handle_disconnect server nil mailbox_id=%d", mailbox_id)
+		return
 	end
 
 	if server_info._no_reconnect or server_info._port == 0 then
@@ -420,22 +413,7 @@ function ServerMgr:close_connection_by_type(server_type, no_reconnect)
 end
 
 function ServerMgr:close_connection_by_host(ip, port, no_reconnect)
-	local server_info = nil
-	for k, v in pairs(self._active_server_map) do
-		if v._ip == ip and v._port == port then
-			server_info = v
-			break
-		end
-	end
-	if not server_info then
-		for k, v in ipairs(self._wait_server_list) do
-			if v._ip == ip and v._port == port then
-				server_info = v
-				break
-			end
-		end
-	end
-
+	local server_info = self:get_server_by_host(ip, port)
 	if not server_info then
 		Log.warn("ServerMgr:close_connection_by_host no such host %s:%d", ip, port)
 		return
@@ -447,6 +425,20 @@ end
 
 function ServerMgr:get_server_by_id(server_id)
 	return self._active_server_map[server_id]
+end
+
+function ServerMgr:get_server_by_host(ip, port)
+	for k, v in pairs(self._active_server_map) do
+		if v._ip == ip and v._port == port then
+			return v
+		end
+	end
+	for k, v in ipairs(self._wait_server_list) do
+		if v._ip == ip and v._port == port then
+			return v
+		end
+	end
+	return nil
 end
 
 function ServerMgr:get_server_by_mailbox(mailbox_id)
