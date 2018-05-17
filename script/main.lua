@@ -10,6 +10,19 @@ local function add_debug_timer()
 	g_timer:add_timer(5000, timer_cb, 0, true)
 end
 
+local function check_write_global()
+	local mt = 
+	{
+		__newindex = function(t, k, v)
+			local info = debug.getinfo(2)
+			Log.warn("WRITE GLOBAL %s:%d %s %s [%s]"
+			, info.short_src, info.currentline, info.namewhat, type(v), k)
+			rawset(t, k, v)
+		end
+	}
+	setmetatable(_G, mt)
+end
+
 local function main()
 	Log.info("------------------------------")
 	Log.info("g_server_id=%d", g_server_id)
@@ -18,6 +31,7 @@ local function main()
 	Log.info("g_entry_path=%s", g_entry_path)
 	Log.info("------------------------------")
 
+	check_write_global()
 
 	local xml_doc = LuaTinyXMLDoc.create()
 	if not xml_doc:load_file(g_conf_file) then
