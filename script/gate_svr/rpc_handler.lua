@@ -43,6 +43,7 @@ function g_rpc_mgr.gate_select_role(data)
 
 	local user_id = data.user_id
 	local role_id = data.role_id
+	local server_id = data.server_id
 	local scene_id = data.scene_id
 	local token = data.token
 	
@@ -53,20 +54,15 @@ function g_rpc_mgr.gate_select_role(data)
 		port = 0,
 	}
 
-	-- check if already online
-	local user = g_user_mgr:get_user_by_id(user_id)
-	if user then
-		-- user exists, use that scene_id
-		scene_id = user._scene_id
-		-- update token
-		user._token = token
-		g_user_mgr:kick_user(user)
-	else
-		-- create user
-		local User = require "gate_svr.user"
-		user = User.new(user_id, role_id, scene_id, token)
-		g_user_mgr:add_user(user)
+	if g_user_mgr:get_user_by_id(user_id) then
+		msg.result = ErrorCode.SYS_ERROR
+		return msg
 	end
+
+	-- create user
+	local User = require "gate_svr.user"
+	local user = User.new(user_id, role_id, scene_id, token)
+	g_user_mgr:add_user(user)
 	
 	msg.result = ErrorCode.SUCCESS
 	msg.ip = g_server_conf._ip
@@ -78,15 +74,20 @@ end
 function g_rpc_mgr.gate_kick_role(data)
 	local user_id = data.user_id
 	local role_id = data.role_id
+	local reason = data.reason
 
 	local msg =
 	{
 		result = ErrorCode.SUCCESS,
+		server_id = 0,
+		scene_id = 0,
 	}
 
 	local user = g_user_mgr:get_user_by_id(user_id)
 	if user then
-		g_user_mgr:kick_user(user)
+		g_user_mgr:kick_user(user, reason)
+		msg.server_id = self._scene_server_id
+		msg.scene_id = self._scene_id
 	end
 
 	return msg

@@ -39,12 +39,12 @@ function UserMgr:add_user(user)
 	return true
 end
 
-function UserMgr:kick_user(user)
+function UserMgr:kick_user(user, reason)
 	Log.warn("UserMgr:kick_user user_id=%d role_id=%d", user._user_id, user._role_id)
 
-	user:send_msg(MID.s2c_role_kick, {reason = 1})
+	user:send_msg(MID.s2c_role_kick, {reason = reason})
 	
-	self:offline(user)
+	self:user_offline(user, true)
 
 end
 
@@ -67,6 +67,8 @@ function UserMgr:del_user(user)
 	-- self._mailbox_user_map[user._mailbox_id] = nil
 	self._role_user_map[user._role_id] = nil
 	user._mailbox_id = 0
+
+	-- TODO send user offline to bridge
 end
 
 function UserMgr:online(user, mailbox_id)
@@ -89,10 +91,15 @@ function UserMgr:offline_timer_cb(user_id)
 	self:del_user(user)
 end
 
-function UserMgr:offline(user)
+function UserMgr:user_offline(user, no_delay)
 	local user_id = user._user_id
 	self._mailbox_user_map[user._mailbox_id] = nil
 	user:offline()
+
+	if no_delay then
+		self:del_user(user)
+		return
+	end
 
 	-- add timer to delete user
 	local delete_user_interval_ms = 300 * 1000

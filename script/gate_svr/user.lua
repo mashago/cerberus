@@ -28,10 +28,10 @@ function User:transfer_msg()
 end
 
 function User:offline()
-	-- set mailbox_id 0
+	-- clear mailbox_id
 	-- send to scene server
 
-	self._mailbox_id = 0
+	self._mailbox_id = MAILBOX_ID_NIL
 
 	local scene_server_info = g_server_mgr:get_server_by_id(self._scene_server_id)
 	if not scene_server_info then

@@ -18,6 +18,7 @@ function User:ctor(mailbox_id, user_id, username, channel_id)
 	}
 	--]]
 	self._role_map = nil 
+	self._logic_lock = nil
 end
 
 function User:is_ok()
@@ -211,7 +212,7 @@ function User:send_role_list()
 end
 
 function User:get_role_list()
-	if self._lock_get_role_list then
+	if self._logic_lock then
 		return
 	end
 
@@ -226,7 +227,7 @@ function User:get_role_list()
 		return
 	end
 
-	self._lock_get_role_list = true
+	self._logic_lock = true
 	local ret, err
 	repeat
 		ret, err = self:_db_get_role_list()
@@ -244,7 +245,7 @@ function User:get_role_list()
 			self:add_role(area_id, role_id, role_name)
 		end
 	until true
-	self._lock_get_role_list = nil
+	self._logic_lock = nil
 	if err then
 		msg.result = err
 		self:send_msg(MID.s2c_role_list_ret, msg)
@@ -255,11 +256,11 @@ function User:get_role_list()
 end
 
 function User:create_role(area_id, role_name)
-	if self._lock_create then
+	if self._logic_lock then
 		return
 	end
 
-	self._lock_create = true
+	self._logic_lock = true
 	local msg =
 	{
 		result = ErrorCode.SUCCESS,
@@ -294,7 +295,7 @@ function User:create_role(area_id, role_name)
 		self:add_role(area_id, role_id, role_name)
 		msg.role_id = role_id
 	until true
-	self._lock_create = nil
+	self._logic_lock = nil
 	if err then
 		msg.result = err
 	end
@@ -305,11 +306,11 @@ function User:create_role(area_id, role_name)
 end
 
 function User:delete_role(area_id, role_id)
-	if self._lock_delete then
+	if self._logic_lock then
 		return
 	end
 
-	self._lock_delete = true
+	self._logic_lock = true
 	local msg =
 	{
 		result = ErrorCode.SUCCESS,
@@ -347,7 +348,7 @@ function User:delete_role(area_id, role_id)
 			end
 		end
 	until true
-	self._lock_delete = nil
+	self._logic_lock = nil
 	if err then
 		msg.result = err
 	end
@@ -356,11 +357,11 @@ function User:delete_role(area_id, role_id)
 end
 
 function User:select_role(area_id, role_id)
-	if self._lock_select then
+	if self._logic_lock then
 		return
 	end
 
-	self._lock_select = true
+	self._logic_lock = true
 
 	local msg =
 	{
@@ -397,7 +398,7 @@ function User:select_role(area_id, role_id)
 		end
 		
 	until true
-	self._lock_select = nil
+	self._logic_lock = nil
 
 	if err then
 		msg.result = err

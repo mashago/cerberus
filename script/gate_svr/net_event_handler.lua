@@ -22,6 +22,6 @@ function g_net_event_client_disconnect(mailbox_id)
 	end
 
 	Log.info("g_net_event_client_disconnect: user_id=%d", user._user_id)
-	return g_user_mgr:offline(user)
+	return g_user_mgr:user_offline(user)
 end
 

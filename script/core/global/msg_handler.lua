@@ -1,8 +1,10 @@
 
 g_msg_handler = g_msg_handler or {}
 
+if g_server_type ~= ServerType.MASTER then
 function g_msg_handler.s2s_shake_hand_req(data, mailbox_id)
 	g_funcs.handle_shake_hand_req(data, mailbox_id)
+end
 end
 
 function g_msg_handler.s2s_shake_hand_ret(data, mailbox_id)
