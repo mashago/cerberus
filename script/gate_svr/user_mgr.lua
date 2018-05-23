@@ -16,8 +16,6 @@ function UserMgr:connect_timeout_cb(user_id)
 	self._offline_user_map[user_id] = nil
 	local user = self:get_user_by_id(user_id)
 	self:del_user(user)
-
-	-- TODO rpc to bridge
 end
 
 function UserMgr:add_user(user)
@@ -68,7 +66,8 @@ function UserMgr:del_user(user)
 	self._role_user_map[user._role_id] = nil
 	user._mailbox_id = 0
 
-	-- TODO send user offline to bridge
+	-- send user offline to bridge
+	g_rpc_mgr:call_nocb_by_server_type(ServerType.BRIDGE, "bridge_user_offline", {user_id = user._user_id})
 end
 
 function UserMgr:online(user, mailbox_id)

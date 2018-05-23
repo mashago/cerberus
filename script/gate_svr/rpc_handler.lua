@@ -93,28 +93,3 @@ function g_rpc_mgr.gate_kick_role(data)
 	return msg
 end
 
-function g_rpc_mgr.gate_check_role_online(data)
-	
-	Log.debug("gate_check_role_online: data=%s", Util.table_to_string(data))
-
-	local user_id = data.user_id
-	local role_id = data.role_id
-
-	local msg =
-	{
-		is_online = false
-	}
-
-	local user = g_user_mgr:get_user_by_id(user_id)
-	if not user then
-		return msg
-	end
-
-	if role_id ~= user._role_id then
-		return msg
-	end
-
-	msg.is_online = true
-	return msg
-end
-

@@ -92,7 +92,7 @@ function CommonMgr:rpc_delete_role(user_id, role_id)
 		fields = {is_delete = 1},
 		conditions = {role_id = role_id}
 	}
-	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_game_update", rpc_data)
+	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_game_update", rpc_data, role_id)
 	if not status then
 		Log.err("rpc_delete_role rpc call fail")
 		return {result = ErrorCode.SYS_ERROR}
@@ -184,10 +184,10 @@ function CommonMgr:rpc_select_role(user_id, role_id)
 		local rpc_data = 
 		{
 			table_name = "role_info",
-			fields = {"scene_id"},
-			conditions = {role_id=role_id}
+			fields = {"server_id", "scene_id"},
+			conditions = {role_id = role_id}
 		}
-		local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_game_select", rpc_data)
+		local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_game_select", rpc_data, role_id)
 		if not status then
 			Log.err("rpc_select_role rpc call fail")
 			return {result = ErrorCode.SYS_ERROR}
@@ -198,10 +198,11 @@ function CommonMgr:rpc_select_role(user_id, role_id)
 			return {result = ret.result}
 		end
 
-		if #ret.data ~= 1 or not ret.data[1].scene_id then
+		if #ret.data ~= 1 or not ret.data[1].server_id or not ret.data[1].scene_id then
 			Log.warn("rpc_select_role: role not exists %d %d", user_id, role_id)
 			return {result = ErrorCode.ROLE_NOT_EXISTS}
 		end
+		server_id = ret.data[1].server_id
 		scene_id = ret.data[1].scene_id
 	end
 
@@ -215,11 +216,11 @@ function CommonMgr:rpc_select_role(user_id, role_id)
 	local token = online_user.token
 	local rpc_data = 
 	{
-		user_id=user_id, 
-		role_id=role_id, 
+		user_id = user_id, 
+		role_id = role_id, 
 		server_id = server_id,
-		scene_id=scene_id,
-		token=token,
+		scene_id = scene_id,
+		token = token,
 	}
 	local status, ret = g_rpc_mgr:call_by_server_id(online_user.gate_server_id, "gate_select_role", rpc_data)
 	if not status then
@@ -233,13 +234,23 @@ function CommonMgr:rpc_select_role(user_id, role_id)
 
 	local msg = 
 	{
-		result=ErrorCode.SUCCESS,
-		ip=ret.ip,
-		port=ret.port,
-		token=token,
+		result = ErrorCode.SUCCESS,
+		ip = ret.ip,
+		port = ret.port,
+		token = token,
 	}
 
 	return msg
+end
+
+function CommonMgr:rpc_user_offline(user_id)
+	
+	if not self._online_user_map[user_id] then
+		Log.err("g_common_mgr:rpc_user_offline user nil user_id=%d", user_id)
+		return
+	end
+
+	self._online_user_map[user_id] = nil
 end
 
 return CommonMgr

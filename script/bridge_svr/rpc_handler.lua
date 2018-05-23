@@ -210,3 +210,11 @@ function g_rpc_mgr.bridge_select_role(data)
 	return g_common_mgr:rpc_select_role(user_id, role_id)
 end
 
+function g_rpc_mgr.bridge_user_offline(data)
+
+	Log.debug("bridge_user_offline: data=%s", Util.table_to_string(data))
+
+	local user_id = data.user_id
+
+	return g_common_mgr:rpc_user_offline(user_id)
+end
