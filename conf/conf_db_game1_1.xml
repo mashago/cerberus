@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<server id = "1201" type = "2" ip = "127.0.0.1" port = "60106" path = "db_svr"> 
+
+	<connect_to>
+		<!-- master_svr -->
+		<address ip = "127.0.0.1" port = "60101"/>
+	</connect_to>
+
+	<mysql>
+		<info ip = "127.0.0.1" port = "3306" username = "testmn" password = "123456" db_name = "mn_game_db" db_type = "2" db_suffix = "1"/>
+	</mysql>
+
+</server>

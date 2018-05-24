@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<server id = "100" type = "4" ip = "127.0.0.1" port = "60102" path = "bridge_svr"> 
+<server id = "1401" type = "4" ip = "127.0.0.1" port = "60102" path = "bridge_svr"> 
 
 	<area_list>
 		<area id = "1"/>

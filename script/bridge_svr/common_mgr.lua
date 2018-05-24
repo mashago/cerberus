@@ -150,14 +150,15 @@ function CommonMgr:rpc_select_role(user_id, role_id)
 	-- 1. check if exists online role, if true, rpc gate kick him
 	-- 2. db load scene_id
 	-- 3. rpc gate select role
-	
-	local online_user = self._online_user_map[user_id]
 
 	local server_id = 0
 	local scene_id = 0
+	
+	local online_user = self._online_user_map[user_id]
 
 	-- kick online user
 	if online_user then
+		Log.warn("CommonMgr:rpc_select_role user online user_id=%d role_id=%d", user_id, role_id)
 		local rpc_data = 
 		{
 			user_id = user_id,

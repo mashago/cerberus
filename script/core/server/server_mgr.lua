@@ -179,6 +179,7 @@ function ServerMgr:register_server(server_info)
 	-- add into type_server_map
 	self._type_server_map[server_type] = self._type_server_map[server_type] or {}
 	table.insert(self._type_server_map[server_type], server_id)
+	table.sort(self._type_server_map[server_type])
 
 	-- add into scene_server_map
 	for _, scene_id in ipairs(server_info._scene_list) do

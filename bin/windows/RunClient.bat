@@ -7,6 +7,6 @@ set CONF_PATH=conf
 
 :: client
 @echo "Start Lua Client..."
-start "client" %BIN_PATH%/opengs_client.exe %CONF_PATH%/client_conf.xml
+start "client" %BIN_PATH%/opengs_client.exe %CONF_PATH%/conf_client.xml
 
 exit

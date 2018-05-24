@@ -86,8 +86,8 @@ function g_rpc_mgr.gate_kick_role(data)
 	local user = g_user_mgr:get_user_by_id(user_id)
 	if user then
 		g_user_mgr:kick_user(user, reason)
-		msg.server_id = self._scene_server_id
-		msg.scene_id = self._scene_id
+		msg.server_id = user._scene_server_id
+		msg.scene_id = user._scene_id
 	end
 
 	return msg

@@ -1,25 +1,58 @@
 
+ServerType =
+{
+	NULL 			= 0,
+	LOGIN 			= 1,
+	DB 				= 2,
+
+	MASTER			= 3,
+	BRIDGE 			= 4,
+	GATE 			= 5,
+	PUBLIC 			= 6,
+
+	SCENE 			= 7,
+}
+
+login:
+1
+60001
+
+login db:
+2
+60002
+
+id = pack_id * 1000 + type * 100 + index
+port = 6 * 10000 + pack_id * 100 + index
+
+game db1:
+121
+60121
+
+game db2:
+122
+60122
 
 master:
-301
-60101
+131
+60131
 
 bridge:
-100
-60102
+141
+60141
 
-gate:
-501
-60103
+gate1:
+151
+60151
 
 gate2:
-502
-60104
+152
+60152
 
-scene:
-601
-60105
+scene1:
+161
+60161
+...
+scene12:
+172
+60172
 
-db:
-201
-60106
