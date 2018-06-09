@@ -21,25 +21,29 @@ Mysql Connector C
 Tinyxml2  
 Lfs  
 
-win64 Libs in [here](https://github.com/mashago/Libs), please copy dir 'lib' and 'include' to $PROJECT_DIR.  
-copy libmysql.dll to $PROJECT_DIR/bin when build as debug project in win64.
+win64 Libs in [here](https://github.com/mashago/Libs), please copy dir 'lib' and 'include' to `${PROJECT_DIR}`.  
+copy libmysql.dll to `${PROJECT_DIR}/bin` when build as debug project in win64.
 
 ## Build
-
-`cmake .`
+in linux or macos  
+`cmake .`  
+`make`  
+  
+in win64  
+use cmake-gui
 
 ## Run
-run on centos or macos
-1. build db
-`cd conf`
-`mysql -uroot -p < conf/db_login_init.sql`
-`mysql -uroot -p < conf/db_game_init.sql`
-`cd $PROJECT_DIR/bin`
-`./sync_db.sh`
-2. startup server
-`./run.sh`
-3. run client
-`./run_client.sh`
+run on centos or macos  
+1. init db  
+`cd ${PROJECT_DIR}/conf`  
+`mysql -uroot -p < conf/db_login_init.sql`  
+`mysql -uroot -p < conf/db_game_init.sql`  
+`cd ${PROJECT_DIR}/bin/${PLATFORM}`  
+`./sync_db.sh`  
+2. startup server  
+`./run.sh`  
+3. run client  
+`./run_client.sh`  
 
 ## Test
 In opengs_client, enter 'help'.
