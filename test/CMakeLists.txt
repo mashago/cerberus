@@ -19,6 +19,7 @@ INCLUDE_DIRECTORIES(
 /usr/include
 /usr/local/include/mysql
 /usr/include/mysql
+/usr/local/mysql/include
 )
 
 LINK_DIRECTORIES(

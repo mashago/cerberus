@@ -15,10 +15,6 @@ INCLUDE_DIRECTORIES(
 ../core/net
 ../core/world
 ../tinyxml
-/usr/local/include
-/usr/include
-/usr/local/include/mysql
-/usr/include/mysql
 )
 
 LINK_DIRECTORIES(
