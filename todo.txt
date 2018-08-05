@@ -1,0 +1,5 @@
+1. coroutine reuse
+2. rpc explicit return function
+3. network listen from lua, not from c++
+4. rpc function rename to call and send
+5. connection msg queue, block sync msg
