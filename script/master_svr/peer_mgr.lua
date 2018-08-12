@@ -1,4 +1,15 @@
 
+local ErrorCode = ErrorCode
+local g_server_conf = g_server_conf
+local g_server_mgr = g_server_mgr
+local g_net_mgr = g_net_mgr
+local Log = Log
+local MID = MID
+local MAILBOX_ID_NIL = MAILBOX_ID_NIL
+local ServerType = ServerType
+local Util = Util
+local g_server_id = g_server_id
+
 local PeerMgr = class()
 
 function PeerMgr:ctor()
@@ -31,7 +42,8 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 	}
 
 	-- add server
-	local new_server_info = g_server_mgr:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
+	local new_server_info = g_server_mgr:add_server(mailbox_id, server_id, server_type
+	, single_scene_list, from_to_scene_list)
 	if not new_server_info then
 		msg.result = ErrorCode.SHAKE_HAND_FAIL
 		g_net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
@@ -82,15 +94,15 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 	if reconn_peer_index > 0 then
 		-- send front_peer_list to in peer
 		if next(front_peer_list) then
-			local msg =
+			local msg2 =
 			{
 				peer_list = front_peer_list
 			}
-			g_net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_invite, msg)
+			g_net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_invite, msg2)
 		end
 
 		-- send new peer addr to back peer
-		local msg = 
+		local msg2 = 
 		{
 			peer_list =
 			{
@@ -103,7 +115,7 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 		for i=reconn_peer_index+1, #self._register_peer_list do
 			local peer = self._register_peer_list[i]
 			if peer.mailbox_id ~= MAILBOX_ID_NIL then
-				g_net_mgr:send_msg(peer.mailbox_id, MID.s2s_shake_hand_invite, msg)
+				g_net_mgr:send_msg(peer.mailbox_id, MID.s2s_shake_hand_invite, msg2)
 			end
 		end
 		self:print()
@@ -113,20 +125,20 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 	-- shake hand peer is new peer
 	-- invite new peer to connect them
 	if #self._register_peer_list > 0 then
-		local msg = 
+		local msg2 = 
 		{
 			peer_list = {}
 		}
 		for _, peer in ipairs(self._register_peer_list) do
 			if peer.mailbox_id ~= MAILBOX_ID_NIL then
-				table.insert(msg.peer_list, 
+				table.insert(msg2.peer_list, 
 				{
 					ip = peer.ip,
 					port = peer.port,
 				})
 			end
 		end
-		g_net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_invite, msg)
+		g_net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_invite, msg2)
 	end
 
 	-- push back into peer list
@@ -160,7 +172,7 @@ function PeerMgr:server_disconnect(server_id)
 		return
 	end
 
-	for index, peer in ipairs(self._register_peer_list) do
+	for _, peer in ipairs(self._register_peer_list) do
 		if peer.mailbox_id ~= 0 then
 			g_net_mgr:send_msg(peer.mailbox_id, MID.s2s_shake_hand_cancel, target_peer)
 		end
@@ -173,7 +185,7 @@ end
 -- NOTE: DO NOT DELETE peer data file when server is running!
 function PeerMgr:save_peer_list()
 	local peer_list = {}
-	for k, v in ipairs(self._register_peer_list) do
+	for _, v in ipairs(self._register_peer_list) do
 		table.insert(peer_list,
 		{
 			server_id = v.server_id,
@@ -205,7 +217,7 @@ function PeerMgr:load_peer_list()
 		return
 	end
 
-	for k, v in ipairs(peer_list) do
+	for _, v in ipairs(peer_list) do
 		table.insert(self._register_peer_list,
 		{
 			mailbox_id = MAILBOX_ID_NIL,
@@ -222,9 +234,11 @@ end
 
 function PeerMgr:print()
 	Log.info("\n####### PeerMgr:print #######")
+	local ServerTypeName = ServerTypeName
 	for k, v in ipairs(self._register_peer_list) do
 		Log.info("[%d] mailbox_id=%d server_id=%d server_type=[%d:%s] single_scene_list=[%s] from_to_scene_list=[%s] ip=%s port=%d"
-		, k, v.mailbox_id, v.server_id, v.server_type, ServerTypeName[v.server_type], table.concat(v.single_scene_list, ","), table.concat(v.from_to_scene_list, ","), v.ip, v.port)
+		, k, v.mailbox_id, v.server_id, v.server_type, ServerTypeName[v.server_type]
+		, table.concat(v.single_scene_list, ","), table.concat(v.from_to_scene_list, ","), v.ip, v.port)
 	end
 	Log.info("#######\n")
 end

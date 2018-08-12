@@ -1,4 +1,14 @@
 
+local g_msg_handler = g_msg_handler
+local Log = Log
+local Util = Util
+local ErrorCode = ErrorCode
+local g_net_mgr = g_net_mgr
+local g_rpc_mgr = g_rpc_mgr
+local ServerType = ServerType
+local MID = MID
+local g_server_mgr = g_server_mgr
+
 function g_msg_handler.c2s_rpc_test_req(data, mailbox_id, msg_id)
 	Log.debug("c2s_rpc_test_req: data=%s", Util.table_to_string(data))
 
@@ -37,7 +47,7 @@ function g_msg_handler.c2s_rpc_test_req(data, mailbox_id, msg_id)
 
 	-- 2. get bridge
 	local server_id = g_area_mgr:get_server_id(area_id)
-	local status, ret = g_rpc_mgr:call_by_server_id(server_id, "bridge_rpc_test", {buff=buff, sum=sum})
+	status, ret = g_rpc_mgr:call_by_server_id(server_id, "bridge_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("c2s_rpc_test_req rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
@@ -56,10 +66,11 @@ function g_msg_handler.c2s_rpc_test_req(data, mailbox_id, msg_id)
 end
 
 
+local XXX_g_rpc_nocb_index = 0
 function g_msg_handler.c2s_rpc_nocb_test_req(data, mailbox_id, msg_id)
 	Log.debug("c2s_rpc_nocb_test_req: data=%s", Util.table_to_string(data))
 
-	XXX_g_rpc_nocb_index = (XXX_g_rpc_nocb_index or 0) + 1
+	XXX_g_rpc_nocb_index = XXX_g_rpc_nocb_index + 1
 	local buff = data.buff
 	local index = XXX_g_rpc_nocb_index
 
@@ -72,7 +83,7 @@ function g_msg_handler.c2s_rpc_nocb_test_req(data, mailbox_id, msg_id)
 	}
 	g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_rpc_nocb_test", rpc_data)
 
-	local rpc_data =
+	rpc_data =
 	{
 		buff = buff,
 		index = index,
@@ -83,7 +94,7 @@ function g_msg_handler.c2s_rpc_nocb_test_req(data, mailbox_id, msg_id)
 	-- rpc nocb to bridge
 	local area_id = 1
 	local server_id = g_area_mgr:get_server_id(area_id)
-	local rpc_data =
+	rpc_data =
 	{
 		buff = buff,
 		index = index,
@@ -95,7 +106,7 @@ end
 function g_msg_handler.c2s_rpc_mix_test_req(data, mailbox_id, msg_id)
 	Log.debug("c2s_rpc_mix_test_req: data=%s", Util.table_to_string(data))
 
-	XXX_g_rpc_nocb_index = (XXX_g_rpc_nocb_index or 0) + 1
+	XXX_g_rpc_nocb_index = XXX_g_rpc_nocb_index + 1
 	local buff = data.buff
 	local index = XXX_g_rpc_nocb_index
 
@@ -134,14 +145,14 @@ function g_msg_handler.c2s_rpc_mix_test_req(data, mailbox_id, msg_id)
 	g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_rpc_nocb_test", rpc_data)
 
 	-- rpc to bridge
-	local rpc_data =
+	rpc_data =
 	{
 		buff = buff,
 		index = index,
 		sum = sum,
 	}
 	local server_id = g_area_mgr:get_server_id(area_id)
-	local status, ret = g_rpc_mgr:call_by_server_id(server_id, "bridge_rpc_mix_test", rpc_data)
+	status, ret = g_rpc_mgr:call_by_server_id(server_id, "bridge_rpc_mix_test", rpc_data)
 	if not status then
 		Log.err("c2s_rpc_mix_test_req rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
@@ -176,7 +187,8 @@ function g_msg_handler.s2s_register_area_req(data, mailbox_id, msg_id)
 		result = ErrorCode.SUCCESS
 	}
 	if not g_area_mgr:register_area(server_info._server_id, data.area_list) then
-		Log.warn("s2s_register_area_req: register_area duplicate %s %s", server_info._server_id, Util.table_to_string(data.area_list))
+		Log.warn("s2s_register_area_req: register_area duplicate %s %s"
+		, server_info._server_id, Util.table_to_string(data.area_list))
 		msg.result = ErrorCode.REGISTER_AREA_DUPLICATE
 		server_info:send_msg(MID.s2s_register_area_ret, msg)
 		return
@@ -190,6 +202,7 @@ end
 local XXX_DEBUG_TEST_LOGINX = false
 function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 	Log.debug("c2s_user_login_req: data=%s", Util.table_to_string(data))
+	local g_user_mgr = g_user_mgr
 
 	local msg =
 	{
@@ -240,7 +253,7 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 	end
 
 	-- check duplicate login
-	local user = g_user_mgr:get_user_by_mailbox(mailbox_id)
+	user = g_user_mgr:get_user_by_mailbox(mailbox_id)
 	if user then
 		Log.warn("c2s_user_login_req duplicate login [%s]", data.username)
 		msg.result = ErrorCode.USER_LOGIN_DUPLICATE_LOGIN
@@ -256,16 +269,15 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 		return
 	end
 
-	local user = g_user_mgr:get_user_by_id(user_id)
+	user = g_user_mgr:get_user_by_id(user_id)
 	if user then
 		-- kick old connection, and change user mailbox
 		Log.warn("c2s_user_login_req login other place [%s]", data.username)
-		msg.result = ErrorCode.USER_LOGIN_OTHER_PLACE
-		local msg =
+		local msg2 =
 		{
 			reason = ErrorCode.USER_LOGIN_OTHER_PLACE,
 		}
-		user:send_msg(MID.s2c_user_kick, msg)
+		user:send_msg(MID.s2c_user_kick, msg2)
 		g_user_mgr:change_user_mailbox(user, mailbox_id)
 	else
 		-- create a user in memory with user_id
@@ -289,7 +301,7 @@ function g_msg_handler.c2s_area_list_req(user, data, mailbox_id, msg_id)
 
 	local area_map = g_area_mgr._area_map
 	local area_list = {}
-	for k, v in pairs(area_map) do
+	for k in pairs(area_map) do
 		table.insert(area_list, {area_id=k, area_name="qwerty"})
 	end
 	local msg =

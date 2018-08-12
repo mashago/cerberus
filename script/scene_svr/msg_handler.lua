@@ -1,4 +1,11 @@
 
+local g_msg_handler = g_msg_handler
+local Log = Log
+local Util = Util
+local MID = MID
+local g_net_mgr = g_net_mgr
+local g_role_mgr = g_role_mgr
+local ErrorCode = ErrorCode
 
 function g_msg_handler.c2s_client_test_req(data, mailbox_id, msg_id)
 	-- Log.debug("client_time=%d client_data=%s", data.client_time, data.client_data)	

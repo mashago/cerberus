@@ -1,5 +1,16 @@
 
+local g_msg_handler = g_msg_handler
+local ErrorCode = ErrorCode
+local Log = Log
+local g_net_mgr = g_net_mgr
+local MID = MID
+local g_server_mgr = g_server_mgr
+local Util = Util
+
+
 function g_msg_handler.c2s_role_enter_req(data, mailbox_id)
+
+	local g_user_mgr = g_user_mgr
 
 	local user_id = data.user_id
 	local token = data.token
@@ -51,7 +62,7 @@ function g_msg_handler.c2s_role_enter_req(data, mailbox_id)
 	-- 2. update user info
 	g_user_mgr:online(user, mailbox_id)
 
-	local scene_server_info = nil
+	local scene_server_info
 	if user._scene_server_id == 0 then
 		scene_server_info = g_server_mgr:get_server_by_scene(scene_id)
 	else
@@ -71,7 +82,7 @@ function g_msg_handler.c2s_role_enter_req(data, mailbox_id)
 	-- Log.debug("c2s_role_enter_req: user._scene_server_id=%d", user._scene_server_id)
 
 	-- 3. send msg to scene
-	local msg =
+	msg =
 	{
 		role_id = role_id,
 		scene_id = scene_id,	
@@ -119,6 +130,7 @@ end
 function g_msg_handler.transfer_msg(mailbox_id, msg_id, ext)
 	Log.info("g_msg_handler.transfer_msg mailbox_id=%d, msg_id=%d, ext=%d", mailbox_id, msg_id, ext)
 
+	local g_user_mgr = g_user_mgr
 
 	-- if ext is zero, its from client to server. for now, just send to user scene server
 	if ext == 0 then

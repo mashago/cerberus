@@ -3,6 +3,8 @@ package.path = package.path .. ";script/?.lua"
 
 require "core.init"
 
+local Log = Log
+
 local function add_debug_timer()
 	local timer_cb = function()
 		g_funcs.debug_timer_cb()

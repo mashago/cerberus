@@ -1,4 +1,11 @@
 
+local g_rpc_mgr = g_rpc_mgr
+local Log = Log
+local Util = Util
+local DBMgr = DBMgr
+local ErrorCode = ErrorCode
+local DBType = DBType
+local g_server_conf = g_server_conf
 
 function g_rpc_mgr.db_rpc_test(data)
 	Log.debug("db_rpc_test: data=%s", Util.table_to_string(data))
@@ -13,16 +20,16 @@ function g_rpc_mgr.db_rpc_test(data)
 end
 
 
+local XXX_g_rpc_nocb_map = XXX_g_rpc_nocb_map or {}
 function g_rpc_mgr.db_rpc_nocb_test(data)
 	Log.debug("db_rpc_nocb_test: data=%s", Util.table_to_string(data))
 
-	XXX_g_rpc_nocb_map = XXX_g_rpc_nocb_map or {}
 	local buff = data.buff
 	local index = data.index
 	local sum = data.sum
 
 	local last_sum = XXX_g_rpc_nocb_map[index]
-	if not node then
+	if not last_sum then
 		XXX_g_rpc_nocb_map[index] = sum
 		return
 	end
@@ -49,14 +56,15 @@ function g_rpc_mgr.db_user_login(data)
 	local password = data.password
 	local channel_id = data.channel_id
 
-	local ret = DBMgr.do_insert(db_name, "user_info", {"username", "password", "channel_id"}, {{username, password, channel_id}})
+	local ret = DBMgr.do_insert(db_name, "user_info"
+	, {"username", "password", "channel_id"}, {{username, password, channel_id}})
 	if ret > 0 then
 		-- insert success
 		local user_id = DBMgr.get_insert_id(db_name)
 		return {result = ErrorCode.SUCCESS, user_id = user_id}
 	end
 
-	local ret = DBMgr.do_select(db_name, "user_info", {}
+	ret = DBMgr.do_select(db_name, "user_info", {}
 	, {username=username, password=password, channel_id=channel_id})
 	if not ret then
 		Log.warn("select user fail username=%s password=%s", username, password)
@@ -100,7 +108,8 @@ function g_rpc_mgr.db_create_role(data)
 	elseif role_id == -2 then
 		return {result = ErrorCode.CREATE_ROLE_DUPLICATE_NAME, role_id = 0}
 	elseif role_id < 0 then
-		Log.warn("db_create_role something go wrong role_id=%d user_id=%d area_id=%d role_name=%s", role_id, user_id, area_id, role_name)
+		Log.warn("db_create_role something go wrong role_id=%d user_id=%d area_id=%d role_name=%s"
+		, role_id, user_id, area_id, role_name)
 		return {result = ErrorCode.CREATE_ROLE_FAIL, role_id = 0}
 	end
 
@@ -120,7 +129,8 @@ local function db_select(data)
 
 	local ret = DBMgr.do_select(db_name, table_name, fields, conditions)
 	if not ret then
-		Log.err("db_select err db_name=%s table_name=%s fields=%s conditions=%s", db_name, table_name, Util.table_to_string(fields), Util.table_to_string(conditions))
+		Log.err("db_select err db_name=%s table_name=%s fields=%s conditions=%s"
+		, db_name, table_name, Util.table_to_string(fields), Util.table_to_string(conditions))
 		return {result = ErrorCode.SYS_ERROR, data = {}}
 	end
 
@@ -161,7 +171,7 @@ local function db_insert(data)
 
 	if get_id then
 		local insert_id = DBMgr.get_insert_id("db_name")
-		result.insert_id = insert_id
+		ret_data.insert_id = insert_id
 	end
 
 	return ret_data
@@ -202,7 +212,8 @@ local function db_delete(data)
 		return {result = ErrorCode.SYS_ERROR}
 	end
 	if ret == 0 then
-		Log.warn("db_delete nothing change db_name=%s table_name=%s conditions=%s", db_name, table_name, Util.table_to_string(conditions))
+		Log.warn("db_delete nothing change db_name=%s table_name=%s conditions=%s"
+		, db_name, table_name, Util.table_to_string(conditions))
 	end
 
 	Log.debug("db_delete: ret=%d", ret)
@@ -243,11 +254,13 @@ local function db_update(data)
 
 	local ret = DBMgr.do_update(db_name, table_name, fields, conditions)
 	if ret < 0 then
-		Log.err("db_update err db_name=%s table_name=%s fields=%s conditions=%s", db_name, table_name, Util.table_to_string(fields), Util.table_to_string(conditions))
+		Log.err("db_update err db_name=%s table_name=%s fields=%s conditions=%s"
+		, db_name, table_name, Util.table_to_string(fields), Util.table_to_string(conditions))
 		return {result = ErrorCode.SYS_ERROR}
 	end
 	if ret == 0 then
-		Log.warn("db_update nothing change db_name=%s table_name=%s fields=%s conditions=%s", db_name, table_name, Util.table_to_string(fields), Util.table_to_string(conditions))
+		Log.warn("db_update nothing change db_name=%s table_name=%s fields=%s conditions=%s"
+		, db_name, table_name, Util.table_to_string(fields), Util.table_to_string(conditions))
 	end
 
 	Log.debug("db_update: ret=%d", ret)
@@ -334,7 +347,7 @@ function g_rpc_mgr.db_game_select(data)
 	-- pick first line to get field type
 	local type_map = {} -- [field]=type
 	local line = ret.data[1]
-	for field, str_value in pairs(line) do
+	for field in pairs(line) do
 		local field_def = table_def[field]
 		if field_def then
 			type_map[field] = field_def.type
@@ -344,9 +357,9 @@ function g_rpc_mgr.db_game_select(data)
 	end
 
 	-- convert data from str to value
-	for _, line in ipairs(ret.data) do
-		for field, str_value in pairs(line) do
-			line[field] = g_funcs.str_to_value(str_value, type_map[field])
+	for _, l in ipairs(ret.data) do
+		for field, str_value in pairs(l) do
+			l[field] = g_funcs.str_to_value(str_value, type_map[field])
 		end
 	end
 

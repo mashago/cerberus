@@ -1,4 +1,10 @@
 
+local g_rpc_mgr = g_rpc_mgr
+local ErrorCode = ErrorCode
+local ServerType = ServerType
+local Log = Log
+local Util = Util
+
 local CommonMgr = class()
 
 function CommonMgr:ctor()
@@ -208,7 +214,7 @@ function CommonMgr:rpc_select_role(user_id, role_id)
 	end
 
 	-- rpc gate select role
-	local online_user = self:create_online_user(user_id, role_id)
+	online_user = self:create_online_user(user_id, role_id)
 	if not online_user then
 		Log.err("rpc_select_role create_online_user fail %d %d", user_id, role_id)
 		return {result = ErrorCode.SYS_ERROR}

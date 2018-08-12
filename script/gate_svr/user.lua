@@ -1,4 +1,11 @@
 
+local MAILBOX_ID_NIL = MAILBOX_ID_NIL
+local Log = Log
+local g_net_mgr = g_net_mgr
+local g_funcs = g_funcs
+local g_server_mgr = g_server_mgr
+local MID = MID
+
 local User = class()
 
 function User:ctor(user_id, role_id, scene_id, token)

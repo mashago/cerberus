@@ -1,7 +1,13 @@
 
 local SHEET_NAME = "role_info"
+local g_net_mgr = g_net_mgr
+local MID = MID
+local g_funcs = g_funcs
+local g_role_mgr = g_role_mgr
+local g_timer = g_timer
 
-Role = class(SheetObj)
+local Role = class(SheetObj)
+
 
 function Role:ctor(role_id, mailbox_id)
 	self._role_id = role_id

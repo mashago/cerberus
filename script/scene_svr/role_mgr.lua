@@ -49,7 +49,7 @@ function RoleMgr:mark_sync_role(role_id)
 	if self._sync_role_timer_index ~= 0 then
 		return
 	end
-	local timer_cb = function(self)
+	local timer_cb = function()
 		self._sync_role_timer_index = 0
 		self:sync_all_role()
 	end

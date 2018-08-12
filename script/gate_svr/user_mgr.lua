@@ -1,4 +1,10 @@
 
+local Log = Log
+local g_timer = g_timer
+local MID = MID
+local g_rpc_mgr = g_rpc_mgr
+local ServerType = ServerType
+
 local UserMgr = class()
 
 function UserMgr:ctor()
@@ -103,8 +109,8 @@ function UserMgr:user_offline(user, no_delay)
 	-- add timer to delete user
 	local delete_user_interval_ms = 300 * 1000
 	-- local delete_user_interval_ms = 10 * 1000
-	local timer_cb = function(user_id)
-		self:offline_timer_cb(user_id)
+	local timer_cb = function(uid)
+		self:offline_timer_cb(uid)
 	end
 	self._offline_user_map[user_id] = g_timer:add_timer(delete_user_interval_ms, timer_cb, user_id, false)
 

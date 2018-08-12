@@ -1,4 +1,13 @@
 
+local g_net_mgr = g_net_mgr
+local g_rpc_mgr = g_rpc_mgr
+local ServerType = ServerType
+local Log = Log
+local Util = Util
+local ErrorCode = ErrorCode
+local g_area_mgr = g_area_mgr
+local MID = MID
+
 local User = class()
 
 function User:ctor(mailbox_id, user_id, username, channel_id)
@@ -99,7 +108,7 @@ function User:_area_create_role(area_id, role_id, role_name)
 	if not status then
 		Log.err("_area_create_role rpc call fail")
 		-- delete in user_role
-		local rpc_data =
+		rpc_data =
 		{
 			table_name = "user_role",
 			conditions = {role_id = role_id},
@@ -122,7 +131,7 @@ function User:_check_role_exists(area_id, role_id)
 
 	-- check role exists
 	local is_exists = false
-	for k, v in ipairs(role_list) do
+	for _, v in ipairs(role_list) do
 		if v.role_id == role_id then
 			is_exists = true
 			break

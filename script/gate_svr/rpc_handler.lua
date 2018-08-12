@@ -1,4 +1,10 @@
 
+local g_rpc_mgr = g_rpc_mgr
+local Log = Log
+local Util = Util
+local ErrorCode = ErrorCode
+local g_server_conf = g_server_conf
+
 function g_rpc_mgr.gate_rpc_test(data)
 	
 	Log.debug("gate_rpc_test: data=%s", Util.table_to_string(data))
@@ -12,16 +18,16 @@ function g_rpc_mgr.gate_rpc_test(data)
 	return {result = ErrorCode.SUCCESS, buff=buff, sum=sum}
 end
 
+local XXX_g_rpc_nocb_map = XXX_g_rpc_nocb_map or {}
 function g_rpc_mgr.gate_rpc_nocb_test(data)
 	Log.debug("gate_rpc_nocb_test: data=%s", Util.table_to_string(data))
 
-	XXX_g_rpc_nocb_map = XXX_g_rpc_nocb_map or {}
 	local buff = data.buff
 	local index = data.index
 	local sum = data.sum
 
 	local last_sum = XXX_g_rpc_nocb_map[index]
-	if not node then
+	if not last_sum then
 		XXX_g_rpc_nocb_map[index] = sum
 		return
 	end
@@ -40,6 +46,7 @@ end
 function g_rpc_mgr.gate_select_role(data)
 	
 	Log.debug("gate_select_role: data=%s", Util.table_to_string(data))
+	local g_user_mgr = g_user_mgr
 
 	local user_id = data.user_id
 	local role_id = data.role_id
@@ -72,6 +79,7 @@ function g_rpc_mgr.gate_select_role(data)
 end
 
 function g_rpc_mgr.gate_kick_role(data)
+	local g_user_mgr = g_user_mgr
 	local user_id = data.user_id
 	local role_id = data.role_id
 	local reason = data.reason

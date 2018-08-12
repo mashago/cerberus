@@ -139,9 +139,9 @@ function main()
 		["db_game"] = 2,
 		["master"] = 3,
 		["bridge"] = 4,
-		["gate"] 	= 5,
-		["public"] = 6,
-		["scene"]  = 7,
+		["gate"]   = 5,
+		["scene"]  = 6,
+		["public"] = 8,
 		["sync_db"]  = 101,
 	}
 

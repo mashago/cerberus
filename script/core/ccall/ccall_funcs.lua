@@ -1,5 +1,4 @@
 
-
 -- for c call
 function ccall_recv_msg_handler(mailbox_id, msg_id)
 	Log.info("ccall_recv_msg_handler: mailbox_id=%d msg_id=%d", mailbox_id, msg_id)

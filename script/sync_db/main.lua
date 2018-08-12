@@ -1,4 +1,8 @@
 
+local Log = Log
+local DBMgr = DBMgr
+
+
 local sync_db = nil
 
 local function main_entry(xml_doc)
@@ -80,7 +84,7 @@ sync_db = function()
 		end
 
 		-- point key field
-		for field_name, __ in pairs(key_map) do
+		for field_name, _ in pairs(key_map) do
 			local line = string.format(",KEY `%s` (`%s`)", field_name, field_name)
 			sql = sql .. line
 		end
@@ -97,7 +101,7 @@ sync_db = function()
 		-------------------------------------------------------------
 
 		-- 2. desc table
-		local sql = string.format("DESC %s", table_name)
+		sql = string.format("DESC %s", table_name)
 		Log.debug("sql=%s", sql)
 		local desc = DBMgr.do_execute(db_name, sql, true)
 		if not desc then
@@ -117,7 +121,7 @@ sync_db = function()
 			local db_field_default = field_info.Default
 
 			local field_def = nil
-			for __, t in ipairs(table_def) do
+			for _, t in ipairs(table_def) do
 				if t.field == db_field_name then
 					field_def = t
 					break
@@ -144,7 +148,7 @@ sync_db = function()
 				end
 			end
 
-			local str = nil
+			local str
 			if config_field_default ~= '_Null' and field_def.type ~= _Struct then
 				str = string.format("MODIFY %s %s DEFAULT '%s'", db_field_name, config_field_type, config_field_default)
 			else
@@ -173,7 +177,7 @@ sync_db = function()
 				break
 			end
 			local config_field_default = field_def.default
-			local str = nil
+			local str
 			if config_field_default ~= '_Null' then
 				str = string.format("ADD %s %s DEFAULT '%s'", field_name, type_str_map[field_def.type], config_field_default)
 			else
@@ -185,7 +189,7 @@ sync_db = function()
 
 		-- Log.debug("change_list=%s", Util.table_to_string(change_list))
 		if #change_list > 0 then
-			local sql = string.format("ALTER TABLE %s ", table_name)
+			sql = string.format("ALTER TABLE %s ", table_name)
 			for i, value in ipairs(change_list) do
 				if i ~= 1 then
 					sql = sql .. ","
@@ -193,7 +197,7 @@ sync_db = function()
 				sql = sql .. value
 			end
 			Log.debug("sql=%s", sql)
-			local ret = DBMgr.do_execute(db_name, sql, false)
+			ret = DBMgr.do_execute(db_name, sql, false)
 			if ret < 0 then
 				Log.err("alter table fail %s ", table_name)
 				return false
@@ -203,9 +207,9 @@ sync_db = function()
 		-------------------------------------------------------------
 
 		-- 4. desc table
-		local sql = string.format("DESC %s", table_name)
+		sql = string.format("DESC %s", table_name)
 		Log.debug("sql=%s", sql)
-		local desc = DBMgr.do_execute(db_name, sql, true)
+		desc = DBMgr.do_execute(db_name, sql, true)
 		if not desc then
 			Log.err("desc table fail %s ", table_name)
 			return false
@@ -248,7 +252,7 @@ sync_db = function()
 
 		-- Log.debug("change_list=%s", Util.table_to_string(change_list))
 		if #change_list > 0 then
-			local sql = string.format("ALTER TABLE %s ", table_name)
+			sql = string.format("ALTER TABLE %s ", table_name)
 			for i, value in ipairs(change_list) do
 				if i ~= 1 then
 					sql = sql .. ","
@@ -256,7 +260,7 @@ sync_db = function()
 				sql = sql .. value
 			end
 			Log.debug("sql=%s", sql)
-			local ret = DBMgr.do_execute(db_name, sql, false)
+			ret = DBMgr.do_execute(db_name, sql, false)
 			if ret < 0 then
 				Log.err("alter table fail %s ", table_name)
 				return false

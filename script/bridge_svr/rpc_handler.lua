@@ -1,5 +1,12 @@
 
 -- [
+local g_rpc_mgr = g_rpc_mgr
+local Log = Log
+local Util = Util
+local ServerType = ServerType
+local ErrorCode = ErrorCode
+local g_server_mgr = g_server_mgr
+
 function g_rpc_mgr.bridge_rpc_test(data)
 	
 	Log.debug("bridge_rpc_test: data=%s", Util.table_to_string(data))
@@ -21,7 +28,7 @@ function g_rpc_mgr.bridge_rpc_test(data)
 	sum = ret.sum
 
 	-- rpc to scene
-	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.SCENE, "scene_rpc_test", {buff=buff, sum=sum})
+	status, ret = g_rpc_mgr:call_by_server_type(ServerType.SCENE, "scene_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("bridge_rpc_test rpc call fail")
 		return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
@@ -49,7 +56,7 @@ function g_rpc_mgr.bridge_rpc_nocb_test(data)
 	}
 	g_rpc_mgr:call_nocb_by_server_type(ServerType.GATE, "gate_rpc_nocb_test", rpc_data)
 
-	local rpc_data =
+	rpc_data =
 	{
 		buff = buff,
 		index = index,
@@ -65,7 +72,7 @@ function g_rpc_mgr.bridge_rpc_nocb_test(data)
 	end
 	local server_id = server_info._server_id
 
-	local rpc_data =
+	rpc_data =
 	{
 		buff = buff,
 		index = index,
@@ -73,7 +80,7 @@ function g_rpc_mgr.bridge_rpc_nocb_test(data)
 	}
 	g_rpc_mgr:call_nocb_by_server_id(server_id, "scene_rpc_nocb_test", rpc_data)
 
-	local rpc_data =
+	rpc_data =
 	{
 		buff = buff,
 		index = index,
@@ -113,7 +120,7 @@ function g_rpc_mgr.bridge_rpc_mix_test(data)
 	}
 	g_rpc_mgr:call_nocb_by_server_type(ServerType.GATE, "gate_rpc_nocb_test", rpc_data)
 
-	local rpc_data =
+	rpc_data =
 	{
 		buff = buff,
 		index = index,
@@ -130,7 +137,7 @@ function g_rpc_mgr.bridge_rpc_mix_test(data)
 	local server_id = server_info._server_id
 
 	-- rpc nocb to scene
-	local rpc_data =
+	rpc_data =
 	{
 		buff = buff,
 		index = index,
@@ -138,7 +145,7 @@ function g_rpc_mgr.bridge_rpc_mix_test(data)
 	}
 	g_rpc_mgr:call_nocb_by_server_id(server_id, "scene_rpc_nocb_test", rpc_data)
 
-	local rpc_data =
+	rpc_data =
 	{
 		buff = buff,
 		index = index,
@@ -147,7 +154,7 @@ function g_rpc_mgr.bridge_rpc_mix_test(data)
 	g_rpc_mgr:call_nocb_by_server_id(server_id, "scene_rpc_nocb_test", rpc_data)
 	
 	-- rpc to scene
-	local status, ret = g_rpc_mgr:call_by_server_id(server_id, "scene_rpc_test", {buff=buff, sum=sum})
+	status, ret = g_rpc_mgr:call_by_server_id(server_id, "scene_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("bridge_rpc_mix_test rpc call fail")
 		return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}

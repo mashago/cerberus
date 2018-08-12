@@ -1,4 +1,6 @@
 
+local g_timer = g_timer
+
 local CommonHandler = class()
 
 function CommonHandler:ctor()
