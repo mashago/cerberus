@@ -1,9 +1,13 @@
 
-g_funcs = {}
+local Env = require "env"
+local Log = require "core.log.logger"
+local Util = require "core.util.util"
+local DBMgr = require "core.db.db_mgr"
+local g_funcs = {}
 
 function g_funcs.debug_timer_cb()
 	-- Log.debug("********* g_funcs.debug_timer_cb")
-	-- g_rpc_mgr:print()
+	-- Env.rpc_mgr:print()
 	-- local count = collectgarbage("count")
 	-- Log.debug("mem count=%f", count)
 end
@@ -19,8 +23,8 @@ function g_funcs.load_address(xml_doc)
 	local port = root_ele:int_attribute("port")
 	Log.info("g_funcs.load_address ip=%s port=%d", ip, port)
 
-	g_server_conf._ip = ip
-	g_server_conf._port = port
+	Env.server_conf._ip = ip
+	Env.server_conf._port = port
 end
 
 function g_funcs.connect_to_servers(xml_doc)
@@ -47,7 +51,7 @@ function g_funcs.connect_to_servers(xml_doc)
 		local no_delay = (address_ele:int_attribute("no_delay") == 1) and true or false
 
 		Log.info("g_funcs.connect_to_servers ip=%s port=%d server_id=%d server_type=%d no_shakehand=%s no_reconnect=%s no_delay=%s", ip, port, server_id, server_type, no_shakehand, no_reconnect, no_delay)
-		g_server_mgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect, no_delay)
+		Env.server_mgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect, no_delay)
 
 		address_ele = address_ele:next_sibling_element()
 	end
@@ -77,10 +81,10 @@ function g_funcs.load_scene(xml_doc)
 		Log.debug("g_funcs.load_scene single=%d from=%d to=%d", single, from, to)
 
 		if single > 0 then
-			g_server_conf:add_single_scene(single)
+			Env.server_conf:add_single_scene(single)
 		end
 		if to > from then
-			g_server_conf:add_from_to_scene(from, to)
+			Env.server_conf:add_from_to_scene(from, to)
 		end
 
 		scene_ele = scene_ele:next_sibling_element()
@@ -108,7 +112,7 @@ function g_funcs.load_area(xml_doc)
 		Log.debug("g_funcs.load_area area_id=%d", area_id)
 
 		if area_id > 0 then
-			g_server_conf:add_area(area_id)
+			Env.server_conf:add_area(area_id)
 		end
 		area_ele = area_ele:next_sibling_element()
 	end
@@ -146,7 +150,7 @@ function g_funcs.connect_to_mysql(xml_doc)
 		-- core logic
 		local ret = DBMgr.connect_to_mysql(ip, port, username, password, real_db_name)
 		if ret then
-			g_server_conf._db_name_map[db_type] = real_db_name
+			Env.server_conf._db_name_map[db_type] = real_db_name
 		else
 			Log.warn("g_funcs.connect_to_mysql fail ip=%s port=%d username=%s password=%s db_name=%s db_type=%d db_suffix=%s real_db_name=%s", ip, port, username, password, db_name, db_type, db_suffix, real_db_name)
 		end
@@ -173,18 +177,18 @@ function g_funcs.handle_shake_hand_req(data, mailbox_id)
 	local msg = 
 	{
 		result = ErrorCode.SUCCESS,
-		server_id = g_server_conf._server_id,
-		server_type = g_server_conf._server_type,
-		single_scene_list = g_server_conf._single_scene_list,
-		from_to_scene_list = g_server_conf._from_to_scene_list,
+		server_id = Env.server_conf._server_id,
+		server_type = Env.server_conf._server_type,
+		single_scene_list = Env.server_conf._single_scene_list,
+		from_to_scene_list = Env.server_conf._from_to_scene_list,
 	}
 
 	-- add server
-	local server_info = g_server_mgr:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
+	local server_info = Env.server_mgr:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
 	if not server_info then
 		Log.warning("g_funcs.handle_shake_hand_req add_server fail server_id=%d server_type=%d", server_id, server_type)
 		msg.result = ErrorCode.SHAKE_HAND_FAIL
-		g_net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
+		Env.net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
 		return
 	end
 
@@ -207,7 +211,7 @@ function g_funcs.handle_shake_hand_ret(data, mailbox_id)
 	local single_scene_list = data.single_scene_list
 	local from_to_scene_list = data.from_to_scene_list
 
-	local ret = g_server_mgr:shake_hand_success(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
+	local ret = Env.server_mgr:shake_hand_success(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
 
 	if not ret then
 		return
@@ -229,11 +233,11 @@ function g_funcs.handle_shake_hand_invite(data, mailbox_id)
 		local no_shakehand = false
 		local no_reconnect = false
 		
-		local server_info = g_server_mgr:get_server_by_host(ip, port)
+		local server_info = Env.server_mgr:get_server_by_host(ip, port)
 		if server_info then
 			server_info:set_no_reconnect(no_reconnect)
 		else
-			g_server_mgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect)
+			Env.server_mgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect)
 		end
 	end
 end
@@ -250,7 +254,7 @@ function g_funcs.handle_shake_hand_cancel(data, mailbox_id)
 	local ip = data.ip
 	local port = data.port
 
-	local server_info = g_server_mgr:get_server_by_host(ip, port)
+	local server_info = Env.server_mgr:get_server_by_host(ip, port)
 	if not server_info then
 		return
 	end

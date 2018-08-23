@@ -1,9 +1,9 @@
+local Env = require "env"
+local Log = require "core.log.logger"
+local g_funcs = require "core.global.global_funcs"
+local class = require "core.util.class"
 
 local MAILBOX_ID_NIL = MAILBOX_ID_NIL
-local Log = Log
-local g_net_mgr = g_net_mgr
-local g_funcs = g_funcs
-local g_server_mgr = g_server_mgr
 local MID = MID
 
 local User = class()
@@ -27,11 +27,11 @@ function User:send_msg(msg_id, msg)
 		Log.warn("User:send_msg mailbox_id nil msg_id=%s", g_funcs.get_msg_name(msg_id))
 		return false
 	end
-	return g_net_mgr:send_msg(self._mailbox_id, msg_id, msg)
+	return Env.net_mgr:send_msg(self._mailbox_id, msg_id, msg)
 end
 
 function User:transfer_msg()
-	return g_net_mgr:transfer_msg(self._mailbox_id)
+	return Env.net_mgr:transfer_msg(self._mailbox_id)
 end
 
 function User:offline()
@@ -40,7 +40,7 @@ function User:offline()
 
 	self._mailbox_id = MAILBOX_ID_NIL
 
-	local scene_server_info = g_server_mgr:get_server_by_id(self._scene_server_id)
+	local scene_server_info = Env.server_mgr:get_server_by_id(self._scene_server_id)
 	if not scene_server_info then
 		Log.err("User:disconnect: scene server not exists scene_id=%d", self._scene_server_id)
 		return

@@ -1,4 +1,5 @@
 
+local Log = require "core.log.logger"
 
 local function main_entry(xml_doc)
 	Log.info("login_svr main_entry")

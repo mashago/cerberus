@@ -1,13 +1,11 @@
 
-local g_msg_handler = g_msg_handler
-local Log = Log
-local Util = Util
+local Env = require "env"
+local g_msg_handler = require "core.global.msg_handler"
+local Log = require "core.log.logger"
+local Util = require "core.util.util"
 local ErrorCode = ErrorCode
-local g_net_mgr = g_net_mgr
-local g_rpc_mgr = g_rpc_mgr
 local ServerType = ServerType
 local MID = MID
-local g_server_mgr = g_server_mgr
 
 function g_msg_handler.c2s_rpc_test_req(data, mailbox_id, msg_id)
 	Log.debug("c2s_rpc_test_req: data=%s", Util.table_to_string(data))
@@ -31,11 +29,11 @@ function g_msg_handler.c2s_rpc_test_req(data, mailbox_id, msg_id)
 	}
 
 	-- 1. rpc to db
-	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_rpc_test", {buff=buff, sum=sum})
+	local status, ret = Env.rpc_mgr:call_by_server_type(ServerType.DB, "db_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("c2s_rpc_test_req rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
-		g_net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
+		Env.net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 		return
 	end
 	Log.debug("c2s_rpc_test_req: callback ret=%s", Util.table_to_string(ret))
@@ -47,11 +45,11 @@ function g_msg_handler.c2s_rpc_test_req(data, mailbox_id, msg_id)
 
 	-- 2. get bridge
 	local server_id = g_area_mgr:get_server_id(area_id)
-	status, ret = g_rpc_mgr:call_by_server_id(server_id, "bridge_rpc_test", {buff=buff, sum=sum})
+	status, ret = Env.rpc_mgr:call_by_server_id(server_id, "bridge_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("c2s_rpc_test_req rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
-		g_net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
+		Env.net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 		return
 	end
 	Log.debug("c2s_rpc_test_req: callback ret=%s", Util.table_to_string(ret))
@@ -62,7 +60,7 @@ function g_msg_handler.c2s_rpc_test_req(data, mailbox_id, msg_id)
 	msg.buff = buff
 	msg.sum = sum
 
-	g_net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
+	Env.net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 end
 
 
@@ -81,7 +79,7 @@ function g_msg_handler.c2s_rpc_nocb_test_req(data, mailbox_id, msg_id)
 		index = index,
 		sum = 1,
 	}
-	g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_rpc_nocb_test", rpc_data)
+	Env.rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_rpc_nocb_test", rpc_data)
 
 	rpc_data =
 	{
@@ -89,7 +87,7 @@ function g_msg_handler.c2s_rpc_nocb_test_req(data, mailbox_id, msg_id)
 		index = index,
 		sum = 2,
 	}
-	g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_rpc_nocb_test", rpc_data)
+	Env.rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_rpc_nocb_test", rpc_data)
 
 	-- rpc nocb to bridge
 	local area_id = 1
@@ -100,7 +98,7 @@ function g_msg_handler.c2s_rpc_nocb_test_req(data, mailbox_id, msg_id)
 		index = index,
 		sum = 1,
 	}
-	g_rpc_mgr:call_nocb_by_server_id(server_id, "bridge_rpc_nocb_test", rpc_data)
+	Env.rpc_mgr:call_nocb_by_server_id(server_id, "bridge_rpc_nocb_test", rpc_data)
 end
 
 function g_msg_handler.c2s_rpc_mix_test_req(data, mailbox_id, msg_id)
@@ -121,11 +119,11 @@ function g_msg_handler.c2s_rpc_mix_test_req(data, mailbox_id, msg_id)
 	}
 
 	-- rpc to db
-	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_rpc_test", {buff=buff, sum=sum})
+	local status, ret = Env.rpc_mgr:call_by_server_type(ServerType.DB, "db_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("c2s_rpc_mix_test_req rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
-		g_net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
+		Env.net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 		return
 	end
 	Log.debug("c2s_rpc_mix_test_req: callback ret=%s", Util.table_to_string(ret))
@@ -142,7 +140,7 @@ function g_msg_handler.c2s_rpc_mix_test_req(data, mailbox_id, msg_id)
 		index = index,
 		sum = 1,
 	}
-	g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_rpc_nocb_test", rpc_data)
+	Env.rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_rpc_nocb_test", rpc_data)
 
 	-- rpc to bridge
 	rpc_data =
@@ -152,11 +150,11 @@ function g_msg_handler.c2s_rpc_mix_test_req(data, mailbox_id, msg_id)
 		sum = sum,
 	}
 	local server_id = g_area_mgr:get_server_id(area_id)
-	status, ret = g_rpc_mgr:call_by_server_id(server_id, "bridge_rpc_mix_test", rpc_data)
+	status, ret = Env.rpc_mgr:call_by_server_id(server_id, "bridge_rpc_mix_test", rpc_data)
 	if not status then
 		Log.err("c2s_rpc_mix_test_req rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
-		g_net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
+		Env.net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 		return
 	end
 	Log.debug("c2s_rpc_mix_test_req: callback ret=%s", Util.table_to_string(ret))
@@ -167,7 +165,7 @@ function g_msg_handler.c2s_rpc_mix_test_req(data, mailbox_id, msg_id)
 	msg.buff = buff
 	msg.sum = sum
 
-	g_net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
+	Env.net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 end
 
 
@@ -176,7 +174,7 @@ end
 function g_msg_handler.s2s_register_area_req(data, mailbox_id, msg_id)
 	Log.debug("s2s_register_area_req: data=%s", Util.table_to_string(data))
 
-	local server_info = g_server_mgr:get_server_by_mailbox(mailbox_id)
+	local server_info = Env.server_mgr:get_server_by_mailbox(mailbox_id)
 	if not server_info then
 		Log.warn("s2s_register_area_req: unknow server mailbox_id=%d", mailbox_id)
 	end
@@ -213,7 +211,7 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 	if user then
 		Log.warn("c2s_user_login_req duplicate login [%s]", data.username)
 		msg.result = ErrorCode.USER_LOGIN_DUPLICATE_LOGIN
-		g_net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
+		Env.net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 		return
 	end
 
@@ -227,11 +225,11 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 		password=password, 
 		channel_id=channel_id,
 	}
-	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_user_login", rpc_data)
+	local status, ret = Env.rpc_mgr:call_by_server_type(ServerType.DB, "db_user_login", rpc_data)
 	if not status then
 		Log.err("c2s_user_login_req rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
-		g_net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
+		Env.net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 		return
 	end
 
@@ -239,7 +237,7 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 
 	-- check after rpc
 	-- check connection
-	local mailbox = g_net_mgr:get_mailbox(mailbox_id)
+	local mailbox = Env.net_mgr:get_mailbox(mailbox_id)
 	if not mailbox then
 		Log.warn("c2s_user_login_req: connect close username=%s", username)
 		return
@@ -248,7 +246,7 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 	-- check result
 	if ret.result ~= ErrorCode.SUCCESS then
 		msg.result = ret.result
-		g_net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
+		Env.net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 		return
 	end
 
@@ -257,7 +255,7 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 	if user then
 		Log.warn("c2s_user_login_req duplicate login [%s]", data.username)
 		msg.result = ErrorCode.USER_LOGIN_DUPLICATE_LOGIN
-		g_net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
+		Env.net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 		return
 	end
 
@@ -265,7 +263,7 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 	Log.debug("c2s_user_login_req: user_id=%d", user_id)
 
 	if XXX_DEBUG_TEST_LOGINX then
-		g_net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
+		Env.net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 		return
 	end
 
@@ -286,7 +284,7 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 		if not g_user_mgr:add_user(user) then
 			Log.warn("c2s_user_login_req duplicate login2 [%s]", username)
 			msg.result = ErrorCode.USER_LOGIN_DUPLICATE_LOGIN
-			g_net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
+			Env.net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 			return
 		end
 	end

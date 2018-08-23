@@ -1,5 +1,7 @@
+local Log = require "core.log.logger"
+local class = require "core.util.class"
 
-ServerConfig = class()
+local ServerConfig = class()
 
 function ServerConfig:ctor(server_id, server_type)
 	self._server_id = server_id

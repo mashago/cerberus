@@ -1,5 +1,5 @@
 
-Log = {}
+local Log = {}
 
 Log.LEVEL = 
 {
@@ -42,3 +42,5 @@ end
 function Log.err(format,...)
 	log(Log.LEVEL.ERROR, format, ...)
 end
+
+return Log

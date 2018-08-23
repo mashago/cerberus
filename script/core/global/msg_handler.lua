@@ -1,4 +1,6 @@
 
+local Log = require "core.log.logger"
+local g_funcs = require "core.global.global_funcs"
 g_msg_handler = g_msg_handler or {}
 
 if g_server_type ~= ServerType.MASTER then

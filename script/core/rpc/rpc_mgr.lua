@@ -1,7 +1,11 @@
 
-RPC_NOCB_SESSION_ID = -1
+local Env = require "env"
+local Log = require "core.log.logger"
+local Util = require "core.util.util"
+local class = require "core.util.class"
+local RPC_NOCB_SESSION_ID = -1
 
-RpcMgr = class()
+local RpcMgr = class()
 
 function RpcMgr:ctor()
 	self._cur_session_id = 0
@@ -31,12 +35,12 @@ end
 if not call by nocb, MUST return a table
 e.g.
 for a normal rpc:
-function g_rpc_mgr.mycb(data)
+function rpc_mgr.mycb(data)
 	... -- logic
 	return { ... } -- return result
 end)
 for a nocb rpc:
-function g_rpc_mgr.mynocb(data)
+function rpc_mgr.mynocb(data)
 	... -- logic
 	-- nil return
 end)
@@ -76,7 +80,7 @@ function RpcMgr:call(server_info, func_name, data)
 	local session_id = self:gen_session_id()
 	local msg = 
 	{
-		from_server_id = g_server_conf._server_id, 
+		from_server_id = Env.server_conf._server_id, 
 		to_server_id = server_info._server_id, 
 		session_id = session_id, 
 		func_name = func_name, 
@@ -89,13 +93,13 @@ function RpcMgr:call(server_info, func_name, data)
 end
 
 function RpcMgr:call_by_server_type(server_type, func_name, data, opt_key)
-	local server_info = g_server_mgr:get_server_by_type(server_type, opt_key)
+	local server_info = Env.server_mgr:get_server_by_type(server_type, opt_key)
 	if not server_info then return false end
 	return self:call(server_info, func_name, data)
 end
 
 function RpcMgr:call_by_server_id(server_id, func_name, data)
-	local server_info = g_server_mgr:get_server_by_id(server_id)
+	local server_info = Env.server_mgr:get_server_by_id(server_id)
 	if not server_info then return false end
 	return self:call(server_info, func_name, data)
 end
@@ -106,7 +110,7 @@ function RpcMgr:call_nocb(server_info, func_name, data)
 	local data_str = Util.serialize(data)
 	local msg = 
 	{
-		from_server_id = g_server_conf._server_id, 
+		from_server_id = Env.server_conf._server_id, 
 		to_server_id = server_info._server_id, 
 		session_id = RPC_NOCB_SESSION_ID,
 		func_name = func_name, 
@@ -118,13 +122,13 @@ function RpcMgr:call_nocb(server_info, func_name, data)
 end
 
 function RpcMgr:call_nocb_by_server_type(server_type, func_name, data, opt_key)
-	local server_info = g_server_mgr:get_server_by_type(server_type, opt_key)
+	local server_info = Env.server_mgr:get_server_by_type(server_type, opt_key)
 	if not server_info then return false end
 	return self:call_nocb(server_info, func_name, data)
 end
 
 function RpcMgr:call_nocb_by_server_id(server_id, func_name, data)
-	local server_info = g_server_mgr:get_server_by_id(server_id)
+	local server_info = Env.server_mgr:get_server_by_id(server_id)
 	if not server_info then return false end
 	return self:call_nocb(server_info, func_name, data)
 end
@@ -146,12 +150,12 @@ function RpcMgr:handle_call(data, mailbox_id, msg_id, is_nocb)
 			session_id = session_id, 
 			param = tostring(errno),
 		}
-		g_net_mgr:send_msg(mailbox_id, MID.s2s_rpc_ret, msg)
+		Env.net_mgr:send_msg(mailbox_id, MID.s2s_rpc_ret, msg)
 	end
 
 	-- server_id mismatch
-	if to_server_id ~= g_server_conf._server_id then
-		Log.err("RpcMgr:handle_call server_id mismatch to_server_id=%d local_server_id=%d", to_server_id, g_server_conf._server_id)
+	if to_server_id ~= Env.server_conf._server_id then
+		Log.err("RpcMgr:handle_call server_id mismatch to_server_id=%d local_server_id=%d", to_server_id, Env.server_conf._server_id)
 		if not is_nocb then
 			send_error(-1)
 		end
@@ -213,7 +217,7 @@ function RpcMgr:handle_call(data, mailbox_id, msg_id, is_nocb)
 			session_id = session_id, 
 			param = Util.serialize(result)
 		}
-		g_net_mgr:send_msg(mailbox_id, MID.s2s_rpc_ret, msg)
+		Env.net_mgr:send_msg(mailbox_id, MID.s2s_rpc_ret, msg)
 		return
 	else
 		-- else is error
@@ -263,7 +267,7 @@ function RpcMgr:callback(session_id, result, data)
 	self._origin_route_map[session_id] = nil
 	assert(origin_route.session_id ~= RPC_NOCB_SESSION_ID)
 
-	local server_info = g_server_mgr:get_server_by_id(origin_route.from_server_id)
+	local server_info = Env.server_mgr:get_server_by_id(origin_route.from_server_id)
 	if not server_info then
 		Log.warn("RpcMgr:callback cannot go back from_server_id=%d", origin_route.from_server_id)
 		return
@@ -293,8 +297,8 @@ function RpcMgr:handle_callback(data, mailbox_id, msg_id)
 	local to_server_id = data.to_server_id
 
 	-- server_id mismatch
-	if from_server_id ~= g_server_conf._server_id then
-		Log.err("RpcMgr:handle_callback server_id mismatch from_server_id=%d local_server_id=%d", from_server_id, g_server_conf._server_id)
+	if from_server_id ~= Env.server_conf._server_id then
+		Log.err("RpcMgr:handle_callback server_id mismatch from_server_id=%d local_server_id=%d", from_server_id, Env.server_conf._server_id)
 		return
 	end
 

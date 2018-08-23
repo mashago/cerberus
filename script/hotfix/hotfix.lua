@@ -4,6 +4,7 @@ Author: Jin Qing ( http://blog.csdn.net/jq0123 )
 --]]
 
 local M = {}
+local Log = require "core.log.logger"
 
 local update_table
 local update_func

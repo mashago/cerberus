@@ -1,6 +1,6 @@
 
 local g_area_mgr = g_area_mgr
-local Log = Log
+local Log = require "core.log.logger"
 function g_net_event_server_disconnect(server_id)
 	g_area_mgr:remove_by_server_id(server_id)
 end

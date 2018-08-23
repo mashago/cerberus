@@ -1,5 +1,7 @@
+local Log = require "core.log.logger"
+local Util = require "core.util.util"
 
-DBMgr = 
+local DBMgr = 
 {
 	_mysql_map = {}, -- {[db_name] = mysqlmgr}
 }

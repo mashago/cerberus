@@ -1,4 +1,6 @@
 
+local Log = require "core.log.logger"
+local g_funcs = require "core.global.global_funcs"
 
 local function main_entry(xml_doc)
 	Log.info("bridge_svr main_entry")

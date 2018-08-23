@@ -1,4 +1,7 @@
 
+local Env = require "env"
+local Log = require "core.log.logger"
+local class = require "core.util.class"
 local ServerInfo = class()
 
 function ServerInfo:ctor(ip, port, no_shakehand, no_reconnect, mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
@@ -77,7 +80,7 @@ function ServerInfo:send_msg_ext(msg_id, ext, msg)
 		Log.warn("ServerInfo:send_msg not connected msg_id=%d", msg_id)
 		return false
 	end
-	return g_net_mgr:send_msg_ext(mailbox_id, msg_id, ext, msg)
+	return Env.net_mgr:send_msg_ext(mailbox_id, msg_id, ext, msg)
 end
 
 function ServerInfo:transfer_msg(ext)
@@ -86,7 +89,7 @@ function ServerInfo:transfer_msg(ext)
 		Log.warn("ServerInfo:send_msg mailbox nil msg_id=%d", msg_id)
 		return false
 	end
-	return g_net_mgr:transfer_msg(mailbox_id, ext)
+	return Env.net_mgr:transfer_msg(mailbox_id, ext)
 end
 
 function ServerInfo:print()

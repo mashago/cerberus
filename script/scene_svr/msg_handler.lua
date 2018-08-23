@@ -1,9 +1,9 @@
 
-local g_msg_handler = g_msg_handler
-local Log = Log
-local Util = Util
+local Env = require "env"
+local Log = require "core.log.logger"
+local g_msg_handler = require "core.global.msg_handler"
+local Util = require "core.util.util"
 local MID = MID
-local g_net_mgr = g_net_mgr
 local g_role_mgr = g_role_mgr
 local ErrorCode = ErrorCode
 
@@ -61,7 +61,7 @@ function g_msg_handler.c2s_client_test_req(data, mailbox_id, msg_id)
 		},
 
 	}
-	g_net_mgr:send_msg(mailbox_id, MID.s2c_client_test_ret, msg)
+	Env.net_mgr:send_msg(mailbox_id, MID.s2c_client_test_ret, msg)
 end
 
 function g_msg_handler.s2s_gate_role_enter_req(data, mailbox_id)
@@ -90,7 +90,7 @@ function g_msg_handler.s2s_gate_role_enter_req(data, mailbox_id)
 		result = ErrorCode.SUCCESS,
 		role_id = role_id,
 	}
-	local ret = g_net_mgr:send_msg(mailbox_id, MID.s2s_gate_role_enter_ret, msg)
+	local ret = Env.net_mgr:send_msg(mailbox_id, MID.s2s_gate_role_enter_ret, msg)
 
 	-- 4. sync to client
 	role:send_module_data()

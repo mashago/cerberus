@@ -1,5 +1,8 @@
 
-HttpMgr = class()
+local Env = require "env"
+local Log = require "core.log.logger"
+local class = require "core.util.class"
+local HttpMgr = class()
 
 function HttpMgr:ctor()
 	self._cur_session_id = 0
@@ -25,7 +28,7 @@ function HttpMgr:request_get(url, cb)
 	{
 		cb = cb,
 	}
-	g_net_mgr:http_request_get(url, session_id)
+	Env.net_mgr:http_request_get(url, session_id)
 end
 
 function HttpMgr:request_post(url, post_data, post_data_len, cb)
@@ -34,7 +37,7 @@ function HttpMgr:request_post(url, post_data, post_data_len, cb)
 	{
 		cb = cb,
 	}
-	g_net_mgr:http_request_post(url, session_id, post_data, post_data_len)
+	Env.net_mgr:http_request_post(url, session_id, post_data, post_data_len)
 end
 
 function HttpMgr:handle_request(session_id, response_code, content)

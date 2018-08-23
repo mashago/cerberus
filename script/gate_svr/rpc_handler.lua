@@ -1,11 +1,11 @@
 
-local g_rpc_mgr = g_rpc_mgr
-local Log = Log
-local Util = Util
+local Env = require "env"
+local Log = require "core.log.logger"
+local Util = require "core.util.util"
+local rpc_mgr = Env.rpc_mgr
 local ErrorCode = ErrorCode
-local g_server_conf = g_server_conf
 
-function g_rpc_mgr.gate_rpc_test(data)
+function rpc_mgr.gate_rpc_test(data)
 	
 	Log.debug("gate_rpc_test: data=%s", Util.table_to_string(data))
 
@@ -19,7 +19,7 @@ function g_rpc_mgr.gate_rpc_test(data)
 end
 
 local XXX_g_rpc_nocb_map = XXX_g_rpc_nocb_map or {}
-function g_rpc_mgr.gate_rpc_nocb_test(data)
+function rpc_mgr.gate_rpc_nocb_test(data)
 	Log.debug("gate_rpc_nocb_test: data=%s", Util.table_to_string(data))
 
 	local buff = data.buff
@@ -43,7 +43,7 @@ end
 
 ---------------------------------------------------------
 
-function g_rpc_mgr.gate_select_role(data)
+function rpc_mgr.gate_select_role(data)
 	
 	Log.debug("gate_select_role: data=%s", Util.table_to_string(data))
 	local g_user_mgr = g_user_mgr
@@ -72,13 +72,13 @@ function g_rpc_mgr.gate_select_role(data)
 	g_user_mgr:add_user(user)
 	
 	msg.result = ErrorCode.SUCCESS
-	msg.ip = g_server_conf._ip
-	msg.port = g_server_conf._port
+	msg.ip = Env.server_conf._ip
+	msg.port = Env.server_conf._port
 
 	return msg
 end
 
-function g_rpc_mgr.gate_kick_role(data)
+function rpc_mgr.gate_kick_role(data)
 	local g_user_mgr = g_user_mgr
 	local user_id = data.user_id
 	local role_id = data.role_id

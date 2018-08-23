@@ -1,5 +1,9 @@
 
-NetMgr = class()
+local Env = require "env"
+local Log = require "core.log.logger"
+local Util = require "core.util.util"
+local class = require "core.util.class"
+local NetMgr = class()
 
 function NetMgr:ctor()
 	local c_network = LuaNetwork:instance()
@@ -162,16 +166,16 @@ function NetMgr:recv_msg_handler(mailbox_id, msg_id)
 	end
 
 	if msg_id == MID.s2s_rpc_req then
-		g_rpc_mgr:handle_call(data, mailbox_id, msg_id, false)
+		Env.rpc_mgr:handle_call(data, mailbox_id, msg_id, false)
 	elseif msg_id == MID.s2s_rpc_nocb_req then
-		g_rpc_mgr:handle_call(data, mailbox_id, msg_id, true)
+		Env.rpc_mgr:handle_call(data, mailbox_id, msg_id, true)
 	elseif msg_id == MID.s2s_rpc_ret then
-		g_rpc_mgr:handle_callback(data, mailbox_id, msg_id)
+		Env.rpc_mgr:handle_callback(data, mailbox_id, msg_id)
 	elseif not RAW_MID[msg_id] and g_net_event_client_msg then
 		-- check msg is need convert
-		g_rpc_mgr:run(g_net_event_client_msg, msg_func, data, mailbox_id, msg_id, ext)
+		Env.rpc_mgr:run(g_net_event_client_msg, msg_func, data, mailbox_id, msg_id, ext)
 	else
-		g_rpc_mgr:run(msg_func, data, mailbox_id, msg_id, ext)
+		Env.rpc_mgr:run(msg_func, data, mailbox_id, msg_id, ext)
 	end
 
 end

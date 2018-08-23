@@ -1,5 +1,6 @@
 
-CoroutineMgr = class()
+local class = require "core.util.class"
+local CoroutineMgr = class()
 
 function CoroutineMgr:ctor()
 	self._cor_list = {}

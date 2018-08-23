@@ -1,4 +1,8 @@
 
+local Env = require "env"
+local Log = require "core.log.logger"
+local g_funcs = require "core.global.global_funcs"
+local class = require "core.util.class"
 local Client = class()
 
 function Client:ctor()
@@ -56,11 +60,11 @@ end
 
 
 function Client:send_to_login(msg_id, msg)
-	g_server_mgr:send_by_server_type(ServerType.LOGIN, msg_id, msg)
+	Env.server_mgr:send_by_server_type(ServerType.LOGIN, msg_id, msg)
 end
 
 function Client:send_to_gate(msg_id, msg)
-	g_server_mgr:send_by_server_type(ServerType.GATE, msg_id, msg)
+	Env.server_mgr:send_by_server_type(ServerType.GATE, msg_id, msg)
 end
 
 function Client:random_change_attr()
@@ -96,7 +100,7 @@ end
 
 function Client:loop_random_change_attr()
 	if self._loop_random_change_attr_timer_index then
-		g_timer:del_timer(self._loop_random_change_attr_timer_index)
+		Env.timer_mgr:del_timer(self._loop_random_change_attr_timer_index)
 		self._loop_random_change_attr_timer_index = nil
 		return
 	end
@@ -105,7 +109,7 @@ function Client:loop_random_change_attr()
 		self:random_change_attr()
 	end
 
-	self._loop_random_change_attr_timer_index = g_timer:add_timer(200, timer_cb, 0, true)
+	self._loop_random_change_attr_timer_index = Env.timer_mgr:add_timer(200, timer_cb, 0, true)
 end
 
 function Client:auto_run_cmd_once()
@@ -128,7 +132,7 @@ function Client:auto_run_cmd_once()
 	local cmd_index = 1
 	local timer_cb = function()
 		if cmd_index > #cmd_list then
-			g_timer:del_timer(self._auto_run_cmd_timer_index)
+			Env.timer_mgr:del_timer(self._auto_run_cmd_timer_index)
 			return
 		end
 		
@@ -136,7 +140,7 @@ function Client:auto_run_cmd_once()
 		cmd_index = cmd_index + 1
 	end
 
-	self._auto_run_cmd_timer_index = g_timer:add_timer(1000, timer_cb, 0, true)
+	self._auto_run_cmd_timer_index = Env.timer_mgr:add_timer(1000, timer_cb, 0, true)
 	
 end
 

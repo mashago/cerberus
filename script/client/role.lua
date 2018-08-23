@@ -1,3 +1,7 @@
+local Log = require "core.log.logger"
+local Util = require "core.util.util"
+local class = require "core.util.class"
+local g_funcs = require "core.global.global_funcs"
 
 local Role = class()
 

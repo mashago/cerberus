@@ -1,4 +1,5 @@
 
+local class = require "core.util.class"
 local AreaMgr = class()
 
 function AreaMgr:ctor()

@@ -1,5 +1,9 @@
 
+local Log = require "core.log.logger"
+local Util = require "core.util.util"
 local sheet_name = "test_role"
+local class = require "core.util.class"
+local g_funcs = require "core.global.global_funcs"
 
 TestRole = class(SheetObj)
 

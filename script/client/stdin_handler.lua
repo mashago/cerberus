@@ -1,4 +1,8 @@
 
+local Env = require "env"
+local Log = require "core.log.logger"
+local Util = require "core.util.util"
+local g_funcs = require "core.global.global_funcs"
 local cmd_handler = {}
 
 function cmd_handler.execute(buffer)
@@ -190,7 +194,7 @@ function cmd_handler.do_test(params)
 			if next(test3_timer_index_list) then
 				Log.debug("delete test3 timer")
 				for k, v in ipairs(test3_timer_index_list) do
-					g_timer:del_timer(v)
+					Env.timer_mgr:del_timer(v)
 				end
 				test3_timer_index_list = {}
 				return
@@ -202,7 +206,7 @@ function cmd_handler.do_test(params)
 				-- Log.warn("####### test3 closure cb\n")
 				Log.warn("####### test3 closure cb #######\n")
 			end
-			table.insert(test3_timer_index_list, g_timer:add_timer(5 * 1000, timer_cb, 0, true))
+			table.insert(test3_timer_index_list, Env.timer_mgr:add_timer(5 * 1000, timer_cb, 0, true))
 
 			-- closure cb call obj function
 			-- closure cannot hotfix, obj function can hotfix
@@ -212,14 +216,14 @@ function cmd_handler.do_test(params)
 				Log.warn("cmd_handler=%s cmd_handler.test3_cb=%s", cmd_handler, cmd_handler.test3_cb)
 				cmd_handler.test3_cb()
 			end
-			table.insert(test3_timer_index_list, g_timer:add_timer(5 * 1000, timer_cb2, 0, true))
+			table.insert(test3_timer_index_list, Env.timer_mgr:add_timer(5 * 1000, timer_cb2, 0, true))
 
 			-- obj cb
 			-- can hotfix
-			table.insert(test3_timer_index_list, g_timer:add_timer(5 * 1000, cmd_handler.test3_cb2, 0, true))
+			table.insert(test3_timer_index_list, Env.timer_mgr:add_timer(5 * 1000, cmd_handler.test3_cb2, 0, true))
 
 			local timer_cb3 = cmd_handler.test3_cb3
-			table.insert(test3_timer_index_list, g_timer:add_timer(5 * 1000, timer_cb3, 0, true))
+			table.insert(test3_timer_index_list, Env.timer_mgr:add_timer(5 * 1000, timer_cb3, 0, true))
 
 		end,
 
@@ -375,7 +379,7 @@ function cmd_handler.do_print_server_list(params)
 end
 
 function cmd_handler.do_netprint(params)
-	g_server_mgr:print()
+	Env.server_mgr:print()
 end
 
 -- [login/gate]
@@ -408,7 +412,7 @@ function cmd_handler.do_connect(params)
 	local no_shakehand = true
 	local no_reconnect = false
 	local no_delay = true
-	g_server_mgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect, no_delay)
+	Env.server_mgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect, no_delay)
 
 end
 
@@ -430,7 +434,7 @@ function cmd_handler.do_close_connect(params)
 		return
 	end
 
-	g_server_mgr:close_connection_by_type(server_type, true)
+	Env.server_mgr:close_connection_by_type(server_type, true)
 end
 
 -- [opt username] [opt password] [opt channel_id]
@@ -581,7 +585,7 @@ function cmd_handler.do_http_request(params)
 	local cb = function(response_code, content)
 		Log.debug("cmd_handler.do_http_request url=%s response_code=%d", url, response_code)
 	end
-	g_http_mgr:request_get(url, cb)
+	Env.http_mgr:request_get(url, cb)
 end
 
 -- [attr_name] [value]

@@ -1,13 +1,13 @@
 
+local Env = require "env"
 -- [
-local g_rpc_mgr = g_rpc_mgr
-local Log = Log
-local Util = Util
+local Log = require "core.log.logger"
+local Util = require "core.util.util"
+local rpc_mgr = Env.rpc_mgr
 local ServerType = ServerType
 local ErrorCode = ErrorCode
-local g_server_mgr = g_server_mgr
 
-function g_rpc_mgr.bridge_rpc_test(data)
+function rpc_mgr.bridge_rpc_test(data)
 	
 	Log.debug("bridge_rpc_test: data=%s", Util.table_to_string(data))
 
@@ -18,7 +18,7 @@ function g_rpc_mgr.bridge_rpc_test(data)
 	sum = sum + 1
 
 	-- rpc to gate
-	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.GATE, "gate_rpc_test", {buff=buff, sum=sum})
+	local status, ret = rpc_mgr:call_by_server_type(ServerType.GATE, "gate_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("bridge_rpc_test rpc call fail")
 		return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
@@ -28,7 +28,7 @@ function g_rpc_mgr.bridge_rpc_test(data)
 	sum = ret.sum
 
 	-- rpc to scene
-	status, ret = g_rpc_mgr:call_by_server_type(ServerType.SCENE, "scene_rpc_test", {buff=buff, sum=sum})
+	status, ret = rpc_mgr:call_by_server_type(ServerType.SCENE, "scene_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("bridge_rpc_test rpc call fail")
 		return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
@@ -40,7 +40,7 @@ function g_rpc_mgr.bridge_rpc_test(data)
 	return {result = ErrorCode.SUCCESS, buff=buff, sum=sum}
 end
 
-function g_rpc_mgr.bridge_rpc_nocb_test(data)
+function rpc_mgr.bridge_rpc_nocb_test(data)
 	Log.debug("bridge_rpc_nocb_test: data=%s", Util.table_to_string(data))
 
 
@@ -54,7 +54,7 @@ function g_rpc_mgr.bridge_rpc_nocb_test(data)
 		index = index,
 		sum = 1,
 	}
-	g_rpc_mgr:call_nocb_by_server_type(ServerType.GATE, "gate_rpc_nocb_test", rpc_data)
+	rpc_mgr:call_nocb_by_server_type(ServerType.GATE, "gate_rpc_nocb_test", rpc_data)
 
 	rpc_data =
 	{
@@ -62,10 +62,10 @@ function g_rpc_mgr.bridge_rpc_nocb_test(data)
 		index = index,
 		sum = 2,
 	}
-	g_rpc_mgr:call_nocb_by_server_type(ServerType.GATE, "gate_rpc_nocb_test", rpc_data)
+	rpc_mgr:call_nocb_by_server_type(ServerType.GATE, "gate_rpc_nocb_test", rpc_data)
 
 	-- rpc nocb to scene
-	local server_info = g_server_mgr:get_server_by_type(ServerType.SCENE)
+	local server_info = Env.server_mgr:get_server_by_type(ServerType.SCENE)
 	if not server_info then
 		Log.warn("bridge_rpc_nocb_test server_info nil")
 		return
@@ -78,7 +78,7 @@ function g_rpc_mgr.bridge_rpc_nocb_test(data)
 		index = index,
 		sum = 1,
 	}
-	g_rpc_mgr:call_nocb_by_server_id(server_id, "scene_rpc_nocb_test", rpc_data)
+	rpc_mgr:call_nocb_by_server_id(server_id, "scene_rpc_nocb_test", rpc_data)
 
 	rpc_data =
 	{
@@ -86,11 +86,11 @@ function g_rpc_mgr.bridge_rpc_nocb_test(data)
 		index = index,
 		sum = 2,
 	}
-	g_rpc_mgr:call_nocb_by_server_id(server_id, "scene_rpc_nocb_test", rpc_data)
+	rpc_mgr:call_nocb_by_server_id(server_id, "scene_rpc_nocb_test", rpc_data)
 
 end
 
-function g_rpc_mgr.bridge_rpc_mix_test(data)
+function rpc_mgr.bridge_rpc_mix_test(data)
 	
 	Log.debug("bridge_rpc_mix_test: data=%s", Util.table_to_string(data))
 
@@ -102,7 +102,7 @@ function g_rpc_mgr.bridge_rpc_mix_test(data)
 	sum = sum + 1
 
 	-- rpc to gate
-	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.GATE, "gate_rpc_test", {buff=buff, sum=sum})
+	local status, ret = rpc_mgr:call_by_server_type(ServerType.GATE, "gate_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("bridge_rpc_mix_test rpc call fail")
 		return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
@@ -118,7 +118,7 @@ function g_rpc_mgr.bridge_rpc_mix_test(data)
 		index = index,
 		sum = 1,
 	}
-	g_rpc_mgr:call_nocb_by_server_type(ServerType.GATE, "gate_rpc_nocb_test", rpc_data)
+	rpc_mgr:call_nocb_by_server_type(ServerType.GATE, "gate_rpc_nocb_test", rpc_data)
 
 	rpc_data =
 	{
@@ -126,10 +126,10 @@ function g_rpc_mgr.bridge_rpc_mix_test(data)
 		index = index,
 		sum = 2,
 	}
-	g_rpc_mgr:call_nocb_by_server_type(ServerType.GATE, "gate_rpc_nocb_test", rpc_data)
+	rpc_mgr:call_nocb_by_server_type(ServerType.GATE, "gate_rpc_nocb_test", rpc_data)
 
 
-	local server_info = g_server_mgr:get_server_by_type(ServerType.SCENE)
+	local server_info = Env.server_mgr:get_server_by_type(ServerType.SCENE)
 	if not server_info then
 		Log.warn("bridge_rpc_mix_test server_info nil")
 		return
@@ -143,7 +143,7 @@ function g_rpc_mgr.bridge_rpc_mix_test(data)
 		index = index,
 		sum = 1,
 	}
-	g_rpc_mgr:call_nocb_by_server_id(server_id, "scene_rpc_nocb_test", rpc_data)
+	rpc_mgr:call_nocb_by_server_id(server_id, "scene_rpc_nocb_test", rpc_data)
 
 	rpc_data =
 	{
@@ -151,10 +151,10 @@ function g_rpc_mgr.bridge_rpc_mix_test(data)
 		index = index,
 		sum = 2,
 	}
-	g_rpc_mgr:call_nocb_by_server_id(server_id, "scene_rpc_nocb_test", rpc_data)
+	rpc_mgr:call_nocb_by_server_id(server_id, "scene_rpc_nocb_test", rpc_data)
 	
 	-- rpc to scene
-	status, ret = g_rpc_mgr:call_by_server_id(server_id, "scene_rpc_test", {buff=buff, sum=sum})
+	status, ret = rpc_mgr:call_by_server_id(server_id, "scene_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("bridge_rpc_mix_test rpc call fail")
 		return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
@@ -169,10 +169,10 @@ end
 
 -----------------------------------------------------------
 
-function g_rpc_mgr.bridge_sync_gate_conn_num(data, mailbox_id)
+function rpc_mgr.bridge_sync_gate_conn_num(data, mailbox_id)
 	-- Log.debug("bridge_sync_gate_conn_num data=%s", Util.table_to_string(data))
 	
-	local server_info = g_server_mgr:get_server_by_mailbox(mailbox_id)
+	local server_info = Env.server_mgr:get_server_by_mailbox(mailbox_id)
 	if not server_info then
 		Log.err("bridge_sync_gate_conn_num not server")
 		return
@@ -190,14 +190,14 @@ end
 
 -----------------------------------------------------------
 
-function g_rpc_mgr.bridge_create_role(data)
+function rpc_mgr.bridge_create_role(data)
 	
 	Log.debug("bridge_create_role data=%s", Util.table_to_string(data))
 
 	return g_common_mgr:rpc_create_role(data)
 end
 
-function g_rpc_mgr.bridge_delete_role(data)
+function rpc_mgr.bridge_delete_role(data)
 	
 	Log.debug("bridge_delete_role: data=%s", Util.table_to_string(data))
 
@@ -207,7 +207,7 @@ function g_rpc_mgr.bridge_delete_role(data)
 	return g_common_mgr:rpc_delete_role(user_id, role_id)
 end
 
-function g_rpc_mgr.bridge_select_role(data)
+function rpc_mgr.bridge_select_role(data)
 	
 	Log.debug("bridge_select_role: data=%s", Util.table_to_string(data))
 
@@ -217,7 +217,7 @@ function g_rpc_mgr.bridge_select_role(data)
 	return g_common_mgr:rpc_select_role(user_id, role_id)
 end
 
-function g_rpc_mgr.bridge_user_offline(data)
+function rpc_mgr.bridge_user_offline(data)
 
 	Log.debug("bridge_user_offline: data=%s", Util.table_to_string(data))
 

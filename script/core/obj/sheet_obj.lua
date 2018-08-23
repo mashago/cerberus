@@ -1,4 +1,9 @@
 
+local Env = require "env"
+local Log = require "core.log.logger"
+local Util = require "core.util.util"
+local class = require "core.util.class"
+local g_funcs = require "core.global.global_funcs"
 SheetObj = class()
 
 --[[
@@ -85,7 +90,7 @@ function SheetObj:load_data()
 		conditions = conditions
 	}
 
-	local status, ret = g_rpc_mgr:call_by_server_type(ServerType.DB, "db_game_select", rpc_data, self._keys[1][3])
+	local status, ret = Env.rpc_mgr:call_by_server_type(ServerType.DB, "db_game_select", rpc_data, self._keys[1][3])
 	if not status then
 		Log.err("SheetObj:load_data fail")
 		return false
@@ -474,7 +479,7 @@ function SheetObj:do_save(insert_rows, delete_rows, modify_rows)
 			table_name = self._sheet_name,
 			kvs_list = insert_rows,
 		}
-		g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_insert_multi", rpc_data)
+		Env.rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_insert_multi", rpc_data)
 	end
 
 	if #delete_rows then
@@ -483,7 +488,7 @@ function SheetObj:do_save(insert_rows, delete_rows, modify_rows)
 			table_name = self._sheet_name,
 			conditions_list = delete_rows,
 		}
-		g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_delete_multi", rpc_data)
+		Env.rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_delete_multi", rpc_data)
 	end
 	
 	if #modify_rows then
@@ -492,7 +497,7 @@ function SheetObj:do_save(insert_rows, delete_rows, modify_rows)
 			table_name = self._sheet_name,
 			modify_list = modify_rows,
 		}
-		g_rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_update_multi", rpc_data)
+		Env.rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_update_multi", rpc_data)
 	end
 
 end

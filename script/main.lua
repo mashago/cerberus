@@ -1,15 +1,23 @@
 
-package.path = package.path .. ";script/?.lua"
+package.path =  "script/core/?.lua;script/?.lua;" .. package.path
 
 require "core.init"
 
-local Log = Log
+local Env = require "env"
+local Log = require "log.logger"
+local ServerConfig = require "global.server_conf"
+local NetMgr = require "net.net_mgr"
+local Timer = require "timer.timer"
+local ServerMgr = require "server.server_mgr"
+local RpcMgr = require "rpc.rpc_mgr"
+local HttpMgr = require "http.http_mgr"
+local g_funcs = require "global.global_funcs"
 
 local function add_debug_timer()
 	local timer_cb = function()
 		g_funcs.debug_timer_cb()
 	end
-	g_timer:add_timer(5000, timer_cb, 0, true)
+	Env.timer_mgr:add_timer(5000, timer_cb, 0, true)
 end
 
 local function check_write_global()
@@ -40,19 +48,22 @@ local function main()
 		Log.err("tinyxml load file fail %s", g_conf_file)
 		return
 	end
-	g_server_conf = ServerConfig.new(g_server_id, g_server_type)
+
+
+	Env.server_conf = ServerConfig.new(g_server_id, g_server_type)
 	g_funcs.load_address(xml_doc)
 
-	g_net_mgr = NetMgr.new()
-	g_timer = Timer.new()
-	g_server_mgr = ServerMgr.new()
-	g_rpc_mgr = RpcMgr.new()
-	g_http_mgr = HttpMgr.new()
+	Env.net_mgr = NetMgr.new()
+	Env.timer_mgr = Timer.new()
+	Env.server_mgr = ServerMgr.new()
+	Env.rpc_mgr = RpcMgr.new()
+	Env.http_mgr = HttpMgr.new()
 
 	g_funcs.connect_to_servers(xml_doc)
 
 	math.randomseed(os.time())
 
+	package.path = "script/" .. g_entry_path .. "/?.lua;" .. package.path
 	local main_entry = require(g_entry_path .. ".main")
 	main_entry(xml_doc)
 

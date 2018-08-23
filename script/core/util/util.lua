@@ -1,5 +1,5 @@
 
-Util = {}
+local Util = {}
 
 function Util.table_to_string(tb)
     if type(tb) ~= "table" then

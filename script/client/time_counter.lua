@@ -1,4 +1,6 @@
 
+local Log = require "core.log.logger"
+local class = require "core.util.class"
 
 local TimeCounter = class()
 

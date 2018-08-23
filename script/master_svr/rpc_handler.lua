@@ -1,10 +1,11 @@
 
-local g_rpc_mgr = g_rpc_mgr
-local Log = Log
-local Util = Util
+local Env = require "env"
+local Log = require "core.log.logger"
+local Util = require "core.util.util"
+local rpc_mgr = Env.rpc_mgr
 local ErrorCode = ErrorCode
 
-function g_rpc_mgr.master_rpc_test(data)
+function rpc_mgr.master_rpc_test(data)
 	
 	Log.debug("master_rpc_test: data=%s", Util.table_to_string(data))
 
@@ -18,7 +19,7 @@ function g_rpc_mgr.master_rpc_test(data)
 end
 
 local XXX_g_rpc_nocb_map = {}
-function g_rpc_mgr.master_rpc_nocb_test(data)
+function rpc_mgr.master_rpc_nocb_test(data)
 	Log.debug("master_rpc_nocb_test: data=%s", Util.table_to_string(data))
 
 	local buff = data.buff

@@ -1,5 +1,8 @@
 
-Timer = class()
+local Env = require "env"
+local Log = require "core.log.logger"
+local class = require "core.util.class"
+local Timer = class()
 
 function Timer:ctor()
 	self._timer_index_map = {}
@@ -35,7 +38,7 @@ function Timer:on_timer(timer_index, is_loop)
 
 	local function wrapper()
 		-- timer_param[1](timer_param[2])
-		g_rpc_mgr:run(timer_param[1], timer_param[2])
+		Env.rpc_mgr:run(timer_param[1], timer_param[2])
 	end
 
 	local function error_handler(msg)
@@ -49,12 +52,5 @@ function Timer:on_timer(timer_index, is_loop)
 		Log.err(msg)
 	end
 end
-
---[[
-function ccall_timer_handler(timer_index, is_loop)
-	-- Log.debug("timer_index=%d", timer_index)
-	g_timer:on_timer(timer_index, is_loop)
-end
---]]
 
 return Timer
