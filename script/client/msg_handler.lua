@@ -1,4 +1,4 @@
-local Env = require "env"
+local Core = require "core"
 local Log = require "core.log.logger"
 local Util = require "core.util.util"
 local g_msg_handler = require "core.global.msg_handler"
@@ -22,7 +22,7 @@ function g_msg_handler.s2c_user_login_ret(data, mailbox_id, msg_id)
 end
 
 function g_msg_handler.s2c_user_kick(data)
-	Env.server_mgr:close_connection_by_type(ServerType.LOGIN, true)
+	Core.server_mgr:close_connection_by_type(ServerType.LOGIN, true)
 end
 
 function g_msg_handler.s2c_area_list_ret(data, mailbox_id, msg_id)
@@ -77,7 +77,7 @@ function g_msg_handler.s2c_select_role_ret(data, mailbox_id, msg_id)
 	g_client._user_token = data.token
 
 	g_time_counter:print()
-	Env.server_mgr:close_connection_by_type(ServerType.LOGIN, true)
+	Core.server_mgr:close_connection_by_type(ServerType.LOGIN, true)
 end
 
 function g_msg_handler.s2c_role_enter_ret(data, mailbox_id, msg_id)
@@ -149,6 +149,6 @@ function g_msg_handler.s2c_attr_modify_ret(data, mailbox_id, msg_id)
 end
 
 function g_msg_handler.s2c_role_kick(data, mailbox_id, msg_id)
-	Env.server_mgr:close_connection_by_type(ServerType.GATE, true)
+	Core.server_mgr:close_connection_by_type(ServerType.GATE, true)
 end
 

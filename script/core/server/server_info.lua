@@ -1,5 +1,5 @@
 
-local Env = require "env"
+local Core = require "core"
 local Log = require "core.log.logger"
 local class = require "core.util.class"
 local ServerInfo = class()
@@ -80,7 +80,7 @@ function ServerInfo:send_msg_ext(msg_id, ext, msg)
 		Log.warn("ServerInfo:send_msg not connected msg_id=%d", msg_id)
 		return false
 	end
-	return Env.net_mgr:send_msg_ext(mailbox_id, msg_id, ext, msg)
+	return Core.net_mgr:send_msg_ext(mailbox_id, msg_id, ext, msg)
 end
 
 function ServerInfo:transfer_msg(ext)
@@ -89,7 +89,7 @@ function ServerInfo:transfer_msg(ext)
 		Log.warn("ServerInfo:send_msg mailbox nil msg_id=%d", msg_id)
 		return false
 	end
-	return Env.net_mgr:transfer_msg(mailbox_id, ext)
+	return Core.net_mgr:transfer_msg(mailbox_id, ext)
 end
 
 function ServerInfo:print()

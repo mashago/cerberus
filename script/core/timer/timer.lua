@@ -1,5 +1,5 @@
 
-local Env = require "env"
+local Core = require "core"
 local Log = require "core.log.logger"
 local class = require "core.util.class"
 local Timer = class()
@@ -38,7 +38,7 @@ function Timer:on_timer(timer_index, is_loop)
 
 	local function wrapper()
 		-- timer_param[1](timer_param[2])
-		Env.rpc_mgr:run(timer_param[1], timer_param[2])
+		Core.rpc_mgr:run(timer_param[1], timer_param[2])
 	end
 
 	local function error_handler(msg)

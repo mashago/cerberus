@@ -1,5 +1,5 @@
 
-local Env = require "env"
+local Core = require "core"
 local Log = require "core.log.logger"
 local class = require "core.util.class"
 local MID = MID
@@ -39,7 +39,7 @@ function UserMgr:add_user(user)
 	local timer_cb = function(user_id)
 		self:connect_timeout_cb(user_id)
 	end
-	self._offline_user_map[user._user_id] = Env.timer_mgr:add_timer(connect_wait_interval_ms, timer_cb, user._user_id, false)
+	self._offline_user_map[user._user_id] = Core.timer_mgr:add_timer(connect_wait_interval_ms, timer_cb, user._user_id, false)
 	return true
 end
 
@@ -73,7 +73,7 @@ function UserMgr:del_user(user)
 	user._mailbox_id = 0
 
 	-- send user offline to bridge
-	Env.rpc_mgr:call_nocb_by_server_type(ServerType.BRIDGE, "bridge_user_offline", {user_id = user._user_id})
+	Core.rpc_mgr:call_nocb_by_server_type(ServerType.BRIDGE, "bridge_user_offline", {user_id = user._user_id})
 end
 
 function UserMgr:online(user, mailbox_id)
@@ -84,7 +84,7 @@ function UserMgr:online(user, mailbox_id)
 	-- re-online user, remove timer
 	local timer_index = self._offline_user_map[user_id]
 	if timer_index then
-		Env.timer_mgr:del_timer(timer_index)
+		Core.timer_mgr:del_timer(timer_index)
 		self._offline_user_map[user_id] = nil
 	end
 end
@@ -112,7 +112,7 @@ function UserMgr:user_offline(user, no_delay)
 	local timer_cb = function(uid)
 		self:offline_timer_cb(uid)
 	end
-	self._offline_user_map[user_id] = Env.timer_mgr:add_timer(delete_user_interval_ms, timer_cb, user_id, false)
+	self._offline_user_map[user_id] = Core.timer_mgr:add_timer(delete_user_interval_ms, timer_cb, user_id, false)
 
 end
 

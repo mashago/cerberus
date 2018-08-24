@@ -3,7 +3,7 @@ package.path =  "script/core/?.lua;script/?.lua;" .. package.path
 
 require "core.init"
 
-local Env = require "env"
+local Core = require "core"
 local Log = require "log.logger"
 local ServerConfig = require "global.server_conf"
 local NetMgr = require "net.net_mgr"
@@ -17,7 +17,7 @@ local function add_debug_timer()
 	local timer_cb = function()
 		g_funcs.debug_timer_cb()
 	end
-	Env.timer_mgr:add_timer(5000, timer_cb, 0, true)
+	Core.timer_mgr:add_timer(5000, timer_cb, 0, true)
 end
 
 local function check_write_global()
@@ -50,14 +50,14 @@ local function main()
 	end
 
 
-	Env.server_conf = ServerConfig.new(g_server_id, g_server_type)
+	Core.server_conf = ServerConfig.new(g_server_id, g_server_type)
 	g_funcs.load_address(xml_doc)
 
-	Env.net_mgr = NetMgr.new()
-	Env.timer_mgr = Timer.new()
-	Env.server_mgr = ServerMgr.new()
-	Env.rpc_mgr = RpcMgr.new()
-	Env.http_mgr = HttpMgr.new()
+	Core.net_mgr = NetMgr.new()
+	Core.timer_mgr = Timer.new()
+	Core.server_mgr = ServerMgr.new()
+	Core.rpc_mgr = RpcMgr.new()
+	Core.http_mgr = HttpMgr.new()
 
 	g_funcs.connect_to_servers(xml_doc)
 

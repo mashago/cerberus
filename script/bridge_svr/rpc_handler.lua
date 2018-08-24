@@ -1,9 +1,9 @@
 
-local Env = require "env"
+local Core = require "core"
 -- [
 local Log = require "core.log.logger"
 local Util = require "core.util.util"
-local rpc_mgr = Env.rpc_mgr
+local rpc_mgr = Core.rpc_mgr
 local ServerType = ServerType
 local ErrorCode = ErrorCode
 
@@ -65,7 +65,7 @@ function rpc_mgr.bridge_rpc_nocb_test(data)
 	rpc_mgr:call_nocb_by_server_type(ServerType.GATE, "gate_rpc_nocb_test", rpc_data)
 
 	-- rpc nocb to scene
-	local server_info = Env.server_mgr:get_server_by_type(ServerType.SCENE)
+	local server_info = Core.server_mgr:get_server_by_type(ServerType.SCENE)
 	if not server_info then
 		Log.warn("bridge_rpc_nocb_test server_info nil")
 		return
@@ -129,7 +129,7 @@ function rpc_mgr.bridge_rpc_mix_test(data)
 	rpc_mgr:call_nocb_by_server_type(ServerType.GATE, "gate_rpc_nocb_test", rpc_data)
 
 
-	local server_info = Env.server_mgr:get_server_by_type(ServerType.SCENE)
+	local server_info = Core.server_mgr:get_server_by_type(ServerType.SCENE)
 	if not server_info then
 		Log.warn("bridge_rpc_mix_test server_info nil")
 		return
@@ -172,7 +172,7 @@ end
 function rpc_mgr.bridge_sync_gate_conn_num(data, mailbox_id)
 	-- Log.debug("bridge_sync_gate_conn_num data=%s", Util.table_to_string(data))
 	
-	local server_info = Env.server_mgr:get_server_by_mailbox(mailbox_id)
+	local server_info = Core.server_mgr:get_server_by_mailbox(mailbox_id)
 	if not server_info then
 		Log.err("bridge_sync_gate_conn_num not server")
 		return

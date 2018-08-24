@@ -1,5 +1,5 @@
 
-local Env = require "env"
+local Core = require "core"
 local Log = require "core.log.logger"
 local class = require "core.util.class"
 local HttpMgr = class()
@@ -28,7 +28,7 @@ function HttpMgr:request_get(url, cb)
 	{
 		cb = cb,
 	}
-	Env.net_mgr:http_request_get(url, session_id)
+	Core.net_mgr:http_request_get(url, session_id)
 end
 
 function HttpMgr:request_post(url, post_data, post_data_len, cb)
@@ -37,7 +37,7 @@ function HttpMgr:request_post(url, post_data, post_data_len, cb)
 	{
 		cb = cb,
 	}
-	Env.net_mgr:http_request_post(url, session_id, post_data, post_data_len)
+	Core.net_mgr:http_request_post(url, session_id, post_data, post_data_len)
 end
 
 function HttpMgr:handle_request(session_id, response_code, content)

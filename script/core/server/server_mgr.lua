@@ -1,5 +1,5 @@
 
-local Env = require "env"
+local Core = require "core"
 local Log = require "core.log.logger"
 local Util = require "core.util.util"
 local class = require "core.util.class"
@@ -70,7 +70,7 @@ function ServerMgr:_connect_core()
 		if server_info._connect_status == ServiceConnectStatus.DISCONNECT then
 			-- not connecting, do connect
 			-- only return a connect_index, get mailbox_id later
-			local ret, connect_index = Env.net_mgr:connect_to(server_info._ip, server_info._port)
+			local ret, connect_index = Core.net_mgr:connect_to(server_info._ip, server_info._port)
 			if ret then
 				server_info._connect_index = connect_index
 				server_info._connect_status = ServiceConnectStatus.CONNECTING
@@ -105,7 +105,7 @@ function ServerMgr:_connect_core()
 	if is_all_connected then
 		Log.debug("******* all connect *******")
 		if self._connect_timer_index ~= 0 then
-			Env.timer_mgr:del_timer(self._connect_timer_index)
+			Core.timer_mgr:del_timer(self._connect_timer_index)
 			self._connect_timer_index = 0
 		end
 	end
@@ -122,7 +122,7 @@ function ServerMgr:connect_immediately()
 	local function timer_cb()
 		self:_connect_core()
 	end
-	self._connect_timer_index = Env.timer_mgr:add_timer(self._connect_interval_ms, timer_cb, 0, true)
+	self._connect_timer_index = Core.timer_mgr:add_timer(self._connect_interval_ms, timer_cb, 0, true)
 end
 
 function ServerMgr:create_connect_timer()
@@ -133,7 +133,7 @@ function ServerMgr:create_connect_timer()
 	local function timer_cb()
 		self:_connect_core()
 	end
-	self._connect_timer_index = Env.timer_mgr:add_timer(self._connect_interval_ms, timer_cb, 0, true)
+	self._connect_timer_index = Core.timer_mgr:add_timer(self._connect_interval_ms, timer_cb, 0, true)
 end
 
 function ServerMgr:check_all_connected()
@@ -151,7 +151,7 @@ function ServerMgr:check_all_connected()
 	end
 
 	if self._connect_timer_index ~= 0 then
-		Env.timer_mgr:del_timer(self._connect_timer_index)
+		Core.timer_mgr:del_timer(self._connect_timer_index)
 		self._connect_timer_index = 0
 	end
 
@@ -291,7 +291,7 @@ function ServerMgr:connect_to_success(mailbox_id)
 		return
 	end
 
-	Env.net_mgr:add_mailbox(mailbox_id, server_info._ip, server_info._port)
+	Core.net_mgr:add_mailbox(mailbox_id, server_info._ip, server_info._port)
 
 	server_info._connect_status = ServiceConnectStatus.CONNECTED
 
@@ -309,14 +309,14 @@ function ServerMgr:connect_to_success(mailbox_id)
 	-- send shake hand
 	local msg = 
 	{
-		server_id = Env.server_conf._server_id,
-		server_type = Env.server_conf._server_type,
-		single_scene_list = Env.server_conf._single_scene_list,
-		from_to_scene_list = Env.server_conf._from_to_scene_list,
-		ip = Env.server_conf._ip,
-		port = Env.server_conf._port,
+		server_id = Core.server_conf._server_id,
+		server_type = Core.server_conf._server_type,
+		single_scene_list = Core.server_conf._single_scene_list,
+		from_to_scene_list = Core.server_conf._from_to_scene_list,
+		ip = Core.server_conf._ip,
+		port = Core.server_conf._port,
 	}
-	Env.net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_req, msg)
+	Core.net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_req, msg)
 end
 
 function ServerMgr:shake_hand_success(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
@@ -395,7 +395,7 @@ function ServerMgr:close_connection(server_info, no_reconnect)
 	server_info._no_reconnect = no_reconnect
 	server_info._connect_status = ServiceConnectStatus.DISCONNECTING
 	if server_info._mailbox_id ~= MAILBOX_ID_NIL then
-		Env.net_mgr:close_mailbox(server_info._mailbox_id)
+		Core.net_mgr:close_mailbox(server_info._mailbox_id)
 	end
 end
 

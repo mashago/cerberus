@@ -1,5 +1,5 @@
 
-local Env = require "env"
+local Core = require "core"
 local Log = require "core.log.logger"
 local Util = require "core.util.util"
 local g_msg_handler = require "core.global.msg_handler"
@@ -167,16 +167,16 @@ function NetMgr:recv_msg_handler(mailbox_id, msg_id)
 	end
 
 	if msg_id == MID.s2s_rpc_req then
-		Env.rpc_mgr:handle_call(data, mailbox_id, msg_id, false)
+		Core.rpc_mgr:handle_call(data, mailbox_id, msg_id, false)
 	elseif msg_id == MID.s2s_rpc_nocb_req then
-		Env.rpc_mgr:handle_call(data, mailbox_id, msg_id, true)
+		Core.rpc_mgr:handle_call(data, mailbox_id, msg_id, true)
 	elseif msg_id == MID.s2s_rpc_ret then
-		Env.rpc_mgr:handle_callback(data, mailbox_id, msg_id)
+		Core.rpc_mgr:handle_callback(data, mailbox_id, msg_id)
 	elseif not RAW_MID[msg_id] and g_net_event_client_msg then
 		-- check msg is need convert
-		Env.rpc_mgr:run(g_net_event_client_msg, msg_func, data, mailbox_id, msg_id, ext)
+		Core.rpc_mgr:run(g_net_event_client_msg, msg_func, data, mailbox_id, msg_id, ext)
 	else
-		Env.rpc_mgr:run(msg_func, data, mailbox_id, msg_id, ext)
+		Core.rpc_mgr:run(msg_func, data, mailbox_id, msg_id, ext)
 	end
 
 end

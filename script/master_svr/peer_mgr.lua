@@ -1,5 +1,5 @@
 
-local Env = require "env"
+local Core = require "core"
 local Log = require "core.log.logger"
 local Util = require "core.util.util"
 local class = require "core.util.class"
@@ -34,18 +34,18 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 	local msg = 
 	{
 		result = ErrorCode.SUCCESS,
-		server_id = Env.server_conf._server_id,
-		server_type = Env.server_conf._server_type,
-		single_scene_list = Env.server_conf._single_scene_list,
-		from_to_scene_list = Env.server_conf._from_to_scene_list,
+		server_id = Core.server_conf._server_id,
+		server_type = Core.server_conf._server_type,
+		single_scene_list = Core.server_conf._single_scene_list,
+		from_to_scene_list = Core.server_conf._from_to_scene_list,
 	}
 
 	-- add server
-	local new_server_info = Env.server_mgr:add_server(mailbox_id, server_id, server_type
+	local new_server_info = Core.server_mgr:add_server(mailbox_id, server_id, server_type
 	, single_scene_list, from_to_scene_list)
 	if not new_server_info then
 		msg.result = ErrorCode.SHAKE_HAND_FAIL
-		Env.net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
+		Core.net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
 		return false
 	end
 
@@ -68,7 +68,7 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 		if peer.mailbox_id ~= 0 then
 			Log.err("PeerMgr:shake_hand duplicate server_id register %d", server_id)
 			msg.result = ErrorCode.SHAKE_HAND_FAIL
-			Env.net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
+			Core.net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
 			return false
 		end
 
@@ -87,7 +87,7 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 		::continue::
 	end
 
-	Env.net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
+	Core.net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
 
 	-- in peer is reconnect peer
 	if reconn_peer_index > 0 then
@@ -97,7 +97,7 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 			{
 				peer_list = front_peer_list
 			}
-			Env.net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_invite, msg2)
+			Core.net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_invite, msg2)
 		end
 
 		-- send new peer addr to back peer
@@ -114,7 +114,7 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 		for i=reconn_peer_index+1, #self._register_peer_list do
 			local peer = self._register_peer_list[i]
 			if peer.mailbox_id ~= MAILBOX_ID_NIL then
-				Env.net_mgr:send_msg(peer.mailbox_id, MID.s2s_shake_hand_invite, msg2)
+				Core.net_mgr:send_msg(peer.mailbox_id, MID.s2s_shake_hand_invite, msg2)
 			end
 		end
 		self:print()
@@ -137,7 +137,7 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 				})
 			end
 		end
-		Env.net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_invite, msg2)
+		Core.net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_invite, msg2)
 	end
 
 	-- push back into peer list
@@ -173,7 +173,7 @@ function PeerMgr:server_disconnect(server_id)
 
 	for _, peer in ipairs(self._register_peer_list) do
 		if peer.mailbox_id ~= 0 then
-			Env.net_mgr:send_msg(peer.mailbox_id, MID.s2s_shake_hand_cancel, target_peer)
+			Core.net_mgr:send_msg(peer.mailbox_id, MID.s2s_shake_hand_cancel, target_peer)
 		end
 	end
 

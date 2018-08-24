@@ -1,5 +1,5 @@
 
-local Env = require "env"
+local Core = require "core"
 local class = require "core.util.class"
 local RoleMgr = class()
 
@@ -56,7 +56,7 @@ function RoleMgr:mark_sync_role(role_id)
 		self:sync_all_role()
 	end
 	local ROLE_SYNC_INTERVAL = 500 -- ms
-	self._sync_role_timer_index = Env.timer_mgr:add_timer(ROLE_SYNC_INTERVAL, timer_cb, self, false)
+	self._sync_role_timer_index = Core.timer_mgr:add_timer(ROLE_SYNC_INTERVAL, timer_cb, self, false)
 
 end
 

@@ -1,8 +1,8 @@
 
-local Env = require "env"
+local Core = require "core"
 local Log = require "core.log.logger"
 local Util = require "core.util.util"
-local rpc_mgr = Env.rpc_mgr
+local rpc_mgr = Core.rpc_mgr
 local ErrorCode = ErrorCode
 
 function rpc_mgr.gate_rpc_test(data)
@@ -72,8 +72,8 @@ function rpc_mgr.gate_select_role(data)
 	g_user_mgr:add_user(user)
 	
 	msg.result = ErrorCode.SUCCESS
-	msg.ip = Env.server_conf._ip
-	msg.port = Env.server_conf._port
+	msg.ip = Core.server_conf._ip
+	msg.port = Core.server_conf._port
 
 	return msg
 end

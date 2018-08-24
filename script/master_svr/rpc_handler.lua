@@ -1,8 +1,8 @@
 
-local Env = require "env"
+local Core = require "core"
 local Log = require "core.log.logger"
 local Util = require "core.util.util"
-local rpc_mgr = Env.rpc_mgr
+local rpc_mgr = Core.rpc_mgr
 local ErrorCode = ErrorCode
 
 function rpc_mgr.master_rpc_test(data)

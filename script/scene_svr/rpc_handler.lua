@@ -1,6 +1,6 @@
 
-local Env = require "env"
-local rpc_mgr = Env.rpc_mgr
+local Core = require "core"
+local rpc_mgr = Core.rpc_mgr
 local Log = require "core.log.logger"
 local Util = require "core.util.util"
 local ErrorCode = ErrorCode

@@ -1,5 +1,5 @@
 
-local Env = require "env"
+local Core = require "core"
 local Log = require "core.log.logger"
 local g_funcs = require "core.global.global_funcs"
 local DBMgr = require "core.db.db_mgr"
@@ -32,7 +32,7 @@ sync_db = function()
 		[_Struct] = "blob",
 	}
 
-	local db_name = Env.server_conf._db_name_map[DBType.GAME]
+	local db_name = Core.server_conf._db_name_map[DBType.GAME]
 	Log.debug("db_name=%s", db_name)
 
 	for table_name, table_def in pairs(DataStructDef.data) do
