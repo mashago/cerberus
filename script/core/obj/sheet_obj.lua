@@ -4,7 +4,7 @@ local Log = require "core.log.logger"
 local Util = require "core.util.util"
 local class = require "core.util.class"
 local g_funcs = require "core.global.global_funcs"
-SheetObj = class()
+local SheetObj = class()
 
 --[[
 function SheetObj:ctor(sheet_name)

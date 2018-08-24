@@ -1,7 +1,7 @@
 
 local Log = require "core.log.logger"
 local g_funcs = require "core.global.global_funcs"
-g_msg_handler = g_msg_handler or {}
+local g_msg_handler = {}
 
 if g_server_type ~= ServerType.MASTER then
 function g_msg_handler.s2s_shake_hand_req(data, mailbox_id)

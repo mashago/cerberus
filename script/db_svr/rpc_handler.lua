@@ -25,7 +25,7 @@ local XXX_g_rpc_nocb_map = XXX_g_rpc_nocb_map or {}
 function rpc_mgr.db_rpc_nocb_test(data)
 	Log.debug("db_rpc_nocb_test: data=%s", Util.table_to_string(data))
 
-	local buff = data.buff
+	-- local buff = data.buff
 	local index = data.index
 	local sum = data.sum
 

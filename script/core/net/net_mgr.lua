@@ -2,6 +2,7 @@
 local Env = require "env"
 local Log = require "core.log.logger"
 local Util = require "core.util.util"
+local g_msg_handler = require "core.global.msg_handler"
 local class = require "core.util.class"
 local NetMgr = class()
 

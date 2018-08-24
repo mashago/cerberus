@@ -1,4 +1,5 @@
 
+local g_msg_handler = require "core.global.msg_handler"
 function g_msg_handler.s2s_shake_hand_req(data, mailbox_id)
 
 	local server_id = data.server_id

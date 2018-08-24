@@ -5,7 +5,7 @@ local _class={}
 -- _class = {[class_ptr] = { k=v, __index=func search from super}}
 -- x_class = {__index = _class[x_class], __newindex=func set into _class[x_class]} 
  
-function class(super)
+local function class(super)
 	local class_type={}
 	class_type.ctor=false
 	class_type.super=super
