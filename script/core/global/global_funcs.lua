@@ -171,8 +171,8 @@ function g_funcs.handle_shake_hand_req(data, mailbox_id)
 	local server_type = data.server_type
 	local single_scene_list = data.single_scene_list
 	local from_to_scene_list = data.from_to_scene_list
-	local ip = data.ip -- will ignore
-	local port = data.port -- will ignore
+	-- local ip = data.ip -- will ignore
+	-- local port = data.port -- will ignore
 
 	local msg = 
 	{
@@ -250,7 +250,7 @@ end
 function g_funcs.handle_shake_hand_cancel(data, mailbox_id)
 	Log.debug("g_funcs.handle_shake_hand_cancel data=%s", Util.table_to_string(data))
 
-	local server_id = data.server_id
+	-- local server_id = data.server_id
 	local ip = data.ip
 	local port = data.port
 

@@ -247,7 +247,7 @@ function DBMgr.do_update(db_name, table_name, fields, conditions)
 	if next(conditions) then
 		sql = sql .. " WHERE "
 
-		local index = 1
+		index = 1
 		for k, v in pairs(conditions) do
 			if index ~= 1 then
 				sql = sql .. " AND "

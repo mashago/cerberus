@@ -5,7 +5,7 @@ local g_funcs = require "core.global.global_funcs"
 local SheetObj = require "core.obj.sheet_obj"
 local SHEET_NAME = "role_info"
 local MID = MID
-local g_role_mgr = g_role_mgr
+local Env = require "env"
 
 local Role = class(SheetObj)
 
@@ -75,7 +75,7 @@ function Role:force_save()
 		-- nothing change
 		return
 	end
-	g_role_mgr:unmark_save_role(self._role_id)
+	Env.g_role_mgr:unmark_save_role(self._role_id)
 	Core.timer_mgr:del_timer(timer_index)
 	self._db_save_timer_index = 0
 	self:save_dirty()
@@ -83,13 +83,13 @@ end
 
 function Role:on_disconnect()
 	self:force_save()
-	g_role_mgr:del_role(self)
+	Env.g_role_mgr:del_role(self)
 end
 
 -------------------------------------------
 -- call by sheet_obj
 function Role:active_sync()
-	g_role_mgr:mark_sync_role(self._role_id)
+	Env.g_role_mgr:mark_sync_role(self._role_id)
 end
 
 function Role:do_sync(insert_rows, delete_rows, modify_rows)
@@ -107,10 +107,10 @@ function Role:active_save()
 	if self._db_save_timer_index > 0 then
 		return
 	end
-	g_role_mgr:mark_save_role(self._role_id)
+	Env.g_role_mgr:mark_save_role(self._role_id)
 
 	local timer_cb = function(role)
-		g_role_mgr:unmark_save_role(self._role_id)
+		Env.g_role_mgr:unmark_save_role(self._role_id)
 		self._db_save_timer_index = 0
 		role:save_dirty()
 	end

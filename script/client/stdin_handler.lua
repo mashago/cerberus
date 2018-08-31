@@ -3,6 +3,9 @@ local Core = require "core"
 local Log = require "core.log.logger"
 local Util = require "core.util.util"
 local g_funcs = require "core.global.global_funcs"
+local Env = require "env"
+local TestRole = require "test_role"
+local TestBag = require "test_bag"
 local cmd_handler = {}
 
 function cmd_handler.execute(buffer)
@@ -52,7 +55,7 @@ function cmd_handler.execute(buffer)
 	elseif cmd == "5" then
 		local area_id = nil
 		local role_id = nil
-		for k, v in ipairs(g_client._area_role_list) do
+		for k, v in ipairs(Env.g_client._area_role_list) do
 			for _, role in ipairs(v.role_list) do
 				area_id = v.area_id
 				role_id = role.role_id
@@ -174,21 +177,21 @@ function cmd_handler.do_test(params)
 
 	local switch =
 	{
-		[1] = function(last_params)
+		[1] = function(p)
 			Log.debug("tmp_local_x=%d", tmp_local_x)
 			Log.debug("tmp_local_x2=%d", tmp_local_x2)
 			Log.debug("tmp_global_y=%d", tmp_global_y)
 			Log.debug("tmp_global_y2=%d", tmp_global_y2)
 		end,
 
-		[2] = function(last_params)
+		[2] = function(p)
 			tmp_local_x = tmp_local_x + 1
 			tmp_local_x2 = tmp_local_x2 + 1
 			tmp_global_y = tmp_global_y + 1
 			tmp_global_y2 = tmp_global_y2 + 1
 		end,
 
-		[3] = function(last_params)
+		[3] = function(p)
 			-- test hotfix timer cb
 			
 			if next(test3_timer_index_list) then
@@ -227,7 +230,7 @@ function cmd_handler.do_test(params)
 
 		end,
 
-		[4] = function(last_params)
+		[4] = function(p)
 
 			local time_ms = LuaUtil:get_time_ms()
 			Log.debug("time_ms=%d", time_ms)
@@ -278,7 +281,7 @@ function cmd_handler.do_rpc_test(params)
 		buff = buff,
 	}
 
-	g_client:send_to_login(MID.c2s_rpc_test_req, msg)
+	Env.g_client:send_to_login(MID.c2s_rpc_test_req, msg)
 end
 
 -- [num]
@@ -296,10 +299,10 @@ function cmd_handler.do_rpc_testx(params)
 		buff = "aaa"
 	}
 	for i=1, num do
-		g_client:send_to_login(MID.c2s_rpc_test_req, msg)
+		Env.g_client:send_to_login(MID.c2s_rpc_test_req, msg)
 	end
 
-	g_client:x_test_start(num)
+	Env.g_client:x_test_start(num)
 end
 
 -- [buff]
@@ -314,7 +317,7 @@ function cmd_handler.do_rpc_nocb_test(params)
 		buff = buff,
 	}
 
-	g_client:send_to_login(MID.c2s_rpc_nocb_test_req, msg)
+	Env.g_client:send_to_login(MID.c2s_rpc_nocb_test_req, msg)
 end
 
 -- [num]
@@ -332,7 +335,7 @@ function cmd_handler.do_rpc_nocb_testx(params)
 		buff = "bbb"
 	}
 	for i=1, num do
-		g_client:send_to_login(MID.c2s_rpc_nocb_test_req, msg)
+		Env.g_client:send_to_login(MID.c2s_rpc_nocb_test_req, msg)
 	end
 end
 
@@ -348,7 +351,7 @@ function cmd_handler.do_rpc_mix_test(params)
 		buff = buff,
 	}
 
-	g_client:send_to_login(MID.c2s_rpc_mix_test_req, msg)
+	Env.g_client:send_to_login(MID.c2s_rpc_mix_test_req, msg)
 end
 
 -- [num]
@@ -366,16 +369,16 @@ function cmd_handler.do_rpc_mix_testx(params)
 		buff = "ccc"
 	}
 	for i=1, num do
-		g_client:send_to_login(MID.c2s_rpc_mix_test_req, msg)
+		Env.g_client:send_to_login(MID.c2s_rpc_mix_test_req, msg)
 	end
 
-	g_client:x_test_start(num)
+	Env.g_client:x_test_start(num)
 end
 
 ---------------------------------------
 
 function cmd_handler.do_print_server_list(params)
-	Log.debug("cmd_handler.do_print_server_list server_list=%s", Util.table_to_string(g_client._server_list))
+	Log.debug("cmd_handler.do_print_server_list server_list=%s", Util.table_to_string(Env.g_client._server_list))
 end
 
 function cmd_handler.do_netprint(params)
@@ -400,7 +403,7 @@ function cmd_handler.do_connect(params)
 		return
 	end
 
-	local server_info = g_client._server_list[server_type]
+	local server_info = Env.g_client._server_list[server_type]
 	if not server_info then
 		Log.warn("cmd_handler.do_connect no such server info")
 		return
@@ -458,9 +461,9 @@ function cmd_handler.do_login(params)
 		password = password,
 		channel_id = channel_id,
 	}
-	g_client:send_to_login(MID.c2s_user_login_req, msg)
+	Env.g_client:send_to_login(MID.c2s_user_login_req, msg)
 
-	g_client:x_test_start(1)
+	Env.g_client:x_test_start(1)
 end
 
 -- [num]
@@ -482,17 +485,17 @@ function cmd_handler.do_loginx(params)
 			password = "qwerty",
 			channel_id = 0,
 		}
-		g_client:send_to_login(MID.c2s_user_login_req, msg)
+		Env.g_client:send_to_login(MID.c2s_user_login_req, msg)
 	end
 
-	g_client:x_test_start(num)
+	Env.g_client:x_test_start(num)
 
 end
 
 function cmd_handler.do_area_list_req(params)
-	g_client:send_to_login(MID.c2s_area_list_req)
+	Env.g_client:send_to_login(MID.c2s_area_list_req)
 
-	g_time_counter:start()
+	Env.g_time_counter:start()
 end
 
 function cmd_handler.do_role_list_req(params)
@@ -501,9 +504,9 @@ function cmd_handler.do_role_list_req(params)
 	{
 	}
 
-	g_client:send_to_login(MID.c2s_role_list_req, msg)
+	Env.g_client:send_to_login(MID.c2s_role_list_req, msg)
 
-	g_time_counter:start()
+	Env.g_time_counter:start()
 end
 
 -- [opt role_name] [opt area_id]
@@ -520,9 +523,9 @@ function cmd_handler.do_create_role(params)
 		role_name = role_name
 	}
 
-	g_client:send_to_login(MID.c2s_create_role_req, msg)
+	Env.g_client:send_to_login(MID.c2s_create_role_req, msg)
 
-	g_time_counter:start()
+	Env.g_time_counter:start()
 end
 
 -- [role_id] [opt area_id]
@@ -538,9 +541,9 @@ function cmd_handler.do_delete_role(params)
 		role_id = tonumber(params[1]),
 	}
 
-	g_client:send_to_login(MID.c2s_delete_role_req, msg)
+	Env.g_client:send_to_login(MID.c2s_delete_role_req, msg)
 
-	g_time_counter:start()
+	Env.g_time_counter:start()
 end
 
 -- [role_id] [opt area_id]
@@ -557,22 +560,22 @@ function cmd_handler.do_select_role(params)
 	}
 	Log.debug("cmd_handler.do_select_role role_id=%d, area_id=%d", msg.role_id, msg.area_id) 
 
-	g_client:send_to_login(MID.c2s_select_role_req, msg)
+	Env.g_client:send_to_login(MID.c2s_select_role_req, msg)
 
-	g_time_counter:start()
+	Env.g_time_counter:start()
 end
 
 function cmd_handler.do_enter(params)
 	-- enter
 	local msg =
 	{
-		user_id = g_client._user_id,
-		token = g_client._user_token,
+		user_id = Env.g_client._user_id,
+		token = Env.g_client._user_token,
 	}
 
-	g_client:send_to_gate(MID.c2s_role_enter_req, msg)
+	Env.g_client:send_to_gate(MID.c2s_role_enter_req, msg)
 
-	g_time_counter:start()
+	Env.g_time_counter:start()
 end
 
 function cmd_handler.do_http_request(params)
@@ -623,8 +626,8 @@ function cmd_handler.do_attr_change(params)
 		attr_table = out_attr_table,
 	}
 
-	g_client:send_to_gate(MID.c2s_role_attr_change_req, msg)
-	g_client:x_test_start(1)
+	Env.g_client:send_to_gate(MID.c2s_role_attr_change_req, msg)
+	Env.g_client:x_test_start(1)
 end
 
 -- [num] [attr_name] [value]
@@ -666,26 +669,26 @@ function cmd_handler.do_attr_changex(params)
 			attr_table = out_attr_table,
 		}
 
-		g_client:send_to_gate(MID.c2s_role_attr_change_req, msg)
+		Env.g_client:send_to_gate(MID.c2s_role_attr_change_req, msg)
 	end
-	g_client:x_test_start(1)
+	Env.g_client:x_test_start(1)
 end
 
 function cmd_handler.do_random_attr_change(params)
-	g_client:random_change_attr()
+	Env.g_client:random_change_attr()
 end
 
 function cmd_handler.do_loop_random_attr_change(params)
-	g_client:loop_random_change_attr()
+	Env.g_client:loop_random_change_attr()
 end
 
 function cmd_handler.do_role_print(params)
 	-- roleprint
-	if not g_role then
-		Log.warn("cmd_handler.do_role_print g_role nil")
+	if not Env.g_role then
+		Log.warn("cmd_handler.do_role_print Env.g_role nil")
 		return
 	end
-	g_role:print()
+	Env.g_role:print()
 end
 
 function cmd_handler.do_test_role(params)
@@ -723,12 +726,12 @@ function cmd_handler.do_test_role(params)
 
 	Log.debug("********************")
 
-	local role_id = 20000
+	role_id = 20000
 	local test_role2 = TestRole.new(role_id)
 	test_role2:init()
 	-- Log.debug("test_role2 = %s", Util.table_to_string(test_role2))
 
-	local db_record = 
+	db_record = 
 	{
 		[1] =
 		{
@@ -896,8 +899,8 @@ end
 function ccall_stdin_handler(buffer)
 	Log.info("ccall_stdin_handler buffer=%s", buffer)
 
-	local function error_handler(msg)
-		local msg = debug.traceback(msg, 3)
+	local function error_handler(m)
+		local msg = debug.traceback(m, 3)
 		msg = string.format("ccall_stdin_handler error : \n%s", msg)
 		return msg 
 	end

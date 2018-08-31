@@ -6,11 +6,11 @@ function Util.table_to_string(tb)
         error("Sorry, it's not table, it is " .. type(tb) .. ".")
     end
 
-    local function _list_table(tb, table_list, level)
+    local function _list_table(t, table_list, level)
         local ret = ""
         local indent = string.rep(" ", level*4)
 
-        for k, v in pairs(tb) do
+        for k, v in pairs(t) do
             local quo = type(k) == "string" and "\"" or ""
             ret = ret .. indent .. "[" .. quo .. tostring(k) .. quo .. "] = "
 
@@ -31,7 +31,7 @@ function Util.table_to_string(tb)
             end
         end
 
-        local mt = getmetatable(tb)
+        local mt = getmetatable(t)
         if mt then
             ret = ret .. "\n"
             local t_name = table_list[mt]
@@ -190,9 +190,9 @@ function Util.map2mergepath(input, output, tmp)
 				end
 			end
         	table.insert(mid, k)
-            local terminal = Util.map2mergepath(v, output, mid)
-			if next(terminal) then
-				table.insert(mid, terminal)
+            local terminal2 = Util.map2mergepath(v, output, mid)
+			if next(terminal2) then
+				table.insert(mid, terminal2)
             	table.insert(output, mid)
 			end
         elseif type(v) == 'boolean' and v == true then

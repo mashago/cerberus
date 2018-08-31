@@ -6,7 +6,7 @@ local class = require "core.util.class"
 local g_funcs = require "core.global.global_funcs"
 local SheetObj = require "core.obj.sheet_obj"
 
-TestRole = class(SheetObj)
+local TestRole = class(SheetObj)
 
 
 function TestRole:ctor(role_id)
@@ -33,3 +33,5 @@ function TestRole:do_save(insert_rows, delete_rows, modify_rows)
 end
 
 g_funcs.register_getter_setter(TestRole, sheet_name)
+
+return TestRole

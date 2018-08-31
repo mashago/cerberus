@@ -280,7 +280,7 @@ end
 function SheetObj:insert(data)
 
 	-- check if duplicate, get insert position at _root_attr_map
-	local is_duplicate = false
+	-- local is_duplicate = false
 	local absolute_pos = self._root_attr_map
 	local last_key
 	local key_list = {}
@@ -338,7 +338,7 @@ function SheetObj:update_delete_map(insert_map, delete_map, modify_map, key_list
 	end
 
 	-- check if in insert or update
-	local is_will_modify = remove_by_key_list(modify_map, key_list)
+	remove_by_key_list(modify_map, key_list)
 	local is_will_insert = remove_by_key_list(insert_map, key_list)
 	if not is_will_insert then
 		mark_by_key_list(delete_map, key_list)
@@ -629,7 +629,7 @@ function SheetObj:convert_save_delete_rows(delete_record)
 			local key_info = self._keys[i]
 			conditions[key_info[2]] = k
 		end
-		table.insert(ret, keys)
+		table.insert(conditions_list, conditions)
 	end
 	return conditions_list
 end

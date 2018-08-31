@@ -4,7 +4,7 @@ local Log = require "core.log.logger"
 local g_msg_handler = require "core.global.msg_handler"
 local Util = require "core.util.util"
 local MID = MID
-local g_role_mgr = g_role_mgr
+local Env = require "env"
 local ErrorCode = ErrorCode
 
 function g_msg_handler.c2s_client_test_req(data, mailbox_id, msg_id)
@@ -68,15 +68,14 @@ function g_msg_handler.s2s_gate_role_enter_req(data, mailbox_id)
 	Log.debug("s2s_gate_role_enter_req: mailbox_id=%d data=%s", mailbox_id, Util.table_to_string(data))
 
 	local role_id = data.role_id
-	local scene_id = data.scene_id
 
 	-- 1. new role
-	local role = g_role_mgr:get_role_by_id(role_id)
+	local role = Env.g_role_mgr:get_role_by_id(role_id)
 	if not role then
 		local Role = require "scene_svr.role_obj"
 		role = Role.new(role_id, mailbox_id)
 		role:init()
-		g_role_mgr:add_role(role)
+		Env.g_role_mgr:add_role(role)
 	else
 		Log.warn("s2s_gate_role_enter_req: role already exists %d", role_id)
 	end
@@ -90,7 +89,7 @@ function g_msg_handler.s2s_gate_role_enter_req(data, mailbox_id)
 		result = ErrorCode.SUCCESS,
 		role_id = role_id,
 	}
-	local ret = Core.net_mgr:send_msg(mailbox_id, MID.s2s_gate_role_enter_ret, msg)
+	Core.net_mgr:send_msg(mailbox_id, MID.s2s_gate_role_enter_ret, msg)
 
 	-- 4. sync to client
 	role:send_module_data()

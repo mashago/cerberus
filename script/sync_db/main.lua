@@ -192,8 +192,8 @@ sync_db = function()
 		-- Log.debug("change_list=%s", Util.table_to_string(change_list))
 		if #change_list > 0 then
 			sql = string.format("ALTER TABLE %s ", table_name)
-			for i, value in ipairs(change_list) do
-				if i ~= 1 then
+			for n, value in ipairs(change_list) do
+				if n ~= 1 then
 					sql = sql .. ","
 				end
 				sql = sql .. value
@@ -221,7 +221,7 @@ sync_db = function()
 		-------------------------------------------------------------
 
 		-- 5. update key
-		local change_list = {}
+		change_list = {}
 		for _, field_info in ipairs(desc) do
 			-- drop not exists key
 			if field_info.Key == 'MUL' and not key_map[field_info.Field] then
@@ -255,8 +255,8 @@ sync_db = function()
 		-- Log.debug("change_list=%s", Util.table_to_string(change_list))
 		if #change_list > 0 then
 			sql = string.format("ALTER TABLE %s ", table_name)
-			for i, value in ipairs(change_list) do
-				if i ~= 1 then
+			for n, value in ipairs(change_list) do
+				if n ~= 1 then
 					sql = sql .. ","
 				end
 				sql = sql .. value

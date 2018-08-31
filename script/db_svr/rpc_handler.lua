@@ -21,7 +21,7 @@ function rpc_mgr.db_rpc_test(data)
 end
 
 
-local XXX_g_rpc_nocb_map = XXX_g_rpc_nocb_map or {}
+local XXX_g_rpc_nocb_map = {}
 function rpc_mgr.db_rpc_nocb_test(data)
 	Log.debug("db_rpc_nocb_test: data=%s", Util.table_to_string(data))
 

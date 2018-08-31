@@ -1,5 +1,6 @@
 
 local Log = require "core.log.logger"
+local Env = require "env"
 
 local function main_entry(xml_doc)
 	Log.info("master_svr main_entry")
@@ -12,8 +13,8 @@ local function main_entry(xml_doc)
 	lfs.mkdir("dat")
 
 	local PeerMgr = require "master_svr.peer_mgr"
-	g_peer_mgr = PeerMgr.new()
-	g_peer_mgr:load_peer_list()
+	Env.g_peer_mgr = PeerMgr.new()
+	Env.g_peer_mgr:load_peer_list()
 end
 
 return main_entry

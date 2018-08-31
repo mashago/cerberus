@@ -3,9 +3,9 @@ local Core = require "core"
 local Log = require "core.log.logger"
 local Util = require "core.util.util"
 local class = require "core.util.class"
+local Env = require "env"
 local ServerType = ServerType
 local ErrorCode = ErrorCode
-local g_area_mgr = g_area_mgr
 local MID = MID
 
 local User = class()
@@ -95,7 +95,7 @@ function User:_db_create_role(area_id, role_name)
 end
 
 function User:_area_create_role(area_id, role_id, role_name)
-	local server_id = g_area_mgr:get_server_id(area_id)
+	local server_id = Env.g_area_mgr:get_server_id(area_id)
 	local rpc_data = 
 	{
 		role_id=role_id,
@@ -144,7 +144,7 @@ function User:_check_role_exists(area_id, role_id)
 end
 
 function User:_area_delete_role(area_id, role_id)
-	local server_id = g_area_mgr:get_server_id(area_id)
+	local server_id = Env.g_area_mgr:get_server_id(area_id)
 	local rpc_data = 
 	{
 		user_id=self._user_id,
@@ -184,7 +184,7 @@ function User:_db_delete_role(role_id)
 end
 
 function User:_area_select_role(area_id, role_id)
-	local server_id = g_area_mgr:get_server_id(area_id)
+	local server_id = Env.g_area_mgr:get_server_id(area_id)
 	local rpc_data = 
 	{
 		user_id=self._user_id,
@@ -277,7 +277,7 @@ function User:create_role(area_id, role_name)
 	}
 	local ret, err
 	repeat
-		if not g_area_mgr:is_open(area_id) then
+		if not Env.g_area_mgr:is_open(area_id) then
 			err = ErrorCode.AREA_NOT_OPEN
 			break
 		end
@@ -327,7 +327,7 @@ function User:delete_role(area_id, role_id)
 	}
 	local ret, err
 	repeat
-		if not g_area_mgr:is_open(area_id) then
+		if not Env.g_area_mgr:is_open(area_id) then
 			err = ErrorCode.AREA_NOT_OPEN
 			break
 		end
@@ -382,7 +382,7 @@ function User:select_role(area_id, role_id)
 	}
 	local ret, err
 	repeat
-		if not g_area_mgr:is_open(area_id) then
+		if not Env.g_area_mgr:is_open(area_id) then
 			err = ErrorCode.AREA_NOT_OPEN
 			break
 		end

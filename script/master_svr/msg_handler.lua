@@ -1,5 +1,6 @@
 
 local g_msg_handler = require "core.global.msg_handler"
+local Env = require "env"
 function g_msg_handler.s2s_shake_hand_req(data, mailbox_id)
 
 	local server_id = data.server_id
@@ -9,7 +10,7 @@ function g_msg_handler.s2s_shake_hand_req(data, mailbox_id)
 	local ip = data.ip
 	local port = data.port
 
-	g_peer_mgr:shake_hand(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list, ip, port)
+	Env.g_peer_mgr:shake_hand(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list, ip, port)
 
 end
 

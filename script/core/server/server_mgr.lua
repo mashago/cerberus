@@ -461,7 +461,6 @@ end
 
 function ServerMgr:get_server_by_scene(scene_id)
 	
-	local id_list = {}
 	local id_list = self._scene_server_map[scene_id] or {}
 	if #id_list == 0 then
 		return nil
@@ -476,13 +475,12 @@ end
 -- same opt_key(number) will get same server, or just do random to get
 function ServerMgr:get_server_by_type(server_type, opt_key)
 	
-	local id_list = {}
 	local id_list = self._type_server_map[server_type] or {}
 	if #id_list == 0 then
 		return nil
 	end
 
-	local server_id = 0
+	local server_id
 	if not opt_key then
 		local r = math.random(#id_list)
 		server_id = id_list[r]

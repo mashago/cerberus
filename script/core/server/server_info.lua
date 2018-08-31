@@ -86,7 +86,7 @@ end
 function ServerInfo:transfer_msg(ext)
 	local mailbox_id = self:get_mailbox_id()
 	if mailbox_id == MAILBOX_ID_NIL then
-		Log.warn("ServerInfo:send_msg mailbox nil msg_id=%d", msg_id)
+		Log.err("ServerInfo:send_msg mailbox nil msg_id")
 		return false
 	end
 	return Core.net_mgr:transfer_msg(mailbox_id, ext)

@@ -1,6 +1,7 @@
 
 local Core = require "core"
 local class = require "core.util.class"
+local Env = require "env"
 
 local CommonHandler = class()
 
@@ -11,7 +12,7 @@ end
 function CommonHandler:sync_conn_num()
 	local rpc_data =
 	{
-		num = g_user_mgr._all_user_num
+		num = Env.g_user_mgr._all_user_num
 	}
 	Core.rpc_mgr:call_nocb_by_server_type(ServerType.BRIDGE, "bridge_sync_gate_conn_num", rpc_data)
 end

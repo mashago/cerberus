@@ -7,11 +7,11 @@ function ccall_recv_msg_handler(mailbox_id, msg_id)
 	local msg_name = MID._id_name_map[msg_id] or "unknow msg"
 	Log.info("msg_name=%s", msg_name)
 
-	local function error_handler(msg, mailbox_id, msg_id)
-		Log.err("error_handler=%s mailbox_id=%d msg_id=%d", msg, mailbox_id, msg_id)
+	local function error_handler(m, id, mid)
+		Log.err("error_handler=%s mailbox_id=%d msg_id=%d", m, id, mid)
 	end
 	
-	local status = xpcall(Core.net_mgr.recv_msg_handler
+	xpcall(Core.net_mgr.recv_msg_handler
 	, function(msg) return error_handler(msg, mailbox_id, msg_id) end
 	, Core.net_mgr, mailbox_id, msg_id)
 
@@ -20,31 +20,31 @@ end
 function ccall_disconnect_handler(mailbox_id)
 	Log.warn("ccall_disconnect_handler mailbox_id=%d", mailbox_id)
 
-	local function error_handler(msg, mailbox_id)
-		local msg = debug.traceback(msg, 3)
-		msg = string.format("ccall_disconnect_handler error : mailbox_id = %d \n%s", mailbox_id, msg)
+	local function error_handler(m, id)
+		local msg = debug.traceback(m, 3)
+		msg = string.format("ccall_disconnect_handler error : mailbox_id = %d \n%s", id, msg)
 		return msg 
 	end
 
-	local function handle_disconnect(mailbox_id)
+	local function handle_disconnect(id)
 		
-		local server_info = Core.server_mgr:get_server_by_mailbox(mailbox_id)
+		local server_info = Core.server_mgr:get_server_by_mailbox(id)
 		if server_info then
 			-- server disconnect
-			Log.warn("ccall_disconnect_handler server disconnect %d", mailbox_id)
+			Log.warn("ccall_disconnect_handler server disconnect %d", id)
 			if g_net_event_server_disconnect and server_info._connect_status == ServiceConnectStatus.CONNECTED then
 				g_net_event_server_disconnect(server_info._server_id)
 			end
-			Core.server_mgr:handle_disconnect(mailbox_id)
+			Core.server_mgr:handle_disconnect(id)
 		else
 			-- client disconnect, login and gate handle
-			Log.warn("ccall_disconnect_handler client disconnect %d", mailbox_id)
+			Log.warn("ccall_disconnect_handler client disconnect %d", id)
 			if g_net_event_client_disconnect then
-				g_net_event_client_disconnect(mailbox_id)
+				g_net_event_client_disconnect(id)
 			end
 		end
 
-		Core.net_mgr:del_mailbox(mailbox_id)
+		Core.net_mgr:del_mailbox(id)
 	end
 	
 	local status, msg = xpcall(handle_disconnect
@@ -59,9 +59,9 @@ end
 function ccall_connect_to_ret_handler(connect_index, mailbox_id)
 	Log.info("ccall_connect_to_ret_handler connect_index=%d mailbox_id=%d", connect_index, mailbox_id)
 
-	local function error_handler(msg, connect_index, mailbox_id)
-		local msg = debug.traceback(msg, 3)
-		msg = string.format("ccall_connect_to_ret_handler error : connect_index = %d mailbox_id = %d \n%s", connect_index, mailbox_id, msg)
+	local function error_handler(msg, index, id)
+		msg = debug.traceback(msg, 3)
+		msg = string.format("ccall_connect_to_ret_handler error : connect_index = %d mailbox_id = %d \n%s", index, id, msg)
 		return msg 
 	end
 	
@@ -77,9 +77,9 @@ end
 function ccall_connect_to_success_handler(mailbox_id)
 	Log.info("ccall_connect_to_success_handler mailbox_id=%d", mailbox_id)
 
-	local function error_handler(msg, mailbox_id)
-		local msg = debug.traceback(msg, 3)
-		msg = string.format("ccall_connect_to_success_handler error : mailbox_id = %d \n%s", mailbox_id, msg)
+	local function error_handler(msg, id)
+		msg = debug.traceback(msg, 3)
+		msg = string.format("ccall_connect_to_success_handler error : mailbox_id = %d \n%s", id, msg)
 		return msg 
 	end
 	
@@ -95,9 +95,9 @@ end
 function ccall_new_connection(mailbox_id, ip, port)
 	Log.info("ccall_new_connection mailbox_id=%d ip=%s, port=%d", mailbox_id, ip, port)
 
-	local function error_handler(msg, mailbox_id)
-		local msg = debug.traceback(msg, 3)
-		msg = string.format("ccall_new_connection error : mailbox_id = %d \n%s", mailbox_id, msg)
+	local function error_handler(msg, id)
+		msg = debug.traceback(msg, 3)
+		msg = string.format("ccall_new_connection error : mailbox_id = %d \n%s", id, msg)
 		return msg 
 	end
 	
@@ -112,9 +112,9 @@ end
 
 function ccall_http_response_handler(session_id, response_code, content)
 
-	local function error_handler(msg, session_id, response_code)
-		local msg = debug.traceback(msg, 3)
-		msg = string.format("ccall_http_response_handler error : session_id = %d response_code = %d \n%s", session_id, response_code, msg)
+	local function error_handler(msg, sid, code)
+		msg = debug.traceback(msg, 3)
+		msg = string.format("ccall_http_response_handler error : session_id = %d response_code = %d \n%s", sid, code, msg)
 		return msg 
 	end
 	

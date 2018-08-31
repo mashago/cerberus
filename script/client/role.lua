@@ -16,7 +16,6 @@ function Role:init_data(attr_table)
 end
 
 function Role:update_data(attr_table)
-	local table_def = DataStructDef.data.role_info
 	g_funcs.attr_table_to_attr_map(self._table_def, attr_table, self._attr)
 end
 

@@ -99,7 +99,8 @@ function NetMgr:read_struct_array(structdef, deep)
 	end
 
 	for i = 1, size do
-		local flag, st = self:read_data_by_msgdef(structdef, deep)
+		local st
+		flag, st = self:read_data_by_msgdef(structdef, deep)
 		if not flag then
 			Log.warn("NetMgr:read_struct_array read data error")
 			return flag, ret
@@ -230,7 +231,7 @@ function NetMgr:write_data_by_msgdef(data, msgdef, deep)
 			break
 		end
 	end
-	return flag, ret
+	return flag
 	
 end
 

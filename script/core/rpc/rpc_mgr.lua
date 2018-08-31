@@ -76,7 +76,6 @@ end
 
 -- rpc call function
 function RpcMgr:call(server_info, func_name, data)
-	local data_str = Util.serialize(data)
 	local session_id = self:gen_session_id()
 	local msg = 
 	{
@@ -107,7 +106,6 @@ end
 -- async call, no yield, no callback
 -- in sync coroutine will use same way to target server
 function RpcMgr:call_nocb(server_info, func_name, data)
-	local data_str = Util.serialize(data)
 	local msg = 
 	{
 		from_server_id = Core.server_conf._server_id, 
@@ -237,7 +235,8 @@ function RpcMgr:callback(session_id, result, data)
 	end
 	self._all_session_map[session_id] = nil	
 
-	local status, result = coroutine.resume(cor, result, data)
+	local status
+	status, result = coroutine.resume(cor, result, data)
 	if not status then
 		Log.err("RpcMgr:callback: cor resume error %s", result)
 		return
@@ -294,7 +293,7 @@ function RpcMgr:handle_callback(data, mailbox_id, msg_id)
 	local result = data.result
 	local session_id = data.session_id
 	local from_server_id = data.from_server_id
-	local to_server_id = data.to_server_id
+	-- local to_server_id = data.to_server_id
 
 	-- server_id mismatch
 	if from_server_id ~= Core.server_conf._server_id then

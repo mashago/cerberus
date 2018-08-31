@@ -73,7 +73,7 @@ local function main()
 	add_debug_timer()
 end
 
-local status, msg = xpcall(main, function(msg) local msg = debug.traceback(msg, 3) return msg end)
+local status, msg = xpcall(main, function(m) local msg = debug.traceback(m, 3) return msg end)
 
 if not status then
 	Log.err(msg)

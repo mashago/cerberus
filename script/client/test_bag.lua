@@ -6,8 +6,7 @@ local g_funcs = require "core.global.global_funcs"
 local SheetObj = require "core.obj.sheet_obj"
 local sheet_name = "test_bag"
 
-TestBag = class(SheetObj)
-
+local TestBag = class(SheetObj)
 
 function TestBag:ctor(role_id)
 	self._role_id = role_id
@@ -26,3 +25,5 @@ function TestBag:do_save(insert_rows, delete_rows, modify_rows)
 end
 
 g_funcs.register_getter_setter(TestBag, sheet_name)
+
+return TestBag

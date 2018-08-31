@@ -41,8 +41,8 @@ function Timer:on_timer(timer_index, is_loop)
 		Core.rpc_mgr:run(timer_param[1], timer_param[2])
 	end
 
-	local function error_handler(msg)
-		local msg = debug.traceback(msg, 3)
+	local function error_handler(m)
+		local msg = debug.traceback(m, 3)
 		msg = string.format("Timer:on_timer timer_index=%d\n%s", timer_index, msg)
 		return msg
 	end

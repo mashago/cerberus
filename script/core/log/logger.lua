@@ -9,14 +9,15 @@ Log.LEVEL =
 	ERROR = 4,
 }
 
-local function log(level, format, ...)
-	local function log_handler(level, format, ...)
-		local str = string.format("%s", string.format(format,...))
-		LuaUtil:log(level, str)
-		if level == Log.LEVEL.ERROR then
-			LuaUtil:log(level, debug.traceback())
-		end
+local function log_handler(level, format, ...)
+	local str = string.format("%s", string.format(format,...))
+	LuaUtil:log(level, str)
+	if level == Log.LEVEL.ERROR then
+		LuaUtil:log(level, debug.traceback())
 	end
+end
+
+local function log(level, format, ...)
 
 	local status, err_msg = xpcall(log_handler
 	, function(msg) return debug.traceback(msg, 3) end
