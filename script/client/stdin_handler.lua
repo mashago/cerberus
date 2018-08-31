@@ -56,7 +56,8 @@ function cmd_handler.execute(buffer)
 		local area_id = nil
 		local role_id = nil
 		for k, v in ipairs(Env.g_client._area_role_list) do
-			for _, role in ipairs(v.role_list) do
+			local _, role = next(v.role_list)
+			if role then
 				area_id = v.area_id
 				role_id = role.role_id
 				break
@@ -782,6 +783,14 @@ function cmd_handler.do_test_bag(params)
 			save_attr = 251,
 			sync_save_attr = 261,
 		},
+		[3] =
+		{
+			role_id = role_id,
+			item_id = 1005,
+			num = 2,
+			save_attr = 2,
+			sync_save_attr = 2,
+		},
 	}
 	test_bag:init_data(db_record)
 	test_bag:print()
@@ -847,12 +856,15 @@ function cmd_handler.do_test_bag(params)
 		-- delete insert row
 		Log.debug("******* 7")
 		test_bag:delete(1003)
+
+		Log.debug("******* 8")
+		test_bag:delete(1005)
 		test_bag:print()
 	end
 
 	do 
 		-- modify insert row
-		Log.debug("******* 8")
+		Log.debug("******* 9")
 		test_bag:set_num(433, 1004)
 		test_bag:set_sync_attr(443, 1004)
 		test_bag:set_save_attr(453, 1004)
@@ -864,7 +876,7 @@ function cmd_handler.do_test_bag(params)
 	-- insert
 	do
 		-- insert delete row
-		Log.debug("******* 9")
+		Log.debug("******* 10")
 		test_bag:insert(
 			{
 				role_id = role_id,
@@ -876,7 +888,7 @@ function cmd_handler.do_test_bag(params)
 				tmp_attr = 172,
 			})
 
-		Log.debug("******* 10")
+		Log.debug("******* 11")
 		test_bag:insert(
 			{
 				role_id = role_id,

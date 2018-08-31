@@ -3,3 +3,4 @@
 3. network listen from lua, not from c++
 4. rpc function rename to call and send
 5. connection msg queue, block sync msg
+6. sheetobj use .[attr] to handle attr rather then use getter/setter
