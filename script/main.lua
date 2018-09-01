@@ -49,6 +49,8 @@ local function main()
 		return
 	end
 
+	g_funcs.load_config(xml_doc)
+
 
 	Core.server_conf = ServerConfig.new(g_server_id, g_server_type)
 	g_funcs.load_address(xml_doc)

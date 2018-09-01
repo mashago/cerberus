@@ -7,6 +7,8 @@ extern "C"
 #include "luatinyxmlreg.h"
 #include "tinyxml2.h"
 
+using namespace tinyxml2;
+
 int luatinyxmldoc_create(lua_State *L)
 {
 	tinyxml2::XMLDocument **p_doc = (tinyxml2::XMLDocument**)lua_newuserdata(L, sizeof(tinyxml2::XMLDocument*));
@@ -68,6 +70,58 @@ int luatinyxmldoc_first_child_element(lua_State *L)
 	return 1;
 }
 
+template<typename T> 
+void export_child_element(lua_State *L, const T *p)
+{
+	const tinyxml2::XMLElement *ele = p->FirstChildElement();
+	while (ele)
+	{
+		int type = lua_getfield(L, -1, ele->Name()); 
+		lua_Integer index = 1;
+		if (type != LUA_TTABLE)
+		{
+			lua_pop(L, 1);
+			lua_newtable(L);
+		}
+		else
+		{
+			index = luaL_len(L, -1) + 1;
+		}
+
+		lua_newtable(L);
+		export_element(L, ele);
+		lua_rawseti(L, -2, index);
+
+		lua_setfield(L, -2, ele->Name());
+
+		ele = ele->NextSiblingElement();
+	}
+}
+
+static void export_element(lua_State *L, const tinyxml2::XMLElement *ele)
+{
+	const XMLAttribute *attr = ele->FirstAttribute();
+	while (attr)
+	{
+		lua_pushstring(L, attr->Value());
+		lua_setfield(L, -2, attr->Name());
+		attr = attr->Next();
+	}
+	
+	export_child_element(L, ele);
+}
+
+int luatinyxmlele_export(lua_State *L)
+{
+	tinyxml2::XMLDocument **p_doc = (tinyxml2::XMLDocument**)luaL_checkudata(L, 1, "LuaTinyXMLDoc");
+	luaL_argcheck(L, p_doc != NULL, 1, "invalid user data");
+
+	lua_newtable(L);
+	export_child_element(L, *p_doc);
+
+	return 1;
+}
+
 int luatinyxmldoc_gc(lua_State *L)
 {
 	LOG_DEBUG("do gc");
@@ -93,6 +147,7 @@ static const luaL_Reg luatinyxmldoc_reg_member_funcs[] =
 {
 	{ "load_file", luatinyxmldoc_load_file },
 	{ "first_child_element", luatinyxmldoc_first_child_element },
+	{ "export", luatinyxmlele_export },
 	{ "__gc", luatinyxmldoc_gc },
 	{ NULL, NULL },
 };

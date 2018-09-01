@@ -12,6 +12,12 @@ function g_funcs.debug_timer_cb()
 	-- Log.debug("mem count=%f", count)
 end
 
+function g_funcs.load_config(xml_doc)
+	local t = xml_doc:export()
+	Log.debug("g_funcs.load_config t=%s", Util.table_to_string(t))
+	return t
+end
+
 function g_funcs.load_address(xml_doc)
 	local root_ele = xml_doc:first_child_element()
 	if not root_ele then
