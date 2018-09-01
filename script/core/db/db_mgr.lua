@@ -19,7 +19,6 @@ function DBMgr.connect_to_mysql(ip, port, username, password, db_name)
 	return true
 end
 
-
 -- local ret = DBMgr.do_select("login_db", "user_info", {}, {username=username, password=password, channel_id=channel_id})
 -- db_name = "login_db"
 -- table_name = "user_info"

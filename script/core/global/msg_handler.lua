@@ -3,10 +3,8 @@ local Log = require "core.log.logger"
 local g_funcs = require "core.global.global_funcs"
 local g_msg_handler = {}
 
-if g_server_type ~= ServerType.MASTER then
 function g_msg_handler.s2s_shake_hand_req(data, mailbox_id)
 	g_funcs.handle_shake_hand_req(data, mailbox_id)
-end
 end
 
 function g_msg_handler.s2s_shake_hand_ret(data, mailbox_id)

@@ -12,6 +12,7 @@ local ServerMgr = require "server.server_mgr"
 local RpcMgr = require "rpc.rpc_mgr"
 local HttpMgr = require "http.http_mgr"
 local g_funcs = require "global.global_funcs"
+local Util = require "util.util"
 
 local function add_debug_timer()
 	local timer_cb = function()
@@ -35,11 +36,9 @@ end
 
 local function main()
 	Log.info("------------------------------")
-	Log.info("g_server_id=%d", g_server_id)
-	Log.info("g_server_type=%d", g_server_type)
 	Log.info("g_conf_file=%s", g_conf_file)
-	Log.info("g_entry_path=%s", g_entry_path)
 	Log.info("------------------------------")
+	math.randomseed(os.time())
 
 	check_write_global()
 
@@ -48,25 +47,24 @@ local function main()
 		Log.err("tinyxml load file fail %s", g_conf_file)
 		return
 	end
+	local config = xml_doc:export()
+	Log.debug("config=%s", Util.table_to_string(config))
 
-	g_funcs.load_config(xml_doc)
-
-
-	Core.server_conf = ServerConfig.new(g_server_id, g_server_type)
-	g_funcs.load_address(xml_doc)
-
+	Core.server_conf = ServerConfig.new(config)
 	Core.net_mgr = NetMgr.new()
 	Core.timer_mgr = Timer.new()
 	Core.server_mgr = ServerMgr.new()
 	Core.rpc_mgr = RpcMgr.new()
 	Core.http_mgr = HttpMgr.new()
 
-	g_funcs.connect_to_servers(xml_doc)
+	for _, v in ipairs(Core.server_conf._connect_to) do
+		Core.server_mgr:do_connect(v.ip, v.port)
+	end
 
-	math.randomseed(os.time())
 
-	package.path = "script/" .. g_entry_path .. "/?.lua;" .. package.path
-	local main_entry = require(g_entry_path .. ".main")
+	local entry_path = Core.server_conf._path
+	package.path = "script/" .. entry_path .. "/?.lua;" .. package.path
+	local main_entry = require(entry_path .. ".main")
 	main_entry(xml_doc)
 
 	local hotfix = require("hotfix.main")

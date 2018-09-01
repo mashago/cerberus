@@ -17,10 +17,10 @@ World::~World()
 	delete m_timerMgr;
 }
 
-bool World::Init(int server_id, int server_type, const char *conf_file, const char *entry_path, EventPipe *inputPipe, EventPipe *outputPipe)
+bool World::Init(const char *conf_file, EventPipe *inputPipe, EventPipe *outputPipe)
 {
 	SetEventPipe(inputPipe, outputPipe);
-	return CoreInit(server_id, server_type, conf_file, entry_path);
+	return CoreInit(conf_file);
 }
 
 void World::SetEventPipe(EventPipe *inputPipe, EventPipe *outputPipe)
@@ -29,7 +29,7 @@ void World::SetEventPipe(EventPipe *inputPipe, EventPipe *outputPipe)
 	m_outputPipe = outputPipe;
 }
 
-bool World::CoreInit(int server_id, int server_type, const char *conf_file, const char *entry_path)
+bool World::CoreInit(const char *conf_file)
 {
 	return true;
 }

@@ -6,7 +6,7 @@ require "gate_svr.net_event_handler"
 require "gate_svr.msg_handler"
 require "gate_svr.rpc_handler"
 
-local function main_entry(xml_doc)
+local function main_entry()
 	Log.info("gate_svr main_entry")
 
 	local UserMgr = require "gate_svr.user_mgr"

@@ -118,7 +118,7 @@ int main(int argc, char ** argv)
 
 	// net dispatch will block, so world dispatch first, order is important
 	World *world = new LuaWorld();
-	if (!world->Init(server_id, server_type, conf_file, entry_path, net2worldPipe, world2netPipe))
+	if (!world->Init(conf_file, net2worldPipe, world2netPipe))
 	{
 		printf("world init error\n");
 		return 0;

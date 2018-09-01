@@ -1,16 +1,17 @@
 
 local Core = require "core"
 local Log = require "core.log.logger"
-local g_funcs = require "core.global.global_funcs"
 local DBMgr = require "core.db.db_mgr"
 
 
 local sync_db = nil
 
-local function main_entry(xml_doc)
+local function main_entry()
 	Log.info("sync_db main_entry")
 
-	g_funcs.connect_to_mysql(xml_doc)
+	for _, v in ipairs(Core.server_conf._mysql_list) do
+		assert(DBMgr.connect_to_mysql(v.ip, v.port, v.username, v.password, v.real_db_name), "connect_to_mysql fail " .. string.format("%s:%d %s:%s %s", v.ip, v.port, v.username, v.password, v.real_db_name))
+	end
 
 	-- sync db
 	sync_db()

@@ -27,6 +27,9 @@ function ServerMgr:ctor()
 end
 
 function ServerMgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect, no_delay)
+
+	server_id = server_id or 0
+	server_type = server_type or 0
 	
 	-- check duplicate connect server
 	local server_info = self:get_server_by_host(ip, port)

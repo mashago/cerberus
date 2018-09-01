@@ -6,7 +6,6 @@ local class = require "core.util.class"
 local MID = MID
 local MAILBOX_ID_NIL = MAILBOX_ID_NIL
 local ServerType = ServerType
-local g_server_id = g_server_id
 local ErrorCode = ErrorCode
 
 local PeerMgr = class()
@@ -193,14 +192,14 @@ function PeerMgr:save_peer_list()
 
 	local str = Util.serialize(peer_list)
 	-- Log.debug("PeerMgr:save_peer_list str=%s", str)
-	local file_name = string.format("dat/peer%d.dat", g_server_id)
+	local file_name = string.format("dat/peer%d.dat", Core.server_conf._server_id)
 	local file = io.open(file_name, "w")
 	file:write(str)
 	file:close()
 end
 
 function PeerMgr:load_peer_list()
-	local file_name = string.format("dat/peer%d.dat", g_server_id)
+	local file_name = string.format("dat/peer%d.dat", Core.server_conf._server_id)
 	local file = io.open(file_name, "r")
 	if not file then
 		Log.warn("PeerMgr:load_peer_list peer data not exists")

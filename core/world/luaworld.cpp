@@ -28,7 +28,7 @@ LuaWorld::~LuaWorld()
 	delete m_luanetwork;
 }
 
-bool LuaWorld::CoreInit(int server_id, int server_type, const char *conf_file, const char *entry_path)
+bool LuaWorld::CoreInit(const char *conf_file)
 {
 
 	m_luanetwork = new LuaNetwork(this);
@@ -69,14 +69,8 @@ bool LuaWorld::CoreInit(int server_id, int server_type, const char *conf_file, c
 	}
 
 	// set global params
-	lua_pushinteger(m_L, server_id);
-	lua_setglobal(m_L, "g_server_id");
-	lua_pushinteger(m_L, server_type);
-	lua_setglobal(m_L, "g_server_type");
 	lua_pushstring(m_L, conf_file);
 	lua_setglobal(m_L, "g_conf_file");
-	lua_pushstring(m_L, entry_path);
-	lua_setglobal(m_L, "g_entry_path");
 
 	// push this to lua
 	{
@@ -213,7 +207,7 @@ void LuaWorld::CloseMailbox(int64_t mailboxId)
 bool LuaWorld::HttpRequest(const char *url, int64_t session_id, int request_type, const char *post_data, int post_data_len)
 {
 	EventNodeHttpReq *node = new EventNodeHttpReq;
-	int len = strlen(url) + 1;
+	int len = (int)strlen(url) + 1;
 	char *url_ptr = new char[len];
 	memcpy(url_ptr, url, len);
 

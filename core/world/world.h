@@ -14,7 +14,7 @@ public:
 	World();
 	virtual ~World();
 
-	bool Init(int server_id, int server_type, const char *conf_file, const char * entry_path, EventPipe *inputPipe, EventPipe *outputPipe);
+	bool Init(const char *conf_file, EventPipe *inputPipe, EventPipe *outputPipe);
 	void Dispatch();
 
 	virtual void HandleNewConnection(int64_t mailboxId, const char *ip, int port) = 0;
@@ -41,7 +41,7 @@ private:
 	std::thread m_thread;
 
 	void SetEventPipe(EventPipe *inputPipe, EventPipe *outputPipe);
-	virtual bool CoreInit(int server_id, int server_type, const char *conf_file, const char * entry_path);
+	virtual bool CoreInit(const char *conf_file);
 	void HandleEvent(const EventNode &node);
 };
 

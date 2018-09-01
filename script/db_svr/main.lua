@@ -1,15 +1,17 @@
 
 local Core = require "core"
 local Log = require "core.log.logger"
-local g_funcs = require "core.global.global_funcs"
+local DBMgr = require "core.db.db_mgr"
 
-local function main_entry(xml_doc)
+require "db_svr.msg_handler"
+require "db_svr.rpc_handler"
+
+local function main_entry()
 	Log.info("db_svr main_entry")
 
-	require "db_svr.msg_handler"
-	require "db_svr.rpc_handler"
-
-	g_funcs.connect_to_mysql(xml_doc)
+	for _, v in ipairs(Core.server_conf._mysql_list) do
+		assert(DBMgr.connect_to_mysql(v.ip, v.port, v.username, v.password, v.real_db_name), "connect_to_mysql fail " .. string.format("%s:%d %s:%s %s", v.ip, v.port, v.username, v.password, v.real_db_name))
+	end
 
 	Core.server_conf._no_broadcast = true
 
