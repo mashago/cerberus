@@ -6,6 +6,7 @@ local ServerConfig = class()
 
 function ServerConfig:ctor(config)
 
+	self._config = config
 	self._all_scene_list = {}
 	self._single_scene_list = {}
 	self._from_to_scene_list = {}

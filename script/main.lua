@@ -1,6 +1,8 @@
 
 package.path =  "script/core/?.lua;script/?.lua;" .. package.path
 
+local conf_file = ... 
+
 require "core.init"
 
 local Core = require "core"
@@ -36,15 +38,15 @@ end
 
 local function main()
 	Log.info("------------------------------")
-	Log.info("g_conf_file=%s", g_conf_file)
+	Log.info("conf_file=%s", conf_file)
 	Log.info("------------------------------")
 	math.randomseed(os.time())
 
 	check_write_global()
 
 	local xml_doc = LuaTinyXMLDoc.create()
-	if not xml_doc:load_file(g_conf_file) then
-		Log.err("tinyxml load file fail %s", g_conf_file)
+	if not xml_doc:load_file(conf_file) then
+		Log.err("tinyxml load file fail %s", conf_file)
 		return
 	end
 	local config = xml_doc:export()
@@ -65,7 +67,7 @@ local function main()
 	local entry_path = Core.server_conf._path
 	package.path = "script/" .. entry_path .. "/?.lua;" .. package.path
 	local main_entry = require(entry_path .. ".main")
-	main_entry(xml_doc)
+	main_entry()
 
 	local hotfix = require("hotfix.main")
 	hotfix.run()

@@ -46,7 +46,6 @@ bool LuaWorld::CoreInit(const char *conf_file)
 		{ LUA_TABLIBNAME, luaopen_table },
 		{ LUA_IOLIBNAME, luaopen_io },
 		{ LUA_OSLIBNAME, luaopen_os },
-		// { LUA_BITLIBNAME, luaopen_bit32 },
 		{ LUA_COLIBNAME, luaopen_coroutine },
 		{ LUA_MATHLIBNAME, luaopen_math },
 		{ LUA_DBLIBNAME, luaopen_debug },
@@ -68,10 +67,6 @@ bool LuaWorld::CoreInit(const char *conf_file)
 		lua_pop(m_L, 1);
 	}
 
-	// set global params
-	lua_pushstring(m_L, conf_file);
-	lua_setglobal(m_L, "g_conf_file");
-
 	// push this to lua
 	{
 		LuaWorld **ptr = (LuaWorld **)lua_newuserdata(m_L, sizeof(LuaWorld *));
@@ -86,7 +81,15 @@ bool LuaWorld::CoreInit(const char *conf_file)
 		lua_setglobal(m_L, "g_luanetwork_ptr");
 	}
 
-	if (luaL_dofile(m_L, "script/main.lua"))
+	if (LUA_OK != luaL_loadfile(m_L, "script/main.lua"))
+	{
+		const char * msg = lua_tostring(m_L, -1);
+		LOG_ERROR("msg=%s", msg);
+		return false;
+	}
+	lua_pushstring(m_L, conf_file);
+
+	if (LUA_OK != lua_pcall(m_L, 1, LUA_MULTRET, 0))
 	{
 		const char * msg = lua_tostring(m_L, -1);
 		LOG_ERROR("msg=%s", msg);

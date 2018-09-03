@@ -25,36 +25,20 @@ function Client:ctor()
 	self.g_x_test_min_time = 0
 end
 
-function Client:load_server_list(xml_doc)
-	-- init server list
-	local root_ele = xml_doc:first_child_element()
-	if not root_ele then
-		Log.err("tinyxml root_ele nil %s", g_conf_file)
-		return false
-	end
-
-	local server_list_ele = root_ele:first_child_element("server_list")
-	if not server_list_ele then
-		Log.err("tinyxml server_list_ele nil %s", g_conf_file)
-		return false
-	end
-
-	local address_ele = server_list_ele:first_child_element("address")
-	while address_ele do
-		local ip = address_ele:string_attribute("ip")
-		local port = address_ele:int_attribute("port")
-		local server_id = address_ele:int_attribute("id")
-		local server_type = address_ele:int_attribute("type")
-		Log.info("ip=%s port=%d server_id=%d server_type=%d", ip, port, server_id, server_type)
-
+function Client:load_server_list()
+	local server_conf = Core.server_conf
+	local server_list = ((server_conf._config.server[1].server_list or {})[1] or {}).address or {}
+	for _, v in ipairs(server_list) do
+		local server_id = tonumber(v.id)
+		local server_type = tonumber(v.type)
+		local ip = v.ip
+		local port = tonumber(v.port)
 		self._server_list[server_type] =
 		{
 			ip = ip,
 			port = port,
 			server_id = server_id,
 		}
-
-		address_ele = address_ele:next_sibling_element()
 	end
 end
 

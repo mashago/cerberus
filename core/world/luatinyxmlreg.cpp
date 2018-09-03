@@ -70,6 +70,8 @@ int luatinyxmldoc_first_child_element(lua_State *L)
 	return 1;
 }
 
+static void export_element(lua_State *L, const tinyxml2::XMLElement *ele);
+
 template<typename T> 
 void export_child_element(lua_State *L, const T *p)
 {
