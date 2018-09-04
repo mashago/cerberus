@@ -39,11 +39,9 @@ int main(int argc, char ** argv)
 	}
 
 	tinyxml2::XMLElement *root = doc.FirstChildElement();
-	const char *ip = (char*)root->Attribute("ip");
-	int port = root->IntAttribute("port");
 	const char *entry_path = (char*)root->Attribute("path");
 
-	printf("ip=%s port=%d entry_path=%s\n", ip, port, entry_path);
+	printf("entry_path=%s\n", entry_path);
 	if (!strcmp(entry_path, ""))
 	{
 		printf("entry_path error\n");

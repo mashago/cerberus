@@ -91,7 +91,7 @@ local function main()
 	Core.http_mgr = HttpMgr.new()
 
 	-- warp main logic in a rpc run
-	Core.timer_mgr:fork(run)
+	Core.rpc_mgr:run(run)
 end
 
 local status, msg = xpcall(main, function(m) local msg = debug.traceback(m, 3) return msg end)

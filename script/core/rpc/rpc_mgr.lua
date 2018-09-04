@@ -131,7 +131,8 @@ function RpcMgr:call_nocb_by_server_id(server_id, func_name, data)
 	return self:call_nocb(server_info, func_name, data)
 end
 
-function RpcMgr:local_call(func, ...)
+-- sync run a func
+function RpcMgr:sync(func, ...)
 	local session_id = self:gen_session_id()
 	func(session_id, ...)
 	local _, data = coroutine.yield(session_id)

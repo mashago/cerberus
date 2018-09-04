@@ -266,7 +266,7 @@ function NetMgr:listen(ip, port)
 	local func = function(session_id, ...)
 		self._c_network:listen(session_id, ...)
 	end
-	return Core.rpc_mgr:local_call(func, ip, port)
+	return Core.rpc_mgr:sync(func, ip, port)
 end
 
 function NetMgr:send_msg_ext(mailbox_id, msg_id, ext, data)
