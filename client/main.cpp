@@ -67,7 +67,7 @@ int main(int argc, char ** argv)
 	world->Dispatch();
 
 	NetService *net = new NetService();
-	if (!net->Init("", 0, false, world2netPipe, net2worldPipe))
+	if (!net->Init(false, world2netPipe, net2worldPipe))
 	{
 		printf("net service init error\n");
 		getchar();

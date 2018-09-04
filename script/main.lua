@@ -37,8 +37,23 @@ local function check_write_global()
 end
 
 local function run()
+
+	local server_conf = Core.server_conf
+	local ip = server_conf._ip
+	local port = server_conf._port
+	if ip ~= "" and port ~= 0 then
+		Log.debug("main run listen ip=%s port=%d", ip, port)
+		local listen_id = Core.net_mgr:listen(ip, port)
+		Log.info("main run listen_id=%d", listen_id)
+		if listen_id < 0 then
+			Log.err("main run listen fail ip=%s port=%d", ip, port)
+			return
+		end
+	end
+	
+	local server_mgr = Core.server_mgr
 	for _, v in ipairs(Core.server_conf._connect_to) do
-		Core.server_mgr:do_connect(v.ip, v.port)
+		server_mgr:do_connect(v.ip, v.port)
 	end
 
 	local entry_path = Core.server_conf._path

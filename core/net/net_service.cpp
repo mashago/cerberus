@@ -58,20 +58,13 @@ NetService::~NetService()
 }
 
 
-bool NetService::Init(const char *addr, unsigned int port, bool isDaemon, EventPipe *inputPipe, EventPipe *outputPipe)
+bool NetService::Init(bool isDaemon, EventPipe *inputPipe, EventPipe *outputPipe)
 {
 	// new event_base
 	m_mainEvent = event_base_new();
 	if (!m_mainEvent)
 	{
 		LOG_ERROR("event_base_new fail");
-		return false;
-	}
-
-	// listen
-	if (port > 0 && Listen(addr, port) == -1)
-	{
-		LOG_ERROR("listen fail");
 		return false;
 	}
 

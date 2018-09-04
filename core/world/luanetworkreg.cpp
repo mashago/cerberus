@@ -817,13 +817,13 @@ int luanetwork_listen(lua_State* L)
 	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
 	luaL_argcheck(L, s != NULL, 1, "invalid user data");
 
-	luaL_checktype(L, 2, LUA_TSTRING);
-	luaL_checktype(L, 3, LUA_TNUMBER);
+	luaL_checktype(L, 2, LUA_TNUMBER);
+	luaL_checktype(L, 3, LUA_TSTRING);
 	luaL_checktype(L, 4, LUA_TNUMBER);
 
-	const char* ip = lua_tostring(L, 2);
-	int port = (int)lua_tointeger(L, 3);
-	int64_t session_id = lua_tointeger(L, 4);
+	int64_t session_id = lua_tointeger(L, 2);
+	const char* ip = lua_tostring(L, 3);
+	int port = (int)lua_tointeger(L, 4);
 	LOG_DEBUG("ip=%s port=%d session_id=%ld", ip, port, session_id);
 
 	bool ret = (*s)->Listen(ip, port, session_id);

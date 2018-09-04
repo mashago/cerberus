@@ -131,6 +131,13 @@ function RpcMgr:call_nocb_by_server_id(server_id, func_name, data)
 	return self:call_nocb(server_info, func_name, data)
 end
 
+function RpcMgr:local_call(func, ...)
+	local session_id = self:gen_session_id()
+	func(session_id, ...)
+	local _, data = coroutine.yield(session_id)
+	return table.unpack(data)
+end
+
 ---------------------------------------
 
 function RpcMgr:handle_call(data, mailbox_id, msg_id, is_nocb)
@@ -304,6 +311,10 @@ function RpcMgr:handle_callback(data, mailbox_id, msg_id)
 	local param = Util.unserialize(data.param)
 	self:callback(session_id, result, param)
 
+end
+
+function RpcMgr:handle_local_callback(session_id, ...)
+	return self:callback(session_id, true, {...})
 end
 
 return RpcMgr

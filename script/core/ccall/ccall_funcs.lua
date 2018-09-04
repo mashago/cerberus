@@ -132,3 +132,19 @@ function ccall_timer_handler(timer_index, is_loop)
 	Core.timer_mgr:on_timer(timer_index, is_loop)
 end
 
+function ccall_listen_ret_handler(listen_id, session_id)
+
+	local function error_handler(msg, id, sid)
+		msg = debug.traceback(msg, 3)
+		msg = string.format("ccall_listen_ret_handler error : listen_id=%d session_id=%d\n%s", id, sid, msg)
+		return msg 
+	end
+	
+	local status, msg = xpcall(Core.rpc_mgr.handle_local_callback
+	, function(msg) return error_handler(msg, listen_id, session_id) end
+	, Core.rpc_mgr, session_id, listen_id)
+
+	if not status then
+		Log.err(msg)
+	end
+end

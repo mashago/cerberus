@@ -262,6 +262,13 @@ function NetMgr:connect_to(ip, port)
 	return self._c_network:connect_to(ip, port)
 end
 
+function NetMgr:listen(ip, port)
+	local func = function(session_id, ...)
+		self._c_network:listen(session_id, ...)
+	end
+	return Core.rpc_mgr:local_call(func, ip, port)
+end
+
 function NetMgr:send_msg_ext(mailbox_id, msg_id, ext, data)
 	-- Log.debug("NetMgr:send_msg_ext msgdef mailbox_id=%d msg_id=%d ext=%d", mailbox_id, msg_id, ext)
 	local msgdef = MSG_DEF_MAP[msg_id]

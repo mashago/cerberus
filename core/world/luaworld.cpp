@@ -246,7 +246,7 @@ bool LuaWorld::Listen(const char* ip, unsigned int port, int64_t session_id)
 	EventNodeListenReq *node = new EventNodeListenReq;
 	snprintf(node->ip, sizeof(node->ip), "%s", ip);
 	node->port = port;
-	node->session_id = ++session_id;
+	node->session_id = session_id;
 	SendEvent(node);
 	return true;
 }

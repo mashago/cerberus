@@ -37,7 +37,7 @@ public:
 	NetService();
 	~NetService();
 
-	bool Init(const char *addr, unsigned int port, bool isDaemon, EventPipe *inputPipe, EventPipe *outputPipe);
+	bool Init(bool isDaemon, EventPipe *inputPipe, EventPipe *outputPipe);
 	int Dispatch();
 
 	// return >= 0 as mailboxId, < 0 as error
