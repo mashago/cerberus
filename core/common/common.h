@@ -1,6 +1,11 @@
 
 #pragma once
 
+enum E_PROTO_TYPE
+{
+	OGSP = 1,
+};
+
 enum E_SERVER_TYPE
 {
 	SERVER_TYPE_NULL 		= 0,

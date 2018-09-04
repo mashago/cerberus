@@ -36,6 +36,22 @@ local function check_write_global()
 	setmetatable(_G, mt)
 end
 
+local function run()
+	for _, v in ipairs(Core.server_conf._connect_to) do
+		Core.server_mgr:do_connect(v.ip, v.port)
+	end
+
+	local entry_path = Core.server_conf._path
+	package.path = "script/" .. entry_path .. "/?.lua;" .. package.path
+	local main_entry = require(entry_path .. ".main")
+	main_entry()
+
+	local hotfix = require("hotfix.main")
+	hotfix.run()
+
+	add_debug_timer()
+end
+
 local function main()
 	Log.info("------------------------------")
 	Log.info("conf_file=%s", conf_file)
@@ -59,20 +75,8 @@ local function main()
 	Core.rpc_mgr = RpcMgr.new()
 	Core.http_mgr = HttpMgr.new()
 
-	for _, v in ipairs(Core.server_conf._connect_to) do
-		Core.server_mgr:do_connect(v.ip, v.port)
-	end
-
-
-	local entry_path = Core.server_conf._path
-	package.path = "script/" .. entry_path .. "/?.lua;" .. package.path
-	local main_entry = require(entry_path .. ".main")
-	main_entry()
-
-	local hotfix = require("hotfix.main")
-	hotfix.run()
-
-	add_debug_timer()
+	-- warp main logic in a rpc run
+	Core.timer_mgr:fork(run)
 end
 
 local status, msg = xpcall(main, function(m) local msg = debug.traceback(m, 3) return msg end)

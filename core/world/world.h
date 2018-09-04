@@ -24,6 +24,7 @@ public:
 	virtual void HandleStdin(const char *buffer);
 	virtual void HandleConnectToRet(int64_t index, int64_t mailboxId) = 0;
 	virtual void HandleHttpResponse(int64_t session_id, int response_code, const char *content, int content_len) = 0;
+	virtual void HandleListenRet(int64_t listenId, int64_t session_id) = 0;
 
 	void RecvEvent();
 	void SendEvent(EventNode *node);

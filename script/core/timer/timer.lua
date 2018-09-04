@@ -26,6 +26,15 @@ function Timer:del_timer(timer_index)
 	return LuaTimer:del_timer(timer_index)
 end
 
+function Timer:fork(cb_func, arg)
+	local timer_index, ret = LuaTimer:add_timer(0, false)
+	if not ret then
+		return false
+	end
+	self._timer_index_map[timer_index] = { cb_func, arg }
+	return timer_index
+end
+
 function Timer:on_timer(timer_index, is_loop)
 	local timer_param = self._timer_index_map[timer_index]
 	if not timer_param then

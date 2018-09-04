@@ -58,3 +58,8 @@ bool LuaNetwork::HttpRequest(const char *url, int64_t session_id, int request_ty
 	return m_world->HttpRequest(url, session_id, request_type, post_data, post_data_len);
 }
 
+bool LuaNetwork::Listen(const char* ip, unsigned int port, int64_t session_id)
+{
+	return m_world->Listen(ip, port, session_id);
+}
+

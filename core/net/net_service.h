@@ -27,6 +27,7 @@ struct evhttp_connection;
 
 class Pluto;
 class Mailbox;
+class Listener;
 class EventPipe;
 struct EventNode;
 
@@ -41,7 +42,8 @@ public:
 
 	// return >= 0 as mailboxId, < 0 as error
 	int64_t ConnectTo(const char *addr, unsigned int port);
-	bool Listen(const char *addr, unsigned int port);
+	// return >= 0 as listenId, < 0 as error
+	int64_t Listen(const char *addr, unsigned int port);
 
 	void SendEvent(EventNode *node);
 	int HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int socklen);
@@ -86,6 +88,8 @@ private:
 	std::map<int64_t, Mailbox *> m_mailboxs;
 	std::list<Mailbox *> m_delMailboxs;
 	std::set<Mailbox *> m_sendMailboxs;
+	std::map<int, Listener *> m_listenerFds;
+	std::map<int64_t, Listener *> m_listeners;
 
 	std::map<std::string, struct evhttp_connection *> m_httpConnMap; // "host:port" : conn
 };

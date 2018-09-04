@@ -17,6 +17,7 @@ public:
 	virtual void HandleMsg(Pluto &u) override;
 	virtual void HandleConnectToRet(int64_t connIndex, int64_t mailboxId) override;
 	virtual void HandleHttpResponse(int64_t session_id, int response_code, const char *content, int content_len) override;
+	virtual void HandleListenRet(int64_t listenId, int64_t session_id) override;
 
 	// call from world - timermgr
 	void HandleTimer(void *arg, bool is_loop);
@@ -26,6 +27,7 @@ public:
 	void SendPluto(Pluto *pu);
 	void CloseMailbox(int64_t mailboxId);
 	bool HttpRequest(const char *url, int64_t session_id, int request_type, const char *post_data, int post_data_len);
+	bool Listen(const char* ip, unsigned int port, int64_t session_id);
 
 private:
 	virtual bool CoreInit(const char *conf_file) override;

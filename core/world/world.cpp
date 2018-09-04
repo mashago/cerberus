@@ -109,6 +109,12 @@ void World::HandleEvent(const EventNode &node)
 			HandleHttpResponse(real_node.session_id, real_node.response_code, real_node.content, real_node.content_len);
 			break;
 		}
+		case EVENT_TYPE::EVENT_TYPE_LISTEN_RET:
+		{
+			const EventNodeListenRet &real_node = (EventNodeListenRet&)node;
+			HandleListenRet(real_node.listenId, real_node.session_id);
+			break;
+		}
 		default:
 			LOG_ERROR("cannot handle this node %d", node.type);
 			break;

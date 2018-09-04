@@ -29,6 +29,7 @@ extern "C"
 #include "event_pipe.h"
 #include "pluto.h"
 #include "mailbox.h"
+#include "listener.h"
 #include "net_service.h"
 
 enum READ_MSG_RESULT
@@ -68,7 +69,7 @@ bool NetService::Init(const char *addr, unsigned int port, bool isDaemon, EventP
 	}
 
 	// listen
-	if (port > 0 && !Listen(addr, port))
+	if (port > 0 && Listen(addr, port) == -1)
 	{
 		LOG_ERROR("listen fail");
 		return false;
@@ -206,7 +207,7 @@ int64_t NetService::ConnectTo(const char *addr, unsigned int port)
 	return pmb->GetMailboxId();
 }
 
-bool NetService::Listen(const char *addr, unsigned int port)
+int64_t NetService::Listen(const char *addr, unsigned int port)
 {
 	// init listener
 	struct sockaddr_in sin;
@@ -219,14 +220,18 @@ bool NetService::Listen(const char *addr, unsigned int port)
 	if (!m_evconnlistener)
 	{
 		LOG_ERROR("new bind fail");
-		return false;
+		return -1;
 	}
 
 	// set nonblock
 	evutil_socket_t listen_fd = evconnlistener_get_fd(m_evconnlistener);
 	evutil_make_socket_nonblocking(listen_fd);
 
-	return true;
+	Listener *pl = new Listener(listen_fd);
+	m_listenerFds[pl->GetFd()] = pl;
+	m_listeners[pl->GetListenId()] = pl;
+
+	return pl->GetListenId();
 }
 
 ////////////////// mainbox function start [
@@ -592,6 +597,17 @@ void NetService::HandleWorldEvent()
 			{
 				const EventNodeHttpReq &real_node = (EventNodeHttpReq&)node;
 				HttpRequest(real_node.url, real_node.session_id, real_node.request_type, real_node.post_data, real_node.post_data_len);
+				break;
+			}
+			case EVENT_TYPE::EVENT_TYPE_LISTEN_REQ:
+			{
+				const EventNodeListenReq &real_node = (EventNodeListenReq&)node;
+				int64_t listenId = Listen(real_node.ip, real_node.port);
+				EventNodeListenRet *node = new EventNodeListenRet();
+				node->listenId = listenId;
+				node->session_id = real_node.session_id;
+				SendEvent(node);
+
 				break;
 			}
 			default:

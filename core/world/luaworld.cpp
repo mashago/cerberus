@@ -169,6 +169,16 @@ void LuaWorld::HandleHttpResponse(int64_t session_id, int response_code, const c
 	lua_call(m_L, 3, 0);
 }
 
+void LuaWorld::HandleListenRet(int64_t listenId, int64_t session_id)
+{
+	LOG_DEBUG("listenId=%ld session_id=%ld", listenId, session_id);
+
+	lua_getglobal(m_L, "ccall_listen_ret_handler");
+	lua_pushinteger(m_L, listenId);
+	lua_pushinteger(m_L, session_id);
+	lua_call(m_L, 2, 0);
+}
+
 void LuaWorld::HandleTimer(void *arg, bool is_loop)
 {
 	int64_t timer_index = (int64_t)arg;
@@ -228,6 +238,16 @@ bool LuaWorld::HttpRequest(const char *url, int64_t session_id, int request_type
 	node->post_data_len = post_data_len;
 	SendEvent(node);
 
+	return true;
+}
+
+bool LuaWorld::Listen(const char* ip, unsigned int port, int64_t session_id)
+{
+	EventNodeListenReq *node = new EventNodeListenReq;
+	snprintf(node->ip, sizeof(node->ip), "%s", ip);
+	node->port = port;
+	node->session_id = ++session_id;
+	SendEvent(node);
 	return true;
 }
 

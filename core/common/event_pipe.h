@@ -25,6 +25,8 @@ enum EVENT_TYPE
 	EVENT_TYPE_CONNECT_TO_RET 			= 8, // n2w
 	EVENT_TYPE_HTTP_REQ 				= 9, // w2n
 	EVENT_TYPE_HTTP_RSP 				= 10, // n2w
+	EVENT_TYPE_LISTEN_REQ 				= 11, // w2n
+	EVENT_TYPE_LISTEN_RET 				= 12, // n2w
 };
 
 struct EventNode
@@ -43,6 +45,7 @@ struct EventNodeNewConnection : public EventNode
 	int64_t mailboxId = -1;
 	char ip[50];
 	int port = 0;
+	int64_t listenId = -1;
 };
 
 struct EventNodeConnectToSuccess : public EventNode
@@ -138,6 +141,26 @@ struct EventNodeHttpRsp : public EventNode
 	char *content = NULL;
 	int32_t content_len = 0;
 
+};
+
+struct EventNodeListenReq : public EventNode
+{
+	EventNodeListenReq() : EventNode(EVENT_TYPE::EVENT_TYPE_LISTEN_REQ)
+	{
+		memset(ip, 0, sizeof(ip));
+	}
+	char ip[50];
+	unsigned int port = 0;
+	int64_t session_id = 0;
+};
+
+struct EventNodeListenRet : public EventNode
+{
+	EventNodeListenRet() : EventNode(EVENT_TYPE::EVENT_TYPE_LISTEN_RET)
+	{
+	}
+	int64_t listenId = -1;
+	int64_t session_id = 0;
 };
 
 //////////////////////////////////////////////
