@@ -32,15 +32,15 @@ function RpcMgr:print()
 end
 
 --[[
-if not call by nocb, MUST return a table
+if not call by send, MUST return a table
 e.g.
 for a normal rpc:
 function rpc_mgr.mycb(data)
 	... -- logic
 	return { ... } -- return result
 end)
-for a nocb rpc:
-function rpc_mgr.mynocb(data)
+for a send rpc:
+function rpc_mgr.mysend(data)
 	... -- logic
 	-- nil return
 end)
@@ -105,7 +105,7 @@ end
 
 -- async call, no yield, no callback
 -- in sync coroutine will use same way to target server
-function RpcMgr:call_nocb(server_info, func_name, data)
+function RpcMgr:send(server_info, func_name, data)
 	local msg = 
 	{
 		from_server_id = Core.server_conf._server_id, 
@@ -116,19 +116,19 @@ function RpcMgr:call_nocb(server_info, func_name, data)
 	}
 
 	-- async call, will not yield
-	return server_info:send_msg(MID.s2s_rpc_nocb_req, msg)
+	return server_info:send_msg(MID.s2s_rpc_send_req, msg)
 end
 
-function RpcMgr:call_nocb_by_server_type(server_type, func_name, data, opt_key)
+function RpcMgr:send_by_server_type(server_type, func_name, data, opt_key)
 	local server_info = Core.server_mgr:get_server_by_type(server_type, opt_key)
 	if not server_info then return false end
-	return self:call_nocb(server_info, func_name, data)
+	return self:send(server_info, func_name, data)
 end
 
-function RpcMgr:call_nocb_by_server_id(server_id, func_name, data)
+function RpcMgr:send_by_server_id(server_id, func_name, data)
 	local server_info = Core.server_mgr:get_server_by_id(server_id)
 	if not server_info then return false end
-	return self:call_nocb(server_info, func_name, data)
+	return self:send(server_info, func_name, data)
 end
 
 -- sync run a func
@@ -141,7 +141,7 @@ end
 
 ---------------------------------------
 
-function RpcMgr:handle_call(data, mailbox_id, msg_id, is_nocb)
+function RpcMgr:handle_call(data, mailbox_id, msg_id, is_send)
 	local from_server_id = data.from_server_id
 	local to_server_id = data.to_server_id
 	local session_id = data.session_id
@@ -162,7 +162,7 @@ function RpcMgr:handle_call(data, mailbox_id, msg_id, is_nocb)
 	-- server_id mismatch
 	if to_server_id ~= Core.server_conf._server_id then
 		Log.err("RpcMgr:handle_call server_id mismatch to_server_id=%d local_server_id=%d", to_server_id, Core.server_conf._server_id)
-		if not is_nocb then
+		if not is_send then
 			send_error(-1)
 		end
 		return
@@ -173,7 +173,7 @@ function RpcMgr:handle_call(data, mailbox_id, msg_id, is_nocb)
 	local func = self[func_name]
 	if not func then
 		Log.err("RpcMgr:handle_call func not exists %s", func_name)
-		if not is_nocb then
+		if not is_send then
 			send_error(-1)
 		end
 		return
@@ -185,13 +185,13 @@ function RpcMgr:handle_call(data, mailbox_id, msg_id, is_nocb)
 	local status, result = coroutine.resume(cor, param, mailbox_id)
 	if not status then
 		Log.err("RpcMgr:handle_call resume function error func_name=%s %s", func_name, result)
-		if not is_nocb then
+		if not is_send then
 			send_error(-1)
 		end
 		return
 	end
 
-	-- result only can be number, table, (nil for nocb)
+	-- result only can be number, table, (nil for send)
 	if type(result) == "number" then
 		-- has rpc inside, result is a session_id
 		-- mark down this coroutine and session_id
@@ -199,7 +199,7 @@ function RpcMgr:handle_call(data, mailbox_id, msg_id, is_nocb)
 		self._all_session_map[new_session_id] = cor	
 
 		-- mark down the route back to caller
-		if not is_nocb then
+		if not is_send then
 			local origin_route = 
 			{
 				from_server_id = from_server_id,
@@ -210,8 +210,8 @@ function RpcMgr:handle_call(data, mailbox_id, msg_id, is_nocb)
 			self._origin_route_map[new_session_id] = origin_route
 		end
 		return
-	elseif is_nocb then
-		-- rpc nocb done
+	elseif is_send then
+		-- rpc send done
 		return
 	elseif type(result) == "table" then
 		-- result is a table, no rpc inside, just send back result
@@ -268,7 +268,7 @@ function RpcMgr:callback(session_id, result, data)
 	-- check if this callback is a rpc from otherwhere
 	local origin_route = self._origin_route_map[session_id]
 	if not origin_route then
-		-- not from a rpc or is a rpc nocb
+		-- not from a rpc or is a rpc send
 		return
 	end
 	self._origin_route_map[session_id] = nil

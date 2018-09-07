@@ -43,21 +43,21 @@ function rpc_mgr.bridge_rpc_test(data)
 	return {result = ErrorCode.SUCCESS, buff=buff, sum=sum}
 end
 
-function rpc_mgr.bridge_rpc_nocb_test(data)
-	Log.debug("bridge_rpc_nocb_test: data=%s", Util.table_to_string(data))
+function rpc_mgr.bridge_rpc_send_test(data)
+	Log.debug("bridge_rpc_send_test: data=%s", Util.table_to_string(data))
 
 
 	local buff = data.buff
 	local index = data.index
 
-	-- rpc nocb to gate
+	-- rpc send to gate
 	local rpc_data =
 	{
 		buff = buff,
 		index = index,
 		sum = 1,
 	}
-	rpc_mgr:call_nocb_by_server_type(ServerType.GATE, "gate_rpc_nocb_test", rpc_data)
+	rpc_mgr:send_by_server_type(ServerType.GATE, "gate_rpc_send_test", rpc_data)
 
 	rpc_data =
 	{
@@ -65,12 +65,12 @@ function rpc_mgr.bridge_rpc_nocb_test(data)
 		index = index,
 		sum = 2,
 	}
-	rpc_mgr:call_nocb_by_server_type(ServerType.GATE, "gate_rpc_nocb_test", rpc_data)
+	rpc_mgr:send_by_server_type(ServerType.GATE, "gate_rpc_send_test", rpc_data)
 
-	-- rpc nocb to scene
+	-- rpc send to scene
 	local server_info = Core.server_mgr:get_server_by_type(ServerType.SCENE)
 	if not server_info then
-		Log.warn("bridge_rpc_nocb_test server_info nil")
+		Log.warn("bridge_rpc_send_test server_info nil")
 		return
 	end
 	local server_id = server_info._server_id
@@ -81,7 +81,7 @@ function rpc_mgr.bridge_rpc_nocb_test(data)
 		index = index,
 		sum = 1,
 	}
-	rpc_mgr:call_nocb_by_server_id(server_id, "scene_rpc_nocb_test", rpc_data)
+	rpc_mgr:send_by_server_id(server_id, "scene_rpc_send_test", rpc_data)
 
 	rpc_data =
 	{
@@ -89,7 +89,7 @@ function rpc_mgr.bridge_rpc_nocb_test(data)
 		index = index,
 		sum = 2,
 	}
-	rpc_mgr:call_nocb_by_server_id(server_id, "scene_rpc_nocb_test", rpc_data)
+	rpc_mgr:send_by_server_id(server_id, "scene_rpc_send_test", rpc_data)
 
 end
 
@@ -114,14 +114,14 @@ function rpc_mgr.bridge_rpc_mix_test(data)
 	buff = ret.buff
 	sum = ret.sum
 
-	-- rpc nocb gate
+	-- rpc send gate
 	local rpc_data =
 	{
 		buff = buff,
 		index = index,
 		sum = 1,
 	}
-	rpc_mgr:call_nocb_by_server_type(ServerType.GATE, "gate_rpc_nocb_test", rpc_data)
+	rpc_mgr:send_by_server_type(ServerType.GATE, "gate_rpc_send_test", rpc_data)
 
 	rpc_data =
 	{
@@ -129,7 +129,7 @@ function rpc_mgr.bridge_rpc_mix_test(data)
 		index = index,
 		sum = 2,
 	}
-	rpc_mgr:call_nocb_by_server_type(ServerType.GATE, "gate_rpc_nocb_test", rpc_data)
+	rpc_mgr:send_by_server_type(ServerType.GATE, "gate_rpc_send_test", rpc_data)
 
 
 	local server_info = Core.server_mgr:get_server_by_type(ServerType.SCENE)
@@ -139,14 +139,14 @@ function rpc_mgr.bridge_rpc_mix_test(data)
 	end
 	local server_id = server_info._server_id
 
-	-- rpc nocb to scene
+	-- rpc send to scene
 	rpc_data =
 	{
 		buff = buff,
 		index = index,
 		sum = 1,
 	}
-	rpc_mgr:call_nocb_by_server_id(server_id, "scene_rpc_nocb_test", rpc_data)
+	rpc_mgr:send_by_server_id(server_id, "scene_rpc_send_test", rpc_data)
 
 	rpc_data =
 	{
@@ -154,7 +154,7 @@ function rpc_mgr.bridge_rpc_mix_test(data)
 		index = index,
 		sum = 2,
 	}
-	rpc_mgr:call_nocb_by_server_id(server_id, "scene_rpc_nocb_test", rpc_data)
+	rpc_mgr:send_by_server_id(server_id, "scene_rpc_send_test", rpc_data)
 	
 	-- rpc to scene
 	status, ret = rpc_mgr:call_by_server_id(server_id, "scene_rpc_test", {buff=buff, sum=sum})

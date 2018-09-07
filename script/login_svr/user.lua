@@ -113,7 +113,7 @@ function User:_area_create_role(area_id, role_id, role_name)
 			table_name = "user_role",
 			conditions = {role_id = role_id},
 		}
-		Core.rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_login_delete", rpc_data, self._user_id)
+		Core.rpc_mgr:send_by_server_type(ServerType.DB, "db_login_delete", rpc_data, self._user_id)
 
 		return false, ErrorCode.CREATE_ROLE_FAIL
 	end

@@ -23,8 +23,8 @@ function g_msg_handler.s2s_rpc_req()
 	Log.err("s2s_rpc_req just take place should not enter")
 end
 
-function g_msg_handler.s2s_rpc_nocb_req()
-	Log.err("s2s_rpc_nocb_req just take place should not enter")
+function g_msg_handler.s2s_rpc_send_req()
+	Log.err("s2s_rpc_send_req just take place should not enter")
 end
 
 function g_msg_handler.s2s_rpc_ret()

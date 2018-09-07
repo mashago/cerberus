@@ -7,7 +7,7 @@ MID._id_name_map =
 	[2] = "s2c_client_test_ret",
 	[3] = "c2s_rpc_test_req",
 	[4] = "s2c_rpc_test_ret",
-	[5] = "c2s_rpc_nocb_test_req",
+	[5] = "c2s_rpc_send_test_req",
 	[6] = "c2s_rpc_mix_test_req",
 
 	-- login server handle
@@ -47,7 +47,7 @@ MID._id_name_map =
 	[60004] = "s2s_shake_hand_cancel",
 
 	[60011] = "s2s_rpc_req",
-	[60012] = "s2s_rpc_nocb_req",
+	[60012] = "s2s_rpc_send_req",
 	[60013] = "s2s_rpc_ret",
 
 	[60021] = "s2s_register_area_req",
@@ -227,7 +227,7 @@ MSG_DEF_MAP._def_map =
 		{ "buff", _String },
 		{ "sum", _Int },
 	},
-	c2s_rpc_nocb_test_req =
+	c2s_rpc_send_test_req =
 	{
 		{ "buff", _String },
 	},
@@ -407,7 +407,7 @@ MSG_DEF_MAP._def_map =
 		{ "param", _String },
 	},
 
-	s2s_rpc_nocb_req =
+	s2s_rpc_send_req =
 	{
 		{ "from_server_id", _Int },
 		{ "to_server_id", _Int },
@@ -464,7 +464,7 @@ RAW_MID =
 {
 	[MID.c2s_client_test_req] = true,
 	[MID.c2s_rpc_test_req] = true,
-	[MID.c2s_rpc_nocb_test_req] = true,
+	[MID.c2s_rpc_send_test_req] = true,
 	[MID.c2s_rpc_mix_test_req] = true,
 
 	[MID.s2s_shake_hand_req] = true,
@@ -476,7 +476,7 @@ RAW_MID =
 	[MID.c2s_role_enter_req] = true,
 
 	[MID.s2s_rpc_req] = true,
-	[MID.s2s_rpc_nocb_req] = true,
+	[MID.s2s_rpc_send_req] = true,
 	[MID.s2s_rpc_ret] = true,
 	[MID.s2s_register_area_req] = true,
 	[MID.s2s_register_area_ret] = true,

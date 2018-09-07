@@ -73,7 +73,7 @@ function UserMgr:del_user(user)
 	user._mailbox_id = 0
 
 	-- send user offline to bridge
-	Core.rpc_mgr:call_nocb_by_server_type(ServerType.BRIDGE, "bridge_user_offline", {user_id = user._user_id})
+	Core.rpc_mgr:send_by_server_type(ServerType.BRIDGE, "bridge_user_offline", {user_id = user._user_id})
 end
 
 function UserMgr:online(user, mailbox_id)

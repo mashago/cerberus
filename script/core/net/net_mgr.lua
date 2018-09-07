@@ -169,7 +169,7 @@ function NetMgr:recv_msg_handler(mailbox_id, msg_id)
 
 	if msg_id == MID.s2s_rpc_req then
 		Core.rpc_mgr:handle_call(data, mailbox_id, msg_id, false)
-	elseif msg_id == MID.s2s_rpc_nocb_req then
+	elseif msg_id == MID.s2s_rpc_send_req then
 		Core.rpc_mgr:handle_call(data, mailbox_id, msg_id, true)
 	elseif msg_id == MID.s2s_rpc_ret then
 		Core.rpc_mgr:handle_callback(data, mailbox_id, msg_id)

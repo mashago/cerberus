@@ -479,7 +479,7 @@ function SheetObj:do_save(insert_rows, delete_rows, modify_rows)
 			table_name = self._sheet_name,
 			kvs_list = insert_rows,
 		}
-		Core.rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_insert_multi", rpc_data)
+		Core.rpc_mgr:send_by_server_type(ServerType.DB, "db_game_insert_multi", rpc_data)
 	end
 
 	if #delete_rows then
@@ -488,7 +488,7 @@ function SheetObj:do_save(insert_rows, delete_rows, modify_rows)
 			table_name = self._sheet_name,
 			conditions_list = delete_rows,
 		}
-		Core.rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_delete_multi", rpc_data)
+		Core.rpc_mgr:send_by_server_type(ServerType.DB, "db_game_delete_multi", rpc_data)
 	end
 	
 	if #modify_rows then
@@ -497,7 +497,7 @@ function SheetObj:do_save(insert_rows, delete_rows, modify_rows)
 			table_name = self._sheet_name,
 			modify_list = modify_rows,
 		}
-		Core.rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_game_update_multi", rpc_data)
+		Core.rpc_mgr:send_by_server_type(ServerType.DB, "db_game_update_multi", rpc_data)
 	end
 
 end

@@ -65,22 +65,22 @@ function g_msg_handler.c2s_rpc_test_req(data, mailbox_id, msg_id)
 end
 
 
-local XXX_g_rpc_nocb_index = 0
-function g_msg_handler.c2s_rpc_nocb_test_req(data, mailbox_id, msg_id)
-	Log.debug("c2s_rpc_nocb_test_req: data=%s", Util.table_to_string(data))
+local XXX_g_rpc_send_index = 0
+function g_msg_handler.c2s_rpc_send_test_req(data, mailbox_id, msg_id)
+	Log.debug("c2s_rpc_send_test_req: data=%s", Util.table_to_string(data))
 
-	XXX_g_rpc_nocb_index = XXX_g_rpc_nocb_index + 1
+	XXX_g_rpc_send_index = XXX_g_rpc_send_index + 1
 	local buff = data.buff
-	local index = XXX_g_rpc_nocb_index
+	local index = XXX_g_rpc_send_index
 
-	-- rpc nocb to db
+	-- rpc send to db
 	local rpc_data =
 	{
 		buff = buff,
 		index = index,
 		sum = 1,
 	}
-	Core.rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_rpc_nocb_test", rpc_data)
+	Core.rpc_mgr:send_by_server_type(ServerType.DB, "db_rpc_send_test", rpc_data)
 
 	rpc_data =
 	{
@@ -88,9 +88,9 @@ function g_msg_handler.c2s_rpc_nocb_test_req(data, mailbox_id, msg_id)
 		index = index,
 		sum = 2,
 	}
-	Core.rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_rpc_nocb_test", rpc_data)
+	Core.rpc_mgr:send_by_server_type(ServerType.DB, "db_rpc_send_test", rpc_data)
 
-	-- rpc nocb to bridge
+	-- rpc send to bridge
 	local area_id = 1
 	local server_id = Env.g_area_mgr:get_server_id(area_id)
 	rpc_data =
@@ -99,15 +99,15 @@ function g_msg_handler.c2s_rpc_nocb_test_req(data, mailbox_id, msg_id)
 		index = index,
 		sum = 1,
 	}
-	Core.rpc_mgr:call_nocb_by_server_id(server_id, "bridge_rpc_nocb_test", rpc_data)
+	Core.rpc_mgr:send_by_server_id(server_id, "bridge_rpc_send_test", rpc_data)
 end
 
 function g_msg_handler.c2s_rpc_mix_test_req(data, mailbox_id, msg_id)
 	Log.debug("c2s_rpc_mix_test_req: data=%s", Util.table_to_string(data))
 
-	XXX_g_rpc_nocb_index = XXX_g_rpc_nocb_index + 1
+	XXX_g_rpc_send_index = XXX_g_rpc_send_index + 1
 	local buff = data.buff
-	local index = XXX_g_rpc_nocb_index
+	local index = XXX_g_rpc_send_index
 
 	local area_id = 1
 	local sum = 0
@@ -134,14 +134,14 @@ function g_msg_handler.c2s_rpc_mix_test_req(data, mailbox_id, msg_id)
 	msg.buff = buff
 	msg.sum = sum
 
-	-- rpc nocb to db
+	-- rpc send to db
 	local rpc_data =
 	{
 		buff = buff,
 		index = index,
 		sum = 1,
 	}
-	Core.rpc_mgr:call_nocb_by_server_type(ServerType.DB, "db_rpc_nocb_test", rpc_data)
+	Core.rpc_mgr:send_by_server_type(ServerType.DB, "db_rpc_send_test", rpc_data)
 
 	-- rpc to bridge
 	rpc_data =

@@ -21,26 +21,26 @@ function rpc_mgr.db_rpc_test(data)
 end
 
 
-local XXX_g_rpc_nocb_map = {}
-function rpc_mgr.db_rpc_nocb_test(data)
-	Log.debug("db_rpc_nocb_test: data=%s", Util.table_to_string(data))
+local XXX_g_rpc_send_map = {}
+function rpc_mgr.db_rpc_send_test(data)
+	Log.debug("db_rpc_send_test: data=%s", Util.table_to_string(data))
 
 	-- local buff = data.buff
 	local index = data.index
 	local sum = data.sum
 
-	local last_sum = XXX_g_rpc_nocb_map[index]
+	local last_sum = XXX_g_rpc_send_map[index]
 	if not last_sum then
-		XXX_g_rpc_nocb_map[index] = sum
+		XXX_g_rpc_send_map[index] = sum
 		return
 	end
 
 	if sum < last_sum then
-		Log.err("db_rpc_nocb_test bug index=%d sum=%d last_sum=%d", index, sum, last_sum)
+		Log.err("db_rpc_send_test bug index=%d sum=%d last_sum=%d", index, sum, last_sum)
 		return
 	end
 
-	XXX_g_rpc_nocb_map[index] = sum
+	XXX_g_rpc_send_map[index] = sum
 end
 
 --------------------------------------------------------

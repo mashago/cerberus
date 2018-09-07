@@ -31,10 +31,10 @@ function cmd_handler.execute(buffer)
 		cmd_handler.do_rpc_test(params)
 	elseif cmd == "rpcx" then
 		cmd_handler.do_rpc_testx(params)
-	elseif cmd == "rpcnocb" then
-		cmd_handler.do_rpc_nocb_test(params)
-	elseif cmd == "rpcnocbx" then
-		cmd_handler.do_rpc_nocb_testx(params)
+	elseif cmd == "rpcsend" then
+		cmd_handler.do_rpc_send_test(params)
+	elseif cmd == "rpcsendx" then
+		cmd_handler.do_rpc_send_testx(params)
 	elseif cmd == "rpcmix" then
 		cmd_handler.do_rpc_mix_test(params)
 	elseif cmd == "rpcmixx" then
@@ -307,7 +307,7 @@ function cmd_handler.do_rpc_testx(params)
 end
 
 -- [buff]
-function cmd_handler.do_rpc_nocb_test(params)
+function cmd_handler.do_rpc_send_test(params)
 	local buff = "bbb"
 	if #params >= 1 then
 		buff = params[1]
@@ -318,14 +318,14 @@ function cmd_handler.do_rpc_nocb_test(params)
 		buff = buff,
 	}
 
-	Env.g_client:send_to_login(MID.c2s_rpc_nocb_test_req, msg)
+	Env.g_client:send_to_login(MID.c2s_rpc_send_test_req, msg)
 end
 
 -- [num]
-function cmd_handler.do_rpc_nocb_testx(params)
+function cmd_handler.do_rpc_send_testx(params)
 
 	if #params ~= 1 then
-		Log.warn("cmd_handler.do_rpc_nocb_testx params not enough")
+		Log.warn("cmd_handler.do_rpc_send_testx params not enough")
 		return
 	end
 
@@ -336,7 +336,7 @@ function cmd_handler.do_rpc_nocb_testx(params)
 		buff = "bbb"
 	}
 	for i=1, num do
-		Env.g_client:send_to_login(MID.c2s_rpc_nocb_test_req, msg)
+		Env.g_client:send_to_login(MID.c2s_rpc_send_test_req, msg)
 	end
 end
 

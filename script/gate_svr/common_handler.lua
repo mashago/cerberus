@@ -14,7 +14,7 @@ function CommonHandler:sync_conn_num()
 	{
 		num = Env.g_user_mgr._all_user_num
 	}
-	Core.rpc_mgr:call_nocb_by_server_type(ServerType.BRIDGE, "bridge_sync_gate_conn_num", rpc_data)
+	Core.rpc_mgr:send_by_server_type(ServerType.BRIDGE, "bridge_sync_gate_conn_num", rpc_data)
 end
 
 function CommonHandler:add_sync_conn_num_timer()
