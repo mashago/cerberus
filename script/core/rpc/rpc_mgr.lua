@@ -3,7 +3,7 @@ local Core = require "core"
 local Log = require "core.log.logger"
 local Util = require "core.util.util"
 local class = require "core.util.class"
-local RPC_NOCB_SESSION_ID = -1
+local RPC_SEND_SESSION_ID = -1
 
 local RpcMgr = class()
 
@@ -11,6 +11,7 @@ function RpcMgr:ctor()
 	self._cur_session_id = 0
 	self._all_session_map = {} -- {[session_id] = coroutine}
 	self._origin_route_map = {} -- { [new_session_id] = {from_server_id=x, to_server_id=y, session_id=z} }
+	self._running_session_id = nil
 end
 
 function RpcMgr:print()
@@ -55,18 +56,18 @@ function RpcMgr:run(func, ...)
 		return
 	end
 	if not result then
-		-- no rpc inside, do nothing
+		-- no rpc call inside, do nothing
 		return
 	end
-
-	if type(result) ~= "number" then
-		Log.err("RpcMgr:run: run result not a session_id")
-		return
-	end
-
+	assert(type(result) == "number", "RpcMgr:run: run result not a session_id")
 	local session_id = result
 	-- return session_id if has rpc inside
 	self._all_session_map[session_id] = cor	
+end
+
+function RpcMgr:ret(data)
+	assert(type(data) == "table", "RpcMgr:ret data not a table")
+	-- TODO
 end
 
 function RpcMgr:gen_session_id()
@@ -110,7 +111,7 @@ function RpcMgr:send(server_info, func_name, data)
 	{
 		from_server_id = Core.server_conf._server_id, 
 		to_server_id = server_info._server_id, 
-		session_id = RPC_NOCB_SESSION_ID,
+		session_id = RPC_SEND_SESSION_ID,
 		func_name = func_name, 
 		param = Util.serialize(data),
 	}
@@ -272,7 +273,7 @@ function RpcMgr:callback(session_id, result, data)
 		return
 	end
 	self._origin_route_map[session_id] = nil
-	assert(origin_route.session_id ~= RPC_NOCB_SESSION_ID)
+	assert(origin_route.session_id ~= RPC_SEND_SESSION_ID)
 
 	local server_info = Core.server_mgr:get_server_by_id(origin_route.from_server_id)
 	if not server_info then
