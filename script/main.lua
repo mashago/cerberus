@@ -3,7 +3,11 @@ package.path =  "script/core/?.lua;script/?.lua;" .. package.path
 
 local conf_file = ... 
 
-require "core.init"
+require "core.global.global_def"
+require "core.global.data_struct_def"
+require "core.global.net_msg_def"
+require "core.global.msg_handler"
+require "core.ccall.ccall_funcs"
 
 local Core = require "core"
 local Log = require "log.logger"
