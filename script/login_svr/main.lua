@@ -9,10 +9,10 @@ local function main_entry()
 	Log.info("login_svr main_entry")
 
 	local AreaMgr = require "login_svr.area_mgr"
-	Env.g_area_mgr = AreaMgr.new()
+	Env.area_mgr = AreaMgr.new()
 
 	local UserMgr = require "login_svr.user_mgr"
-	Env.g_user_mgr = UserMgr.new()
+	Env.user_mgr = UserMgr.new()
 
 end
 

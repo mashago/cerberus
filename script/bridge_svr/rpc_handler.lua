@@ -188,7 +188,7 @@ function rpc_mgr.bridge_sync_gate_conn_num(data, mailbox_id)
 		return
 	end
 
-	Env.g_common_mgr:sync_gate_conn_num(server_id, data.num)
+	Env.common_mgr:sync_gate_conn_num(server_id, data.num)
 end
 
 -----------------------------------------------------------
@@ -197,7 +197,7 @@ function rpc_mgr.bridge_create_role(data)
 	
 	Log.debug("bridge_create_role data=%s", Util.table_to_string(data))
 
-	return Env.g_common_mgr:rpc_create_role(data)
+	return Env.common_mgr:rpc_create_role(data)
 end
 
 function rpc_mgr.bridge_delete_role(data)
@@ -207,7 +207,7 @@ function rpc_mgr.bridge_delete_role(data)
 	local user_id = data.user_id
 	local role_id = data.role_id
 
-	return Env.g_common_mgr:rpc_delete_role(user_id, role_id)
+	return Env.common_mgr:rpc_delete_role(user_id, role_id)
 end
 
 function rpc_mgr.bridge_select_role(data)
@@ -217,7 +217,7 @@ function rpc_mgr.bridge_select_role(data)
 	local user_id = data.user_id
 	local role_id = data.role_id
 
-	return Env.g_common_mgr:rpc_select_role(user_id, role_id)
+	return Env.common_mgr:rpc_select_role(user_id, role_id)
 end
 
 function rpc_mgr.bridge_user_offline(data)
@@ -226,5 +226,5 @@ function rpc_mgr.bridge_user_offline(data)
 
 	local user_id = data.user_id
 
-	return Env.g_common_mgr:rpc_user_offline(user_id)
+	return Env.common_mgr:rpc_user_offline(user_id)
 end

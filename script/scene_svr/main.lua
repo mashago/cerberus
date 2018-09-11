@@ -9,7 +9,7 @@ local function main_entry()
 	Log.info("scene_svr main_entry")
 
 	local RoleMgr = require "scene_svr.role_mgr"
-	Env.g_role_mgr = RoleMgr.new()
+	Env.role_mgr = RoleMgr.new()
 end
 
 return main_entry

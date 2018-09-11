@@ -55,7 +55,7 @@ function cmd_handler.execute(buffer)
 	elseif cmd == "5" then
 		local area_id = nil
 		local role_id = nil
-		for k, v in ipairs(Env.g_client._area_role_list) do
+		for k, v in ipairs(Env.client._area_role_list) do
 			local _, role = next(v.role_list)
 			if role then
 				area_id = v.area_id
@@ -282,7 +282,7 @@ function cmd_handler.do_rpc_test(params)
 		buff = buff,
 	}
 
-	Env.g_client:send_to_login(MID.c2s_rpc_test_req, msg)
+	Env.client:send_to_login(MID.c2s_rpc_test_req, msg)
 end
 
 -- [num]
@@ -300,10 +300,10 @@ function cmd_handler.do_rpc_testx(params)
 		buff = "aaa"
 	}
 	for i=1, num do
-		Env.g_client:send_to_login(MID.c2s_rpc_test_req, msg)
+		Env.client:send_to_login(MID.c2s_rpc_test_req, msg)
 	end
 
-	Env.g_client:x_test_start(num)
+	Env.client:x_test_start(num)
 end
 
 -- [buff]
@@ -318,7 +318,7 @@ function cmd_handler.do_rpc_send_test(params)
 		buff = buff,
 	}
 
-	Env.g_client:send_to_login(MID.c2s_rpc_send_test_req, msg)
+	Env.client:send_to_login(MID.c2s_rpc_send_test_req, msg)
 end
 
 -- [num]
@@ -336,7 +336,7 @@ function cmd_handler.do_rpc_send_testx(params)
 		buff = "bbb"
 	}
 	for i=1, num do
-		Env.g_client:send_to_login(MID.c2s_rpc_send_test_req, msg)
+		Env.client:send_to_login(MID.c2s_rpc_send_test_req, msg)
 	end
 end
 
@@ -352,7 +352,7 @@ function cmd_handler.do_rpc_mix_test(params)
 		buff = buff,
 	}
 
-	Env.g_client:send_to_login(MID.c2s_rpc_mix_test_req, msg)
+	Env.client:send_to_login(MID.c2s_rpc_mix_test_req, msg)
 end
 
 -- [num]
@@ -370,16 +370,16 @@ function cmd_handler.do_rpc_mix_testx(params)
 		buff = "ccc"
 	}
 	for i=1, num do
-		Env.g_client:send_to_login(MID.c2s_rpc_mix_test_req, msg)
+		Env.client:send_to_login(MID.c2s_rpc_mix_test_req, msg)
 	end
 
-	Env.g_client:x_test_start(num)
+	Env.client:x_test_start(num)
 end
 
 ---------------------------------------
 
 function cmd_handler.do_print_server_list(params)
-	Log.debug("cmd_handler.do_print_server_list server_list=%s", Util.table_to_string(Env.g_client._server_list))
+	Log.debug("cmd_handler.do_print_server_list server_list=%s", Util.table_to_string(Env.client._server_list))
 end
 
 function cmd_handler.do_netprint(params)
@@ -404,7 +404,7 @@ function cmd_handler.do_connect(params)
 		return
 	end
 
-	local server_info = Env.g_client._server_list[server_type]
+	local server_info = Env.client._server_list[server_type]
 	if not server_info then
 		Log.warn("cmd_handler.do_connect no such server info")
 		return
@@ -462,9 +462,9 @@ function cmd_handler.do_login(params)
 		password = password,
 		channel_id = channel_id,
 	}
-	Env.g_client:send_to_login(MID.c2s_user_login_req, msg)
+	Env.client:send_to_login(MID.c2s_user_login_req, msg)
 
-	Env.g_client:x_test_start(1)
+	Env.client:x_test_start(1)
 end
 
 -- [num]
@@ -486,17 +486,17 @@ function cmd_handler.do_loginx(params)
 			password = "qwerty",
 			channel_id = 0,
 		}
-		Env.g_client:send_to_login(MID.c2s_user_login_req, msg)
+		Env.client:send_to_login(MID.c2s_user_login_req, msg)
 	end
 
-	Env.g_client:x_test_start(num)
+	Env.client:x_test_start(num)
 
 end
 
 function cmd_handler.do_area_list_req(params)
-	Env.g_client:send_to_login(MID.c2s_area_list_req)
+	Env.client:send_to_login(MID.c2s_area_list_req)
 
-	Env.g_time_counter:start()
+	Env.time_counter:start()
 end
 
 function cmd_handler.do_role_list_req(params)
@@ -505,9 +505,9 @@ function cmd_handler.do_role_list_req(params)
 	{
 	}
 
-	Env.g_client:send_to_login(MID.c2s_role_list_req, msg)
+	Env.client:send_to_login(MID.c2s_role_list_req, msg)
 
-	Env.g_time_counter:start()
+	Env.time_counter:start()
 end
 
 -- [opt role_name] [opt area_id]
@@ -524,9 +524,9 @@ function cmd_handler.do_create_role(params)
 		role_name = role_name
 	}
 
-	Env.g_client:send_to_login(MID.c2s_create_role_req, msg)
+	Env.client:send_to_login(MID.c2s_create_role_req, msg)
 
-	Env.g_time_counter:start()
+	Env.time_counter:start()
 end
 
 -- [role_id] [opt area_id]
@@ -542,9 +542,9 @@ function cmd_handler.do_delete_role(params)
 		role_id = tonumber(params[1]),
 	}
 
-	Env.g_client:send_to_login(MID.c2s_delete_role_req, msg)
+	Env.client:send_to_login(MID.c2s_delete_role_req, msg)
 
-	Env.g_time_counter:start()
+	Env.time_counter:start()
 end
 
 -- [role_id] [opt area_id]
@@ -561,22 +561,22 @@ function cmd_handler.do_select_role(params)
 	}
 	Log.debug("cmd_handler.do_select_role role_id=%d, area_id=%d", msg.role_id, msg.area_id) 
 
-	Env.g_client:send_to_login(MID.c2s_select_role_req, msg)
+	Env.client:send_to_login(MID.c2s_select_role_req, msg)
 
-	Env.g_time_counter:start()
+	Env.time_counter:start()
 end
 
 function cmd_handler.do_enter(params)
 	-- enter
 	local msg =
 	{
-		user_id = Env.g_client._user_id,
-		token = Env.g_client._user_token,
+		user_id = Env.client._user_id,
+		token = Env.client._user_token,
 	}
 
-	Env.g_client:send_to_gate(MID.c2s_role_enter_req, msg)
+	Env.client:send_to_gate(MID.c2s_role_enter_req, msg)
 
-	Env.g_time_counter:start()
+	Env.time_counter:start()
 end
 
 function cmd_handler.do_http_request(params)
@@ -627,8 +627,8 @@ function cmd_handler.do_attr_change(params)
 		attr_table = out_attr_table,
 	}
 
-	Env.g_client:send_to_gate(MID.c2s_role_attr_change_req, msg)
-	Env.g_client:x_test_start(1)
+	Env.client:send_to_gate(MID.c2s_role_attr_change_req, msg)
+	Env.client:x_test_start(1)
 end
 
 -- [num] [attr_name] [value]
@@ -670,26 +670,26 @@ function cmd_handler.do_attr_changex(params)
 			attr_table = out_attr_table,
 		}
 
-		Env.g_client:send_to_gate(MID.c2s_role_attr_change_req, msg)
+		Env.client:send_to_gate(MID.c2s_role_attr_change_req, msg)
 	end
-	Env.g_client:x_test_start(1)
+	Env.client:x_test_start(1)
 end
 
 function cmd_handler.do_random_attr_change(params)
-	Env.g_client:random_change_attr()
+	Env.client:random_change_attr()
 end
 
 function cmd_handler.do_loop_random_attr_change(params)
-	Env.g_client:loop_random_change_attr()
+	Env.client:loop_random_change_attr()
 end
 
 function cmd_handler.do_role_print(params)
 	-- roleprint
-	if not Env.g_role then
-		Log.warn("cmd_handler.do_role_print Env.g_role nil")
+	if not Env.role then
+		Log.warn("cmd_handler.do_role_print Env.role nil")
 		return
 	end
-	Env.g_role:print()
+	Env.role:print()
 end
 
 function cmd_handler.do_test_role(params)

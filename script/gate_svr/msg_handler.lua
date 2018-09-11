@@ -24,7 +24,7 @@ function g_msg_handler.c2s_role_enter_req(data, mailbox_id)
 	}
 
 	-- 1. check user and token
-	local user = Env.g_user_mgr:get_user_by_id(user_id)
+	local user = Env.user_mgr:get_user_by_id(user_id)
 	if not user then
 		Log.warn("c2s_role_enter_req: user not exists %d", user_id)
 		msg.result = ErrorCode.ROLE_ENTER_FAIL
@@ -49,7 +49,7 @@ function g_msg_handler.c2s_role_enter_req(data, mailbox_id)
 		return
 	end
 
-	local u = Env.g_user_mgr:get_user_by_mailbox(mailbox_id)
+	local u = Env.user_mgr:get_user_by_mailbox(mailbox_id)
 	if u then
 		Log.warn("c2s_role_enter_req: mailbox already connect to a user %d", user_id)
 		msg.result = ErrorCode.ROLE_ENTER_FAIL
@@ -58,7 +58,7 @@ function g_msg_handler.c2s_role_enter_req(data, mailbox_id)
 	end
 
 	-- 2. update user info
-	Env.g_user_mgr:online(user, mailbox_id)
+	Env.user_mgr:online(user, mailbox_id)
 
 	local scene_server_info
 	if user._scene_server_id == 0 then
@@ -94,7 +94,7 @@ function g_msg_handler.s2s_gate_role_enter_ret(data, mailbox_id)
 	
 	local result = data.result
 	local role_id = data.role_id
-	local user = Env.g_user_mgr:get_user_by_role_id(role_id)
+	local user = Env.user_mgr:get_user_by_role_id(role_id)
 	if not user then
 		Log.warn("s2s_gate_role_enter_ret: user nil role_id=%d", role_id)
 		return
@@ -130,7 +130,7 @@ function g_msg_handler.transfer_msg(mailbox_id, msg_id, ext)
 
 	-- if ext is zero, its from client to server. for now, just send to user scene server
 	if ext == 0 then
-		local user = Env.g_user_mgr:get_user_by_mailbox(mailbox_id)
+		local user = Env.user_mgr:get_user_by_mailbox(mailbox_id)
 		if not user then
 			-- user nil 
 			Log.warn("g_msg_handler.transfer_msg: not a user %d", mailbox_id)
@@ -162,7 +162,7 @@ function g_msg_handler.transfer_msg(mailbox_id, msg_id, ext)
 	end
 
 	local role_id = ext
-	local user = Env.g_user_mgr:get_user_by_role_id(role_id)
+	local user = Env.user_mgr:get_user_by_role_id(role_id)
 	if not user then
 		-- user nil 
 		Log.warn("g_msg_handler.transfer_msg user nil role_id=%d", role_id)

@@ -61,7 +61,7 @@ function rpc_mgr.gate_select_role(data)
 		port = 0,
 	}
 
-	if Env.g_user_mgr:get_user_by_id(user_id) then
+	if Env.user_mgr:get_user_by_id(user_id) then
 		msg.result = ErrorCode.SYS_ERROR
 		return msg
 	end
@@ -69,7 +69,7 @@ function rpc_mgr.gate_select_role(data)
 	-- create user
 	local User = require "gate_svr.user"
 	local user = User.new(user_id, role_id, scene_id, token)
-	Env.g_user_mgr:add_user(user)
+	Env.user_mgr:add_user(user)
 	
 	msg.result = ErrorCode.SUCCESS
 	msg.ip = Core.server_conf._ip
@@ -90,9 +90,9 @@ function rpc_mgr.gate_kick_role(data)
 		scene_id = 0,
 	}
 
-	local user = Env.g_user_mgr:get_user_by_id(user_id)
+	local user = Env.user_mgr:get_user_by_id(user_id)
 	if user then
-		Env.g_user_mgr:kick_user(user, reason)
+		Env.user_mgr:kick_user(user, reason)
 		msg.server_id = user._scene_server_id
 		msg.scene_id = user._scene_id
 	end

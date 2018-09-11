@@ -1,5 +1,5 @@
 local M = {}
-M.g_client = nil
-M.g_time_counter = nil
-M.g_role = nil
+M.client = nil
+M.time_counter = nil
+M.role = nil
 return M

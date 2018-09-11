@@ -9,12 +9,12 @@ local function main_entry()
 	Log.info("client main_entry")
 
 	local Client = require "client.client"
-	Env.g_client = Client.new()
-	Env.g_client:load_server_list()
-	-- Env.g_client:auto_run_cmd_once()
+	Env.client = Client.new()
+	Env.client:load_server_list()
+	-- Env.client:auto_run_cmd_once()
 
 	local TimeCounter = require "client.time_counter"
-	Env.g_time_counter = TimeCounter.new()
+	Env.time_counter = TimeCounter.new()
 
 end
 

@@ -13,8 +13,8 @@ local function main_entry()
 	lfs.mkdir("dat")
 
 	local PeerMgr = require "master_svr.peer_mgr"
-	Env.g_peer_mgr = PeerMgr.new()
-	Env.g_peer_mgr:load_peer_list()
+	Env.peer_mgr = PeerMgr.new()
+	Env.peer_mgr:load_peer_list()
 end
 
 return main_entry

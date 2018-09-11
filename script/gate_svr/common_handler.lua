@@ -12,7 +12,7 @@ end
 function CommonHandler:sync_conn_num()
 	local rpc_data =
 	{
-		num = Env.g_user_mgr._all_user_num
+		num = Env.user_mgr._all_user_num
 	}
 	Core.rpc_mgr:send_by_server_type(ServerType.BRIDGE, "bridge_sync_gate_conn_num", rpc_data)
 end

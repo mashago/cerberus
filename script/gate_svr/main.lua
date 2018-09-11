@@ -10,10 +10,10 @@ local function main_entry()
 	Log.info("gate_svr main_entry")
 
 	local UserMgr = require "gate_svr.user_mgr"
-	Env.g_user_mgr = UserMgr.new()
+	Env.user_mgr = UserMgr.new()
 
 	local CommonHandler = require "gate_svr.common_handler"
-	Env.g_common_handler = CommonHandler.new()
+	Env.common_handler = CommonHandler.new()
 end
 
 return main_entry

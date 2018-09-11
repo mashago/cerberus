@@ -70,12 +70,12 @@ function g_msg_handler.s2s_gate_role_enter_req(data, mailbox_id)
 	local role_id = data.role_id
 
 	-- 1. new role
-	local role = Env.g_role_mgr:get_role_by_id(role_id)
+	local role = Env.role_mgr:get_role_by_id(role_id)
 	if not role then
 		local Role = require "scene_svr.role_obj"
 		role = Role.new(role_id, mailbox_id)
 		role:init()
-		Env.g_role_mgr:add_role(role)
+		Env.role_mgr:add_role(role)
 	else
 		Log.warn("s2s_gate_role_enter_req: role already exists %d", role_id)
 	end

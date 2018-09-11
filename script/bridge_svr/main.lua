@@ -9,7 +9,7 @@ local function main_entry()
 	Log.info("bridge_svr main_entry")
 
 	local CommonMgr = require "bridge_svr.common_mgr"
-	Env.g_common_mgr = CommonMgr.new()
+	Env.common_mgr = CommonMgr.new()
 end
 
 return main_entry

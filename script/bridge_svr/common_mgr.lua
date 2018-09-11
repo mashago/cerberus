@@ -255,7 +255,7 @@ end
 function CommonMgr:rpc_user_offline(user_id)
 	
 	if not self._online_user_map[user_id] then
-		Log.err("g_common_mgr:rpc_user_offline user nil user_id=%d", user_id)
+		Log.err("rpc_user_offline user nil user_id=%d", user_id)
 		return
 	end
 

@@ -45,7 +45,7 @@ function g_msg_handler.c2s_rpc_test_req(data, mailbox_id, msg_id)
 	msg.sum = sum
 
 	-- 2. get bridge
-	local server_id = Env.g_area_mgr:get_server_id(area_id)
+	local server_id = Env.area_mgr:get_server_id(area_id)
 	status, ret = Core.rpc_mgr:call_by_server_id(server_id, "bridge_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("c2s_rpc_test_req rpc call fail")
@@ -92,7 +92,7 @@ function g_msg_handler.c2s_rpc_send_test_req(data, mailbox_id, msg_id)
 
 	-- rpc send to bridge
 	local area_id = 1
-	local server_id = Env.g_area_mgr:get_server_id(area_id)
+	local server_id = Env.area_mgr:get_server_id(area_id)
 	rpc_data =
 	{
 		buff = buff,
@@ -150,7 +150,7 @@ function g_msg_handler.c2s_rpc_mix_test_req(data, mailbox_id, msg_id)
 		index = index,
 		sum = sum,
 	}
-	local server_id = Env.g_area_mgr:get_server_id(area_id)
+	local server_id = Env.area_mgr:get_server_id(area_id)
 	status, ret = Core.rpc_mgr:call_by_server_id(server_id, "bridge_rpc_mix_test", rpc_data)
 	if not status then
 		Log.err("c2s_rpc_mix_test_req rpc call fail")
@@ -185,7 +185,7 @@ function g_msg_handler.s2s_register_area_req(data, mailbox_id, msg_id)
 	{
 		result = ErrorCode.SUCCESS
 	}
-	if not Env.g_area_mgr:register_area(server_info._server_id, data.area_list) then
+	if not Env.area_mgr:register_area(server_info._server_id, data.area_list) then
 		Log.warn("s2s_register_area_req: register_area duplicate %s %s"
 		, server_info._server_id, Util.table_to_string(data.area_list))
 		msg.result = ErrorCode.REGISTER_AREA_DUPLICATE
@@ -201,14 +201,14 @@ end
 local XXX_DEBUG_TEST_LOGINX = false
 function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 	Log.debug("c2s_user_login_req: data=%s", Util.table_to_string(data))
-	local g_user_mgr = Env.g_user_mgr
+	local user_mgr = Env.user_mgr
 
 	local msg =
 	{
 		result = ErrorCode.SUCCESS
 	}
 
-	local user = g_user_mgr:get_user_by_mailbox(mailbox_id)
+	local user = user_mgr:get_user_by_mailbox(mailbox_id)
 	if user then
 		Log.warn("c2s_user_login_req duplicate login [%s]", data.username)
 		msg.result = ErrorCode.USER_LOGIN_DUPLICATE_LOGIN
@@ -252,7 +252,7 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 	end
 
 	-- check duplicate login
-	user = g_user_mgr:get_user_by_mailbox(mailbox_id)
+	user = user_mgr:get_user_by_mailbox(mailbox_id)
 	if user then
 		Log.warn("c2s_user_login_req duplicate login [%s]", data.username)
 		msg.result = ErrorCode.USER_LOGIN_DUPLICATE_LOGIN
@@ -268,7 +268,7 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 		return
 	end
 
-	user = g_user_mgr:get_user_by_id(user_id)
+	user = user_mgr:get_user_by_id(user_id)
 	if user then
 		-- kick old connection, and change user mailbox
 		Log.warn("c2s_user_login_req login other place [%s]", data.username)
@@ -277,12 +277,12 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 			reason = ErrorCode.USER_LOGIN_OTHER_PLACE,
 		}
 		user:send_msg(MID.s2c_user_kick, msg2)
-		g_user_mgr:change_user_mailbox(user, mailbox_id)
+		user_mgr:change_user_mailbox(user, mailbox_id)
 	else
 		-- create a user in memory with user_id
 		local User = require "login_svr.user"
 		user = User.new(mailbox_id, user_id, username, channel_id)
-		if not g_user_mgr:add_user(user) then
+		if not user_mgr:add_user(user) then
 			Log.warn("c2s_user_login_req duplicate login2 [%s]", username)
 			msg.result = ErrorCode.USER_LOGIN_DUPLICATE_LOGIN
 			Core.net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
@@ -298,7 +298,7 @@ end
 function g_msg_handler.c2s_area_list_req(user, data, mailbox_id, msg_id)
 	Log.debug("c2s_area_list_req: data=%s", Util.table_to_string(data))
 
-	local area_map = Env.g_area_mgr._area_map
+	local area_map = Env.area_mgr._area_map
 	local area_list = {}
 	for k in pairs(area_map) do
 		table.insert(area_list, {area_id=k, area_name="qwerty"})
