@@ -1,7 +1,13 @@
 -- call by root
 CREATE DATABASE IF NOT EXISTS mn_login_db;
-GRANT all on mn_login_db.* to testmn@'%' identified by '123456';
-GRANT all on mn_login_db.* to testmn@'localhost' identified by '123456';
+
+-- mysql version below 8.0
+GRANT all on mn_login_db.* to 'testmn'@'%' identified by '123456';
+GRANT all on mn_login_db.* to 'testmn'@'localhost' identified by '123456';
+
+-- mysql version 8.0 or above
+-- CREATE USER IF NOT EXISTS 'testmn'@'%' IDENTIFIED WITH mysql_native_password BY '123456';
+-- GRANT ALL ON mn_login_db.* TO 'testmn'@'%';
 
 USE mn_login_db;
 -- DROP TABLE IF EXISTS `user_info`;
