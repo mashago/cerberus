@@ -24,7 +24,7 @@ function rpc_mgr.bridge_rpc_test(data)
 	local status, ret = rpc_mgr:call_by_server_type(ServerType.GATE, "gate_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("bridge_rpc_test rpc call fail")
-		return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
+		return rpc_mgr:ret({result = ErrorCode.RPC_FAIL, buff=buff, sum=sum})
 	end
 	Log.debug("bridge_rpc_test: callback ret=%s", Util.table_to_string(ret))
 	buff = ret.buff
@@ -34,13 +34,13 @@ function rpc_mgr.bridge_rpc_test(data)
 	status, ret = rpc_mgr:call_by_server_type(ServerType.SCENE, "scene_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("bridge_rpc_test rpc call fail")
-		return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
+		return rpc_mgr:ret({result = ErrorCode.RPC_FAIL, buff=buff, sum=sum})
 	end
 	Log.debug("bridge_rpc_test: callback ret=%s", Util.table_to_string(ret))
 	buff = ret.buff
 	sum = ret.sum
 
-	return {result = ErrorCode.SUCCESS, buff=buff, sum=sum}
+	return rpc_mgr:ret({result = ErrorCode.SUCCESS, buff=buff, sum=sum})
 end
 
 function rpc_mgr.bridge_rpc_send_test(data)

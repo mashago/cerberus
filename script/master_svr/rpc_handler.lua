@@ -15,7 +15,7 @@ function rpc_mgr.master_rpc_test(data)
 	buff = buff .. "3"
 	sum = sum + 1
 
-	return {result = ErrorCode.SUCCESS, buff=buff, sum=sum}
+	return rpc_mgr:ret({result = ErrorCode.SUCCESS, buff=buff, sum=sum})
 end
 
 local XXX_g_rpc_send_map = {}

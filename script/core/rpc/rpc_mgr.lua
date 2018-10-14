@@ -67,7 +67,7 @@ end
 
 function RpcMgr:ret(data)
 	assert(type(data) == "table", "RpcMgr:ret data not a table")
-	-- TODO
+	return data
 end
 
 function RpcMgr:gen_session_id()

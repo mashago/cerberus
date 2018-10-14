@@ -271,6 +271,10 @@ end
 
 function NetMgr:send_msg_ext(mailbox_id, msg_id, ext, data)
 	-- Log.debug("NetMgr:send_msg_ext msgdef mailbox_id=%d msg_id=%d ext=%d", mailbox_id, msg_id, ext)
+	if mailbox_id == MAILBOX_ID_NIL then
+		return false
+	end
+
 	local msgdef = MSG_DEF_MAP[msg_id]
 	if not msgdef then
 		Log.err("NetMgr:send_msg_ext msgdef not exists msg_id=%d", msg_id)
