@@ -108,7 +108,7 @@ function rpc_mgr.bridge_rpc_mix_test(data)
 	local status, ret = rpc_mgr:call_by_server_type(ServerType.GATE, "gate_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("bridge_rpc_mix_test rpc call fail")
-		return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
+		return rpc_mgr:ret({result = ErrorCode.RPC_FAIL, buff=buff, sum=sum})
 	end
 	Log.debug("bridge_rpc_mix_test: callback ret=%s", Util.table_to_string(ret))
 	buff = ret.buff
@@ -160,13 +160,13 @@ function rpc_mgr.bridge_rpc_mix_test(data)
 	status, ret = rpc_mgr:call_by_server_id(server_id, "scene_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("bridge_rpc_mix_test rpc call fail")
-		return {result = ErrorCode.RPC_FAIL, buff=buff, sum=sum}
+		return rpc_mgr:ret({result = ErrorCode.RPC_FAIL, buff=buff, sum=sum})
 	end
 	Log.debug("bridge_rpc_mix_test: callback ret=%s", Util.table_to_string(ret))
 	buff = ret.buff
 	sum = ret.sum
 
-	return {result = ErrorCode.SUCCESS, buff=buff, sum=sum}
+	return rpc_mgr:ret({result = ErrorCode.SUCCESS, buff=buff, sum=sum})
 end
 -- ]
 
@@ -197,7 +197,7 @@ function rpc_mgr.bridge_create_role(data)
 	
 	Log.debug("bridge_create_role data=%s", Util.table_to_string(data))
 
-	return Env.common_mgr:rpc_create_role(data)
+	return rpc_mgr:ret(Env.common_mgr:rpc_create_role(data))
 end
 
 function rpc_mgr.bridge_delete_role(data)
@@ -207,7 +207,7 @@ function rpc_mgr.bridge_delete_role(data)
 	local user_id = data.user_id
 	local role_id = data.role_id
 
-	return Env.common_mgr:rpc_delete_role(user_id, role_id)
+	return rpc_mgr:ret(Env.common_mgr:rpc_delete_role(user_id, role_id))
 end
 
 function rpc_mgr.bridge_select_role(data)
@@ -217,7 +217,7 @@ function rpc_mgr.bridge_select_role(data)
 	local user_id = data.user_id
 	local role_id = data.role_id
 
-	return Env.common_mgr:rpc_select_role(user_id, role_id)
+	return rpc_mgr:ret(Env.common_mgr:rpc_select_role(user_id, role_id))
 end
 
 function rpc_mgr.bridge_user_offline(data)
@@ -226,5 +226,5 @@ function rpc_mgr.bridge_user_offline(data)
 
 	local user_id = data.user_id
 
-	return Env.common_mgr:rpc_user_offline(user_id)
+	return rpc_mgr:ret(Env.common_mgr:rpc_user_offline(user_id))
 end

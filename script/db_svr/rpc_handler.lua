@@ -62,25 +62,25 @@ function rpc_mgr.db_user_login(data)
 	if ret > 0 then
 		-- insert success
 		local user_id = DBMgr.get_insert_id(db_name)
-		return {result = ErrorCode.SUCCESS, user_id = user_id}
+		return rpc_mgr:ret({result = ErrorCode.SUCCESS, user_id = user_id})
 	end
 
 	ret = DBMgr.do_select(db_name, "user_info", {}
 	, {username=username, password=password, channel_id=channel_id})
 	if not ret then
 		Log.warn("select user fail username=%s password=%s", username, password)
-		return {result = ErrorCode.SYS_ERROR, user_id = 0}
+		return rpc_mgr:ret({result = ErrorCode.SYS_ERROR, user_id = 0})
 	end
 
 	Log.debug("db_user_login: ret=%s", Util.table_to_string(ret))
 	if #ret == 0 then
 		-- empty record, password mismatch
-		return {result = ErrorCode.USER_LOGIN_PASSWORD_MISMATCH, user_id = 0}
+		return rpc_mgr:ret({result = ErrorCode.USER_LOGIN_PASSWORD_MISMATCH, user_id = 0})
 	end
 
 	-- must return a table
 	local user_id = tonumber(ret[1].user_id)
-	return {result = ErrorCode.SUCCESS, user_id = user_id}
+	return rpc_mgr:ret({result = ErrorCode.SUCCESS, user_id = user_id})
 end
 
 function rpc_mgr.db_create_role(data)
@@ -99,22 +99,22 @@ function rpc_mgr.db_create_role(data)
 	local ret = DBMgr.do_execute(db_name, sql, true)
 	if not ret then
 		Log.err("db_create_role fail user_id=%d area_id=%d role_name=%s", user_id, area_id, role_name)
-		return {result = ErrorCode.SUCCESS, role_id = 0}
+		return rpc_mgr:ret({result = ErrorCode.SUCCESS, role_id = 0})
 	end
 
 	Log.debug("db_create_role: ret=%s", Util.table_to_string(ret))
 	local role_id = tonumber(ret[1].role_id)
 	if role_id == -1 then
-		return {result = ErrorCode.CREATE_ROLE_NUM_MAX, role_id = 0}
+		return rpc_mgr:ret({result = ErrorCode.CREATE_ROLE_NUM_MAX, role_id = 0})
 	elseif role_id == -2 then
-		return {result = ErrorCode.CREATE_ROLE_DUPLICATE_NAME, role_id = 0}
+		return rpc_mgr:ret({result = ErrorCode.CREATE_ROLE_DUPLICATE_NAME, role_id = 0})
 	elseif role_id < 0 then
 		Log.warn("db_create_role something go wrong role_id=%d user_id=%d area_id=%d role_name=%s"
 		, role_id, user_id, area_id, role_name)
-		return {result = ErrorCode.CREATE_ROLE_FAIL, role_id = 0}
+		return rpc_mgr:ret({result = ErrorCode.CREATE_ROLE_FAIL, role_id = 0})
 	end
 
-	return {result = ErrorCode.SUCCESS, role_id = role_id}
+	return rpc_mgr:ret({result = ErrorCode.SUCCESS, role_id = role_id})
 end
 
 -------------------------------------------------
@@ -297,28 +297,28 @@ function rpc_mgr.db_login_select(data)
 	
 	local db_name = Core.server_conf._db_name_map[DBType.LOGIN]
 	data.db_name = db_name
-	return db_select(data)
+	return rpc_mgr:ret(db_select(data))
 end
 
 function rpc_mgr.db_login_insert(data)
 	
 	local db_name = Core.server_conf._db_name_map[DBType.LOGIN]
 	data.db_name = db_name
-	return db_insert(data)
+	return rpc_mgr:ret(db_insert(data))
 end
 
 function rpc_mgr.db_login_delete(data)
 	
 	local db_name = Core.server_conf._db_name_map[DBType.LOGIN]
 	data.db_name = db_name
-	return db_delete(data)
+	return rpc_mgr:ret(db_delete(data))
 end
 
 function rpc_mgr.db_login_update(data)
 	
 	local db_name = Core.server_conf._db_name_map[DBType.LOGIN]
 	data.db_name = db_name
-	return db_update(data)
+	return rpc_mgr:ret(db_update(data))
 end
 
 -- will convert data by DataStructDef
@@ -329,10 +329,10 @@ function rpc_mgr.db_game_select(data)
 
 	local ret = db_select(data)
 	if ret.result ~= ErrorCode.SUCCESS then
-		return ret
+		return rpc_mgr:ret(ret)
 	end
 	if #ret.data == 0 then
-		return ret
+		return rpc_mgr:ret(ret)
 	end
 
 	Log.debug("db_game_select ret=%s", Util.table_to_string(ret))
@@ -342,7 +342,7 @@ function rpc_mgr.db_game_select(data)
 	local table_def = DataStructDef.data[table_name]
 	if not table_def then
 		Log.warn("db_game_select no such table define [%d]", table_name)
-		return ret
+		return rpc_mgr:ret(ret)
 	end
 
 	-- pick first line to get field type
@@ -365,48 +365,48 @@ function rpc_mgr.db_game_select(data)
 	end
 
 	Log.debug("db_game_select ret2=%s", Util.table_to_string(ret))
-	return ret
+	return rpc_mgr:ret(ret)
 end
 
 function rpc_mgr.db_game_insert(data)
 	
 	local db_name = Core.server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
-	return db_insert(data)
+	return rpc_mgr:ret(db_insert(data))
 end
 
 function rpc_mgr.db_game_insert_multi(data)
 	
 	local db_name = Core.server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
-	return db_insert_multi(data)
+	return rpc_mgr:ret(db_insert_multi(data))
 end
 
 function rpc_mgr.db_game_delete(data)
 	
 	local db_name = Core.server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
-	return db_delete(data)
+	return rpc_mgr:ret(db_delete(data))
 end
 
 function rpc_mgr.db_game_delete_multi(data)
 	
 	local db_name = Core.server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
-	return db_delete_multi(data)
+	return rpc_mgr:ret(db_delete_multi(data))
 end
 
 function rpc_mgr.db_game_update(data)
 	
 	local db_name = Core.server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
-	return db_update(data)
+	return rpc_mgr:ret(db_update(data))
 end
 
 function rpc_mgr.db_game_update_multi(data)
 	
 	local db_name = Core.server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
-	return db_update_multi(data)
+	return rpc_mgr:ret(db_update_multi(data))
 end
 

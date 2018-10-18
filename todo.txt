@@ -1,6 +1,6 @@
-1. coroutine reuse
-2. rpc explicit return function
-3. network listen from lua, not from c++
-4. rpc function rename to call and send
+1. coroutine reuse, cancel
+2. rpc explicit return function, done
+3. network listen from lua, not from c++, done
+4. rpc function rename to call and send, done
 5. connection msg queue, block sync msg
 6. sheetobj use .[attr] to handle attr rather then use getter/setter

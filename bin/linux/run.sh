@@ -2,6 +2,8 @@
 
 cd ../../
 
+rm -rf log/*.txt
+
 BIN_PATH=bin
 CONF_PATH=conf
 SERVER_PKG_ID=1

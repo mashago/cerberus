@@ -63,7 +63,7 @@ function rpc_mgr.gate_select_role(data)
 
 	if Env.user_mgr:get_user_by_id(user_id) then
 		msg.result = ErrorCode.SYS_ERROR
-		return msg
+		return rpc_mgr:ret(msg)
 	end
 
 	-- create user
@@ -75,7 +75,7 @@ function rpc_mgr.gate_select_role(data)
 	msg.ip = Core.server_conf._ip
 	msg.port = Core.server_conf._port
 
-	return msg
+	return rpc_mgr:ret(msg)
 end
 
 function rpc_mgr.gate_kick_role(data)
@@ -97,6 +97,6 @@ function rpc_mgr.gate_kick_role(data)
 		msg.scene_id = user._scene_id
 	end
 
-	return msg
+	return rpc_mgr:ret(msg)
 end
 
