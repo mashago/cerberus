@@ -115,7 +115,7 @@ int main(int argc, char ** argv)
 	EventPipe *world2netPipe = new EventPipe(false);
 
 	// net dispatch will block, so world dispatch first, order is important
-	World *world = new LuaWorld();
+	LuaWorld *world = new LuaWorld();
 	if (!world->Init(conf_file, net2worldPipe, world2netPipe))
 	{
 		printf("world init error\n");

@@ -55,7 +55,7 @@ int main(int argc, char ** argv)
 	EventPipe *net2worldPipe = new EventPipe();
 	EventPipe *world2netPipe = new EventPipe(false);
 
-	World *world = new LuaClient();
+	LuaWorld *world = new LuaClient();
 	if (!world->Init(conf_file, net2worldPipe, world2netPipe))
 	{
 		printf("world init error\n");

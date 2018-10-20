@@ -18,18 +18,33 @@ extern "C"
 #include "luamysqlmgrreg.h"
 #include "luatimerreg.h"
 #include "luautilreg.h"
+#include "luasubthread.h"
+#include "timermgr.h"
 
-LuaWorld::LuaWorld() : m_L(nullptr), m_luanetwork(nullptr), m_connIndex(0)
+LuaWorld::LuaWorld() : 
+m_isRunning(false),
+m_inputPipe(nullptr),
+m_outputPipe(nullptr),
+m_timerMgr(nullptr),
+m_L(nullptr),
+m_luanetwork(nullptr),
+m_connIndex(0)
 {
+	m_timerMgr = new TimerMgr();
 }
 
 LuaWorld::~LuaWorld()
 {
+	m_isRunning = false;
+	m_thread.join();
+	delete m_timerMgr;
 	delete m_luanetwork;
 }
 
-bool LuaWorld::CoreInit(const char *conf_file)
+bool LuaWorld::Init(const char *conf_file, EventPipe *inputPipe, EventPipe *outputPipe)
 {
+	m_inputPipe = inputPipe;
+	m_outputPipe = outputPipe;
 
 	m_luanetwork = new LuaNetwork(this);
 
@@ -99,6 +114,105 @@ bool LuaWorld::CoreInit(const char *conf_file)
 	return true;
 }
 
+void LuaWorld::Dispatch()
+{
+	if (m_isRunning)
+	{
+		return;
+	}
+	auto world_run = [](LuaWorld *world)
+	{
+		while (world->m_isRunning)
+		{
+			world->RecvEvent();
+		}
+	};
+	m_isRunning = true;
+	m_thread = std::thread(world_run, this);
+}
+
+////////////////////////////////////////
+
+void LuaWorld::RecvEvent()
+{
+	const std::list<EventNode *> &eventList = m_inputPipe->Pop();
+	for (auto iter = eventList.begin(); iter != eventList.end(); ++iter)
+	{
+		HandleEvent(**iter);
+		delete *iter; // net new, world delete
+	}
+}
+
+void LuaWorld::SendEvent(EventNode *node)
+{
+	m_outputPipe->Push(node);
+}
+
+void LuaWorld::HandleEvent(const EventNode &node)
+{
+	switch (node.type)
+	{
+		case EVENT_TYPE::EVENT_TYPE_NEW_CONNECTION:
+		{
+			const EventNodeNewConnection &real_node = (EventNodeNewConnection&)node;
+			HandleNewConnection(real_node.mailboxId, real_node.ip, real_node.port);
+			break;
+		}
+		case EVENT_TYPE::EVENT_TYPE_CONNECT_TO_SUCCESS:
+		{
+			const EventNodeConnectToSuccess &real_node = (EventNodeConnectToSuccess&)node;
+			HandleConnectToSuccess(real_node.mailboxId);
+			break;
+		}
+		case EVENT_TYPE::EVENT_TYPE_DISCONNECT:
+		{
+			const EventNodeDisconnect &real_node = (EventNodeDisconnect&)node;
+			HandleDisconnect(real_node.mailboxId);
+			break;
+		}
+		case EVENT_TYPE::EVENT_TYPE_TIMER:
+		{
+			// const EventNodeTimer &real_node = (EventNodeTimer&)node;
+			m_timerMgr->OnTimer();
+			break;
+		}
+		case EVENT_TYPE::EVENT_TYPE_MSG:
+		{
+			const EventNodeMsg &real_node = (EventNodeMsg&)node;
+			HandleMsg(*real_node.pu);
+			delete real_node.pu; // net new, world delete
+			break;
+		}
+		case EVENT_TYPE::EVENT_TYPE_STDIN:
+		{
+			const EventNodeStdin &real_node = (EventNodeStdin&)node;
+			HandleStdin(real_node.buffer);
+			break;
+		}
+		case EVENT_TYPE::EVENT_TYPE_CONNECT_TO_RET:
+		{
+			const EventNodeConnectToRet &real_node = (EventNodeConnectToRet&)node;
+			HandleConnectToRet(real_node.ext, real_node.mailboxId);
+			break;
+		}
+		case EVENT_TYPE::EVENT_TYPE_HTTP_RSP:
+		{
+			const EventNodeHttpRsp &real_node = (EventNodeHttpRsp&)node;
+			HandleHttpResponse(real_node.session_id, real_node.response_code, real_node.content, real_node.content_len);
+			break;
+		}
+		case EVENT_TYPE::EVENT_TYPE_LISTEN_RET:
+		{
+			const EventNodeListenRet &real_node = (EventNodeListenRet&)node;
+			HandleListenRet(real_node.listenId, real_node.session_id);
+			break;
+		}
+		default:
+			LOG_ERROR("cannot handle this node %d", node.type);
+			break;
+	}
+}
+
 void LuaWorld::HandleNewConnection(int64_t mailboxId, const char *ip, int port)
 {
 	LOG_DEBUG("mailboxId=%ld ip=%s port=%d", mailboxId, ip, port);
@@ -139,6 +253,11 @@ void LuaWorld::HandleMsg(Pluto &u)
 	lua_pushinteger(m_L, mailboxId);
 	lua_pushinteger(m_L, msgId);
 	lua_call(m_L, 2, 0);
+}
+
+void LuaWorld::HandleStdin(const char *buffer)
+{
+	// default do nothing
 }
 
 void LuaWorld::HandleConnectToRet(int64_t connIndex, int64_t mailboxId)
@@ -250,4 +369,40 @@ bool LuaWorld::Listen(const char* ip, unsigned int port, int64_t session_id)
 	SendEvent(node);
 	return true;
 }
+
+int LuaWorld::CreateSubThread(const char *file_name, const char *params, int len)
+{
+	static int uuid = 1;
+	LuaSubThread *ptr = new LuaSubThread;
+	if (!ptr->Init(file_name, params, len))
+	{
+		delete ptr;
+		return -1;
+	}
+	m_subthread_map.insert(std::make_pair(uuid, ptr));
+	uuid += 1;
+	return uuid;
+}
+
+void LuaWorld::CallSubThread(int thread_id, int64_t session_id, const char *func_name, const char *params, int len)
+{
+	auto it = m_subthread_map.find(thread_id);
+	if (it == m_subthread_map.end())
+	{
+		return;
+	}
+	it->second->ReleaseJob(session_id, func_name, params, len);
+}
+
+void LuaWorld::DestroySubThread(int thread_id)
+{
+	auto it = m_subthread_map.find(thread_id);
+	if (it == m_subthread_map.end())
+	{
+		return;
+	}
+	it->second->Destroy();
+	m_subthread_map.erase(it);
+}
+
 

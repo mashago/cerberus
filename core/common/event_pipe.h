@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include <string.h>
 #include <list>
 #include <utility>
 #include <thread>
@@ -27,6 +26,8 @@ enum EVENT_TYPE
 	EVENT_TYPE_HTTP_RSP 				= 10, // n2w
 	EVENT_TYPE_LISTEN_REQ 				= 11, // w2n
 	EVENT_TYPE_LISTEN_RET 				= 12, // n2w
+	EVENT_TYPE_SUBTHREAD_JOB_REQ 		= 13, // w2t
+	EVENT_TYPE_SUBTHREAD_JOB_RET 		= 14, // w2t
 };
 
 struct EventNode
@@ -163,12 +164,28 @@ struct EventNodeListenRet : public EventNode
 	int64_t session_id = 0;
 };
 
+struct EventNodeSubThreadJobReq : public EventNode
+{
+	EventNodeSubThreadJobReq() : EventNode(EVENT_TYPE::EVENT_TYPE_SUBTHREAD_JOB_REQ)
+	{
+	}
+	~EventNodeSubThreadJobReq()
+	{
+		delete [] func_name;
+		delete [] params;
+	}
+	int64_t session_id;
+	char *func_name = NULL;
+	char *params = NULL;
+	int len = 0;
+};
+
 //////////////////////////////////////////////
 
 class EventPipe
 {
 public:
-	EventPipe(bool isBlockWait = true);
+	EventPipe(bool isBlockPop = true);
 	~EventPipe();
 	EventPipe(const EventPipe &) = delete;
 	EventPipe & operator=(const EventPipe &) = delete;

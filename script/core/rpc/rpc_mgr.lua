@@ -73,9 +73,8 @@ function RpcMgr:ret(data)
 
 	local running_call_env = self._running_call_env
 	assert(running_call_env, "RpcMgr:ret running_call_env nil")
-	assert(running_call_env.session_id ~= RPC_SEND_SESSION_ID 
-	and running_call_env.session_id ~= RPC_FIN_SESSION_ID
-	, "RpcMgr:ret error " .. running_call_env.session_id)
+	assert(running_call_env.session_id ~= RPC_FIN_SESSION_ID
+	, "RpcMgr:already ret error " .. running_call_env.session_id)
 
 	local msg =
 	{

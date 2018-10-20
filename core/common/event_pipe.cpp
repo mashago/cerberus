@@ -1,7 +1,7 @@
 
 #include "event_pipe.h"
 
-EventPipe::EventPipe(bool isBlockWait) : m_isBlockWait(isBlockWait) {};
+EventPipe::EventPipe(bool isBlockPop) : m_isBlockWait(isBlockPop) {};
 EventPipe::~EventPipe() {};
 
 void EventPipe::Push(EventNode *node)
