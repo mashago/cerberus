@@ -15,6 +15,7 @@ INCLUDE_DIRECTORIES(
 ../core/net
 ../core/world
 ../tinyxml
+/usr/local/include
 )
 
 LINK_DIRECTORIES(

@@ -10,6 +10,7 @@ SET(TARGET_NAME lfs)
 #2.include
 INCLUDE_DIRECTORIES(
 ./
+/usr/local/include
 )
 
 IF(CMAKE_SYSTEM_NAME MATCHES "Darwin")

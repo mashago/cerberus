@@ -10,6 +10,7 @@ INCLUDE_DIRECTORIES(
 ./world
 ../tinyxml
 ../lfs
+/usr/local/include
 /usr/local/include/mysql
 /usr/include/mysql
 /usr/local/mysql/include
