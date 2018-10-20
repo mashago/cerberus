@@ -1,8 +1,6 @@
 
 package.path =  "script/core/?.lua;script/?.lua;" .. package.path
 
-local conf_file = ... 
-
 require "core.global.global_def"
 require "core.global.data_struct_def"
 require "core.global.net_msg_def"
@@ -15,10 +13,12 @@ local ServerConfig = require "global.server_conf"
 local NetMgr = require "net.net_mgr"
 local Timer = require "timer.timer"
 local ServerMgr = require "server.server_mgr"
-local RpcMgr = require "rpc.rpc_mgr2"
+local RpcMgr = require "rpc.rpc_mgr"
 local HttpMgr = require "http.http_mgr"
 local g_funcs = require "global.global_funcs"
 local Util = require "util.util"
+
+local conf_file = ...
 
 local function add_debug_timer()
 	local timer_cb = function()
