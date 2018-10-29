@@ -128,4 +128,14 @@ inline void sleep(int second)
 	Sleep(second * 1000);
 }
 
+inline char *strndup(const char *s, size_t n)
+{
+	char *t = NULL;
+	if (s && (t = (char*)malloc(n + 1)))
+	{
+		strncpy(t, s, n);
+	}
+	return t;
+}
+
 #endif
