@@ -50,7 +50,7 @@ bool TimerMgr::DelTimer(int64_t timer_index)
 	return true;
 }
 
-void TimerMgr::OnTimer()
+void TimerMgr::Update()
 {
 	struct timeval tv;
 	gettimeofday(&tv, NULL);

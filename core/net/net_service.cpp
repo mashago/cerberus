@@ -299,7 +299,7 @@ void NetService::CloseMailbox(Mailbox *pmb)
 	SendEvent(node);
 
 	// push to list, delete by tick
-	pmb->SetDeleteFlag();
+	pmb->SetDelete(true);
 	m_fds.erase(pmb->GetFd());
 	m_mailboxs.erase(pmb->GetMailboxId());
 	m_delMailboxs.push_back(pmb);
@@ -569,7 +569,7 @@ void NetService::HandleWorldEvent()
 					delete real_node.pu; // world new, net delete
 					break;
 				}
-				pmb->PushSendPluto(real_node.pu);
+				pmb->Push(real_node.pu);
 				m_sendMailboxs.insert(pmb);
 				break;
 			}

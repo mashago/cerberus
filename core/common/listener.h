@@ -9,19 +9,10 @@ public:
 	Listener(int m_fd);
 	~Listener();
 
-	int GetFd()
-	{
-		return m_fd;
-	}
-	void SetFd(int fd)
-	{
-		m_fd = fd;
-	}
+	int GetFd();
+	void SetFd(int fd);
 
-	int64_t GetListenId()
-	{
-		return m_listenId;
-	}
+	int64_t GetListenId();
 
 private:
 	int m_fd;

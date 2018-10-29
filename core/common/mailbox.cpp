@@ -11,15 +11,15 @@ extern "C"
 #include "mailbox.h"
 #include "pluto.h"
 
-static int64_t _get_mailbox_id()
+static int64_t gen_mailbox_id()
 {
 	static int64_t mailboxId = 1;
 	return mailboxId++;
 }
 
-Mailbox::Mailbox() : m_fd(-1), m_mailboxId(-1), m_recvPluto(nullptr), m_bev(nullptr), m_bDeleteFlag(false), m_sendPos(0)
+Mailbox::Mailbox() : m_fd(-1), m_mailboxId(-1), m_recvPluto(nullptr), m_bev(nullptr), m_deleteFlag(false), m_sendPos(0)
 {
-	m_mailboxId = _get_mailbox_id();
+	m_mailboxId = gen_mailbox_id();
 }
 
 Mailbox::~Mailbox()
@@ -35,7 +35,49 @@ Mailbox::~Mailbox()
 	ClearContainer(m_tobeSend);
 }
 
-void Mailbox::PushSendPluto(Pluto *u)
+int Mailbox::GetFd()
+{
+	return m_fd;
+}
+void Mailbox::SetFd(int fd)
+{
+	m_fd = fd;
+}
+
+int64_t Mailbox::GetMailboxId()
+{
+	return m_mailboxId;
+}
+
+Pluto * Mailbox::GetRecvPluto()
+{
+	return m_recvPluto;
+}
+void Mailbox::SetRecvPluto(Pluto *ptr)
+{
+	m_recvPluto = ptr;
+}
+
+struct bufferevent * Mailbox::GetBEV()
+{
+	return m_bev;
+}
+void Mailbox::SetBEV(struct bufferevent *bev)
+{
+	m_bev = bev;
+}
+
+void Mailbox::SetDelete(bool flag)
+{
+	m_deleteFlag = flag;
+}
+
+bool Mailbox::IsDelete()
+{
+	return m_deleteFlag;
+}
+
+void Mailbox::Push(Pluto *u)
 {
 	m_tobeSend.push_back(u);
 }

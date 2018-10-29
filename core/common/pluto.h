@@ -26,30 +26,19 @@ public:
 	void SetMsgLen(int len = 0);
 
 	char * GetBuffer();
-	char * GetContent();
-	int GetContentLen();
+	char * GetPayload();
+	int GetPayloadLen();
 
-	int GetRecvLen()
-	{
-		return m_recvLen;
-	}
-
-	void SetRecvLen(int len)
-	{
-		m_recvLen = len;
-	}
-
-	void SetMailboxId(int64_t mailboxId)
-	{
-		m_mailboxId = mailboxId;
-	}
-	int64_t GetMailboxId()
-	{
-		return m_mailboxId;
-	}
+	int GetRecvLen();
+	void SetRecvLen(int len);
+	void SetMailboxId(int64_t mailboxId);
+	int64_t GetMailboxId();
 
 	void ResetCursor();
 	void Cleanup();
+
+	Pluto *Dup();
+	void Copy(const Pluto *pu);
 
 	void WriteMsgId(int msgId);
 	void WriteExt(int64_t ext);
@@ -70,9 +59,6 @@ public:
 	bool ReadShort(short &out_val);
 	bool ReadInt64(int64_t &out_val);
 	bool ReadString(int &out_len, char *out_val);
-
-	Pluto *Clone();
-	void Copy(const Pluto *pu);
 
 	void Print();
 

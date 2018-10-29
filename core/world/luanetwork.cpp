@@ -28,7 +28,7 @@ bool LuaNetwork::Send(int64_t mailboxId)
 {
 	// no need to check pluto size, if over size, write will not success
 	m_sendPluto->SetMsgLen();
-	Pluto *pu = m_sendPluto->Clone();
+	Pluto *pu = m_sendPluto->Dup();
 	pu->SetMailboxId(mailboxId);
 	m_world->SendPluto(pu);
 	m_sendPluto->Cleanup();
@@ -39,7 +39,7 @@ bool LuaNetwork::Send(int64_t mailboxId)
 bool LuaNetwork::Transfer(int64_t mailboxId)
 {
 	// just clone from recv pluto and copy ext from send pluto
-	Pluto *pu = m_recvPluto->Clone();
+	Pluto *pu = m_recvPluto->Dup();
 	pu->SetMailboxId(mailboxId);
 	pu->WriteExt(m_sendPluto->ReadExt());
 	m_world->SendPluto(pu);

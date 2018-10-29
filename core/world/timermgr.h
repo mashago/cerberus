@@ -20,7 +20,7 @@ public:
 	int64_t GetCurTimerIndex();
 	int64_t AddTimer(int ms, TIMER_CB cb_func, void *arg, bool is_loop);
 	bool DelTimer(int64_t timer_index);
-	void OnTimer();
+	void Update();
 private:
 
 	void AddTimerOrder(int64_t wake_time, int64_t timer_index);

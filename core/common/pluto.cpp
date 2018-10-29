@@ -42,15 +42,37 @@ char * Pluto::GetBuffer()
 	return m_buffer;
 }
 
-char * Pluto::GetContent()
+char * Pluto::GetPayload()
 {
 	return m_buffer + MSGLEN_CONTENT_POS;
 }
 
-int Pluto::GetContentLen()
+int Pluto::GetPayloadLen()
 {
 	return GetMsgLen() - MSGLEN_CONTENT_POS;
 }
+
+
+int Pluto::GetRecvLen()
+{
+	return m_recvLen;
+}
+
+void Pluto::SetRecvLen(int len)
+{
+	m_recvLen = len;
+}
+
+void Pluto::SetMailboxId(int64_t mailboxId)
+{
+	m_mailboxId = mailboxId;
+}
+
+int64_t Pluto::GetMailboxId()
+{
+	return m_mailboxId;
+}
+
 
 void Pluto::ResetCursor()
 {
@@ -61,6 +83,23 @@ void Pluto::Cleanup()
 {
 	ResetCursor();
 	memset(m_buffer, 0, MSGLEN_HEADER);
+}
+
+Pluto *Pluto::Dup()
+{
+	int len = GetMsgLen();
+	Pluto *pu = new Pluto(len);
+	char *buffer = pu->GetBuffer();
+	memcpy(buffer, m_buffer, len);
+	return pu;
+}
+
+void Pluto::Copy(const Pluto *pu)
+{
+	int len = pu->GetMsgLen();
+	char *buffer = const_cast<Pluto *>(pu)->GetBuffer();
+	memcpy(m_buffer, buffer, len);
+	m_cursor = m_buffer + len; // update m_cursor pos to buffer end, for SetMsgLen right
 }
 
 //////////////////////////////////////////////
@@ -232,22 +271,5 @@ bool Pluto::ReadString(int &out_len, char *out_val)
 void Pluto::Print()
 {
 	LOG_DEBUG("bufferSize=[%d] msgLen=[%d] msgId=[%d]", m_bufferSize, GetMsgLen(), ReadMsgId());
-}
-
-Pluto *Pluto::Clone()
-{
-	int len = GetMsgLen();
-	Pluto *pu = new Pluto(len);
-	char *buffer = pu->GetBuffer();
-	memcpy(buffer, m_buffer, len);
-	return pu;
-}
-
-void Pluto::Copy(const Pluto *pu)
-{
-	int len = pu->GetMsgLen();
-	char *buffer = const_cast<Pluto *>(pu)->GetBuffer();
-	memcpy(m_buffer, buffer, len);
-	m_cursor = m_buffer + len; // update m_cursor pos to buffer end, for SetMsgLen right
 }
 

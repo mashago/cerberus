@@ -173,7 +173,7 @@ void LuaWorld::HandleEvent(const EventNode &node)
 		case EVENT_TYPE::EVENT_TYPE_TIMER:
 		{
 			// const EventNodeTimer &real_node = (EventNodeTimer&)node;
-			m_timerMgr->OnTimer();
+			m_timerMgr->Update();
 			break;
 		}
 		case EVENT_TYPE::EVENT_TYPE_MSG:
