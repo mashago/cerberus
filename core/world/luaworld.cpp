@@ -54,18 +54,11 @@ bool LuaWorld::Init(const char *conf_file, EventPipe *inputPipe, EventPipe *outp
 		return false;
 	}
 
+	luaL_openlibs(m_L);
+
 	// register lib
 	const luaL_Reg lua_reg_libs[] = 
 	{
-		{ "base", luaopen_base },
-		{ LUA_TABLIBNAME, luaopen_table },
-		{ LUA_IOLIBNAME, luaopen_io },
-		{ LUA_OSLIBNAME, luaopen_os },
-		{ LUA_COLIBNAME, luaopen_coroutine },
-		{ LUA_MATHLIBNAME, luaopen_math },
-		{ LUA_DBLIBNAME, luaopen_debug },
-		{ LUA_LOADLIBNAME, luaopen_package },
-		{ LUA_STRLIBNAME, luaopen_string },
 		{ "LuaNetwork", luaopen_luanetwork },
 		{ "LuaTinyXMLDoc", luaopen_luatinyxmldoc },
 		{ "LuaTinyXMLEle", luaopen_luatinyxmlele },
