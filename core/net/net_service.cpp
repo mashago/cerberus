@@ -860,16 +860,16 @@ static void stdin_cb(evutil_socket_t fd, short event, void *user_data)
 {
 	static bool bLineEnd = false;
 	static std::string buffer = "";
-    
+	
 	// check keyboard hit
-    if (_kbhit())
-    {
-        char cInput = EOF;
-        do
-        {
+	if (_kbhit())
+	{
+		char cInput = EOF;
+		do
+		{
 			// get input char, _getch() can get char without enter press
-            int nInput = (char) _getch();
-            cInput = (char) nInput;
+			int nInput = (char) _getch();
+			cInput = (char) nInput;
 
 			if (nInput >= 32 && nInput <= 126)
 			{
@@ -877,7 +877,7 @@ static void stdin_cb(evutil_socket_t fd, short event, void *user_data)
 				tmp[0] = cInput;
 				tmp[1] = '\0';
 				buffer.append(tmp);
-            	putch(nInput);
+				_putch(nInput);
 			}
 			else if (nInput == 8)
 			{
@@ -885,28 +885,28 @@ static void stdin_cb(evutil_socket_t fd, short event, void *user_data)
 				if (buffer.size() > 0)
 				{
 					buffer.pop_back();
-            		putch(nInput);
-            		putch(' ');
-            		putch(nInput);
+					_putch(nInput);
+					_putch(' ');
+					_putch(nInput);
 				}
 			}
 			else
 			{
-            	putch(nInput);
+				_putch(nInput);
 			}
 
 
-            if (cInput == '\r')
-            {
-                cInput = '\n';
-                putch(cInput);
+			if (cInput == '\r')
+			{
+				cInput = '\n';
+				_putch(cInput);
 				// buffer.append("\n");
 				bLineEnd = true;
-                break;
-            }     
-        }
+				break;
+			}     
+		}
 		while (_kbhit());
-    }
+	}
 
 	if (bLineEnd)
 	{
