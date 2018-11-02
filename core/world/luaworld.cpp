@@ -56,6 +56,12 @@ bool LuaWorld::Init(const char *conf_file, EventPipe *inputPipe, EventPipe *outp
 
 	luaL_openlibs(m_L);
 
+	lua_pushlightuserdata(m_L, this);
+	lua_setfield(m_L, LUA_REGISTRYINDEX, "cerberus_world");
+	lua_pushlightuserdata(m_L, m_luanetwork);
+	lua_setfield(m_L, LUA_REGISTRYINDEX, "cerberus_network");
+		
+
 	// register lib
 	const luaL_Reg lua_reg_libs[] = 
 	{
