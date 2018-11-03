@@ -11,128 +11,96 @@ extern "C"
 #include "luanetworkreg.h"
 #include "luanetwork.h"
 
-int luanetwork_instance(lua_State *L)
+static LuaNetwork *get_network(lua_State* L)
 {
-	lua_getglobal(L, "g_luanetwork_ptr");
-	luaL_getmetatable(L, "LuaNetwork");
-	lua_setmetatable(L, -2);
-
-	return 1;
+	LuaWorld *world = (LuaWorld *)lua_touserdata(L, lua_upvalueindex(1));
+	return world->GetNetwork();
 }
 
-//////////////////////////////////////////////////////
-
-int luanetwork_write_msg_id(lua_State* L)
+static int lwrite_msg_id(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	luaL_checktype(L, 2, LUA_TNUMBER);
-
-	(*s)->GetSendPluto()->WriteMsgId(lua_tointeger(L, 2));
+	LuaNetwork *network = get_network(L);
+	luaL_checktype(L, 1, LUA_TNUMBER);
+	network->GetSendPluto()->WriteMsgId(lua_tointeger(L, 1));
 
 	return 0;
 }
 
-int luanetwork_write_ext(lua_State* L)
+static int lwrite_ext(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	luaL_checktype(L, 2, LUA_TNUMBER);
-
-	(*s)->GetSendPluto()->WriteExt(lua_tointeger(L, 2));
+	LuaNetwork *network = get_network(L);
+	luaL_checktype(L, 1, LUA_TNUMBER);
+	network->GetSendPluto()->WriteExt(lua_tointeger(L, 1));
 
 	return 0;
 }
 
-int luanetwork_write_byte(lua_State* L)
+static int lwrite_byte(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	luaL_checktype(L, 2, LUA_TNUMBER);
-
-	bool ret = (*s)->GetSendPluto()->WriteByte((char)lua_tointeger(L, 2));
+	LuaNetwork *network = get_network(L);
+	luaL_checktype(L, 1, LUA_TNUMBER);
+	bool ret = network->GetSendPluto()->WriteByte((char)lua_tointeger(L, 1));
 	lua_pushboolean(L, ret);
 
 	return 1;
 }
 
-int luanetwork_write_int(lua_State* L)
+static int lwrite_int(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	luaL_checktype(L, 2, LUA_TNUMBER);
-
-	bool ret = (*s)->GetSendPluto()->WriteInt((int)lua_tointeger(L, 2));
+	LuaNetwork *network = get_network(L);
+	luaL_checktype(L, 1, LUA_TNUMBER);
+	bool ret = network->GetSendPluto()->WriteInt((int)lua_tointeger(L, 1));
 	lua_pushboolean(L, ret);
 
 	return 1;
 }
 
-int luanetwork_write_float(lua_State* L)
+static int lwrite_float(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	luaL_checktype(L, 2, LUA_TNUMBER);
-
-	bool ret = (*s)->GetSendPluto()->WriteFloat((float)lua_tonumber(L, 2));
+	LuaNetwork *network = get_network(L);
+	luaL_checktype(L, 1, LUA_TNUMBER);
+	bool ret = network->GetSendPluto()->WriteFloat((float)lua_tonumber(L, 1));
 	lua_pushboolean(L, ret);
 
 	return 1;
 }
 
-int luanetwork_write_bool(lua_State* L)
+static int lwrite_bool(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	luaL_checktype(L, 2, LUA_TBOOLEAN);
-
-	bool ret = (*s)->GetSendPluto()->WriteBool(lua_toboolean(L, 2) != 0);
+	LuaNetwork *network = get_network(L);
+	luaL_checktype(L, 1, LUA_TBOOLEAN);
+	bool ret = network->GetSendPluto()->WriteBool(lua_toboolean(L, 1) != 0);
 	lua_pushboolean(L, ret);
 
 	return 1;
 }
 
-int luanetwork_write_short(lua_State* L)
+static int lwrite_short(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	luaL_checktype(L, 2, LUA_TNUMBER);
-
-	bool ret = (*s)->GetSendPluto()->WriteShort((short)lua_tointeger(L, 2));
+	LuaNetwork *network = get_network(L);
+	luaL_checktype(L, 1, LUA_TNUMBER);
+	bool ret = network->GetSendPluto()->WriteShort((short)lua_tointeger(L, 1));
 	lua_pushboolean(L, ret);
 
 	return 1;
 }
 
-int luanetwork_write_int64(lua_State* L)
+static int lwrite_int64(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	luaL_checktype(L, 2, LUA_TNUMBER);
-
-	bool ret = (*s)->GetSendPluto()->WriteInt64(lua_tointeger(L, 2));
+	LuaNetwork *network = get_network(L);
+	luaL_checktype(L, 1, LUA_TNUMBER);
+	bool ret = network->GetSendPluto()->WriteInt64(lua_tointeger(L, 1));
 	lua_pushboolean(L, ret);
 
 	return 1;
 }
 
 
-int luanetwork_write_string(lua_State* L)
+static int lwrite_string(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	luaL_checktype(L, 2, LUA_TSTRING);
-
-	bool ret = (*s)->GetSendPluto()->WriteString((int)luaL_len(L,2), lua_tostring(L, 2));
+	LuaNetwork *network = get_network(L);
+	luaL_checktype(L, 1, LUA_TSTRING);
+	bool ret = network->GetSendPluto()->WriteString((int)luaL_len(L,1), lua_tostring(L, 1));
 	lua_pushboolean(L, ret);
 
 	return 1;
@@ -141,8 +109,8 @@ int luanetwork_write_string(lua_State* L)
 
 #define write_table_len(len) \
 do { \
-len = (int)luaL_len(L, 2); \
-bool ret = (*s)->GetSendPluto()->WriteInt(len); \
+len = (int)luaL_len(L, 1); \
+bool ret = network->GetSendPluto()->WriteInt(len); \
 if (!ret) \
 { \
 	lua_pushboolean(L, ret); \
@@ -150,21 +118,18 @@ if (!ret) \
 } \
 } while (false)
 
-int luanetwork_write_byte_array(lua_State* L)
+static int lwrite_byte_array(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	luaL_checktype(L, 2, LUA_TTABLE);
-
+	LuaNetwork *network = get_network(L);
+	luaL_checktype(L, 1, LUA_TTABLE);
 	int len = 0;
 	write_table_len(len);
 
 	for (int i = 1; i <= len; ++i)
 	{
 		lua_pushinteger(L,i);
-		lua_rawget(L, 2);
-		bool ret = (*s)->GetSendPluto()->WriteByte((char)lua_tointeger(L, -1));
+		lua_rawget(L, 1);
+		bool ret = network->GetSendPluto()->WriteByte((char)lua_tointeger(L, -1));
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -177,21 +142,18 @@ int luanetwork_write_byte_array(lua_State* L)
 	return 1;
 }
 
-int luanetwork_write_int_array(lua_State* L)
+static int lwrite_int_array(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	luaL_checktype(L, 2, LUA_TTABLE);
-
+	LuaNetwork *network = get_network(L);
+	luaL_checktype(L, 1, LUA_TTABLE);
 	int len = 0;
 	write_table_len(len);
 
 	for (int i = 1; i <= len; ++i)
 	{
 		lua_pushinteger(L, i);
-		lua_rawget(L, 2);
-		bool ret = (*s)->GetSendPluto()->WriteInt((int)lua_tointeger(L, -1));
+		lua_rawget(L, 1);
+		bool ret = network->GetSendPluto()->WriteInt((int)lua_tointeger(L, -1));
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -204,20 +166,17 @@ int luanetwork_write_int_array(lua_State* L)
 	return 1;
 }
 
-int luanetwork_write_float_array(lua_State* L)
+static int lwrite_float_array(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	luaL_checktype(L, 2, LUA_TTABLE);
-
+	LuaNetwork *network = get_network(L);
+	luaL_checktype(L, 1, LUA_TTABLE);
 	int len = 0;
 	write_table_len(len);
 
 	for (int i = 1; i <= len; ++i){
 		lua_pushinteger(L, i);
-		lua_rawget(L, 2);
-		bool ret = (*s)->GetSendPluto()->WriteFloat((float)lua_tonumber(L,-1));
+		lua_rawget(L, 1);
+		bool ret = network->GetSendPluto()->WriteFloat((float)lua_tonumber(L,-1));
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -230,20 +189,17 @@ int luanetwork_write_float_array(lua_State* L)
 	return 1;
 }
 
-int luanetwork_write_bool_array(lua_State* L)
+static int lwrite_bool_array(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	luaL_checktype(L, 2, LUA_TTABLE);
-
+	LuaNetwork *network = get_network(L);
+	luaL_checktype(L, 1, LUA_TTABLE);
 	int len = 0;
 	write_table_len(len);
 
 	for (int i = 1; i <= len; ++i){
 		lua_pushinteger(L, i);
-		lua_rawget(L, 2);
-		bool ret = (*s)->GetSendPluto()->WriteBool(lua_toboolean(L, -1) != 0);
+		lua_rawget(L, 1);
+		bool ret = network->GetSendPluto()->WriteBool(lua_toboolean(L, -1) != 0);
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -256,20 +212,17 @@ int luanetwork_write_bool_array(lua_State* L)
 	return 1;
 }
 
-int luanetwork_write_short_array(lua_State* L)
+static int lwrite_short_array(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	luaL_checktype(L, 2, LUA_TTABLE);
-
+	LuaNetwork *network = get_network(L);
+	luaL_checktype(L, 1, LUA_TTABLE);
 	int len = 0;
 	write_table_len(len);
 
 	for (int i = 1; i <= len; ++i){
 		lua_pushinteger(L, i);
-		lua_rawget(L, 2);
-		bool ret = (*s)->GetSendPluto()->WriteShort((short)lua_tointeger(L, -1));
+		lua_rawget(L, 1);
+		bool ret = network->GetSendPluto()->WriteShort((short)lua_tointeger(L, -1));
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -282,20 +235,17 @@ int luanetwork_write_short_array(lua_State* L)
 	return 1;
 }
 
-int luanetwork_write_int64_array(lua_State* L)
+static int lwrite_int64_array(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	luaL_checktype(L, 2, LUA_TTABLE);
-
+	LuaNetwork *network = get_network(L);
+	luaL_checktype(L, 1, LUA_TTABLE);
 	int len = 0;
 	write_table_len(len);
 
 	for (int i = 1; i <= len; ++i){
 		lua_pushinteger(L, i);
-		lua_rawget(L, 2);
-		bool ret = (*s)->GetSendPluto()->WriteInt64(lua_tointeger(L, -1));
+		lua_rawget(L, 1);
+		bool ret = network->GetSendPluto()->WriteInt64(lua_tointeger(L, -1));
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -308,20 +258,17 @@ int luanetwork_write_int64_array(lua_State* L)
 	return 1;
 }
 
-int luanetwork_write_string_array(lua_State* L)
+static int lwrite_string_array(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	luaL_checktype(L, 2, LUA_TTABLE);
-
+	LuaNetwork *network = get_network(L);
+	luaL_checktype(L, 1, LUA_TTABLE);
 	int len = 0;
 	write_table_len(len);
 
 	for (int i = 1; i <= len; ++i){
 		lua_pushinteger(L, i);
-		lua_rawget(L, 2);
-		bool ret = (*s)->GetSendPluto()->WriteString((int)luaL_len(L, -1), lua_tostring(L, -1));
+		lua_rawget(L, 1);
+		bool ret = network->GetSendPluto()->WriteString((int)luaL_len(L, -1), lua_tostring(L, -1));
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -334,41 +281,30 @@ int luanetwork_write_string_array(lua_State* L)
 	return 1;
 }
 
-int luanetwork_clear_write(lua_State* L)
+static int lclear_write(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	(*s)->GetSendPluto()->Cleanup();
-
+	LuaNetwork *network = get_network(L);
+	network->GetSendPluto()->Cleanup();
 	lua_pushboolean(L, true);
 
 	return 1;
 }
 
-int luanetwork_send(lua_State* L)
+static int lsend(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	luaL_checktype(L, 2, LUA_TNUMBER);
-
-	bool ret = (*s)->Send(lua_tointeger(L, 2));
-
+	LuaNetwork *network = get_network(L);
+	luaL_checktype(L, 1, LUA_TNUMBER);
+	bool ret = network->Send(lua_tointeger(L, 1));
 	lua_pushboolean(L, ret);
 
 	return 1;
 }
 
-int luanetwork_transfer(lua_State* L)
+static int ltransfer(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	luaL_checktype(L, 2, LUA_TNUMBER);
-
-	bool ret = (*s)->Transfer(lua_tointeger(L, 2));
-
+	LuaNetwork *network = get_network(L);
+	luaL_checktype(L, 1, LUA_TNUMBER);
+	bool ret = network->Transfer(lua_tointeger(L, 1));
 	lua_pushboolean(L, ret);
 
 	return 1;
@@ -376,137 +312,106 @@ int luanetwork_transfer(lua_State* L)
 
 //////////////////////////////////////////////////////
 
-int luanetwork_read_msg_id(lua_State* L)
+static int lread_msg_id(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	int msg_id = (*s)->GetRecvPluto()->ReadMsgId();
+	LuaNetwork *network = get_network(L);
+	int msg_id = network->GetRecvPluto()->ReadMsgId();
 	lua_pushinteger(L, msg_id);
 
 	return 1;
 }
 
-int luanetwork_read_ext(lua_State* L)
+static int lread_ext(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	lua_pushinteger(L, (*s)->GetRecvPluto()->ReadExt());
+	LuaNetwork *network = get_network(L);
+	lua_pushinteger(L, network->GetRecvPluto()->ReadExt());
 
 	return 1;
 }
 
-int luanetwork_read_byte(lua_State* L)
+static int lread_byte(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
+	LuaNetwork *network = get_network(L);
 	char out_val = 0;
-	bool ret = (*s)->GetRecvPluto()->ReadByte(out_val);
-
+	bool ret = network->GetRecvPluto()->ReadByte(out_val);
 	lua_pushboolean(L, ret);
 	lua_pushinteger(L, out_val);
 
 	return 2;
 }
 
-int luanetwork_read_int(lua_State* L)
+static int lread_int(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
+	LuaNetwork *network = get_network(L);
 	int out_val = 0;
-	bool ret = (*s)->GetRecvPluto()->ReadInt(out_val);
-
-	// LOG_DEBUG("out_val=%d", out_val);
-
+	bool ret = network->GetRecvPluto()->ReadInt(out_val);
 	lua_pushboolean(L, ret);
 	lua_pushinteger(L, out_val);
 
 	return 2;
 }
 
-int luanetwork_read_float(lua_State* L)
+static int lread_float(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
+	LuaNetwork *network = get_network(L);
 	float out_val = 0;
-	bool ret = (*s)->GetRecvPluto()->ReadFloat(out_val);
-
+	bool ret = network->GetRecvPluto()->ReadFloat(out_val);
 	lua_pushboolean(L, ret);
 	lua_pushnumber(L, out_val);
 
 	return 2;
 }
 
-int luanetwork_read_bool(lua_State* L)
+static int lread_bool(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
+	LuaNetwork *network = get_network(L);
 	bool out_val = false;
-	bool ret = (*s)->GetRecvPluto()->ReadBool(out_val);
-
+	bool ret = network->GetRecvPluto()->ReadBool(out_val);
 	lua_pushboolean(L, ret);
 	lua_pushboolean(L, out_val);
 
 	return 2;
 }
 
-int luanetwork_read_int64(lua_State* L)
+static int lread_int64(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
+	LuaNetwork *network = get_network(L);
 	int64_t out_val = 0;
-	bool ret = (*s)->GetRecvPluto()->ReadInt64(out_val);
-
+	bool ret = network->GetRecvPluto()->ReadInt64(out_val);
 	lua_pushboolean(L, ret);
 	lua_pushinteger(L, out_val);
 
 	return 2;
 }
 
-int luanetwork_read_short(lua_State* L)
+static int lread_short(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
+	LuaNetwork *network = get_network(L);
 	short out_val = 0;
-	bool ret = (*s)->GetRecvPluto()->ReadShort(out_val);
-
+	bool ret = network->GetRecvPluto()->ReadShort(out_val);
 	lua_pushboolean(L, ret);
 	lua_pushinteger(L, out_val);
 
 	return 2;
 }
 
-int luanetwork_read_string(lua_State* L)
+static int lread_string(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
+	LuaNetwork *network = get_network(L);
 	int out_len = 0;
 	char out_val[MSGLEN_MAX+1] = {};
-	bool ret = (*s)->GetRecvPluto()->ReadString(out_len, out_val);
-
-	// LOG_DEBUG("out_val=%s", out_val);
-
+	bool ret = network->GetRecvPluto()->ReadString(out_len, out_val);
 	lua_pushboolean(L, ret);
 	lua_pushlstring(L, out_val, out_len);
 
 	return 2;
 }
 
-int luanetwork_read_byte_array(lua_State* L)
+static int lread_byte_array(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
+	LuaNetwork *network = get_network(L);
 	int len = 0;
-	bool ret = (*s)->GetRecvPluto()->ReadInt(len);
+	bool ret = network->GetRecvPluto()->ReadInt(len);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -514,10 +419,9 @@ int luanetwork_read_byte_array(lua_State* L)
 	}
 
 	lua_newtable(L);
-
 	for (int i = 1; i <= len; ++i){
 		char out_val = 0;
-		bool ret = (*s)->GetRecvPluto()->ReadByte(out_val);
+		bool ret = network->GetRecvPluto()->ReadByte(out_val);
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -536,13 +440,12 @@ int luanetwork_read_byte_array(lua_State* L)
 	return 2;
 }
 
-int luanetwork_read_int_array(lua_State* L)
+static int lread_int_array(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
+	LuaNetwork *network = get_network(L);
 
 	int len = 0;
-	bool ret = (*s)->GetRecvPluto()->ReadInt(len);
+	bool ret = network->GetRecvPluto()->ReadInt(len);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -550,10 +453,9 @@ int luanetwork_read_int_array(lua_State* L)
 	}
 
 	lua_newtable(L);
-
 	for (int i = 1; i <= len; ++i){
 		int out_val = 0;
-		bool ret = (*s)->GetRecvPluto()->ReadInt(out_val);
+		bool ret = network->GetRecvPluto()->ReadInt(out_val);
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -572,13 +474,12 @@ int luanetwork_read_int_array(lua_State* L)
 	return 2;
 }
 
-int luanetwork_read_float_array(lua_State* L)
+static int lread_float_array(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
+	LuaNetwork *network = get_network(L);
 
 	int len = 0;
-	bool ret = (*s)->GetRecvPluto()->ReadInt(len);
+	bool ret = network->GetRecvPluto()->ReadInt(len);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -586,10 +487,9 @@ int luanetwork_read_float_array(lua_State* L)
 	}
 
 	lua_newtable(L);
-
 	for (int i = 1; i <= len; ++i){
 		float out_val = 0;
-		bool ret = (*s)->GetRecvPluto()->ReadFloat(out_val);
+		bool ret = network->GetRecvPluto()->ReadFloat(out_val);
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -608,13 +508,12 @@ int luanetwork_read_float_array(lua_State* L)
 	return 2;
 }
 
-int luanetwork_read_bool_array(lua_State* L)
+static int lread_bool_array(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
+	LuaNetwork *network = get_network(L);
 
 	int len = 0;
-	bool ret = (*s)->GetRecvPluto()->ReadInt(len);
+	bool ret = network->GetRecvPluto()->ReadInt(len);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -622,10 +521,9 @@ int luanetwork_read_bool_array(lua_State* L)
 	}
 
 	lua_newtable(L);
-
 	for (int i = 1; i <= len; ++i){
 		bool out_val = 0;
-		bool ret = (*s)->GetRecvPluto()->ReadBool(out_val);
+		bool ret = network->GetRecvPluto()->ReadBool(out_val);
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -644,13 +542,12 @@ int luanetwork_read_bool_array(lua_State* L)
 	return 2;
 }
 
-int luanetwork_read_int64_array(lua_State* L)
+static int lread_int64_array(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
+	LuaNetwork *network = get_network(L);
 
 	int len = 0;
-	bool ret = (*s)->GetRecvPluto()->ReadInt(len);
+	bool ret = network->GetRecvPluto()->ReadInt(len);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -658,10 +555,9 @@ int luanetwork_read_int64_array(lua_State* L)
 	}
 
 	lua_newtable(L);
-
 	for (int i = 1; i <= len; ++i){
 		int64_t out_val = 0;
-		bool ret = (*s)->GetRecvPluto()->ReadInt64(out_val);
+		bool ret = network->GetRecvPluto()->ReadInt64(out_val);
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -680,13 +576,12 @@ int luanetwork_read_int64_array(lua_State* L)
 	return 2;
 }
 
-int luanetwork_read_short_array(lua_State* L)
+static int lread_short_array(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
+	LuaNetwork *network = get_network(L);
 
 	int len = 0;
-	bool ret = (*s)->GetRecvPluto()->ReadInt(len);
+	bool ret = network->GetRecvPluto()->ReadInt(len);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -694,10 +589,9 @@ int luanetwork_read_short_array(lua_State* L)
 	}
 
 	lua_newtable(L);
-
 	for (int i = 1; i <= len; ++i){
 		short out_val = 0;
-		bool ret = (*s)->GetRecvPluto()->ReadShort(out_val);
+		bool ret = network->GetRecvPluto()->ReadShort(out_val);
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -716,13 +610,12 @@ int luanetwork_read_short_array(lua_State* L)
 	return 2;
 }
 
-int luanetwork_read_string_array(lua_State* L)
+static int lread_string_array(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
+	LuaNetwork *network = get_network(L);
 
 	int len = 0;
-	bool ret = (*s)->GetRecvPluto()->ReadInt(len);
+	bool ret = network->GetRecvPluto()->ReadInt(len);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -730,11 +623,10 @@ int luanetwork_read_string_array(lua_State* L)
 	}
 
 	lua_newtable(L);
-
 	for (int i = 1; i <= len; ++i){
 		int out_len = 0;
 		char out_val[MSGLEN_MAX+1] = {};
-		bool ret = (*s)->GetRecvPluto()->ReadString(out_len, out_val);
+		bool ret = network->GetRecvPluto()->ReadString(out_len, out_val);
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -753,19 +645,17 @@ int luanetwork_read_string_array(lua_State* L)
 	return 2;
 }
 
-int luanetwork_connect_to(lua_State* L)
+static int lconnect_to(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
+	LuaNetwork *network = get_network(L);
 
-	luaL_checktype(L, 2, LUA_TSTRING);
-	luaL_checktype(L, 3, LUA_TNUMBER);
-
-	const char* ip = lua_tostring(L, 2);
-	int port = (int)lua_tointeger(L, 3);
+	luaL_checktype(L, 1, LUA_TSTRING);
+	luaL_checktype(L, 2, LUA_TNUMBER);
+	const char* ip = lua_tostring(L, 1);
+	int port = (int)lua_tointeger(L, 2);
 	LOG_DEBUG("ip=%s port=%d", ip, port);
 
-	int64_t connect_index = (*s)->ConnectTo(ip, port);
+	int64_t connect_index = network->ConnectTo(ip, port);
 
 	lua_pushboolean(L, connect_index >= 0);
 	lua_pushinteger(L, connect_index);
@@ -773,60 +663,55 @@ int luanetwork_connect_to(lua_State* L)
 	return 2;
 }
 
-int luanetwork_close_mailbox(lua_State* L)
+static int lclose_mailbox(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
-
-	luaL_checktype(L, 2, LUA_TNUMBER);
-
-	int64_t mailboxId = lua_tointeger(L, 2);
-
-	(*s)->CloseMailbox(mailboxId);
+	LuaNetwork *network = get_network(L);
+	luaL_checktype(L, 1, LUA_TNUMBER);
+	int64_t mailboxId = lua_tointeger(L, 1);
+	network->CloseMailbox(mailboxId);
 
 	return 0;
 }
 
-int luanetwork_http_request(lua_State* L)
+static int lhttp_request(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
+	LuaNetwork *network = get_network(L);
 
 	// url, session_id, request_type, post_data, post_data_len
-	luaL_checktype(L, 2, LUA_TSTRING);
+	luaL_checktype(L, 1, LUA_TSTRING);
+	luaL_checktype(L, 2, LUA_TNUMBER);
 	luaL_checktype(L, 3, LUA_TNUMBER);
-	luaL_checktype(L, 4, LUA_TNUMBER);
-	luaL_checktype(L, 5, LUA_TSTRING);
-	luaL_checktype(L, 6, LUA_TNUMBER);
+	luaL_checktype(L, 4, LUA_TSTRING);
+	luaL_checktype(L, 5, LUA_TNUMBER);
 
-	const char *url = lua_tostring(L, 2);
-	int64_t session_id = lua_tointeger(L, 3);
-	int request_type = lua_tointeger(L, 4);
-	const char *post_data = lua_tostring(L, 5);
-	int post_data_len = lua_tointeger(L, 6);
+	const char *url = lua_tostring(L, 1);
+	int64_t session_id = lua_tointeger(L, 2);
+	int request_type = lua_tointeger(L, 3);
+	const char *post_data = lua_tostring(L, 4);
+	int post_data_len = lua_tointeger(L, 5);
 
-	bool ret = (*s)->HttpRequest(url, session_id, request_type, post_data, post_data_len);
+	bool ret = network->HttpRequest(url, session_id, request_type, post_data, post_data_len);
 
 	lua_pushboolean(L, ret);
 
 	return 1;
 }
 
-int luanetwork_listen(lua_State* L)
+static int llisten(lua_State* L)
 {
-	LuaNetwork** s = (LuaNetwork**)luaL_checkudata(L, 1, "LuaNetwork");
-	luaL_argcheck(L, s != NULL, 1, "invalid user data");
+	LuaNetwork *network = get_network(L);
 
-	luaL_checktype(L, 2, LUA_TNUMBER);
-	luaL_checktype(L, 3, LUA_TSTRING);
-	luaL_checktype(L, 4, LUA_TNUMBER);
+	// session_id, ip, port
+	luaL_checktype(L, 1, LUA_TNUMBER);
+	luaL_checktype(L, 2, LUA_TSTRING);
+	luaL_checktype(L, 3, LUA_TNUMBER);
 
-	int64_t session_id = lua_tointeger(L, 2);
-	const char* ip = lua_tostring(L, 3);
-	int port = (int)lua_tointeger(L, 4);
+	int64_t session_id = lua_tointeger(L, 1);
+	const char* ip = lua_tostring(L, 2);
+	int port = (int)lua_tointeger(L, 3);
 	LOG_DEBUG("ip=%s port=%d session_id=%ld", ip, port, session_id);
 
-	bool ret = (*s)->Listen(ip, port, session_id);
+	bool ret = network->Listen(ip, port, session_id);
 
 	lua_pushboolean(L, ret);
 
@@ -836,77 +721,73 @@ int luanetwork_listen(lua_State* L)
 //////////////////////////////////////////////////////
 
 
-
-// define constructor
-static const luaL_Reg lua_reg_construct_funcs[] =
-{
-	{ "instance", luanetwork_instance },
-	{ NULL, NULL},
-};
-
 // define member functions
-static const luaL_Reg lua_reg_member_funcs[] = 
+static const luaL_Reg lua_reg_funcs[] = 
 {
-	{ "write_msg_id", luanetwork_write_msg_id },
-	{ "write_ext", luanetwork_write_ext },
-	{ "write_byte", luanetwork_write_byte },
-	{ "write_int", luanetwork_write_int },
-	{ "write_float", luanetwork_write_float },
-	{ "write_bool", luanetwork_write_bool },
-	{ "write_short", luanetwork_write_short },
-	{ "write_int64", luanetwork_write_int64 },
-	{ "write_string", luanetwork_write_string },
+	{ "write_msg_id", lwrite_msg_id },
+	{ "write_ext", lwrite_ext },
+	{ "write_byte", lwrite_byte },
+	{ "write_int", lwrite_int },
+	{ "write_float", lwrite_float },
+	{ "write_bool", lwrite_bool },
+	{ "write_short", lwrite_short },
+	{ "write_int64", lwrite_int64 },
+	{ "write_string", lwrite_string },
 
-	{ "write_byte_array", luanetwork_write_byte_array },
-	{ "write_int_array", luanetwork_write_int_array },
-	{ "write_float_array", luanetwork_write_float_array },
-	{ "write_bool_array", luanetwork_write_bool_array },
-	{ "write_short_array", luanetwork_write_short_array },
-	{ "write_int64_array", luanetwork_write_int64_array },
-	{ "write_string_array", luanetwork_write_string_array },
+	{ "write_byte_array", lwrite_byte_array },
+	{ "write_int_array", lwrite_int_array },
+	{ "write_float_array", lwrite_float_array },
+	{ "write_bool_array", lwrite_bool_array },
+	{ "write_short_array", lwrite_short_array },
+	{ "write_int64_array", lwrite_int64_array },
+	{ "write_string_array", lwrite_string_array },
 
-	{ "clear_write", luanetwork_clear_write },
-	{ "send", luanetwork_send },
-	{ "transfer", luanetwork_transfer },
+	{ "clear_write", lclear_write },
+	{ "send", lsend },
+	{ "transfer", ltransfer },
 
-	{ "read_msg_id", luanetwork_read_msg_id },
-	{ "read_ext", luanetwork_read_ext },
-	{ "read_byte", luanetwork_read_byte },
-	{ "read_int", luanetwork_read_int },
-	{ "read_float", luanetwork_read_float },
-	{ "read_bool", luanetwork_read_bool },
-	{ "read_int64", luanetwork_read_int64 },
-	{ "read_short", luanetwork_read_short },
-	{ "read_string", luanetwork_read_string },
+	{ "read_msg_id", lread_msg_id },
+	{ "read_ext", lread_ext },
+	{ "read_byte", lread_byte },
+	{ "read_int", lread_int },
+	{ "read_float", lread_float },
+	{ "read_bool", lread_bool },
+	{ "read_int64", lread_int64 },
+	{ "read_short", lread_short },
+	{ "read_string", lread_string },
 
-	{ "read_byte_array", luanetwork_read_byte_array },
-	{ "read_int_array", luanetwork_read_int_array },
-	{ "read_float_array", luanetwork_read_float_array },
-	{ "read_bool_array", luanetwork_read_bool_array },
-	{ "read_int64_array", luanetwork_read_int64_array },
-	{ "read_short_array", luanetwork_read_short_array },
-	{ "read_string_array", luanetwork_read_string_array },
+	{ "read_byte_array", lread_byte_array },
+	{ "read_int_array", lread_int_array },
+	{ "read_float_array", lread_float_array },
+	{ "read_bool_array", lread_bool_array },
+	{ "read_int64_array", lread_int64_array },
+	{ "read_short_array", lread_short_array },
+	{ "read_string_array", lread_string_array },
 
-	{ "connect_to", luanetwork_connect_to },
-	{ "close_mailbox", luanetwork_close_mailbox},
+	{ "connect_to", lconnect_to },
+	{ "close_mailbox", lclose_mailbox },
 
-	{ "http_request", luanetwork_http_request },
-	{ "listen", luanetwork_listen },
+	{ "http_request", lhttp_request },
+	{ "listen", llisten },
 
 	{ NULL, NULL },
 };
 
-int luaopen_luanetwork(lua_State *L)
+int luaopen_cerberus_network(lua_State *L)
 {
-	luaL_newmetatable(L, "LuaNetwork");
+	// new lib table
+	luaL_newlibtable(L, lua_reg_funcs);
 
-	lua_pushvalue(L, -1);
+	// get world from registry
+	lua_getfield(L, LUA_REGISTRYINDEX, "cerberus_world");
+	LuaWorld *world = (LuaWorld *)lua_touserdata(L, -1); 
+	if (!world)
+	{
+		return luaL_error(L, "nil world");
+	}
 
-	lua_setfield(L, -2, "__index");
-
-	luaL_setfuncs(L, lua_reg_member_funcs, 0);
-
-	luaL_newlib(L, lua_reg_construct_funcs);
+	// set lib funcs, and set world as upvalue
+	luaL_setfuncs(L, lua_reg_funcs, 1);
 
 	return 1;
 }

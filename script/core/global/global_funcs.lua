@@ -2,8 +2,9 @@
 local Core = require "core"
 local Log = require "core.log.logger"
 local Util = require "core.util.util"
-local g_funcs = {}
+local cutil = require "cerberus.util"
 
+local g_funcs = {}
 function g_funcs.debug_timer_cb()
 	-- Log.debug("********* g_funcs.debug_timer_cb")
 	-- Core.rpc_mgr:print()
@@ -283,7 +284,7 @@ function g_funcs.get_msg_name(msg_id)
 end
 
 function g_funcs.gen_random_name()
-	math.randomseed(LuaUtil:get_time_ms())
+	math.randomseed(cutil.get_time_ms())
 	local ascii_table = {}
 	for i=48, 57 do
 		table.insert(ascii_table, i)

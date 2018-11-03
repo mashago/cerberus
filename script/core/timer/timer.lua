@@ -2,14 +2,15 @@
 local Core = require "core"
 local Log = require "core.log.logger"
 local class = require "core.util.class"
-local Timer = class()
+local ctimer = require "cerberus.timer"
 
+local Timer = class()
 function Timer:ctor()
 	self._timer_index_map = {}
 end
 
 function Timer:add_timer(ms, cb_func, arg, is_loop)
-	local timer_index, ret = LuaTimer:add_timer(ms, is_loop)
+	local timer_index, ret = ctimer.add_timer(ms, is_loop)
 	if not ret then
 		return false
 	end
@@ -23,11 +24,11 @@ function Timer:del_timer(timer_index)
 		return false
 	end
 	self._timer_index_map[timer_index] = nil
-	return LuaTimer:del_timer(timer_index)
+	return ctimer.del_timer(timer_index)
 end
 
 function Timer:fork(cb_func, arg)
-	local timer_index, ret = LuaTimer:add_timer(0, false)
+	local timer_index, ret = ctimer.add_timer(0, false)
 	if not ret then
 		return false
 	end

@@ -3,8 +3,9 @@ local Core = require "core"
 local Log = require "core.log.logger"
 local g_funcs = require "core.global.global_funcs"
 local class = require "core.util.class"
-local Client = class()
+local cutil = require "cerberus.util"
 
+local Client = class()
 function Client:ctor()
 	-- assert only connect one login and one gate
 	self._server_list = {} -- {[server_type]={ip=ip, port=port, server_id=server_id},}
@@ -131,13 +132,13 @@ end
 function Client:x_test_start(num)
 	self.g_x_test_num = num
 	self.g_x_test_total_num = num
-	self.g_x_test_start_time = LuaUtil:get_time_ms()
+	self.g_x_test_start_time = cutil.get_time_ms()
 	self.g_x_test_total_time = 0
 	self.g_x_test_min_time = 0
 end
 
 function Client:x_test_end()
-	local time_ms = LuaUtil:get_time_ms()
+	local time_ms = cutil.get_time_ms()
 	if self.g_x_test_num > 0 then
 		self.g_x_test_num = self.g_x_test_num - 1
 		local time_ms_offset = time_ms - self.g_x_test_start_time

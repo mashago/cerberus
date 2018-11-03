@@ -7,7 +7,7 @@ extern "C"
 #include "util.h"
 #include "logger.h"
 
-static int luautil_get_time_ms(lua_State *L)
+static int lget_time_ms(lua_State *L)
 {
 	struct timeval tv;    
 	gettimeofday(&tv, NULL);
@@ -17,13 +17,13 @@ static int luautil_get_time_ms(lua_State *L)
 	return 1;
 }
 
-static int luautil_log(lua_State *L)
+static int llog(lua_State *L)
 {
-	luaL_checktype(L, 2, LUA_TNUMBER);
-	luaL_checktype(L, 3, LUA_TSTRING);
+	luaL_checktype(L, 1, LUA_TNUMBER);
+	luaL_checktype(L, 2, LUA_TSTRING);
 
-	int type = lua_tointeger(L, 2);
-	const char * str =  lua_tostring(L, 3);
+	int type = lua_tointeger(L, 1);
+	const char * str =  lua_tostring(L, 2);
 
 	switch (type)
 	{
@@ -54,12 +54,12 @@ static int luautil_log(lua_State *L)
 
 static const luaL_Reg lua_reg_funcs[] =
 {
-	{ "get_time_ms", luautil_get_time_ms },
-	{ "log", luautil_log },
+	{ "get_time_ms", lget_time_ms },
+	{ "log", llog },
 	{ NULL, NULL},
 };
 
-int luaopen_luautil(lua_State *L)
+int luaopen_cerberus_util(lua_State *L)
 {
 	luaL_newlib(L, lua_reg_funcs);
 

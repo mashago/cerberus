@@ -3,5 +3,5 @@
 
 #include <lua.hpp>
 
-int luaopen_luautil(lua_State *L);
+int luaopen_cerberus_util(lua_State *L);
 

@@ -1,4 +1,6 @@
 
+local cutil = require "cerberus.util"
+
 local Log = {}
 
 Log.LEVEL = 
@@ -11,9 +13,9 @@ Log.LEVEL =
 
 local function log_handler(level, format, ...)
 	local str = string.format("%s", string.format(format,...))
-	LuaUtil:log(level, str)
+	cutil.log(level, str)
 	if level == Log.LEVEL.ERROR then
-		LuaUtil:log(level, debug.traceback())
+		cutil.log(level, debug.traceback())
 	end
 end
 
@@ -24,7 +26,7 @@ local function log(level, format, ...)
 	, level, format, ...)
 
 	if not status then
-		LuaUtil:log(Log.LEVEL.ERROR, err_msg)
+		cutil.log(Log.LEVEL.ERROR, err_msg)
 	end  
 end
 

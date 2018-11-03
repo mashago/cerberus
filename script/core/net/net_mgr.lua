@@ -4,49 +4,48 @@ local Log = require "core.log.logger"
 local Util = require "core.util.util"
 local g_msg_handler = require "core.global.msg_handler"
 local class = require "core.util.class"
-local NetMgr = class()
+local cnetwork = require "cerberus.network"
 
+local NetMgr = class()
 function NetMgr:ctor()
-	local c_network = LuaNetwork:instance()
-	self._c_network = c_network
 	self._all_mailbox = {}
 
 	self._read_val_funcs =
 	{
-		[_Byte] = function() return c_network:read_byte() end,
-		[_Bool] = function() return c_network:read_bool() end,
-		[_Int] = function() return c_network:read_int() end,
-		[_Float] = function() return c_network:read_float() end,
-		[_Short] = function() return c_network:read_short() end,
-		[_Int64] = function() return c_network:read_int64() end,
-		[_String] = function() return c_network:read_string() end,
+		[_Byte] = function() return cnetwork.read_byte() end,
+		[_Bool] = function() return cnetwork.read_bool() end,
+		[_Int] = function() return cnetwork.read_int() end,
+		[_Float] = function() return cnetwork.read_float() end,
+		[_Short] = function() return cnetwork.read_short() end,
+		[_Int64] = function() return cnetwork.read_int64() end,
+		[_String] = function() return cnetwork.read_string() end,
 
-		[_ByteArray] = function() return c_network:read_byte_array() end,
-		[_BoolArray] = function() return c_network:read_bool_array() end,
-		[_IntArray] = function() return c_network:read_int_array() end,
-		[_FloatArray] = function() return c_network:read_float_array() end,
-		[_ShortArray] = function() return c_network:read_short_array() end,
-		[_Int64Array] = function() return c_network:read_int64_array() end,
-		[_StringArray] = function() return c_network:read_string_array() end,
+		[_ByteArray] = function() return cnetwork.read_byte_array() end,
+		[_BoolArray] = function() return cnetwork.read_bool_array() end,
+		[_IntArray] = function() return cnetwork.read_int_array() end,
+		[_FloatArray] = function() return cnetwork.read_float_array() end,
+		[_ShortArray] = function() return cnetwork.read_short_array() end,
+		[_Int64Array] = function() return cnetwork.read_int64_array() end,
+		[_StringArray] = function() return cnetwork.read_string_array() end,
 	}
 
 	self._write_val_funcs = 
 	{
-		[_Byte] = function(val) return c_network:write_byte(val) end,
-		[_Bool] = function(val) return c_network:write_bool(val) end,
-		[_Int] = function(val) return c_network:write_int(val) end,
-		[_Float] = function(val) return c_network:write_float(val) end,
-		[_Short] = function(val) return c_network:write_short(val) end,
-		[_Int64] = function(val) return c_network:write_int64(val) end,
-		[_String] = function(val) return c_network:write_string(val) end,
+		[_Byte] = function(val) return cnetwork.write_byte(val) end,
+		[_Bool] = function(val) return cnetwork.write_bool(val) end,
+		[_Int] = function(val) return cnetwork.write_int(val) end,
+		[_Float] = function(val) return cnetwork.write_float(val) end,
+		[_Short] = function(val) return cnetwork.write_short(val) end,
+		[_Int64] = function(val) return cnetwork.write_int64(val) end,
+		[_String] = function(val) return cnetwork.write_string(val) end,
 
-		[_ByteArray] = function(val) return c_network:write_byte_array(val) end,
-		[_BoolArray] = function(val) return c_network:write_bool_array(val) end,
-		[_IntArray] = function(val) return c_network:write_int_array(val) end,
-		[_FloatArray] = function(val) return c_network:write_float_array(val) end,
-		[_ShortArray] = function(val) return c_network:write_short_array(val) end,
-		[_Int64Array] = function(val) return c_network:write_int64_array(val) end,
-		[_StringArray] = function(val) return c_network:write_string_array(val) end,
+		[_ByteArray] = function(val) return cnetwork.write_byte_array(val) end,
+		[_BoolArray] = function(val) return cnetwork.write_bool_array(val) end,
+		[_IntArray] = function(val) return cnetwork.write_int_array(val) end,
+		[_FloatArray] = function(val) return cnetwork.write_float_array(val) end,
+		[_ShortArray] = function(val) return cnetwork.write_short_array(val) end,
+		[_Int64Array] = function(val) return cnetwork.write_int64_array(val) end,
+		[_StringArray] = function(val) return cnetwork.write_string_array(val) end,
 	}
 end
 
@@ -134,7 +133,7 @@ local function is_trust_msg(msg_id)
 end
 
 function NetMgr:recv_msg_handler(mailbox_id, msg_id)
-	local ext = self._c_network:read_ext()
+	local ext = cnetwork.read_ext()
 	-- Log.debug("NetMgr:recv_msg_handler ext=%d", ext)
 	
 	-- check msg is local handle or transfer
@@ -259,14 +258,11 @@ end
 ------------------------------------
 
 function NetMgr:connect_to(ip, port)
-	return self._c_network:connect_to(ip, port)
+	return cnetwork.connect_to(ip, port)
 end
 
 function NetMgr:listen(ip, port)
-	local func = function(session_id, ...)
-		self._c_network:listen(session_id, ...)
-	end
-	return Core.rpc_mgr:sync(func, ip, port)
+	return Core.rpc_mgr:sync(cnetwork.listen, ip, port)
 end
 
 function NetMgr:send_msg_ext(mailbox_id, msg_id, ext, data)
@@ -281,17 +277,16 @@ function NetMgr:send_msg_ext(mailbox_id, msg_id, ext, data)
 		return false
 	end
 
-	local c_network = self._c_network
 	local flag = self:write_data_by_msgdef(data, msgdef, 0)
 	if not flag then
 		Log.err("NetMgr:send_msg_ext write data error msg_id=%d", msg_id)
-		c_network:clear_write()
+		cnetwork.clear_write()
 		return false
 	end
 
-	c_network:write_msg_id(msg_id)
-	c_network:write_ext(ext)
-	return c_network:send(mailbox_id)
+	cnetwork.write_msg_id(msg_id)
+	cnetwork.write_ext(ext)
+	return cnetwork.send(mailbox_id)
 end
 
 function NetMgr:send_msg(mailbox_id, msg_id, data)
@@ -302,13 +297,12 @@ end
 function NetMgr:transfer_msg(mailbox_id, ext)
 	-- Log.debug("NetMgr:transfer_msg msgdef mailbox_id=%d ext=%d", mailbox_id, ext or 0)
 
-	local c_network = self._c_network
-	c_network:write_ext(ext or 0)
-	return c_network:transfer(mailbox_id)
+	cnetwork.write_ext(ext or 0)
+	return cnetwork.transfer(mailbox_id)
 end
 
 function NetMgr:close_mailbox(mailbox_id)
-	return self._c_network:close_mailbox(mailbox_id)
+	return cnetwork.close_mailbox(mailbox_id)
 end
 
 function NetMgr:add_mailbox(mailbox_id, ip, port)
@@ -336,11 +330,11 @@ end
 function NetMgr:http_request_get(url, session_id)
 	local post_data = ""
 	local post_data_len = 0;
-	self._c_network:http_request(url, session_id, HttpRequestType.GET, post_data, post_data_len)
+	cnetwork.http_request(url, session_id, HttpRequestType.GET, post_data, post_data_len)
 end
 
 function NetMgr:http_request_post(url, session_id, post_data, post_data_len)
-	self._c_network:http_request(url, session_id, HttpRequestType.POST, post_data, post_data_len)
+	cnetwork.http_request(url, session_id, HttpRequestType.POST, post_data, post_data_len)
 end
 
 return NetMgr

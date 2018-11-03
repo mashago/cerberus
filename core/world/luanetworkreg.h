@@ -3,5 +3,5 @@
 
 #include <lua.hpp>
 
-int luaopen_luanetwork(lua_State *L);
+int luaopen_cerberus_network(lua_State *L);
 

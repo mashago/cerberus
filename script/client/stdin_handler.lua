@@ -6,8 +6,9 @@ local g_funcs = require "core.global.global_funcs"
 local Env = require "env"
 local TestRole = require "test_role"
 local TestBag = require "test_bag"
-local cmd_handler = {}
+local cutil = require "cerberus.util"
 
+local cmd_handler = {}
 function cmd_handler.execute(buffer)
 	Log.debug("buffer=%s", buffer)
 	if not buffer then
@@ -233,7 +234,7 @@ function cmd_handler.do_test(params)
 
 		[4] = function(p)
 
-			local time_ms = LuaUtil:get_time_ms()
+			local time_ms = cutil.get_time_ms()
 			Log.debug("time_ms=%d", time_ms)
 		end,
 	}

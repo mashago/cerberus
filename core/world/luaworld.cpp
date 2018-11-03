@@ -15,7 +15,7 @@ extern "C"
 #include "luanetworkreg.h"
 #include "luanetwork.h"
 #include "luatinyxmlreg.h"
-#include "luamysqlmgrreg.h"
+#include "luamysqlreg.h"
 #include "luatimerreg.h"
 #include "luautilreg.h"
 #include "luasubthread.h"
@@ -58,41 +58,34 @@ bool LuaWorld::Init(const char *conf_file, EventPipe *inputPipe, EventPipe *outp
 
 	lua_pushlightuserdata(m_L, this);
 	lua_setfield(m_L, LUA_REGISTRYINDEX, "cerberus_world");
-	lua_pushlightuserdata(m_L, m_luanetwork);
-	lua_setfield(m_L, LUA_REGISTRYINDEX, "cerberus_network");
-		
 
 	// register lib
 	const luaL_Reg lua_reg_libs[] = 
 	{
-		{ "LuaNetwork", luaopen_luanetwork },
 		{ "LuaTinyXMLDoc", luaopen_luatinyxmldoc },
 		{ "LuaTinyXMLEle", luaopen_luatinyxmlele },
-		{ "LuaMysqlMgr", luaopen_luamysqlmgr },
-		{ "LuaTimer", luaopen_luatimer },
-		{ "LuaUtil", luaopen_luautil },
-		{ "lfs", luaopen_lfs },
 		{ NULL, NULL },
 	};
-
 	for (const luaL_Reg *libptr = lua_reg_libs; libptr->func; ++libptr)
 	{
 		luaL_requiref(m_L, libptr->name, libptr->func, 1);
 		lua_pop(m_L, 1);
 	}
 
-	// push this to lua
+	const luaL_Reg lua_reg_libs2[] = 
 	{
-		LuaWorld **ptr = (LuaWorld **)lua_newuserdata(m_L, sizeof(LuaWorld *));
-		*ptr = this;
-		lua_setglobal(m_L, "g_luaworld_ptr");
-	}
-
-	// push luanetwork to lua
+		{ "cerberus.util", luaopen_cerberus_util },
+		{ "cerberus.network", luaopen_cerberus_network },
+		{ "cerberus.timer", luaopen_cerberus_timer },
+		{ "cerberus.mysql", luaopen_cerberus_mysql },
+		{ "lfs", luaopen_lfs },
+		{ NULL, NULL },
+	};
+	for (const luaL_Reg *libptr = lua_reg_libs2; libptr->func; ++libptr)
 	{
-		LuaNetwork **ptr = (LuaNetwork **)lua_newuserdata(m_L, sizeof(LuaNetwork *));
-		*ptr = m_luanetwork;
-		lua_setglobal(m_L, "g_luanetwork_ptr");
+		luaL_requiref(m_L, libptr->name, libptr->func, 0);
+		LOG_DEBUG("name=%s", libptr->name);
+		lua_pop(m_L, 1);
 	}
 
 	if (LUA_OK != luaL_loadfile(m_L, "script/main.lua"))
@@ -131,6 +124,11 @@ void LuaWorld::Dispatch()
 }
 
 ////////////////////////////////////////
+
+LuaNetwork * LuaWorld::GetNetwork()
+{
+	return m_luanetwork;
+}
 
 void LuaWorld::RecvEvent()
 {

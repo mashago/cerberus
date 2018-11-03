@@ -10,23 +10,19 @@ extern "C"
 #include "timermgr.h"
 #include "luaworld.h"
 
-static int luatimer_add_timer(lua_State *L)
+static int ladd_timer(lua_State *L)
 {
-	luaL_checktype(L, 2, LUA_TNUMBER);
-	luaL_checktype(L, 3, LUA_TBOOLEAN);
+	luaL_checktype(L, 1, LUA_TNUMBER);
+	luaL_checktype(L, 2, LUA_TBOOLEAN);
 
-	int ms = (int)lua_tointeger(L, 2);
-	bool is_loop = (bool)lua_toboolean(L, 3);
+	int ms = (int)lua_tointeger(L, 1);
+	bool is_loop = (bool)lua_toboolean(L, 2);
 
-	lua_getglobal(L, "g_luaworld_ptr");
-	LuaWorld **ptr = (LuaWorld **)lua_touserdata(L, -1);
-	LuaWorld *luaworld = *ptr;
-	lua_pop(L, 1);
-
-	TimerMgr *timerMgr = luaworld->GetTimerMgr();
+	LuaWorld *world = (LuaWorld *)lua_touserdata(L, lua_upvalueindex(1));
+	TimerMgr *timerMgr = world->GetTimerMgr();
 
 	int64_t new_timer_index = timerMgr->GetCurTimerIndex();
-	int64_t ret_timer_index = timerMgr->AddTimer(ms, std::bind(&LuaWorld::HandleTimer, luaworld, std::placeholders::_1, std::placeholders::_2), (void *)new_timer_index, is_loop);
+	int64_t ret_timer_index = timerMgr->AddTimer(ms, std::bind(&LuaWorld::HandleTimer, world, std::placeholders::_1, std::placeholders::_2), (void *)new_timer_index, is_loop);
 
 	lua_pushinteger(L, new_timer_index);
 	lua_pushboolean(L, new_timer_index == ret_timer_index);
@@ -34,20 +30,14 @@ static int luatimer_add_timer(lua_State *L)
 	return 2;
 }
 
-static int luatimer_del_timer(lua_State *L)
+static int ldel_timer(lua_State *L)
 {
-	luaL_checktype(L, 2, LUA_TNUMBER);
-	int64_t timer_index = lua_tointeger(L, 2);
+	luaL_checktype(L, 1, LUA_TNUMBER);
+	int64_t timer_index = lua_tointeger(L, 1);
 
-	lua_getglobal(L, "g_luaworld_ptr");
-	LuaWorld **ptr = (LuaWorld **)lua_touserdata(L, -1);
-	LuaWorld *luaworld = *ptr;
-	lua_pop(L, 1);
-
-	TimerMgr *timerMgr = luaworld->GetTimerMgr();
-
+	LuaWorld *world = (LuaWorld *)lua_touserdata(L, lua_upvalueindex(1));
+	TimerMgr *timerMgr = world->GetTimerMgr();
 	bool ret = timerMgr->DelTimer(timer_index);
-
 	lua_pushboolean(L, ret);
 
 	return 1;
@@ -55,14 +45,26 @@ static int luatimer_del_timer(lua_State *L)
 
 static const luaL_Reg lua_reg_funcs[] =
 {
-	{ "add_timer", luatimer_add_timer },
-	{ "del_timer", luatimer_del_timer },
+	{ "add_timer", ladd_timer },
+	{ "del_timer", ldel_timer },
 	{ NULL, NULL},
 };
 
-int luaopen_luatimer(lua_State *L)
+int luaopen_cerberus_timer(lua_State *L)
 {
-	luaL_newlib(L, lua_reg_funcs);
+	// new lib table
+	luaL_newlibtable(L, lua_reg_funcs);
+
+	// get world from registry
+	lua_getfield(L, LUA_REGISTRYINDEX, "cerberus_world");
+	LuaWorld *world = (LuaWorld *)lua_touserdata(L, -1); 
+	if (!world)
+	{
+		return luaL_error(L, "nil world");
+	}
+
+	// set lib funcs, and set world as upvalue
+	luaL_setfuncs(L, lua_reg_funcs, 1);
 
 	return 1;
 }

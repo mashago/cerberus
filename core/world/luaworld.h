@@ -20,6 +20,7 @@ public:
 	bool Init(const char *conf_file, EventPipe *inputPipe, EventPipe *outputPipe);
 	void Dispatch();
 
+	LuaNetwork *GetNetwork();
 	void RecvEvent();
 	void SendEvent(EventNode *node);
 	void HandleEvent(const EventNode &node);
