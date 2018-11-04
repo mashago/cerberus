@@ -586,6 +586,23 @@ void NetService::HandleWorldEvent()
 
 				break;
 			}
+			case EVENT_TYPE::EVENT_TYPE_SYNC_CONNECT_TO_REQ:
+			{
+				const EventNodeSyncConnectToReq &real_node = (EventNodeSyncConnectToReq&)node;
+				// XXX should we sendevent until connection success or error rather than send right now
+				// get a mailboxId, and send to world
+				int64_t mailboxId = ConnectTo(real_node.ip, real_node.port);
+				// TODO store <session_id, mailboxId> in a map, send event when connection success or error
+
+				/*
+				EventNodeSyncConnectToRet *ret_node = new EventNodeSyncConnectToRet();
+				ret_node->session_id = real_node.session_id;
+				ret_node->mailboxId = mailboxId;
+				SendEvent(ret_node);
+				*/
+
+				break;
+			}
 			case EVENT_TYPE::EVENT_TYPE_HTTP_REQ:
 			{
 				const EventNodeHttpReq &real_node = (EventNodeHttpReq&)node;

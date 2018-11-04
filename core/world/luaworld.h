@@ -44,6 +44,7 @@ public:
 
 	// call from lua
 	int64_t ConnectTo(const char* ip, unsigned int port); // return a connect index
+	bool SyncConnectTo(int64_t session_id, const char* ip, unsigned int port);
 	void SendPluto(Pluto *pu);
 	void CloseMailbox(int64_t mailboxId);
 	bool HttpRequest(const char *url, int64_t session_id, int request_type, const char *post_data, int post_data_len);

@@ -319,6 +319,16 @@ int64_t LuaWorld::ConnectTo(const char* ip, unsigned int port)
 	return m_connIndex;
 }
 
+bool LuaWorld::SyncConnectTo(int64_t session_id, const char* ip, unsigned int port)
+{
+	EventNodeSyncConnectToReq *node = new EventNodeSyncConnectToReq;
+	node->session_id = session_id;
+	snprintf(node->ip, sizeof(node->ip), "%s", ip);
+	node->port = port;
+	SendEvent(node);
+	return true;
+}
+
 void LuaWorld::SendPluto(Pluto *pu)
 {
 	EventNodeMsg *node = new EventNodeMsg;

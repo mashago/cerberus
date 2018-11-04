@@ -663,6 +663,26 @@ static int lconnect_to(lua_State* L)
 	return 2;
 }
 
+static int lsync_connect_to(lua_State* L)
+{
+	LuaNetwork *network = get_network(L);
+
+	// session_id, ip, port
+	luaL_checktype(L, 1, LUA_TNUMBER);
+	luaL_checktype(L, 2, LUA_TSTRING);
+	luaL_checktype(L, 3, LUA_TNUMBER);
+
+	int64_t session_id = lua_tointeger(L, 1);
+	const char* ip = lua_tostring(L, 2);
+	int port = (int)lua_tointeger(L, 3);
+	LOG_DEBUG("ip=%s port=%d", ip, port);
+
+	bool ret = network->SyncConnectTo(session_id, ip, port);
+	lua_pushboolean(L, ret);
+
+	return 1;
+}
+
 static int lclose_mailbox(lua_State* L)
 {
 	LuaNetwork *network = get_network(L);
@@ -712,7 +732,6 @@ static int llisten(lua_State* L)
 	LOG_DEBUG("ip=%s port=%d session_id=%ld", ip, port, session_id);
 
 	bool ret = network->Listen(ip, port, session_id);
-
 	lua_pushboolean(L, ret);
 
 	return 1;
@@ -765,6 +784,7 @@ static const luaL_Reg lua_reg_funcs[] =
 	{ "read_string_array", lread_string_array },
 
 	{ "connect_to", lconnect_to },
+	{ "sync_connect_to", lsync_connect_to },
 	{ "close_mailbox", lclose_mailbox },
 
 	{ "http_request", lhttp_request },

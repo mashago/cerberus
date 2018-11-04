@@ -28,6 +28,7 @@ enum EVENT_TYPE
 	EVENT_TYPE_LISTEN_RET 				= 12, // n2w
 	EVENT_TYPE_SUBTHREAD_JOB_REQ 		= 13, // w2t
 	EVENT_TYPE_SUBTHREAD_JOB_RET 		= 14, // w2t
+	EVENT_TYPE_SYNC_CONNECT_TO_REQ 		= 15, // w2n
 };
 
 struct EventNode
@@ -112,6 +113,17 @@ struct EventNodeConnectToRet : public EventNode
 	}
 	int64_t ext = 0;
 	int64_t mailboxId = -1;
+};
+
+struct EventNodeSyncConnectToReq : public EventNode
+{
+	EventNodeSyncConnectToReq() : EventNode(EVENT_TYPE::EVENT_TYPE_SYNC_CONNECT_TO_REQ)
+	{
+		memset(ip, 0, sizeof(ip));
+	}
+	int64_t session_id = 0;
+	char ip[50];
+	unsigned int port = 0;
 };
 
 struct EventNodeHttpReq : public EventNode

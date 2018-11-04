@@ -19,9 +19,24 @@ void LuaNetwork::SetRecvPluto(Pluto *pu)
 	m_recvPluto = pu;
 }
 
+Pluto * LuaNetwork::GetRecvPluto()
+{
+	return m_recvPluto;
+}
+
+Pluto * LuaNetwork::GetSendPluto()
+{
+	return m_sendPluto;
+}
+
 int64_t LuaNetwork::ConnectTo(const char* ip, unsigned int port)
 {
 	return m_world->ConnectTo(ip, port);
+}
+
+bool LuaNetwork::SyncConnectTo(int64_t session_id, const char* ip, unsigned int port)
+{
+	return m_world->SyncConnectTo(session_id, ip, port);
 }
 
 bool LuaNetwork::Send(int64_t mailboxId)
