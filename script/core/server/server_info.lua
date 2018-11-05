@@ -11,7 +11,6 @@ function ServerInfo:ctor(ip, port, no_shakehand, no_reconnect, mailbox_id, serve
 	self._port = port 
 	self._no_shakehand = no_shakehand -- send my scene info to target server
 	self._no_reconnect = no_reconnect -- default do reconnect
-	self._connect_index = 0
 	self._connect_status = ServiceConnectStatus.DISCONNECT
 	self._last_connect_time = 0
 
@@ -92,9 +91,28 @@ function ServerInfo:transfer_msg(ext)
 	return Core.net_mgr:transfer_msg(mailbox_id, ext)
 end
 
+function ServerInfo:connect()
+	self._last_connect_time = os.time()
+	self._connect_status = ServiceConnectStatus.CONNECTING
+	Core.timer_mgr:fork(function()
+		local mailbox_id = Core.net_mgr:sync_connect_to(self._ip, self._port)
+		if self._connect_status == ServiceConnectStatus.DISCONNECTING then
+			-- TODO
+		end
+		if mailbox_id == MAILBOX_ID_NIL then
+			self._connect_status = ServiceConnectStatus.DISCONNECT
+			Core.server_mgr:on_server_disconnect(self)
+		else
+			self._mailbox_id = mailbox_id
+			self._connect_status = ServiceConnectStatus.CONNECTED
+			Core.server_mgr:on_server_connect(self)
+		end
+	end)
+end
+
 function ServerInfo:print()
-	Log.info("ServerInfo:print\nip=%s port=%d connect_index=%d connect_status=%d\n_mailbox_id=%d _server_id=%d _server_type=[%d:%s]\n_single_scene_list=[%s] _from_to_scene_list=[%s]\n"
-	, self._ip, self._port, self._connect_index, self._connect_status
+	Log.info("ServerInfo:print\nip=%s port=%d connect_status=%d\n_mailbox_id=%d _server_id=%d _server_type=[%d:%s]\n_single_scene_list=[%s] _from_to_scene_list=[%s]\n"
+	, self._ip, self._port, self._connect_status
 	, self._mailbox_id, self._server_id, self._server_type, ServerTypeName[self._server_type]
 	, table.concat(self._single_scene_list, ",")
 	, table.concat(self._from_to_scene_list, ","))

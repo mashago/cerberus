@@ -42,18 +42,20 @@ function ServerMgr:do_connect(ip, port, server_id, server_type, no_shakehand, no
 	table.insert(self._wait_server_list, server_info)
 
 	if no_delay then
-		self:connect_immediately()
+		server_info:connect()
 	else
-		self:create_connect_timer()
+		-- TODO add a timer
+		-- self:create_connect_timer()
 	end
 end
 
 function ServerMgr:do_reconnect(server_info, no_delay)
 	table.insert(self._wait_server_list, server_info)
 	if no_delay then
-		self:connect_immediately()
+		server_info:connect()
 	else
-		self:create_connect_timer()
+		-- TODO add a timer
+		-- self:create_connect_timer()
 	end
 end
 
@@ -73,7 +75,7 @@ function ServerMgr:_connect_core()
 		if server_info._connect_status == ServiceConnectStatus.DISCONNECT then
 			-- not connecting, do connect
 			-- only return a connect_index, get mailbox_id later
-			local ret, connect_index = Core.net_mgr:connect_to(server_info._ip, server_info._port)
+			Core.net_mgr:connect_to(server_info._ip, server_info._port)
 			if ret then
 				server_info._connect_index = connect_index
 				server_info._connect_status = ServiceConnectStatus.CONNECTING
