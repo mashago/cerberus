@@ -22,11 +22,9 @@ function ServerMgr:ctor()
 	-- {scene_id = {server_id, server_id, ...}
 	self._scene_server_map = {}
 
-	self._connect_timer_index = 0
-	self._connect_interval_ms = 2000
 end
 
-function ServerMgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect, no_delay)
+function ServerMgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect)
 
 	server_id = server_id or 0
 	server_type = server_type or 0
@@ -40,128 +38,12 @@ function ServerMgr:do_connect(ip, port, server_id, server_type, no_shakehand, no
 	
 	server_info = ServerInfo.new(ip, port, no_shakehand, no_reconnect, MAILBOX_ID_NIL, server_id, server_type, {}, {})
 	table.insert(self._wait_server_list, server_info)
-
-	if no_delay then
-		server_info:connect()
-	else
-		-- TODO add a timer
-		-- self:create_connect_timer()
-	end
+	server_info:connect()
 end
 
-function ServerMgr:do_reconnect(server_info, no_delay)
+function ServerMgr:do_reconnect(server_info)
 	table.insert(self._wait_server_list, server_info)
-	if no_delay then
-		server_info:connect()
-	else
-		-- TODO add a timer
-		-- self:create_connect_timer()
-	end
-end
-
-function ServerMgr:_connect_core()
-
-	-- Log.debug("ServerMgr:_connect_core: self._wait_server_list=%s", Util.table_to_string(self._wait_server_list))
-	local now_time = os.time()
-	
-	local is_all_connected = true
-	for _, server_info in ipairs(self._wait_server_list) do
-		Log.debug("ServerMgr:_connect_core server_info ip=%s port=%d connect_status=%d", server_info._ip, server_info._port, server_info._connect_status)
-		if server_info._connect_status == ServiceConnectStatus.CONNECTED then
-			goto continue
-		end
-
-		is_all_connected = false
-		if server_info._connect_status == ServiceConnectStatus.DISCONNECT then
-			-- not connecting, do connect
-			-- only return a connect_index, get mailbox_id later
-			Core.net_mgr:connect_to(server_info._ip, server_info._port)
-			if ret then
-				server_info._connect_index = connect_index
-				server_info._connect_status = ServiceConnectStatus.CONNECTING
-				server_info._last_connect_time = now_time
-			else
-				Log.err("******* connect to fail ip=%s port=%d", server_info._ip, server_info._port)
-			end
-
-		elseif server_info._connect_status == ServiceConnectStatus.CONNECTING then
-			-- connecting, check timeout
-			if now_time - server_info._last_connect_time < 5 then
-				goto continue
-			end
-
-			-- connect time too long, close this connect
-			Log.warn("!!!!!!! connecting timeout mailbox_id=%d ip=%s port=%d", server_info._mailbox_id, server_info._ip, server_info._port)
-			if server_info._mailbox_id == MAILBOX_ID_NIL then
-				-- TODO not recv ConnectToRet event, something go wrong
-				Log.err("!!!!!!! connecting timeout and not recv connect to ret event ip=%s port=%d", server_info._ip, server_info._port)
-				goto continue
-			end
-			-- will cause luaworld:HandleDisconnect
-			self:close_connection(server_info, false)
-		end
-
-		::continue::
-	end
-
-	Log.debug("ServerMgr:_connect_core")
-	self:print()
-
-	if is_all_connected then
-		Log.debug("******* all connect *******")
-		if self._connect_timer_index ~= 0 then
-			Core.timer_mgr:del_timer(self._connect_timer_index)
-			self._connect_timer_index = 0
-		end
-	end
-end
-
-function ServerMgr:connect_immediately()
-	if self._connect_timer_index ~= 0 then
-		return
-	end
-	-- do a connect now
-	self:_connect_core()
-
-	-- add timer for connect fail
-	local function timer_cb()
-		self:_connect_core()
-	end
-	self._connect_timer_index = Core.timer_mgr:add_timer(self._connect_interval_ms, timer_cb, 0, true)
-end
-
-function ServerMgr:create_connect_timer()
-	if self._connect_timer_index ~= 0 then
-		return
-	end
-
-	local function timer_cb()
-		self:_connect_core()
-	end
-	self._connect_timer_index = Core.timer_mgr:add_timer(self._connect_interval_ms, timer_cb, 0, true)
-end
-
-function ServerMgr:check_all_connected()
-	local is_all_connected = true
-	for _, server_info in ipairs(self._wait_server_list) do
-		Log.debug("ServerMgr:_connect_core server_info ip=%s port=%d connect_status=%d", server_info._ip, server_info._port, server_info._connect_status)
-		if server_info._connect_status ~= ServiceConnectStatus.CONNECTED then
-			is_all_connected = false
-			break
-		end
-	end
-
-	if not is_all_connected then
-		return
-	end
-
-	if self._connect_timer_index ~= 0 then
-		Core.timer_mgr:del_timer(self._connect_timer_index)
-		self._connect_timer_index = 0
-	end
-
-	self:print()
-	Log.debug("ServerMgr:check_all_connected all connected *******")
+	server_info:connect()
 end
 
 --------------------------------------------------
@@ -307,7 +189,6 @@ function ServerMgr:connect_to_success(mailbox_id)
 		self:register_server(server_info)
 		-- remove from connection list
 		table.remove(self._wait_server_list, index_in_list)
-		self:check_all_connected()
 		return
 	end
 
@@ -347,9 +228,11 @@ function ServerMgr:shake_hand_success(mailbox_id, server_id, server_type, single
 		return false
 	end
 	table.remove(self._wait_server_list, index_in_list)
-	self:check_all_connected()
 
 	return true
+end
+
+function ServerMgr:on_connect_fail(server_info)
 end
 
 function ServerMgr:handle_disconnect(mailbox_id)
@@ -390,7 +273,7 @@ function ServerMgr:handle_disconnect(mailbox_id)
 	server_info._mailbox_id = MAILBOX_ID_NIL
 	server_info._connect_status = ServiceConnectStatus.DISCONNECT
 
-	self:do_reconnect(server_info, true)
+	self:do_reconnect(server_info)
 
 	Log.info("ServerMgr:handle_disconnect")
 	self:print()

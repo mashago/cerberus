@@ -17,6 +17,24 @@ function ccall_recv_msg_handler(mailbox_id, msg_id)
 
 end
 
+function ccall_connect_ret_handler(session_id, mailbox_id)
+	Log.info("ccall_connect_ret_handler session_id=%d mailbox_id=%d", session_id, mailbox_id)
+
+	local function error_handler(msg, s, id)
+		msg = debug.traceback(msg, 3)
+		msg = string.format("ccall_connect_ret_handler error : session_id=%d mailbox_id = %d \n%s", s, id, msg)
+		return msg 
+	end
+
+	local status, msg = xpcall(Core.rpc_mgr.handle_local_callback
+	, function(msg) return error_handler(msg, session_id, mailbox_id) end
+	, Core.rpc_mgr, session_id, mailbox_id)
+
+	if not status then
+		Log.err(msg)
+	end
+end
+
 function ccall_disconnect_handler(mailbox_id)
 	Log.warn("ccall_disconnect_handler mailbox_id=%d", mailbox_id)
 

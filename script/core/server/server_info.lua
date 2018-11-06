@@ -101,11 +101,11 @@ function ServerInfo:connect()
 		end
 		if mailbox_id == MAILBOX_ID_NIL then
 			self._connect_status = ServiceConnectStatus.DISCONNECT
-			Core.server_mgr:on_server_disconnect(self)
+			Core.server_mgr:on_connect_fail(self)
 		else
 			self._mailbox_id = mailbox_id
 			self._connect_status = ServiceConnectStatus.CONNECTED
-			Core.server_mgr:on_server_connect(self)
+			Core.server_mgr:on_connect_success(self)
 		end
 	end)
 end
