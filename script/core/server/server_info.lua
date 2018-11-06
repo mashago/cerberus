@@ -96,16 +96,18 @@ function ServerInfo:connect()
 	self._connect_status = ServiceConnectStatus.CONNECTING
 	Core.timer_mgr:fork(function()
 		local mailbox_id = Core.net_mgr:sync_connect_to(self._ip, self._port)
-		if self._connect_status == ServiceConnectStatus.DISCONNECTING then
-			-- TODO
-		end
-		if mailbox_id == MAILBOX_ID_NIL then
-			self._connect_status = ServiceConnectStatus.DISCONNECT
-			Core.server_mgr:on_connect_fail(self)
-		else
+		if mailbox_id ~= MAILBOX_ID_NIL then
+			if self._connect_status == ServiceConnectStatus.DISCONNECTING then
+				Core.net_mgr:close_mailbox(mailbox_id)
+				return
+			end
 			self._mailbox_id = mailbox_id
 			self._connect_status = ServiceConnectStatus.CONNECTED
+			Core.net_mgr:add_mailbox(mailbox_id, self._ip, self._port)
 			Core.server_mgr:on_connect_success(self)
+		else
+			self._connect_status = ServiceConnectStatus.DISCONNECT
+			Core.server_mgr:on_connect_fail(self)
 		end
 	end)
 end

@@ -24,6 +24,68 @@ function ServerMgr:ctor()
 
 end
 
+function ServerMgr:get_server_by_id(server_id)
+	return self._active_server_map[server_id]
+end
+
+function ServerMgr:get_server_by_host(ip, port)
+	for k, v in pairs(self._active_server_map) do
+		if v._ip == ip and v._port == port then
+			return v
+		end
+	end
+	for k, v in ipairs(self._wait_server_list) do
+		if v._ip == ip and v._port == port then
+			return v
+		end
+	end
+	return nil
+end
+
+function ServerMgr:get_server_by_mailbox(mailbox_id)
+	for _, server_info in pairs(self._active_server_map) do
+		if server_info._mailbox_id == mailbox_id then
+			return server_info
+		end
+	end
+	return nil
+end
+
+function ServerMgr:get_server_by_scene(scene_id)
+	
+	local id_list = self._scene_server_map[scene_id] or {}
+	if #id_list == 0 then
+		return nil
+	end
+
+	local r = math.random(#id_list)
+	local server_id = id_list[r]
+
+	return self:get_server_by_id(server_id)
+end
+
+-- same opt_key(number) will get same server, or just do random to get
+function ServerMgr:get_server_by_type(server_type, opt_key)
+	
+	local id_list = self._type_server_map[server_type] or {}
+	if #id_list == 0 then
+		return nil
+	end
+
+	local server_id
+	if not opt_key then
+		local r = math.random(#id_list)
+		server_id = id_list[r]
+	else
+		local r = opt_key % #id_list + 1
+		server_id = id_list[r]
+	end
+
+	return self:get_server_by_id(server_id)
+end
+
+-------------------------------------------------
+
 function ServerMgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect)
 
 	server_id = server_id or 0
@@ -81,30 +143,6 @@ function ServerMgr:register_server(server_info)
 	return true
 end
 
--- add a connect in server
-function ServerMgr:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
-
-	Log.debug("ServerMgr:add_server mailbox_id=%d server_id=%d server_type=%d"
-	, mailbox_id, server_id, server_type)
-
-	local server_info = self._active_server_map[server_id]
-	if server_info then
-		-- if exists in all_server_map, duplicate add
-		Log.err("ServerMgr:add_server duplicate add mailbox_id=%d server_id=%d", mailbox_id, server_id)
-		return nil
-	end
-
-	-- init server_info, port is 0
-	server_info = ServerInfo.new("", 0, false, false, mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
-	server_info._connect_status = ServiceConnectStatus.CONNECTED
-
-	self:register_server(server_info)
-
-	Log.debug("ServerMgr:add_server")
-	self:print()
-	return server_info
-end
-
 function ServerMgr:unregister_server(server_info)
 
 	local server_id = server_info._server_id
@@ -139,52 +177,46 @@ function ServerMgr:unregister_server(server_info)
 	self._active_server_map[server_id] = nil
 end
 
---------------------------------------------
+-- add a connect in server
+function ServerMgr:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
 
-function ServerMgr:connect_to_ret(connect_index, mailbox_id)
-	-- just set server mailbox
-	local is_ok = false
-	for _, server_info in ipairs(self._wait_server_list) do
-		if server_info._connect_index == connect_index then
-			server_info._mailbox_id = mailbox_id
-			server_info._connect_index = 0 -- bzero
-			is_ok = true
-			break
-		end
+	Log.debug("ServerMgr:add_server mailbox_id=%d server_id=%d server_type=%d"
+	, mailbox_id, server_id, server_type)
+
+	local server_info = self._active_server_map[server_id]
+	if server_info then
+		-- if exists in all_server_map, duplicate add
+		Log.err("ServerMgr:add_server duplicate add mailbox_id=%d server_id=%d", mailbox_id, server_id)
+		return nil
 	end
-	if not is_ok then
-		Log.err("ServerMgr:connect_to_ret server nil connect_index=%d mailbox_id=%d", connect_index, mailbox_id)
-	end
+
+	-- init server_info, port is 0
+	server_info = ServerInfo.new("", 0, false, false, mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
+	server_info._connect_status = ServiceConnectStatus.CONNECTED
+
+	self:register_server(server_info)
+
+	Log.debug("ServerMgr:add_server")
+	self:print()
+	return server_info
 end
 
-function ServerMgr:connect_to_success(mailbox_id)
-	
-	local index_in_list = 0
-	local server_info = nil
+--------------------------------------------
+
+function ServerMgr:on_connect_success(server_info)
+	Log.info("ServerMgr:on_connect_success mailbox_id=%d", server_info._mailbox_id)
+	local index_in_list
 	for k, v in ipairs(self._wait_server_list) do
-		if v._mailbox_id == mailbox_id then
+		if v == server_info then
 			index_in_list = k
-			server_info = v
 			break
 		end
 	end
-	if not server_info then
-		Log.err("ServerMgr:connect_to_success server nil %d", mailbox_id)
-		return
-	end
-
-	if server_info._connect_status == ServiceConnectStatus.DISCONNECTING then
-		Log.warn("ServerMgr:connect_to_success already disconnecting server_id=%d mailbox_id=%d", server_info._server_id, mailbox_id)
-		return
-	end
-
-	Core.net_mgr:add_mailbox(mailbox_id, server_info._ip, server_info._port)
-
-	server_info._connect_status = ServiceConnectStatus.CONNECTED
+	assert(index_in_list, "ServerMgr:connect_to_success server")
 
 	if server_info._no_shakehand then
 		-- no_shakehand, local register server
-		-- only use by client
+		-- now use by client
 		Log.debug("ServerMgr:connect_to_success mailbox_id=%d server_id=%d server_type=%d", mailbox_id, server_info._server_id, server_info._server_type)
 		self:register_server(server_info)
 		-- remove from connection list
@@ -193,7 +225,7 @@ function ServerMgr:connect_to_success(mailbox_id)
 	end
 
 	-- send shake hand
-	local msg = 
+	local msg =
 	{
 		server_id = Core.server_conf._server_id,
 		server_type = Core.server_conf._server_type,
@@ -202,7 +234,61 @@ function ServerMgr:connect_to_success(mailbox_id)
 		ip = Core.server_conf._ip,
 		port = Core.server_conf._port,
 	}
-	Core.net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_req, msg)
+	server_info:send_msg(mailbox_id, MID.s2s_shake_hand_req, msg)
+end
+
+function ServerMgr:_on_connection_down(server_info)
+
+	if server_info._no_reconnect or server_info._port == 0 then
+		-- no reconnect or connect in, do nothing
+		Log.warn("ServerMgr:_on_connection_down no need reconnect [%d:%s]", server_info._server_type, ServerTypeName[server_info._server_type])
+		return
+	end
+
+	self:do_reconnect(server_info)
+end
+
+function ServerMgr:on_connect_fail(server_info)
+	Log.info("ServerMgr:on_connect_fail mailbox_id=%d", server_info._mailbox_id)
+
+	for k, v in ipairs(self._wait_server_list) do
+		if v == server_info then
+			table.remove(self._wait_server_list, k)
+			break
+		end
+	end
+
+	self:_on_connection_down(server_info)
+end
+
+function ServerMgr:on_connection_close(server_info)
+
+	local found = false
+	repeat
+		for k, v in ipairs(self._wait_server_list) do
+			if v == server_info then
+				-- remove from wait connect list
+				table.remove(self._wait_server_list, k)
+				found = true
+				break
+			end
+		end
+		if found then break end
+		for _, v in pairs(self._active_server_map) do
+			if v._mailbox_id == server_info._mailbox_id then
+				self:unregister_server(server_info)
+				found = true
+				break
+			end
+		end
+	until true
+
+	if not found then
+		Log.warn("ServerMgr:on_connection_close server nil mailbox_id=%d", server_info._mailbox_id)
+		return
+	end
+
+	self:_on_connection_down(server_info)
 end
 
 function ServerMgr:shake_hand_success(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
@@ -230,53 +316,6 @@ function ServerMgr:shake_hand_success(mailbox_id, server_id, server_type, single
 	table.remove(self._wait_server_list, index_in_list)
 
 	return true
-end
-
-function ServerMgr:on_connect_fail(server_info)
-end
-
-function ServerMgr:handle_disconnect(mailbox_id)
-	Log.info("ServerMgr:handle_disconnect mailbox_id=%d", mailbox_id)
-
-	local server_info = nil
-	repeat
-		for k, v in ipairs(self._wait_server_list) do
-			if v._mailbox_id == mailbox_id then
-				server_info = v
-				-- remove from wait connect list
-				table.remove(self._wait_server_list, k)
-				break
-			end
-		end
-		if server_info then break end
-		for _, v in pairs(self._active_server_map) do
-			if v._mailbox_id == mailbox_id then
-				server_info = v
-				self:unregister_server(server_info)
-				break
-			end
-		end
-	until true
-
-	if not server_info then
-		Log.warn("ServerMgr:handle_disconnect server nil mailbox_id=%d", mailbox_id)
-		return
-	end
-
-	if server_info._no_reconnect or server_info._port == 0 then
-		-- no reconnect or connect in, do nothing
-		Log.warn("ServerMgr:handle_disconnect no need reconnect [%d:%s]", server_info._server_type, ServerTypeName[server_info._server_type])
-		self:print()
-		return
-	end
-
-	server_info._mailbox_id = MAILBOX_ID_NIL
-	server_info._connect_status = ServiceConnectStatus.DISCONNECT
-
-	self:do_reconnect(server_info)
-
-	Log.info("ServerMgr:handle_disconnect")
-	self:print()
 end
 
 function ServerMgr:close_connection(server_info, no_reconnect)
@@ -314,71 +353,6 @@ function ServerMgr:close_connection_by_host(ip, port, no_reconnect)
 end
 
 ----------------------------------------------
-
-function ServerMgr:get_server_by_id(server_id)
-	return self._active_server_map[server_id]
-end
-
-function ServerMgr:get_server_by_host(ip, port)
-	for k, v in pairs(self._active_server_map) do
-		if v._ip == ip and v._port == port then
-			return v
-		end
-	end
-	for k, v in ipairs(self._wait_server_list) do
-		if v._ip == ip and v._port == port then
-			return v
-		end
-	end
-	return nil
-end
-
-function ServerMgr:get_server_by_mailbox(mailbox_id)
-	for _, server_info in ipairs(self._wait_server_list) do
-		if server_info._mailbox_id == mailbox_id then
-			return server_info
-		end
-	end
-	for _, server_info in pairs(self._active_server_map) do
-		if server_info._mailbox_id == mailbox_id then
-			return server_info
-		end
-	end
-	return nil
-end
-
-function ServerMgr:get_server_by_scene(scene_id)
-	
-	local id_list = self._scene_server_map[scene_id] or {}
-	if #id_list == 0 then
-		return nil
-	end
-
-	local r = math.random(#id_list)
-	local server_id = id_list[r]
-
-	return self:get_server_by_id(server_id)
-end
-
--- same opt_key(number) will get same server, or just do random to get
-function ServerMgr:get_server_by_type(server_type, opt_key)
-	
-	local id_list = self._type_server_map[server_type] or {}
-	if #id_list == 0 then
-		return nil
-	end
-
-	local server_id
-	if not opt_key then
-		local r = math.random(#id_list)
-		server_id = id_list[r]
-	else
-		local r = opt_key % #id_list + 1
-		server_id = id_list[r]
-	end
-
-	return self:get_server_by_id(server_id)
-end
 
 function ServerMgr:send_by_server_type(server_type, msg_id, data, opt_key)
 	local server_info = self:get_server_by_type(server_type, opt_key)

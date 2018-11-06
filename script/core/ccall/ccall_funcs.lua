@@ -53,7 +53,7 @@ function ccall_disconnect_handler(mailbox_id)
 			if g_net_event_server_disconnect and server_info._connect_status == ServiceConnectStatus.CONNECTED then
 				g_net_event_server_disconnect(server_info._server_id)
 			end
-			Core.server_mgr:handle_disconnect(id)
+			Core.server_mgr:on_connection_close(server_info)
 		else
 			-- client disconnect, login and gate handle
 			Log.warn("ccall_disconnect_handler client disconnect %d", id)
@@ -68,42 +68,6 @@ function ccall_disconnect_handler(mailbox_id)
 	local status, msg = xpcall(handle_disconnect
 	, function(msg) return error_handler(msg, mailbox_id) end
 	, mailbox_id)
-
-	if not status then
-		Log.err(msg)
-	end
-end
-
-function ccall_connect_to_ret_handler(connect_index, mailbox_id)
-	Log.info("ccall_connect_to_ret_handler connect_index=%d mailbox_id=%d", connect_index, mailbox_id)
-
-	local function error_handler(msg, index, id)
-		msg = debug.traceback(msg, 3)
-		msg = string.format("ccall_connect_to_ret_handler error : connect_index = %d mailbox_id = %d \n%s", index, id, msg)
-		return msg 
-	end
-	
-	local status, msg = xpcall(Core.server_mgr.connect_to_ret
-	, function(msg) return error_handler(msg, connect_index, mailbox_id) end
-	, Core.server_mgr, connect_index, mailbox_id)
-
-	if not status then
-		Log.err(msg)
-	end
-end
-
-function ccall_connect_to_success_handler(mailbox_id)
-	Log.info("ccall_connect_to_success_handler mailbox_id=%d", mailbox_id)
-
-	local function error_handler(msg, id)
-		msg = debug.traceback(msg, 3)
-		msg = string.format("ccall_connect_to_success_handler error : mailbox_id = %d \n%s", id, msg)
-		return msg 
-	end
-	
-	local status, msg = xpcall(Core.server_mgr.connect_to_success
-	, function(msg) return error_handler(msg, mailbox_id) end
-	, Core.server_mgr, mailbox_id)
 
 	if not status then
 		Log.err(msg)
