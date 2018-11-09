@@ -95,7 +95,7 @@ function ServerInfo:connect()
 	self._last_connect_time = os.time()
 	self._connect_status = ServiceConnectStatus.CONNECTING
 	Core.timer_mgr:fork(function()
-		local mailbox_id = Core.net_mgr:sync_connect_to(self._ip, self._port)
+		local mailbox_id = Core.net_mgr:connect(self._ip, self._port)
 		if mailbox_id ~= MAILBOX_ID_NIL then
 			if self._connect_status == ServiceConnectStatus.DISCONNECTING then
 				Core.net_mgr:close_mailbox(mailbox_id)

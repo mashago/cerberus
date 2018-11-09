@@ -26,11 +26,10 @@ public:
 	void HandleEvent(const EventNode &node);
 
 	virtual void HandleNewConnection(int64_t mailboxId, const char *ip, int port);
-	virtual void HandleConnectToSuccess(int64_t mailboxId);
 	virtual void HandleDisconnect(int64_t mailboxId);
 	virtual void HandleMsg(Pluto &u);
 	virtual void HandleStdin(const char *buffer);
-	virtual void HandleConnectToRet(int64_t connIndex, int64_t mailboxId);
+	virtual void HandleConnectRet(int64_t session_id, int64_t mailboxId);
 	virtual void HandleHttpResponse(int64_t session_id, int response_code, const char *content, int content_len);
 	virtual void HandleListenRet(int64_t listenId, int64_t session_id);
 
@@ -43,8 +42,7 @@ public:
 
 
 	// call from lua
-	int64_t ConnectTo(const char* ip, unsigned int port); // return a connect index
-	bool SyncConnectTo(int64_t session_id, const char* ip, unsigned int port);
+	bool Connect(int64_t session_id, const char* ip, unsigned int port);
 	void SendPluto(Pluto *pu);
 	void CloseMailbox(int64_t mailboxId);
 	bool HttpRequest(const char *url, int64_t session_id, int request_type, const char *post_data, int post_data_len);

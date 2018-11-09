@@ -29,14 +29,9 @@ Pluto * LuaNetwork::GetSendPluto()
 	return m_sendPluto;
 }
 
-int64_t LuaNetwork::ConnectTo(const char* ip, unsigned int port)
+bool LuaNetwork::Connect(int64_t session_id, const char* ip, unsigned int port)
 {
-	return m_world->ConnectTo(ip, port);
-}
-
-bool LuaNetwork::SyncConnectTo(int64_t session_id, const char* ip, unsigned int port)
-{
-	return m_world->SyncConnectTo(session_id, ip, port);
+	return m_world->Connect(session_id, ip, port);
 }
 
 bool LuaNetwork::Send(int64_t mailboxId)

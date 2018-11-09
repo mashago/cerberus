@@ -257,12 +257,8 @@ end
 
 ------------------------------------
 
-function NetMgr:connect_to(ip, port)
-	return cnetwork.connect_to(ip, port)
-end
-
-function NetMgr:sync_connect_to(ip, port)
-	return Core.rpc_mgr:sync(cnetwork.connect_to, ip, port)
+function NetMgr:connect(ip, port)
+	return Core.rpc_mgr:sync(cnetwork.connect, ip, port)
 end
 
 function NetMgr:listen(ip, port)

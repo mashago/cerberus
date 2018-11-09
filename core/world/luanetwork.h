@@ -18,8 +18,7 @@ public:
 	Pluto *GetRecvPluto();
 	Pluto *GetSendPluto();
 
-	int64_t ConnectTo(const char* ip, unsigned int port); // return mailboxId or negative
-	bool SyncConnectTo(int64_t session_id, const char* ip, unsigned int port); // return mailboxId or negative
+	bool Connect(int64_t session_id, const char* ip, unsigned int port);
 	bool Send(int64_t mailboxId);
 	bool Transfer(int64_t mailboxId);
 

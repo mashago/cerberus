@@ -155,12 +155,6 @@ void LuaWorld::HandleEvent(const EventNode &node)
 			HandleNewConnection(real_node.mailboxId, real_node.ip, real_node.port);
 			break;
 		}
-		case EVENT_TYPE::EVENT_TYPE_CONNECT_TO_SUCCESS:
-		{
-			const EventNodeConnectToSuccess &real_node = (EventNodeConnectToSuccess&)node;
-			HandleConnectToSuccess(real_node.mailboxId);
-			break;
-		}
 		case EVENT_TYPE::EVENT_TYPE_DISCONNECT:
 		{
 			const EventNodeDisconnect &real_node = (EventNodeDisconnect&)node;
@@ -186,10 +180,10 @@ void LuaWorld::HandleEvent(const EventNode &node)
 			HandleStdin(real_node.buffer);
 			break;
 		}
-		case EVENT_TYPE::EVENT_TYPE_CONNECT_TO_RET:
+		case EVENT_TYPE::EVENT_TYPE_CONNECT_RET:
 		{
-			const EventNodeConnectToRet &real_node = (EventNodeConnectToRet&)node;
-			HandleConnectToRet(real_node.ext, real_node.mailboxId);
+			const EventNodeConnectRet &real_node = (EventNodeConnectRet&)node;
+			HandleConnectRet(real_node.session_id, real_node.mailboxId);
 			break;
 		}
 		case EVENT_TYPE::EVENT_TYPE_HTTP_RSP:
@@ -230,15 +224,6 @@ void LuaWorld::HandleDisconnect(int64_t mailboxId)
 	lua_call(m_L, 1, 0);
 }
 
-void LuaWorld::HandleConnectToSuccess(int64_t mailboxId)
-{
-	LOG_DEBUG("mailboxId=%ld", mailboxId);
-
-	lua_getglobal(m_L, "ccall_connect_to_success_handler");
-	lua_pushinteger(m_L, mailboxId);
-	lua_call(m_L, 1, 0);
-}
-
 void LuaWorld::HandleMsg(Pluto &u)
 {
 	int64_t mailboxId = u.GetMailboxId();
@@ -257,12 +242,12 @@ void LuaWorld::HandleStdin(const char *buffer)
 	// default do nothing
 }
 
-void LuaWorld::HandleConnectToRet(int64_t connIndex, int64_t mailboxId)
+void LuaWorld::HandleConnectRet(int64_t session_id, int64_t mailboxId)
 {
-	LOG_DEBUG("connIndex=%ld mailboxId=%ld", connIndex, mailboxId);
+	LOG_DEBUG("session_id=%ld mailboxId=%ld", session_id, mailboxId);
 
-	lua_getglobal(m_L, "ccall_connect_to_ret_handler");
-	lua_pushinteger(m_L, connIndex);
+	lua_getglobal(m_L, "ccall_connect_ret_handler");
+	lua_pushinteger(m_L, session_id);
 	lua_pushinteger(m_L, mailboxId);
 	lua_call(m_L, 2, 0);
 }
@@ -308,20 +293,9 @@ void LuaWorld::HandleTimer(void *arg, bool is_loop)
 
 //////////////////////////////////////////////
 
-// send a eventnode to net, return a connect index for connect to ret event
-int64_t LuaWorld::ConnectTo(const char* ip, unsigned int port)
+bool LuaWorld::Connect(int64_t session_id, const char* ip, unsigned int port)
 {
-	EventNodeConnectToReq *node = new EventNodeConnectToReq;
-	snprintf(node->ip, sizeof(node->ip), "%s", ip);
-	node->port = port;
-	node->ext = ++m_connIndex;
-	SendEvent(node);
-	return m_connIndex;
-}
-
-bool LuaWorld::SyncConnectTo(int64_t session_id, const char* ip, unsigned int port)
-{
-	EventNodeSyncConnectToReq *node = new EventNodeSyncConnectToReq;
+	EventNodeConnectReq *node = new EventNodeConnectReq;
 	node->session_id = session_id;
 	snprintf(node->ip, sizeof(node->ip), "%s", ip);
 	node->port = port;

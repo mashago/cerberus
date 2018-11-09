@@ -148,7 +148,34 @@ int NetService::Dispatch()
 	return 0;
 }
 
-int64_t NetService::ConnectTo(const char *addr, unsigned int port)
+int64_t NetService::Listen(const char *addr, unsigned int port)
+{
+	// init listener
+	struct sockaddr_in sin;
+	memset(&sin, 0, sizeof(sin));
+	sin.sin_family = PF_INET;
+	sin.sin_addr.s_addr = inet_addr(addr);
+	sin.sin_port = htons(port);
+
+	m_evconnlistener = evconnlistener_new_bind(m_mainEvent, listen_cb, (void *)this, LEV_OPT_REUSEABLE|LEV_OPT_CLOSE_ON_FREE, -1, (struct sockaddr *)&sin, sizeof(sin));
+	if (!m_evconnlistener)
+	{
+		LOG_ERROR("new bind fail");
+		return -1;
+	}
+
+	// set nonblock
+	evutil_socket_t fd = evconnlistener_get_fd(m_evconnlistener);
+	evutil_make_socket_nonblocking(fd);
+
+	Listener *pl = new Listener(fd);
+	m_listenerFds[fd] = pl;
+	m_listeners[pl->GetListenId()] = pl;
+
+	return pl->GetListenId();
+}
+
+int64_t NetService::Connect(const char *addr, unsigned int port)
 {
     // 1. init a sin
 	// 2. init buffer socket
@@ -198,33 +225,6 @@ int64_t NetService::ConnectTo(const char *addr, unsigned int port)
 	pmb->SetBEV(bev);
 
 	return pmb->GetMailboxId();
-}
-
-int64_t NetService::Listen(const char *addr, unsigned int port)
-{
-	// init listener
-	struct sockaddr_in sin;
-	memset(&sin, 0, sizeof(sin));
-	sin.sin_family = PF_INET;
-	sin.sin_addr.s_addr = inet_addr(addr);
-	sin.sin_port = htons(port);
-
-	m_evconnlistener = evconnlistener_new_bind(m_mainEvent, listen_cb, (void *)this, LEV_OPT_REUSEABLE|LEV_OPT_CLOSE_ON_FREE, -1, (struct sockaddr *)&sin, sizeof(sin));
-	if (!m_evconnlistener)
-	{
-		LOG_ERROR("new bind fail");
-		return -1;
-	}
-
-	// set nonblock
-	evutil_socket_t listen_fd = evconnlistener_get_fd(m_evconnlistener);
-	evutil_make_socket_nonblocking(listen_fd);
-
-	Listener *pl = new Listener(listen_fd);
-	m_listenerFds[pl->GetFd()] = pl;
-	m_listeners[pl->GetListenId()] = pl;
-
-	return pl->GetListenId();
 }
 
 ////////////////// mainbox function start [
@@ -573,34 +573,20 @@ void NetService::HandleWorldEvent()
 				m_sendMailboxs.insert(pmb);
 				break;
 			}
-			case EVENT_TYPE::EVENT_TYPE_CONNECT_TO_REQ:
+			case EVENT_TYPE::EVENT_TYPE_CONNECT_REQ:
 			{
-				const EventNodeConnectToReq &real_node = (EventNodeConnectToReq&)node;
-				// LOG_DEBUG("ext=%ld", real_node.ext);
-				// get a mailboxId, and send to world
-				int64_t mailboxId = ConnectTo(real_node.ip, real_node.port);
-				EventNodeConnectToRet *ret_node = new EventNodeConnectToRet();
-				ret_node->ext = real_node.ext;
-				ret_node->mailboxId = mailboxId;
-				SendEvent(ret_node);
-
-				break;
-			}
-			case EVENT_TYPE::EVENT_TYPE_SYNC_CONNECT_TO_REQ:
-			{
-				const EventNodeSyncConnectToReq &real_node = (EventNodeSyncConnectToReq&)node;
-				// XXX should we sendevent until connection success or error rather than send right now
-				// get a mailboxId, and send to world
-				int64_t mailboxId = ConnectTo(real_node.ip, real_node.port);
-				// TODO store <session_id, mailboxId> in a map, send event when connection success or error
-
-				/*
-				EventNodeSyncConnectToRet *ret_node = new EventNodeSyncConnectToRet();
-				ret_node->session_id = real_node.session_id;
-				ret_node->mailboxId = mailboxId;
-				SendEvent(ret_node);
-				*/
-
+				const EventNodeConnectReq &real_node = (EventNodeConnectReq&)node;
+				// send event until connection success or error rather than send right now except Connect error
+				int64_t mailboxId = Connect(real_node.ip, real_node.port);
+				if (mailboxId == -1)
+				{
+					EventNodeConnectRet *ret_node = new EventNodeConnectRet();
+					ret_node->session_id = real_node.session_id;
+					ret_node->mailboxId = mailboxId;
+					SendEvent(ret_node);
+					break;
+				}
+				m_connectSessions[mailboxId] = real_node.session_id;
 				break;
 			}
 			case EVENT_TYPE::EVENT_TYPE_HTTP_REQ:

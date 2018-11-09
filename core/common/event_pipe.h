@@ -20,15 +20,14 @@ enum EVENT_TYPE
 	EVENT_TYPE_TIMER 					= 4, // n2w
 	EVENT_TYPE_MSG 						= 5, // n2w, w2n
 	EVENT_TYPE_STDIN 					= 6, // n2w
-	EVENT_TYPE_CONNECT_TO_REQ 			= 7, // w2n
-	EVENT_TYPE_CONNECT_TO_RET 			= 8, // n2w
+	EVENT_TYPE_CONNECT_REQ 				= 7, // w2n
+	EVENT_TYPE_CONNECT_RET 				= 8, // n2w
 	EVENT_TYPE_HTTP_REQ 				= 9, // w2n
 	EVENT_TYPE_HTTP_RSP 				= 10, // n2w
 	EVENT_TYPE_LISTEN_REQ 				= 11, // w2n
 	EVENT_TYPE_LISTEN_RET 				= 12, // n2w
 	EVENT_TYPE_SUBTHREAD_JOB_REQ 		= 13, // w2t
 	EVENT_TYPE_SUBTHREAD_JOB_RET 		= 14, // w2t
-	EVENT_TYPE_SYNC_CONNECT_TO_REQ 		= 15, // w2n
 };
 
 struct EventNode
@@ -95,35 +94,24 @@ struct EventNodeStdin : public EventNode
 	char *buffer = NULL;
 };
 
-struct EventNodeConnectToReq : public EventNode
+struct EventNodeConnectReq : public EventNode
 {
-	EventNodeConnectToReq() : EventNode(EVENT_TYPE::EVENT_TYPE_CONNECT_TO_REQ)
-	{
-		memset(ip, 0, sizeof(ip));
-	}
-	char ip[50];
-	unsigned int port = 0;
-	int64_t ext = 0;
-};
-
-struct EventNodeConnectToRet : public EventNode
-{
-	EventNodeConnectToRet() : EventNode(EVENT_TYPE::EVENT_TYPE_CONNECT_TO_RET)
-	{
-	}
-	int64_t ext = 0;
-	int64_t mailboxId = -1;
-};
-
-struct EventNodeSyncConnectToReq : public EventNode
-{
-	EventNodeSyncConnectToReq() : EventNode(EVENT_TYPE::EVENT_TYPE_SYNC_CONNECT_TO_REQ)
+	EventNodeConnectReq() : EventNode(EVENT_TYPE::EVENT_TYPE_CONNECT_REQ)
 	{
 		memset(ip, 0, sizeof(ip));
 	}
 	int64_t session_id = 0;
 	char ip[50];
 	unsigned int port = 0;
+};
+
+struct EventNodeConnectRet : public EventNode
+{
+	EventNodeConnectRet() : EventNode(EVENT_TYPE::EVENT_TYPE_CONNECT_RET)
+	{
+	}
+	int64_t session_id = 0;
+	int64_t mailboxId = -1;
 };
 
 struct EventNodeHttpReq : public EventNode
