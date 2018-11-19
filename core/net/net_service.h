@@ -50,7 +50,7 @@ public:
 	int HandleSocketRead(struct bufferevent *bev);
 	int HandleSocketClosed(evutil_socket_t fd);
 	int HandleSocketError(evutil_socket_t fd);
-	int HandleSocketConnectToSuccess(evutil_socket_t fd);
+	int HandleSocketConnectSuccess(evutil_socket_t fd);
 	void HandleMainLoop();
 	void HandleHttpConnClose(struct evhttp_connection *http_conn);
 

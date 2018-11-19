@@ -523,7 +523,7 @@ int NetService::HandleSocketError(evutil_socket_t fd)
 	return 0;
 }
 
-int NetService::HandleSocketConnectToSuccess(evutil_socket_t fd)
+int NetService::HandleSocketConnectSuccess(evutil_socket_t fd)
 {
 	Mailbox *pmb = GetMailboxByFd(fd);
 	if (pmb == NULL)
@@ -531,11 +531,17 @@ int NetService::HandleSocketConnectToSuccess(evutil_socket_t fd)
 		LOG_WARN("mailbox null fd=%d", fd);
 		return 0;
 	}
+	auto iter = m_connectSessions.find(pmb->GetMailboxId());
+	if (iter == m_connectSessions.end())
+	{
+		LOG_ERROR("session nil fd=%d", fd);
+		return 0;
+	}
 
-	// send to world
-	EventNodeConnectToSuccess *node = new EventNodeConnectToSuccess();
-	node->mailboxId = pmb->GetMailboxId();
-	SendEvent(node);
+	EventNodeConnectRet *ret_node = new EventNodeConnectRet();
+	ret_node->session_id = iter->second;
+	ret_node->mailboxId = pmb->GetMailboxId();
+	SendEvent(ret_node);
 
 	return 0;
 }
@@ -833,7 +839,7 @@ static void event_cb(struct bufferevent *bev, short event, void *user_data)
 	else if (event & BEV_EVENT_CONNECTED)
 	{
 		LOG_DEBUG("@@@@@@@ event connected %d", fd);
-		ns->HandleSocketConnectToSuccess(fd);
+		ns->HandleSocketConnectSuccess(fd);
 	}
 	else
 	{

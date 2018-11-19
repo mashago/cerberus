@@ -16,7 +16,6 @@ class Pluto;
 enum EVENT_TYPE
 {
 	EVENT_TYPE_NEW_CONNECTION 			= 1, // n2w
-	EVENT_TYPE_CONNECT_TO_SUCCESS 		= 2, // n2w
 	EVENT_TYPE_DISCONNECT 				= 3, // n2w, w2n
 	EVENT_TYPE_TIMER 					= 4, // n2w
 	EVENT_TYPE_MSG 						= 5, // n2w, w2n
@@ -48,14 +47,6 @@ struct EventNodeNewConnection : public EventNode
 	char ip[50];
 	int port = 0;
 	int64_t listenId = -1;
-};
-
-struct EventNodeConnectToSuccess : public EventNode
-{
-	EventNodeConnectToSuccess() : EventNode(EVENT_TYPE::EVENT_TYPE_CONNECT_TO_SUCCESS)
-	{
-	}
-	int64_t mailboxId = -1;
 };
 
 struct EventNodeDisconnect : public EventNode

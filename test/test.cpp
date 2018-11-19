@@ -251,12 +251,6 @@ void thread_run(EventPipe *pipe, bool isBlockWait)
 					LOG_DEBUG("mailboxId=%ld", real_node.mailboxId);
 					break;
 				}
-				case EVENT_TYPE::EVENT_TYPE_CONNECT_TO_SUCCESS:
-				{
-					const EventNodeConnectToSuccess &real_node = (EventNodeConnectToSuccess&)node;
-					LOG_DEBUG("mailboxId=%ld", real_node.mailboxId);
-					break;
-				}
 				case EVENT_TYPE::EVENT_TYPE_DISCONNECT:
 				{
 					const EventNodeDisconnect &real_node = (EventNodeDisconnect&)node;
@@ -306,11 +300,6 @@ int test2()
 		{
 			EventNodeNewConnection *node = new EventNodeNewConnection;
 			node->mailboxId = 1;
-			pipe->Push(node);
-		}
-		{
-			EventNodeConnectToSuccess *node = new EventNodeConnectToSuccess;
-			node->mailboxId = 2;
 			pipe->Push(node);
 		}
 		{
