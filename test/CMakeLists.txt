@@ -44,7 +44,7 @@ ENDIF()
 SET(LOCAL_LIBRARIES "core;tinyxml;lfs")
 
 IF(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
-	SET(LIBRARIES "lua;event;mysqlclient;dl")
+	SET(LIBRARIES "lua;event;mysqlclient;dl;pthread")
 ELSEIF(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	IF(PROJECT_BUILD_TYPE MATCHES "Debug")
 		# use mysql debug dll
