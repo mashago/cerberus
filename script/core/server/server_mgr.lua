@@ -217,7 +217,7 @@ function ServerMgr:on_connect_success(server_info)
 	if server_info._no_shakehand then
 		-- no_shakehand, local register server
 		-- now use by client
-		Log.debug("ServerMgr:connect_to_success mailbox_id=%d server_id=%d server_type=%d", mailbox_id, server_info._server_id, server_info._server_type)
+		Log.debug("ServerMgr:connect_to_success mailbox_id=%d server_id=%d server_type=%d", server_info._mailbox_id, server_info._server_id, server_info._server_type)
 		self:register_server(server_info)
 		-- remove from connection list
 		table.remove(self._wait_server_list, index_in_list)
@@ -234,7 +234,7 @@ function ServerMgr:on_connect_success(server_info)
 		ip = Core.server_conf._ip,
 		port = Core.server_conf._port,
 	}
-	server_info:send_msg(mailbox_id, MID.s2s_shake_hand_req, msg)
+	server_info:send_msg(MID.s2s_shake_hand_req, msg)
 end
 
 function ServerMgr:_on_connection_down(server_info)
