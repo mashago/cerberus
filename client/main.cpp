@@ -9,7 +9,7 @@
 #include "common.h"
 #include "logger.h"
 #include "net_service.h"
-#include "luaclient.h"
+#include "luaworld.h"
 #include "tinyxml2.h"
 #include "event_pipe.h"
 
@@ -55,7 +55,7 @@ int main(int argc, char ** argv)
 	EventPipe *net2worldPipe = new EventPipe();
 	EventPipe *world2netPipe = new EventPipe(false);
 
-	LuaWorld *world = new LuaClient();
+	LuaWorld *world = new LuaWorld();
 	if (!world->Init(conf_file, net2worldPipe, world2netPipe))
 	{
 		printf("world init error\n");

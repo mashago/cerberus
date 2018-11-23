@@ -239,7 +239,9 @@ void LuaWorld::HandleMsg(Pluto &u)
 
 void LuaWorld::HandleStdin(const char *buffer)
 {
-	// default do nothing
+	lua_getglobal(m_L, "ccall_stdin_handler");
+	lua_pushstring(m_L, buffer);
+	lua_call(m_L, 1, 0);
 }
 
 void LuaWorld::HandleConnectRet(int64_t session_id, int64_t mailboxId)
