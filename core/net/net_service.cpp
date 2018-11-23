@@ -293,10 +293,23 @@ void NetService::CloseMailbox(Mailbox *pmb)
 		LOG_WARN("m_bev null %d", pmb->GetMailboxId());
 	}
 
-	// notice to world
-	EventNodeDisconnect *node = new EventNodeDisconnect();
-	node->mailboxId = pmb->GetMailboxId();
-	SendEvent(node);
+	auto iter = m_connectSessions.find(pmb->GetMailboxId());
+	if (iter == m_connectSessions.end())
+	{
+		// notice to world
+		EventNodeDisconnect *node = new EventNodeDisconnect();
+		node->mailboxId = pmb->GetMailboxId();
+		SendEvent(node);
+	}
+	else
+	{
+		EventNodeConnectRet *node = new EventNodeConnectRet();
+		node->session_id = iter->second;
+		node->mailboxId = 0;
+		SendEvent(node);
+		m_connectSessions.erase(iter);
+	}
+
 
 	// push to list, delete by tick
 	pmb->SetDelete(true);
@@ -542,6 +555,7 @@ int NetService::HandleSocketConnectSuccess(evutil_socket_t fd)
 	ret_node->session_id = iter->second;
 	ret_node->mailboxId = pmb->GetMailboxId();
 	SendEvent(ret_node);
+	m_connectSessions.erase(iter);
 
 	return 0;
 }

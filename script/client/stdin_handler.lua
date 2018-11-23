@@ -415,7 +415,7 @@ function cmd_handler.do_connect(params)
 	local port = server_info.port
 	local server_id = server_info.server_id
 	local no_shakehand = true
-	local no_reconnect = false
+	local no_reconnect = true
 	local no_delay = true
 	Core.server_mgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect, no_delay)
 
