@@ -17,32 +17,31 @@ function ServerConfig:ctor(config)
 	self._db_name_map = {} -- {[db_type]=db_name}
 
 	
-	local s = config.server[1]
+	local s = config
 
-	self._server_id = tonumber(s.id or 0)
-	self._server_type = tonumber(s.type or 0)
+	self._server_id = s.id or 0
+	self._server_type = s.type or 0
 	self._ip = s.ip or ""
-	self._port = tonumber(s.port or 0)
-
+	self._port = s.port or 0
 	self._path = assert(s.path)
 
 	-- load connect_to server list
-	local address = ((s.connect_to or {})[1] or {}).address or {}
+	local address = s.connect_to or {}
 	self._connect_to = {}
 	for _, v in ipairs(address) do
 		table.insert(self._connect_to, 
 		{
 			ip = v.ip,
-			port = tonumber(v.port),
+			port = v.port,
 		})
 	end
 
 	-- load scene list
-	local scene = ((s.scene_list or {})[1] or {}).scene or {}
+	local scene = s.scene_list or {}
 	for _, v in ipairs(scene) do
-		local single = tonumber(v.single or 0)
-		local from = tonumber(v.from or 0)
-		local to = tonumber(v.to or 0)
+		local single = v.single or 0
+		local from = v.from or 0
+		local to = v.to or 0
 
 		if single > 0 then
 			assert(not self._all_scene_list[single], "ServerConfig duplicate single=" .. single)
@@ -61,25 +60,25 @@ function ServerConfig:ctor(config)
 	end
 
 	-- load area list
-	local area = ((s.area_list or {})[1] or {}).area or {}
+	local area = s.area_list or {}
 	local t = {}
 	for _, v in ipairs(area) do
-		local area_id = tonumber(v.id or 0)
+		local area_id = v.id
 		assert(not t[area_id], "ServerConfig duplicate area_id=" .. area_id)
 		table.insert(self._area_list, area_id)
 	end
 
 	-- load mysqldb list
-	local mysql = ((s.mysql or {})[1] or {}).info or {}
+	local mysql = s.mysql or {}
 	for _, v in ipairs(mysql) do
-		local db_type = tonumber(v.db_type)
+		local db_type = v.db_type
 		local db_name = v.db_name
 		local db_suffix = v.db_suffix or ""
 		local real_db_name = db_name .. db_suffix
 		table.insert(self._mysql_list, 
 		{
 			ip = v.ip or "",
-			port = tonumber(v.port),
+			port = v.port,
 			username = v.username,
 			password = v.password,
 			db_type = db_type,

@@ -57,6 +57,11 @@ function rpc_mgr.db_user_login(data)
 	local password = data.password
 	local channel_id = data.channel_id
 
+	if not db_name then
+		Log.err("db_user_login db_name nil")
+		return rpc_mgr:ret({result = ErrorCode.SYS_ERROR, user_id = 0})
+	end
+
 	local ret = DBMgr.do_insert(db_name, "user_info"
 	, {"username", "password", "channel_id"}, {{username, password, channel_id}})
 	if ret > 0 then
@@ -92,6 +97,11 @@ function rpc_mgr.db_create_role(data)
 	local area_id = data.area_id
 	local role_name = data.role_name
 	local max_role = data.max_role
+
+	if not db_name then
+		Log.err("db_create_role db_name nil")
+		return rpc_mgr:ret({result = ErrorCode.SYS_ERROR, user_id = 0})
+	end
 
 	-- call a procedure
 	local sql = string.format("CALL create_user_role(%d,%d,'%s',%d)", user_id, area_id, role_name, max_role)

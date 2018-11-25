@@ -52,10 +52,19 @@ static int llog(lua_State *L)
 	return 0;
 }
 
+static int lsleep(lua_State *L)
+{
+	luaL_checktype(L, 1, LUA_TNUMBER);
+	int second = lua_tointeger(L, 1);
+	sleep(second);
+	return 0;
+}
+
 static const luaL_Reg lua_reg_funcs[] =
 {
 	{ "get_time_ms", lget_time_ms },
 	{ "log", llog },
+	{ "sleep", lsleep },
 	{ NULL, NULL},
 };
 

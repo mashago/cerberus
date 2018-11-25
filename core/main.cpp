@@ -17,7 +17,6 @@ extern "C"
 #include "logger.h"
 #include "net_service.h"
 #include "luaworld.h"
-#include "tinyxml2.h"
 #include "event_pipe.h"
 
 #ifndef WIN32
@@ -84,26 +83,54 @@ int main(int argc, char ** argv)
 #endif
 
 	// load config
-	tinyxml2::XMLDocument doc;
-	if (doc.LoadFile(conf_file) != tinyxml2::XMLError::XML_SUCCESS)
+	struct lua_State *L = luaL_newstate();
+	luaL_openlibs(L);
+	if (luaL_dofile(L, conf_file))
 	{
 		printf("load conf error %s!!!!\n", conf_file);
 		return 0;
 	}
-	tinyxml2::XMLElement *root = doc.FirstChildElement();
-	int server_id = root->IntAttribute("id");
-	const char *entry_path = (char*)root->Attribute("path");
-	int auto_shutdown = root->IntAttribute("auto_shutdown");
 
-	if (!strcmp(entry_path, ""))
+	printf("top=%d\n", lua_gettop(L));
+
+	lua_getfield(L, -1, "id");
+	if (!lua_isinteger(L, -1))
+	{
+		printf("load conf error %s!!!!\n", conf_file);
+		return 0;
+	}
+	int server_id = lua_tointeger(L, -1);
+	lua_pop(L, 1);
+	printf("server_id=%d\n", server_id);
+
+	int auto_shutdown = 0;
+	lua_getfield(L, -1, "auto_shutdown");
+	if (!lua_isnil(L, -1))
+	{
+		auto_shutdown = 1;
+	}
+	lua_pop(L, 1);
+	printf("auto_shutdown=%d\n", auto_shutdown);
+
+	lua_getfield(L, -1, "path");
+	if (!lua_isstring(L, -1))
+	{
+		printf("load conf error %s!!!!\n", conf_file);
+		return 0;
+	}
+	std::string entry_path(lua_tostring(L, -1));
+	lua_pop(L, 1);
+	printf("entry_path=%s\n", entry_path.c_str());
+	if (entry_path == "")
 	{
 		printf("entry_path error\n");
 		return 0;
 	}
+	lua_close(L);
 	//
 
 	char log_file_name[100];
-	sprintf(log_file_name, "%s%d", entry_path, server_id);
+	sprintf(log_file_name, "%s%d", entry_path.c_str(), server_id);
 	LOG_INIT(log_file_name, true);
 
 	// init msg pipe

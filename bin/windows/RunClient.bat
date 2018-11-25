@@ -8,6 +8,6 @@ set CONF_PATH=conf
 
 :: client
 @echo "Start Lua Client..."
-start "client" %BIN_PATH%/%BIN_NAME% %CONF_PATH%/conf_client.xml
+start "client" %BIN_PATH%/%BIN_NAME% %CONF_PATH%/conf_client.lua
 
 exit

@@ -28,12 +28,12 @@ end
 
 function Client:load_server_list()
 	local server_conf = Core.server_conf
-	local server_list = ((server_conf._config.server[1].server_list or {})[1] or {}).address or {}
+	local server_list = server_conf._config.server_list or {}
 	for _, v in ipairs(server_list) do
-		local server_id = tonumber(v.id)
-		local server_type = tonumber(v.type)
+		local server_id = v.id
+		local server_type = v.type
 		local ip = v.ip
-		local port = tonumber(v.port)
+		local port = v.port
 		self._server_list[server_type] =
 		{
 			ip = ip,

@@ -14,7 +14,7 @@ extern "C"
 #include "event_pipe.h"
 #include "luanetworkreg.h"
 #include "luanetwork.h"
-#include "luatinyxmlreg.h"
+// #include "luatinyxmlreg.h"
 #include "luamysqlreg.h"
 #include "luatimerreg.h"
 #include "luautilreg.h"
@@ -62,18 +62,6 @@ bool LuaWorld::Init(const char *conf_file, EventPipe *inputPipe, EventPipe *outp
 	// register lib
 	const luaL_Reg lua_reg_libs[] = 
 	{
-		{ "LuaTinyXMLDoc", luaopen_luatinyxmldoc },
-		{ "LuaTinyXMLEle", luaopen_luatinyxmlele },
-		{ NULL, NULL },
-	};
-	for (const luaL_Reg *libptr = lua_reg_libs; libptr->func; ++libptr)
-	{
-		luaL_requiref(m_L, libptr->name, libptr->func, 1);
-		lua_pop(m_L, 1);
-	}
-
-	const luaL_Reg lua_reg_libs2[] = 
-	{
 		{ "cerberus.util", luaopen_cerberus_util },
 		{ "cerberus.network", luaopen_cerberus_network },
 		{ "cerberus.timer", luaopen_cerberus_timer },
@@ -81,7 +69,7 @@ bool LuaWorld::Init(const char *conf_file, EventPipe *inputPipe, EventPipe *outp
 		{ "lfs", luaopen_lfs },
 		{ NULL, NULL },
 	};
-	for (const luaL_Reg *libptr = lua_reg_libs2; libptr->func; ++libptr)
+	for (const luaL_Reg *libptr = lua_reg_libs; libptr->func; ++libptr)
 	{
 		luaL_requiref(m_L, libptr->name, libptr->func, 0);
 		LOG_DEBUG("name=%s", libptr->name);

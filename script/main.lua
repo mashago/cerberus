@@ -17,6 +17,7 @@ local RpcMgr = require "rpc.rpc_mgr"
 local HttpMgr = require "http.http_mgr"
 local g_funcs = require "global.global_funcs"
 local Util = require "util.util"
+local cutil = require "cerberus.util"
 
 local conf_file = ...
 
@@ -57,6 +58,7 @@ local function run()
 	
 	local server_mgr = Core.server_mgr
 	for _, v in ipairs(Core.server_conf._connect_to) do
+		Log.debug("connect ip=%s port=%d", v.ip, v.port)
 		server_mgr:do_connect(v.ip, v.port)
 	end
 
@@ -79,12 +81,7 @@ local function main()
 
 	check_write_global()
 
-	local xml_doc = LuaTinyXMLDoc.create()
-	if not xml_doc:load_file(conf_file) then
-		Log.err("tinyxml load file fail %s", conf_file)
-		return
-	end
-	local config = xml_doc:export()
+	local config = dofile(conf_file)
 	Log.debug("config=%s", Util.table_to_string(config))
 
 	Core.server_conf = ServerConfig.new(config)

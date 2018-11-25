@@ -8,6 +8,6 @@ set CONF_PATH=conf
 set SERVER_PKG_ID=1
 
 @echo "Start Sync DB..."
-start "sync_db" %BIN_PATH%/%BIN_NAME% %CONF_PATH%/conf_sync_db%SERVER_PKG_ID%_1.xml
+start "sync_db" %BIN_PATH%/%BIN_NAME% %CONF_PATH%/conf_sync_db%SERVER_PKG_ID%_1.lua
 
 exit
