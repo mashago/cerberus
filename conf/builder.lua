@@ -71,28 +71,7 @@ return {
 	},
 }
 ]],
-}
-,
-{
-"gate",
-[[
-return {
-	id = %d,
-	type = %d,
-	ip = "127.0.0.1",
-	port = %d,
-	path = "gate_svr",
-
-	connect_to =
-	{
-		-- master_svr
-		{
-			ip = "127.0.0.1",
-			port = %d,
-		}
-	},
-}
-]],
+2,
 }
 ,
 {
@@ -164,41 +143,7 @@ return {
 	},
 }
 ]],
-}
-,
-{
-"db_game",
-[[
-return {
-	id = %d,
-	type = %d,
-	ip = "127.0.0.1",
-	port = %d,
-	path = "db_svr",
-
-	connect_to =
-	{
-		-- master_svr
-		{
-			ip = "127.0.0.1",
-			port = %d,
-		}
-	},
-
-	mysql =
-	{
-		{
-			ip = "127.0.0.1",
-			port = 3306,
-			username = "testmn",
-			password = "123456",
-			db_name = "mn_game_db",
-			db_type = 2,
-			db_suffix = "%d",
-		},
-	},
-}
-]],
+2,
 }
 ,
 {
@@ -247,46 +192,52 @@ function main()
 		type_num_map[type_name] = 0
 	end
 
-	local function get_type_num(type_name)
+	local function get_type_index(type_name)
 		type_num_map[type_name] = type_num_map[type_name] + 1
 		return type_num_map[type_name]
 	end
 
+	local total = 0
 	local master_server_port = 0
 	for k, v in ipairs(conf_list) do
 		local type_name = v[1]
-		local server_type = server_type_map[type_name]
 		local content = v[2]
-		local type_num = get_type_num(type_name)
-		local file_name = string.format("conf_%s%d_%d.lua", type_name, server_pkg_id, type_num)
+		local server_num = v[3] or 1
+		for i=1, server_num do
+			local server_type = server_type_map[type_name]
+			local type_index = get_type_index(type_name)
+			local file_name = string.format("conf_%s%d_%d.lua", type_name, server_pkg_id, type_index)
 
-		local server_id = server_pkg_id * 1000 + server_type * 100 + type_num
-		local port = 6 * 10000 + server_pkg_id * 100 + k
-		
-		-- print("content=", content)
-		-- print("server_id=", server_id, " server_type=", server_type, " port=", port)
-		
-		if type_name == "master" then
-			master_server_port = port
-			content = string.format(content, server_id, server_type, port)
-		elseif type_name == "bridge" then
-			content = string.format(content, server_id, server_type, port, login_server_port, master_server_port)
-		elseif type_name == "gate" then
-			content = string.format(content, server_id, server_type, port, master_server_port)
-		elseif type_name == "public" then
-		elseif type_name == "scene" then
-			content = string.format(content, server_id, server_type, port, master_server_port)
-		elseif type_name == "db_game" then
-			content = string.format(content, server_id, server_type, port, master_server_port, server_pkg_id)
-		elseif type_name == "sync_db" then
-			content = string.format(content, server_pkg_id)
-		else
-			error("unknow server type ".. type_name)
+			total = total + 1
+			local server_id = server_pkg_id * 1000 + server_type * 100 + type_index
+			local port = 6 * 10000 + server_pkg_id * 100 + total
+			
+			-- print("content=", content)
+			print("server_id=", server_id, " server_type=", server_type, " port=", port)
+			
+			local output
+			if type_name == "master" then
+				master_server_port = port
+				output = string.format(content, server_id, server_type, port)
+			elseif type_name == "bridge" then
+				output = string.format(content, server_id, server_type, port, login_server_port, master_server_port)
+			elseif type_name == "gate" then
+				output = string.format(content, server_id, server_type, port, master_server_port)
+			elseif type_name == "public" then
+			elseif type_name == "scene" then
+				output = string.format(content, server_id, server_type, port, master_server_port)
+			elseif type_name == "db_game" then
+				output = string.format(content, server_id, server_type, port, master_server_port, server_pkg_id)
+			elseif type_name == "sync_db" then
+				output = string.format(content, server_pkg_id)
+			else
+				error("unknow server type ".. type_name)
+			end
+
+			local file = io.open(file_name, "w")
+			file:write(output)
+			file:close()
 		end
-
-		local file = io.open(file_name, "w")
-		file:write(content)
-		file:close()
 	end
 end
 
