@@ -155,7 +155,6 @@ return {
 	ip = "127.0.0.1",
 	port = 0,
 	path = "sync_db",
-	auto_shutdown = 1,
 
 	mysql =
 	{

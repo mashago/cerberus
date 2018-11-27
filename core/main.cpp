@@ -91,8 +91,6 @@ int main(int argc, char ** argv)
 		return 0;
 	}
 
-	printf("top=%d\n", lua_gettop(L));
-
 	lua_getfield(L, -1, "id");
 	if (!lua_isinteger(L, -1))
 	{
@@ -102,15 +100,6 @@ int main(int argc, char ** argv)
 	int server_id = lua_tointeger(L, -1);
 	lua_pop(L, 1);
 	printf("server_id=%d\n", server_id);
-
-	int auto_shutdown = 0;
-	lua_getfield(L, -1, "auto_shutdown");
-	if (!lua_isnil(L, -1))
-	{
-		auto_shutdown = 1;
-	}
-	lua_pop(L, 1);
-	printf("auto_shutdown=%d\n", auto_shutdown);
 
 	lua_getfield(L, -1, "path");
 	if (!lua_isstring(L, -1))
@@ -142,13 +131,6 @@ int main(int argc, char ** argv)
 	if (!world->Init(conf_file, net2worldPipe, world2netPipe))
 	{
 		printf("world init error\n");
-		return 0;
-	}
-
-	if (auto_shutdown)
-	{
-		printf("******* %s auto shutdown *******\n", conf_file);
-		getchar();
 		return 0;
 	}
 	world->Dispatch();

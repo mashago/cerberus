@@ -273,6 +273,8 @@ sync_db = function()
 		until true
 	end
 
+	os.exit(true)
+
 	return true
 end
 
