@@ -1,16 +1,16 @@
-## OpenGS
+## Cerberus
 
-OpenGS is an open source, cross platform online game server, developed in C++ and lua, and can run on windows, macos, linux.
+Cerberus is an open source, cross platform online game server, developed in C++ and lua, and can run on windows, macos, linux.
 
 ## Topology
 
 Main framework:  
-![main](pictures/opengs-main.png)
+![main](pictures/main.png)
 In the Server Pack, every server connect to other server directly.  
 
 
 Server core:  
-![core](pictures/opengs-core.png)
+![core](pictures/core.png)
 
 ## Depend
 
@@ -34,6 +34,9 @@ use cmake-gui
 
 ## Run
 run on centos or macos  
+0. init config
+`cd ${PROJECT_DIR}/conf`  
+`lua builder.lua`
 1. init db  
 `cd ${PROJECT_DIR}/conf`  
 `mysql -uroot -p < conf/db_login_init.sql`  
@@ -46,7 +49,7 @@ run on centos or macos
 `./run_client.sh`  
 
 ## Test
-In opengs_client, enter 'help'.
+In client, enter 'help'.
 
 
 
