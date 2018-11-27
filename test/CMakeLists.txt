@@ -14,7 +14,6 @@ INCLUDE_DIRECTORIES(
 ../core/common
 ../core/net
 ../core/world
-../tinyxml
 /usr/local/include
 /usr/include
 /usr/local/include/mysql
@@ -40,7 +39,7 @@ ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
 ELSE()
 ENDIF()
 
-SET(LOCAL_LIBRARIES "core;tinyxml;lfs")
+SET(LOCAL_LIBRARIES "core;lfs")
 
 IF(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 	SET(LIBRARIES "lua;event;mysqlclient;dl;pthread")

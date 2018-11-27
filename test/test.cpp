@@ -5,13 +5,13 @@
 #include "util.h"
 #include "common.h"
 #include "logger.h"
-#include "tinyxml2.h"
 #include "mysqlmgr.h"
 #include "event_pipe.h"
 
 // test xml config
 int test0()
 {
+	/*
 	const char *conf_file = "../conf/server_conf_demo.xml";
 
 	tinyxml2::XMLDocument doc;
@@ -29,6 +29,7 @@ int test0()
 	const char *entry_file = (char*)root->Attribute("file");
 	LOG_DEBUG("server_id=%d server_type=%d ip=%s port=%d entry_file=%s"
 	, server_id, server_type, ip, port, entry_file);
+	*/
 
 	return 0;
 }
