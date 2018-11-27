@@ -2,5 +2,8 @@
 2. rpc explicit return function, done
 3. network listen from lua, not from c++, done
 4. rpc function rename to call and send, done
-5. connection msg queue, block sync msg
-6. sheetobj use .[attr] to handle attr rather then use getter/setter
+5. connection msg queue, block sync msg, todo
+6. sheetobj use .[attr] to handle attr rather then use getter/setter, cancel
+7. lua create sub thread, todo
+8. remove dbserver, use sub thread do db logic
+9. refactor server topology, base on login-center-sync
