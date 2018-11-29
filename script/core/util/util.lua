@@ -2,60 +2,60 @@
 local Util = {}
 
 function Util.table_to_string(tb)
-    if type(tb) ~= "table" then
-        error("Sorry, it's not table, it is " .. type(tb) .. ".")
-    end
+	if type(tb) ~= "table" then
+		error("Sorry, it's not table, it is " .. type(tb) .. ".")
+	end
 
-    local function _list_table(t, table_list, level)
-        local ret = ""
-        local indent = string.rep(" ", level*4)
+	local function _list_table(t, table_list, level)
+		local ret = ""
+		local indent = string.rep(" ", level*4)
 
-        for k, v in pairs(t) do
-            local quo = type(k) == "string" and "\"" or ""
-            ret = ret .. indent .. "[" .. quo .. tostring(k) .. quo .. "] = "
+		for k, v in pairs(t) do
+			local quo = type(k) == "string" and "\"" or ""
+			ret = ret .. indent .. "[" .. quo .. tostring(k) .. quo .. "] = "
 
-            if type(v) == "table" then
-                local t_name = table_list[v]
-                if t_name then
-                    ret = ret .. tostring(v) .. " -- > [\"" .. t_name .. "\"]\n"
-                else
-                    table_list[v] = tostring(k)
-                    ret = ret .. "{\n"
-                    ret = ret .. _list_table(v, table_list, level+1)
-                    ret = ret .. indent .. "}\n"
-                end
-            elseif type(v) == "string" then
-                ret = ret .. "\"" .. tostring(v) .. "\"\n"
-            else
-                ret = ret .. tostring(v) .. "\n"
-            end
-        end
+			if type(v) == "table" then
+				local t_name = table_list[v]
+				if t_name then
+					ret = ret .. tostring(v) .. " -- > [\"" .. t_name .. "\"]\n"
+				else
+					table_list[v] = tostring(k)
+					ret = ret .. "{\n"
+					ret = ret .. _list_table(v, table_list, level+1)
+					ret = ret .. indent .. "}\n"
+				end
+			elseif type(v) == "string" then
+				ret = ret .. "\"" .. tostring(v) .. "\"\n"
+			else
+				ret = ret .. tostring(v) .. "\n"
+			end
+		end
 
-        local mt = getmetatable(t)
-        if mt then
-            ret = ret .. "\n"
-            local t_name = table_list[mt]
-            ret = ret .. indent .. "<metatable> = "
+		local mt = getmetatable(t)
+		if mt then
+			ret = ret .. "\n"
+			local t_name = table_list[mt]
+			ret = ret .. indent .. "<metatable> = "
 
-            if t_name then
-                ret = ret .. tostring(mt) .. " -- > [\"" .. t_name .. "\"]\n"
-            else
-                ret = ret .. "{\n"
-                ret = ret .. _list_table(mt, table_list, level+1)
-                ret = ret .. indent .. "}\n"
-            end
+			if t_name then
+				ret = ret .. tostring(mt) .. " -- > [\"" .. t_name .. "\"]\n"
+			else
+				ret = ret .. "{\n"
+				ret = ret .. _list_table(mt, table_list, level+1)
+				ret = ret .. indent .. "}\n"
+			end
 
-        end
+		end
 
-        return ret
-    end
+		return ret
+	end
 
-    local ret = " {\n"
-    local table_list = {}
-    table_list[tb] = "root table"
-    ret = ret .. _list_table(tb, table_list, 1)
-    ret = ret .. "}"
-    return ret
+	local ret = " {\n"
+	local table_list = {}
+	table_list[tb] = "root table"
+	ret = ret .. _list_table(tb, table_list, 1)
+	ret = ret .. "}"
+	return ret
 end
 
 function Util.split_string(str, sep)
@@ -161,44 +161,44 @@ local t =
 }
 --]]
 function Util.map2path(input, output, tmp)
-    for k, v in pairs(input) do
-        local mid = {}
-        if tmp then
-            for _, key in ipairs(tmp) do
-                table.insert(mid, key)
-            end
-        end
+	for k, v in pairs(input) do
+		local mid = {}
+		if tmp then
+			for _, key in ipairs(tmp) do
+				table.insert(mid, key)
+			end
+		end
 
-        if type(v) == 'table' then
-        	table.insert(mid, k)
-            Util.map2path(v, output, mid)
-        elseif type(v) == 'boolean' and v == true then
-        	table.insert(mid, k)
-            table.insert(output, mid)
-        end
-    end
+		if type(v) == 'table' then
+			table.insert(mid, k)
+			Util.map2path(v, output, mid)
+		elseif type(v) == 'boolean' and v == true then
+			table.insert(mid, k)
+			table.insert(output, mid)
+		end
+	end
 end
 
 function Util.map2mergepath(input, output, tmp)
 	local terminal = {}
-    for k, v in pairs(input) do
-        if type(v) == 'table' then
+	for k, v in pairs(input) do
+		if type(v) == 'table' then
 			local mid = {}
 			if tmp then
 				for _, key in ipairs(tmp) do
 					table.insert(mid, key)
 				end
 			end
-        	table.insert(mid, k)
-            local terminal2 = Util.map2mergepath(v, output, mid)
+			table.insert(mid, k)
+			local terminal2 = Util.map2mergepath(v, output, mid)
 			if next(terminal2) then
 				table.insert(mid, terminal2)
-            	table.insert(output, mid)
+				table.insert(output, mid)
 			end
-        elseif type(v) == 'boolean' and v == true then
-        	table.insert(terminal, k)
-        end
-    end
+		elseif type(v) == 'boolean' and v == true then
+			table.insert(terminal, k)
+		end
+	end
 	if next(terminal) and not tmp then
 		table.insert(output, {terminal})
 	end

@@ -177,24 +177,24 @@ int64_t NetService::Listen(const char *addr, unsigned int port)
 
 int64_t NetService::Connect(const char *addr, unsigned int port)
 {
-    // 1. init a sin
+	// 1. init a sin
 	// 2. init buffer socket
 	// 3. set nonblock
 	// 4. connect
 	// 5. new mailbox
 
-    // init a sin
-    struct sockaddr_in sin;
-    memset(&sin, 0, sizeof(sin));
-    sin.sin_family = PF_INET;
-    sin.sin_addr.s_addr = inet_addr(addr);
-    sin.sin_port = htons(port);
+	// init a sin
+	struct sockaddr_in sin;
+	memset(&sin, 0, sizeof(sin));
+	sin.sin_family = PF_INET;
+	sin.sin_addr.s_addr = inet_addr(addr);
+	sin.sin_port = htons(port);
 
 	// init buffer socket
 	struct bufferevent *bev = bufferevent_socket_new(m_mainEvent, -1, BEV_OPT_CLOSE_ON_FREE); // | BEV_OPT_DEFER_CALLBACKS);
 	if (!bev)
 	{
-        LOG_ERROR("bufferevent new fail");
+		LOG_ERROR("bufferevent new fail");
 		return -1;
 	}
 	bufferevent_setcb(bev, read_cb, NULL, event_cb, (void *)this);
@@ -202,12 +202,12 @@ int64_t NetService::Connect(const char *addr, unsigned int port)
 
 	// non-block connect
 	int ret = bufferevent_socket_connect(bev, (struct sockaddr *)&sin, sizeof(sin));
-    if (ret < 0)
-    {
-        LOG_ERROR("bufferevent connect fail ret=%d", ret);
-        bufferevent_free(bev);
-        return -1;
-    }
+	if (ret < 0)
+	{
+		LOG_ERROR("bufferevent connect fail ret=%d", ret);
+		bufferevent_free(bev);
+		return -1;
+	}
 
 	evutil_socket_t fd = bufferevent_getfd(bev);
 	LOG_DEBUG("fd=%d", fd);
@@ -366,7 +366,7 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 	struct bufferevent *bev = bufferevent_socket_new(m_mainEvent, fd, BEV_OPT_CLOSE_ON_FREE); // | BEV_OPT_DEFER_CALLBACKS);
 	if (!bev)
 	{
-        LOG_ERROR("bufferevent new fail");
+		LOG_ERROR("bufferevent new fail");
 		evutil_closesocket(fd);
 		return -1;
 	}
@@ -926,7 +926,7 @@ static void stdin_cb(evutil_socket_t fd, short event, void *user_data)
 				// buffer.append("\n");
 				bLineEnd = true;
 				break;
-			}     
+			}
 		}
 		while (_kbhit());
 	}

@@ -321,7 +321,7 @@ void Logger::ShiftLogFile()
 	}
 
 	// rename
-	struct timeval tv;    
+	struct timeval tv;
 	gettimeofday(&tv, NULL);
 	int64_t time_ms = (int64_t)(tv.tv_sec * 1000.0 + tv.tv_usec / 1000.0);
 	std::string new_file_name = m_logFileName + "_" + std::to_string(time_ms) + ".txt";
