@@ -1,5 +1,6 @@
 
 package.path =  "script/core/?.lua;script/?.lua;" .. package.path
+package.cpath =  "luaclib/?.so;" .. package.cpath
 
 require "core.global.global_def"
 require "core.global.data_struct_def"
@@ -67,8 +68,8 @@ local function run()
 	local main_entry = require(entry_path .. ".main")
 	main_entry()
 
-	local hotfix = require("hotfix.main")
-	hotfix.run()
+	-- local hotfix = require("hotfix.main")
+	-- hotfix.run()
 
 	add_debug_timer()
 end

@@ -1,6 +1,5 @@
 
 #1.define target
-SET(LIB_NAME lcerberus)
 SET(EXECUTABLE_NAME cerberus)
 
 #2.include

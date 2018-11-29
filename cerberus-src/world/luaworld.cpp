@@ -4,7 +4,6 @@ extern "C"
 #include <string.h>
 #include <lauxlib.h>
 #include <lualib.h>
-#include "lfs.h"
 }
 #include "util.h"
 #include "logger.h"
@@ -14,7 +13,6 @@ extern "C"
 #include "event_pipe.h"
 #include "luanetworkreg.h"
 #include "luanetwork.h"
-// #include "luatinyxmlreg.h"
 #include "luamysqlreg.h"
 #include "luatimerreg.h"
 #include "luautilreg.h"
@@ -66,7 +64,6 @@ bool LuaWorld::Init(const char *conf_file, EventPipe *inputPipe, EventPipe *outp
 		{ "cerberus.network", luaopen_cerberus_network },
 		{ "cerberus.timer", luaopen_cerberus_timer },
 		{ "cerberus.mysql", luaopen_cerberus_mysql },
-		{ "lfs", luaopen_lfs },
 		{ NULL, NULL },
 	};
 	for (const luaL_Reg *libptr = lua_reg_libs; libptr->func; ++libptr)

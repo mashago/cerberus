@@ -6,7 +6,6 @@
 #6.set output path
 
 #1.define target
-SET(LIB_NAME lcerberus)
 SET(TARGET_NAME cerberus_test)
 
 #2.include and lib
