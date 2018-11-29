@@ -8,7 +8,6 @@ INCLUDE_DIRECTORIES(
 ./common
 ./net
 ./world
-../lfs
 /usr/local/include
 /usr/local/include/mysql
 /usr/include/mysql
@@ -53,7 +52,7 @@ ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
 ELSE()
 ENDIF()
 
-SET(LOCAL_LIBRARIES "${LIB_NAME};lfs")
+SET(LOCAL_LIBRARIES "${LIB_NAME}")
 
 IF(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 	SET(LIBRARIES "lua;event;mysqlclient;dl;pthread")
