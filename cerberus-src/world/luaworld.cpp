@@ -69,7 +69,6 @@ bool LuaWorld::Init(const char *conf_file, EventPipe *inputPipe, EventPipe *outp
 	for (const luaL_Reg *libptr = lua_reg_libs; libptr->func; ++libptr)
 	{
 		luaL_requiref(m_L, libptr->name, libptr->func, 0);
-		LOG_DEBUG("name=%s", libptr->name);
 		lua_pop(m_L, 1);
 	}
 
