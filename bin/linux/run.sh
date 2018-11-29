@@ -6,7 +6,7 @@ rm -rf log/*.txt
 
 BIN_NAME=cerberus
 BIN_PATH=bin
-CONF_PATH=conf
+CONF_PATH=config
 SERVER_PKG_ID=1
 
 # global login server pack

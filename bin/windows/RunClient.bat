@@ -4,7 +4,7 @@ cd ../../
 
 set BIN_NAME=cerberus.exe
 set BIN_PATH=bin
-set CONF_PATH=conf
+set CONF_PATH=config
 
 :: client
 @echo "Start Lua Client..."

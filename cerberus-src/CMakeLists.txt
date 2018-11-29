@@ -1,6 +1,6 @@
 
 #1.define target
-SET(TARGET_NAME core)
+SET(LIB_NAME lcerberus)
 SET(EXECUTABLE_NAME cerberus)
 
 #2.include
@@ -35,7 +35,7 @@ SOURCE_GROUP("net" FILES ${FILES_NET})
 SOURCE_GROUP("world" FILES ${FILES_WORLD})
 
 #4.create lib
-ADD_LIBRARY(${TARGET_NAME} ${FILES_COMMON} ${FILES_NET} ${FILES_WORLD})
+ADD_LIBRARY(${LIB_NAME} ${FILES_COMMON} ${FILES_NET} ${FILES_WORLD})
 
 
 # for executable
@@ -54,7 +54,7 @@ ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
 ELSE()
 ENDIF()
 
-SET(LOCAL_LIBRARIES "core;lfs")
+SET(LOCAL_LIBRARIES "${LIB_NAME};lfs")
 
 IF(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 	SET(LIBRARIES "lua;event;mysqlclient;dl;pthread")

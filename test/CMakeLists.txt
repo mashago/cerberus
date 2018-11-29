@@ -6,14 +6,15 @@
 #6.set output path
 
 #1.define target
+SET(LIB_NAME lcerberus)
 SET(TARGET_NAME cerberus_test)
 
 #2.include and lib
 INCLUDE_DIRECTORIES(
 .
-../core/common
-../core/net
-../core/world
+../cerberus-src/common
+../cerberus-src/net
+../cerberus-src/world
 /usr/local/include
 /usr/include
 /usr/local/include/mysql
@@ -39,7 +40,7 @@ ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
 ELSE()
 ENDIF()
 
-SET(LOCAL_LIBRARIES "core;lfs")
+SET(LOCAL_LIBRARIES "${LIB_NAME};lfs")
 
 IF(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 	SET(LIBRARIES "lua;event;mysqlclient;dl;pthread")
