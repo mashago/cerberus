@@ -4,9 +4,9 @@ extern "C"
 #include <lauxlib.h>
 #include <lualib.h>
 #include <string.h>
+#include "luamysqlreg.h"
 }
 // #include "logger.h"
-// #include "luamysqlreg.h"
 #include "mysqlmgr.h"
 
 static const char *METATABLE_NAME = "cerberus.mysql";
@@ -192,6 +192,8 @@ static const luaL_Reg lua_reg_member_funcs[] =
 
 int luaopen_cerberus_mysql(lua_State *L)
 {
+	luaL_checkversion(L);
+
 	luaL_newmetatable(L, METATABLE_NAME);
 
 	lua_pushvalue(L, -1);

@@ -69,6 +69,7 @@ local function run()
 	main_entry()
 
 	-- local lfs = require("lfs")
+	-- local cerberus_mysql = require("cerberus_mysql")
 	-- local hotfix = require("hotfix.main")
 	-- hotfix.run()
 
