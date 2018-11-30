@@ -190,7 +190,7 @@ static const luaL_Reg lua_reg_member_funcs[] =
 	{ NULL, NULL },
 };
 
-int luaopen_cerberus_mysql(lua_State *L)
+CERBERUS_LUA_EXPORT int luaopen_cerberus_mysql(lua_State *L)
 {
 	luaL_checkversion(L);
 
