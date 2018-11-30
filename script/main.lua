@@ -1,6 +1,6 @@
 
 package.path =  "script/core/?.lua;script/?.lua;" .. package.path
-package.cpath =  "luaclib/?.so;luaclib/lib?.so;" .. package.cpath
+package.cpath =  "luaclib/?.dll;luaclib/lib?.dll;luaclib/?.so;luaclib/lib?.so;" .. package.cpath
 
 require "core.global.global_def"
 require "core.global.data_struct_def"
