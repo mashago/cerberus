@@ -13,7 +13,6 @@ extern "C"
 #include "event_pipe.h"
 #include "luanetworkreg.h"
 #include "luanetwork.h"
-#include "luamysqlreg.h"
 #include "luatimerreg.h"
 #include "luautilreg.h"
 #include "luasubthread.h"
@@ -63,7 +62,6 @@ bool LuaWorld::Init(const char *conf_file, EventPipe *inputPipe, EventPipe *outp
 		{ "cerberus.util", luaopen_cerberus_util },
 		{ "cerberus.network", luaopen_cerberus_network },
 		{ "cerberus.timer", luaopen_cerberus_timer },
-		{ "cerberus.mysql", luaopen_cerberus_mysql },
 		{ NULL, NULL },
 	};
 	for (const luaL_Reg *libptr = lua_reg_libs; libptr->func; ++libptr)

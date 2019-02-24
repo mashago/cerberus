@@ -1,6 +1,6 @@
 local Log = require "core.log.logger"
 local Util = require "core.util.util"
-local cmysql = require "cerberus.mysql"
+local cmysql = require "cerberus_mysql"
 
 local DBMgr = 
 {

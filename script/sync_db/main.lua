@@ -2,6 +2,7 @@
 local Core = require "core"
 local Log = require "core.log.logger"
 local DBMgr = require "core.db.db_mgr"
+local cutil = require "cerberus.util"
 
 
 local sync_db = nil
@@ -273,6 +274,8 @@ sync_db = function()
 		until true
 	end
 
+	Log.debug("******* sync db done *******")
+	cutil.sleep(5)
 	os.exit(true)
 
 	return true

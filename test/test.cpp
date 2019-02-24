@@ -5,7 +5,6 @@
 #include "util.h"
 #include "common.h"
 #include "logger.h"
-#include "mysqlmgr.h"
 #include "event_pipe.h"
 
 // test xml config
@@ -34,6 +33,11 @@ int test0()
 	return 0;
 }
 
+int test1()
+{
+	return 0;
+}
+/*
 // test mysqlmgr
 int test1()
 {
@@ -199,17 +203,15 @@ int test1()
 	}
 	}
 
-	/*
 	// delete
-	sql = "DELETE FROM `user_info` where username IN ('m1', 'm2', 'm3')";
-	ret = mgr.Change(sql, strlen(sql));
-	if (ret < 0)
-	{
-		LOG_ERROR("delete user_info fail %d", ret);
-		LOG_ERROR("errno=%d error=[%s]", mgr.GetErrno(), mgr.GetError());
-		return -1;
-	}
-	*/
+	// sql = "DELETE FROM `user_info` where username IN ('m1', 'm2', 'm3')";
+	// ret = mgr.Change(sql, strlen(sql));
+	// if (ret < 0)
+	// {
+	// 	LOG_ERROR("delete user_info fail %d", ret);
+	// 	LOG_ERROR("errno=%d error=[%s]", mgr.GetErrno(), mgr.GetError());
+	// 	return -1;
+	// }
 
 	// drop
 	sql = "DROP TABLE IF EXISTS `user_info`";
@@ -234,6 +236,7 @@ int test1()
 
 	return 0;
 }
+*/
 
 void thread_run(EventPipe *pipe, bool isBlockWait)
 {
