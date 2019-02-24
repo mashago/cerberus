@@ -1,6 +1,3 @@
-#1.define project
-#2.define make flags
-#3.add sub dir
 
 #define cmake version
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)

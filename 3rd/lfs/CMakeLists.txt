@@ -1,21 +1,20 @@
 
 #1.define target
-#2.include
-#3.group source
-#4.create lib
-
-#1.define target
 SET(TARGET_NAME lfs)
 
-#2.include
+#2.include and lib
 INCLUDE_DIRECTORIES(
 ./
 /usr/local/include
 )
 
+LINK_DIRECTORIES(
+/usr/lib
+/usr/local/lib
+)
+
 IF(CMAKE_SYSTEM_NAME MATCHES "Darwin")
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Linux")
-ELSEIF(CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
 	INCLUDE_DIRECTORIES(${PROJECT_PATH}/include/windows/lua)
 	# for windows dll
@@ -29,7 +28,9 @@ SOURCE_GROUP("source" FILES ${FILES_SOURCE})
 
 #4.create lib
 ADD_LIBRARY(${TARGET_NAME} SHARED ${FILES_SOURCE})
-IF(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
+IF(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+	TARGET_LINK_LIBRARIES(${TARGET_NAME} "lua")
+ELSEIF(CMAKE_CXX_COMPILER_ID MATCHES "MSVC")
 	TARGET_LINK_LIBRARIES(${TARGET_NAME} "liblua")
 ENDIF()
 

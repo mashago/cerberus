@@ -7,3 +7,7 @@ lib
 include
 log
 *.cmake
+Makefile
+CMakeFiles
+CMakeCache.txt
+liblcerberus.a

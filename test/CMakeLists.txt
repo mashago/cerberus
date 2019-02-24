@@ -1,9 +1,3 @@
-#1.define target
-#2.include and lib
-#3.group source
-#4.create lib
-#5.link lib
-#6.set output path
 
 #1.define target
 SET(TARGET_NAME cerberus_test)
@@ -30,7 +24,6 @@ IF(CMAKE_SYSTEM_NAME MATCHES "Darwin")
 	LINK_DIRECTORIES(/usr/local/mysql/lib)
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Linux")
 	LINK_DIRECTORIES(/usr/lib64/mysql)
-ELSEIF(CMAKE_SYSTEM_NAME MATCHES "CYGWIN")
 ELSEIF(CMAKE_SYSTEM_NAME MATCHES "Windows")
 	INCLUDE_DIRECTORIES(${PROJECT_PATH}/include/windows/lua)
 	INCLUDE_DIRECTORIES(${PROJECT_PATH}/include/windows/libevent)
