@@ -5,6 +5,7 @@ extern "C"
 #include <lauxlib.h>
 #include <lualib.h>
 }
+#include "common.h"
 #include "util.h"
 #include "logger.h"
 #include "pluto.h"
@@ -12,7 +13,6 @@ extern "C"
 #include "luaworld.h"
 #include "event_pipe.h"
 #include "luanetworkreg.h"
-#include "luanetwork.h"
 #include "luatimerreg.h"
 #include "luautilreg.h"
 #include "luasubthread.h"
@@ -24,26 +24,24 @@ m_inputPipe(nullptr),
 m_outputPipe(nullptr),
 m_timerMgr(nullptr),
 m_L(nullptr),
-m_luanetwork(nullptr),
 m_connIndex(0)
 {
 	m_timerMgr = new TimerMgr();
+	m_sendPluto = new Pluto(MSGLEN_MAX);
 }
 
 LuaWorld::~LuaWorld()
 {
 	m_isRunning = false;
 	m_thread.join();
+	delete m_sendPluto;
 	delete m_timerMgr;
-	delete m_luanetwork;
 }
 
 bool LuaWorld::Init(const char *conf_file, EventPipe *inputPipe, EventPipe *outputPipe)
 {
 	m_inputPipe = inputPipe;
 	m_outputPipe = outputPipe;
-
-	m_luanetwork = new LuaNetwork(this);
 
 	m_L = luaL_newstate();
 	if (!m_L)
@@ -106,11 +104,6 @@ void LuaWorld::Dispatch()
 }
 
 ////////////////////////////////////////
-
-LuaNetwork * LuaWorld::GetNetwork()
-{
-	return m_luanetwork;
-}
 
 void LuaWorld::RecvEvent()
 {
@@ -212,7 +205,7 @@ void LuaWorld::HandleMsg(Pluto &u)
 	int msgId = u.ReadMsgId();
 	// LOG_DEBUG("mailboxId=%ld msgId=%d", mailboxId, msgId);
 
-	m_luanetwork->SetRecvPluto(&u);
+	m_recvPluto = &u;
 	lua_getglobal(m_L, "ccall_recv_msg_handler");
 	lua_pushinteger(m_L, mailboxId);
 	lua_pushinteger(m_L, msgId);
@@ -277,6 +270,16 @@ void LuaWorld::HandleTimer(void *arg, bool is_loop)
 
 //////////////////////////////////////////////
 
+Pluto * LuaWorld::GetRecvPluto()
+{
+	return m_recvPluto;
+}
+
+Pluto * LuaWorld::GetSendPluto()
+{
+	return m_sendPluto;
+}
+
 bool LuaWorld::Connect(int64_t session_id, const char* ip, unsigned int port)
 {
 	EventNodeConnectReq *node = new EventNodeConnectReq;
@@ -287,11 +290,36 @@ bool LuaWorld::Connect(int64_t session_id, const char* ip, unsigned int port)
 	return true;
 }
 
-void LuaWorld::SendPluto(Pluto *pu)
+bool LuaWorld::SendPluto(int64_t mailboxId)
 {
+	// no need to check pluto size, if over size, write will not success
+	m_sendPluto->SetMsgLen();
+	Pluto *pu = m_sendPluto->Dup();
+	pu->SetMailboxId(mailboxId);
+
 	EventNodeMsg *node = new EventNodeMsg;
 	node->pu = pu;
 	SendEvent(node);
+
+	m_sendPluto->Cleanup();
+
+	return true;
+}
+
+bool LuaWorld::Transfer(int64_t mailboxId)
+{
+	// just clone from recv pluto and copy ext from send pluto
+	Pluto *pu = m_recvPluto->Dup();
+	pu->SetMailboxId(mailboxId);
+	pu->WriteExt(m_sendPluto->ReadExt());
+
+	EventNodeMsg *node = new EventNodeMsg;
+	node->pu = pu;
+	SendEvent(node);
+
+	m_sendPluto->Cleanup();
+
+	return true;
 }
 
 void LuaWorld::CloseMailbox(int64_t mailboxId)

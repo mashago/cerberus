@@ -9,37 +9,35 @@ extern "C"
 #include "pluto.h"
 #include "luaworld.h"
 #include "luanetworkreg.h"
-#include "luanetwork.h"
 
-static LuaNetwork *get_network(lua_State* L)
+static LuaWorld *get_world(lua_State* L)
 {
-	LuaWorld *world = (LuaWorld *)lua_touserdata(L, lua_upvalueindex(1));
-	return world->GetNetwork();
+	return (LuaWorld *)lua_touserdata(L, lua_upvalueindex(1));
 }
 
 static int lwrite_msg_id(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	luaL_checktype(L, 1, LUA_TNUMBER);
-	network->GetSendPluto()->WriteMsgId(lua_tointeger(L, 1));
+	world->GetSendPluto()->WriteMsgId(lua_tointeger(L, 1));
 
 	return 0;
 }
 
 static int lwrite_ext(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	luaL_checktype(L, 1, LUA_TNUMBER);
-	network->GetSendPluto()->WriteExt(lua_tointeger(L, 1));
+	world->GetSendPluto()->WriteExt(lua_tointeger(L, 1));
 
 	return 0;
 }
 
 static int lwrite_byte(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	luaL_checktype(L, 1, LUA_TNUMBER);
-	bool ret = network->GetSendPluto()->WriteByte((char)lua_tointeger(L, 1));
+	bool ret = world->GetSendPluto()->WriteByte((char)lua_tointeger(L, 1));
 	lua_pushboolean(L, ret);
 
 	return 1;
@@ -47,9 +45,9 @@ static int lwrite_byte(lua_State* L)
 
 static int lwrite_int(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	luaL_checktype(L, 1, LUA_TNUMBER);
-	bool ret = network->GetSendPluto()->WriteInt((int)lua_tointeger(L, 1));
+	bool ret = world->GetSendPluto()->WriteInt((int)lua_tointeger(L, 1));
 	lua_pushboolean(L, ret);
 
 	return 1;
@@ -57,9 +55,9 @@ static int lwrite_int(lua_State* L)
 
 static int lwrite_float(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	luaL_checktype(L, 1, LUA_TNUMBER);
-	bool ret = network->GetSendPluto()->WriteFloat((float)lua_tonumber(L, 1));
+	bool ret = world->GetSendPluto()->WriteFloat((float)lua_tonumber(L, 1));
 	lua_pushboolean(L, ret);
 
 	return 1;
@@ -67,9 +65,9 @@ static int lwrite_float(lua_State* L)
 
 static int lwrite_bool(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	luaL_checktype(L, 1, LUA_TBOOLEAN);
-	bool ret = network->GetSendPluto()->WriteBool(lua_toboolean(L, 1) != 0);
+	bool ret = world->GetSendPluto()->WriteBool(lua_toboolean(L, 1) != 0);
 	lua_pushboolean(L, ret);
 
 	return 1;
@@ -77,9 +75,9 @@ static int lwrite_bool(lua_State* L)
 
 static int lwrite_short(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	luaL_checktype(L, 1, LUA_TNUMBER);
-	bool ret = network->GetSendPluto()->WriteShort((short)lua_tointeger(L, 1));
+	bool ret = world->GetSendPluto()->WriteShort((short)lua_tointeger(L, 1));
 	lua_pushboolean(L, ret);
 
 	return 1;
@@ -87,9 +85,9 @@ static int lwrite_short(lua_State* L)
 
 static int lwrite_int64(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	luaL_checktype(L, 1, LUA_TNUMBER);
-	bool ret = network->GetSendPluto()->WriteInt64(lua_tointeger(L, 1));
+	bool ret = world->GetSendPluto()->WriteInt64(lua_tointeger(L, 1));
 	lua_pushboolean(L, ret);
 
 	return 1;
@@ -98,9 +96,9 @@ static int lwrite_int64(lua_State* L)
 
 static int lwrite_string(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	luaL_checktype(L, 1, LUA_TSTRING);
-	bool ret = network->GetSendPluto()->WriteString((int)luaL_len(L,1), lua_tostring(L, 1));
+	bool ret = world->GetSendPluto()->WriteString((int)luaL_len(L,1), lua_tostring(L, 1));
 	lua_pushboolean(L, ret);
 
 	return 1;
@@ -110,7 +108,7 @@ static int lwrite_string(lua_State* L)
 #define write_table_len(len) \
 do { \
 len = (int)luaL_len(L, 1); \
-bool ret = network->GetSendPluto()->WriteInt(len); \
+bool ret = world->GetSendPluto()->WriteInt(len); \
 if (!ret) \
 { \
 	lua_pushboolean(L, ret); \
@@ -120,7 +118,7 @@ if (!ret) \
 
 static int lwrite_byte_array(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	luaL_checktype(L, 1, LUA_TTABLE);
 	int len = 0;
 	write_table_len(len);
@@ -129,7 +127,7 @@ static int lwrite_byte_array(lua_State* L)
 	{
 		lua_pushinteger(L,i);
 		lua_rawget(L, 1);
-		bool ret = network->GetSendPluto()->WriteByte((char)lua_tointeger(L, -1));
+		bool ret = world->GetSendPluto()->WriteByte((char)lua_tointeger(L, -1));
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -144,7 +142,7 @@ static int lwrite_byte_array(lua_State* L)
 
 static int lwrite_int_array(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	luaL_checktype(L, 1, LUA_TTABLE);
 	int len = 0;
 	write_table_len(len);
@@ -153,7 +151,7 @@ static int lwrite_int_array(lua_State* L)
 	{
 		lua_pushinteger(L, i);
 		lua_rawget(L, 1);
-		bool ret = network->GetSendPluto()->WriteInt((int)lua_tointeger(L, -1));
+		bool ret = world->GetSendPluto()->WriteInt((int)lua_tointeger(L, -1));
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -168,7 +166,7 @@ static int lwrite_int_array(lua_State* L)
 
 static int lwrite_float_array(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	luaL_checktype(L, 1, LUA_TTABLE);
 	int len = 0;
 	write_table_len(len);
@@ -176,7 +174,7 @@ static int lwrite_float_array(lua_State* L)
 	for (int i = 1; i <= len; ++i){
 		lua_pushinteger(L, i);
 		lua_rawget(L, 1);
-		bool ret = network->GetSendPluto()->WriteFloat((float)lua_tonumber(L,-1));
+		bool ret = world->GetSendPluto()->WriteFloat((float)lua_tonumber(L,-1));
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -191,7 +189,7 @@ static int lwrite_float_array(lua_State* L)
 
 static int lwrite_bool_array(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	luaL_checktype(L, 1, LUA_TTABLE);
 	int len = 0;
 	write_table_len(len);
@@ -199,7 +197,7 @@ static int lwrite_bool_array(lua_State* L)
 	for (int i = 1; i <= len; ++i){
 		lua_pushinteger(L, i);
 		lua_rawget(L, 1);
-		bool ret = network->GetSendPluto()->WriteBool(lua_toboolean(L, -1) != 0);
+		bool ret = world->GetSendPluto()->WriteBool(lua_toboolean(L, -1) != 0);
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -214,7 +212,7 @@ static int lwrite_bool_array(lua_State* L)
 
 static int lwrite_short_array(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	luaL_checktype(L, 1, LUA_TTABLE);
 	int len = 0;
 	write_table_len(len);
@@ -222,7 +220,7 @@ static int lwrite_short_array(lua_State* L)
 	for (int i = 1; i <= len; ++i){
 		lua_pushinteger(L, i);
 		lua_rawget(L, 1);
-		bool ret = network->GetSendPluto()->WriteShort((short)lua_tointeger(L, -1));
+		bool ret = world->GetSendPluto()->WriteShort((short)lua_tointeger(L, -1));
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -237,7 +235,7 @@ static int lwrite_short_array(lua_State* L)
 
 static int lwrite_int64_array(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	luaL_checktype(L, 1, LUA_TTABLE);
 	int len = 0;
 	write_table_len(len);
@@ -245,7 +243,7 @@ static int lwrite_int64_array(lua_State* L)
 	for (int i = 1; i <= len; ++i){
 		lua_pushinteger(L, i);
 		lua_rawget(L, 1);
-		bool ret = network->GetSendPluto()->WriteInt64(lua_tointeger(L, -1));
+		bool ret = world->GetSendPluto()->WriteInt64(lua_tointeger(L, -1));
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -260,7 +258,7 @@ static int lwrite_int64_array(lua_State* L)
 
 static int lwrite_string_array(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	luaL_checktype(L, 1, LUA_TTABLE);
 	int len = 0;
 	write_table_len(len);
@@ -268,7 +266,7 @@ static int lwrite_string_array(lua_State* L)
 	for (int i = 1; i <= len; ++i){
 		lua_pushinteger(L, i);
 		lua_rawget(L, 1);
-		bool ret = network->GetSendPluto()->WriteString((int)luaL_len(L, -1), lua_tostring(L, -1));
+		bool ret = world->GetSendPluto()->WriteString((int)luaL_len(L, -1), lua_tostring(L, -1));
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -283,8 +281,8 @@ static int lwrite_string_array(lua_State* L)
 
 static int lclear_write(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
-	network->GetSendPluto()->Cleanup();
+	LuaWorld *world = get_world(L);
+	world->GetSendPluto()->Cleanup();
 	lua_pushboolean(L, true);
 
 	return 1;
@@ -292,9 +290,9 @@ static int lclear_write(lua_State* L)
 
 static int lsend(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	luaL_checktype(L, 1, LUA_TNUMBER);
-	bool ret = network->Send(lua_tointeger(L, 1));
+	bool ret = world->SendPluto(lua_tointeger(L, 1));
 	lua_pushboolean(L, ret);
 
 	return 1;
@@ -302,9 +300,9 @@ static int lsend(lua_State* L)
 
 static int ltransfer(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	luaL_checktype(L, 1, LUA_TNUMBER);
-	bool ret = network->Transfer(lua_tointeger(L, 1));
+	bool ret = world->Transfer(lua_tointeger(L, 1));
 	lua_pushboolean(L, ret);
 
 	return 1;
@@ -314,8 +312,8 @@ static int ltransfer(lua_State* L)
 
 static int lread_msg_id(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
-	int msg_id = network->GetRecvPluto()->ReadMsgId();
+	LuaWorld *world = get_world(L);
+	int msg_id = world->GetRecvPluto()->ReadMsgId();
 	lua_pushinteger(L, msg_id);
 
 	return 1;
@@ -323,17 +321,17 @@ static int lread_msg_id(lua_State* L)
 
 static int lread_ext(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
-	lua_pushinteger(L, network->GetRecvPluto()->ReadExt());
+	LuaWorld *world = get_world(L);
+	lua_pushinteger(L, world->GetRecvPluto()->ReadExt());
 
 	return 1;
 }
 
 static int lread_byte(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	char out_val = 0;
-	bool ret = network->GetRecvPluto()->ReadByte(out_val);
+	bool ret = world->GetRecvPluto()->ReadByte(out_val);
 	lua_pushboolean(L, ret);
 	lua_pushinteger(L, out_val);
 
@@ -342,9 +340,9 @@ static int lread_byte(lua_State* L)
 
 static int lread_int(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	int out_val = 0;
-	bool ret = network->GetRecvPluto()->ReadInt(out_val);
+	bool ret = world->GetRecvPluto()->ReadInt(out_val);
 	lua_pushboolean(L, ret);
 	lua_pushinteger(L, out_val);
 
@@ -353,9 +351,9 @@ static int lread_int(lua_State* L)
 
 static int lread_float(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	float out_val = 0;
-	bool ret = network->GetRecvPluto()->ReadFloat(out_val);
+	bool ret = world->GetRecvPluto()->ReadFloat(out_val);
 	lua_pushboolean(L, ret);
 	lua_pushnumber(L, out_val);
 
@@ -364,9 +362,9 @@ static int lread_float(lua_State* L)
 
 static int lread_bool(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	bool out_val = false;
-	bool ret = network->GetRecvPluto()->ReadBool(out_val);
+	bool ret = world->GetRecvPluto()->ReadBool(out_val);
 	lua_pushboolean(L, ret);
 	lua_pushboolean(L, out_val);
 
@@ -375,9 +373,9 @@ static int lread_bool(lua_State* L)
 
 static int lread_int64(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	int64_t out_val = 0;
-	bool ret = network->GetRecvPluto()->ReadInt64(out_val);
+	bool ret = world->GetRecvPluto()->ReadInt64(out_val);
 	lua_pushboolean(L, ret);
 	lua_pushinteger(L, out_val);
 
@@ -386,9 +384,9 @@ static int lread_int64(lua_State* L)
 
 static int lread_short(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	short out_val = 0;
-	bool ret = network->GetRecvPluto()->ReadShort(out_val);
+	bool ret = world->GetRecvPluto()->ReadShort(out_val);
 	lua_pushboolean(L, ret);
 	lua_pushinteger(L, out_val);
 
@@ -397,10 +395,10 @@ static int lread_short(lua_State* L)
 
 static int lread_string(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	int out_len = 0;
 	char out_val[MSGLEN_MAX+1] = {};
-	bool ret = network->GetRecvPluto()->ReadString(out_len, out_val);
+	bool ret = world->GetRecvPluto()->ReadString(out_len, out_val);
 	lua_pushboolean(L, ret);
 	lua_pushlstring(L, out_val, out_len);
 
@@ -409,9 +407,9 @@ static int lread_string(lua_State* L)
 
 static int lread_byte_array(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	int len = 0;
-	bool ret = network->GetRecvPluto()->ReadInt(len);
+	bool ret = world->GetRecvPluto()->ReadInt(len);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -421,7 +419,7 @@ static int lread_byte_array(lua_State* L)
 	lua_newtable(L);
 	for (int i = 1; i <= len; ++i){
 		char out_val = 0;
-		bool ret = network->GetRecvPluto()->ReadByte(out_val);
+		bool ret = world->GetRecvPluto()->ReadByte(out_val);
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -442,10 +440,10 @@ static int lread_byte_array(lua_State* L)
 
 static int lread_int_array(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 
 	int len = 0;
-	bool ret = network->GetRecvPluto()->ReadInt(len);
+	bool ret = world->GetRecvPluto()->ReadInt(len);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -455,7 +453,7 @@ static int lread_int_array(lua_State* L)
 	lua_newtable(L);
 	for (int i = 1; i <= len; ++i){
 		int out_val = 0;
-		bool ret = network->GetRecvPluto()->ReadInt(out_val);
+		bool ret = world->GetRecvPluto()->ReadInt(out_val);
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -476,10 +474,10 @@ static int lread_int_array(lua_State* L)
 
 static int lread_float_array(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 
 	int len = 0;
-	bool ret = network->GetRecvPluto()->ReadInt(len);
+	bool ret = world->GetRecvPluto()->ReadInt(len);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -489,7 +487,7 @@ static int lread_float_array(lua_State* L)
 	lua_newtable(L);
 	for (int i = 1; i <= len; ++i){
 		float out_val = 0;
-		bool ret = network->GetRecvPluto()->ReadFloat(out_val);
+		bool ret = world->GetRecvPluto()->ReadFloat(out_val);
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -510,10 +508,10 @@ static int lread_float_array(lua_State* L)
 
 static int lread_bool_array(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 
 	int len = 0;
-	bool ret = network->GetRecvPluto()->ReadInt(len);
+	bool ret = world->GetRecvPluto()->ReadInt(len);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -523,7 +521,7 @@ static int lread_bool_array(lua_State* L)
 	lua_newtable(L);
 	for (int i = 1; i <= len; ++i){
 		bool out_val = 0;
-		bool ret = network->GetRecvPluto()->ReadBool(out_val);
+		bool ret = world->GetRecvPluto()->ReadBool(out_val);
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -544,10 +542,10 @@ static int lread_bool_array(lua_State* L)
 
 static int lread_int64_array(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 
 	int len = 0;
-	bool ret = network->GetRecvPluto()->ReadInt(len);
+	bool ret = world->GetRecvPluto()->ReadInt(len);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -557,7 +555,7 @@ static int lread_int64_array(lua_State* L)
 	lua_newtable(L);
 	for (int i = 1; i <= len; ++i){
 		int64_t out_val = 0;
-		bool ret = network->GetRecvPluto()->ReadInt64(out_val);
+		bool ret = world->GetRecvPluto()->ReadInt64(out_val);
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -578,10 +576,10 @@ static int lread_int64_array(lua_State* L)
 
 static int lread_short_array(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 
 	int len = 0;
-	bool ret = network->GetRecvPluto()->ReadInt(len);
+	bool ret = world->GetRecvPluto()->ReadInt(len);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -591,7 +589,7 @@ static int lread_short_array(lua_State* L)
 	lua_newtable(L);
 	for (int i = 1; i <= len; ++i){
 		short out_val = 0;
-		bool ret = network->GetRecvPluto()->ReadShort(out_val);
+		bool ret = world->GetRecvPluto()->ReadShort(out_val);
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -612,10 +610,10 @@ static int lread_short_array(lua_State* L)
 
 static int lread_string_array(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 
 	int len = 0;
-	bool ret = network->GetRecvPluto()->ReadInt(len);
+	bool ret = world->GetRecvPluto()->ReadInt(len);
 	if (!ret)
 	{
 		lua_pushboolean(L, ret);
@@ -626,7 +624,7 @@ static int lread_string_array(lua_State* L)
 	for (int i = 1; i <= len; ++i){
 		int out_len = 0;
 		char out_val[MSGLEN_MAX+1] = {};
-		bool ret = network->GetRecvPluto()->ReadString(out_len, out_val);
+		bool ret = world->GetRecvPluto()->ReadString(out_len, out_val);
 		if (!ret)
 		{
 			lua_pushboolean(L, ret);
@@ -647,7 +645,7 @@ static int lread_string_array(lua_State* L)
 
 static int lconnect(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 
 	// session_id, ip, port
 	luaL_checktype(L, 1, LUA_TNUMBER);
@@ -659,7 +657,7 @@ static int lconnect(lua_State* L)
 	int port = (int)lua_tointeger(L, 3);
 	LOG_DEBUG("ip=%s port=%d", ip, port);
 
-	bool ret = network->Connect(session_id, ip, port);
+	bool ret = world->Connect(session_id, ip, port);
 	lua_pushboolean(L, ret);
 
 	return 1;
@@ -667,17 +665,17 @@ static int lconnect(lua_State* L)
 
 static int lclose_mailbox(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 	luaL_checktype(L, 1, LUA_TNUMBER);
 	int64_t mailboxId = lua_tointeger(L, 1);
-	network->CloseMailbox(mailboxId);
+	world->CloseMailbox(mailboxId);
 
 	return 0;
 }
 
 static int lhttp_request(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 
 	// url, session_id, request_type, post_data, post_data_len
 	luaL_checktype(L, 1, LUA_TSTRING);
@@ -692,7 +690,7 @@ static int lhttp_request(lua_State* L)
 	const char *post_data = lua_tostring(L, 4);
 	int post_data_len = lua_tointeger(L, 5);
 
-	bool ret = network->HttpRequest(url, session_id, request_type, post_data, post_data_len);
+	bool ret = world->HttpRequest(url, session_id, request_type, post_data, post_data_len);
 
 	lua_pushboolean(L, ret);
 
@@ -701,7 +699,7 @@ static int lhttp_request(lua_State* L)
 
 static int llisten(lua_State* L)
 {
-	LuaNetwork *network = get_network(L);
+	LuaWorld *world = get_world(L);
 
 	// session_id, ip, port
 	luaL_checktype(L, 1, LUA_TNUMBER);
@@ -713,7 +711,7 @@ static int llisten(lua_State* L)
 	int port = (int)lua_tointeger(L, 3);
 	LOG_DEBUG("ip=%s port=%d session_id=%ld", ip, port, session_id);
 
-	bool ret = network->Listen(ip, port, session_id);
+	bool ret = world->Listen(ip, port, session_id);
 	lua_pushboolean(L, ret);
 
 	return 1;

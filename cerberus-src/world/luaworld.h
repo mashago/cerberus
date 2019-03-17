@@ -8,7 +8,6 @@ class EventPipe;
 struct EventNode;
 class TimerMgr;
 class Pluto;
-class LuaNetwork;
 class LuaSubThread;
 
 class LuaWorld
@@ -20,7 +19,6 @@ public:
 	bool Init(const char *conf_file, EventPipe *inputPipe, EventPipe *outputPipe);
 	void Dispatch();
 
-	LuaNetwork *GetNetwork();
 	void RecvEvent();
 	void SendEvent(EventNode *node);
 	void HandleEvent(const EventNode &node);
@@ -41,9 +39,12 @@ public:
 	void HandleTimer(void *arg, bool is_loop);
 
 
+	Pluto *GetRecvPluto();
+	Pluto *GetSendPluto();
 	// call from lua
 	bool Connect(int64_t session_id, const char* ip, unsigned int port);
-	void SendPluto(Pluto *pu);
+	bool SendPluto(int64_t mailboxId);
+	bool Transfer(int64_t mailboxId);
 	void CloseMailbox(int64_t mailboxId);
 	bool HttpRequest(const char *url, int64_t session_id, int request_type, const char *post_data, int post_data_len);
 	bool Listen(const char* ip, unsigned int port, int64_t session_id);
@@ -60,8 +61,10 @@ protected:
 	TimerMgr *m_timerMgr;
 	std::thread m_thread;
 
+	Pluto *m_recvPluto;
+	Pluto *m_sendPluto;
+
 	lua_State *m_L;
-	LuaNetwork *m_luanetwork;
 	int64_t m_connIndex;
 	std::map<int, LuaSubThread*> m_subthread_map;
 
