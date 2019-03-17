@@ -11,19 +11,6 @@ extern "C"
 
 static const char *METATABLE_NAME = "cerberus.mysql";
 
-static int lcreate(lua_State *L)
-{
-	MysqlMgr **ptr = (MysqlMgr**)lua_newuserdata(L, sizeof(MysqlMgr *));
-	*ptr = new MysqlMgr();
-
-	luaL_getmetatable(L, METATABLE_NAME);
-	lua_setmetatable(L, -2);
-
-	return 1;
-}
-
-//////////////////////////////////////////////////////
-
 static int lconnect(lua_State* L)
 {
 	MysqlMgr** s = (MysqlMgr**)luaL_checkudata(L, 1, METATABLE_NAME);
@@ -166,43 +153,38 @@ static int lgc(lua_State *L)
 	return 0;
 }
 
-//////////////////////////////////////////////////////
-
-
-
-// define constructor
-static const luaL_Reg lua_reg_construct_funcs[] =
+static int lcreate(lua_State *L)
 {
-	{ "create", lcreate },
-	{ NULL, NULL},
-};
+	MysqlMgr **ptr = (MysqlMgr**)lua_newuserdata(L, sizeof(MysqlMgr *));
+	*ptr = new MysqlMgr();
 
-// define member functions
-static const luaL_Reg lua_reg_member_funcs[] = 
-{
-	{ "connect", lconnect },
-	{ "get_errno", lget_errno },
-	{ "get_error", lget_error },
-	{ "select", lselect },
-	{ "change", lchange },
-	{ "get_insert_id", lget_insert_id },
-	{ "__gc", lgc },
-	{ NULL, NULL },
-};
+	luaL_setmetatable(L, METATABLE_NAME);
+
+	return 1;
+}
 
 CERBERUS_LUA_EXPORT int luaopen_cerberus_mysql(lua_State *L)
 {
 	luaL_checkversion(L);
 
 	luaL_newmetatable(L, METATABLE_NAME);
+	luaL_Reg l[] = 
+	{
+		{ "connect", lconnect },
+		{ "get_errno", lget_errno },
+		{ "get_error", lget_error },
+		{ "select", lselect },
+		{ "change", lchange },
+		{ "get_insert_id", lget_insert_id },
+		{ "__gc", lgc },
+		{ NULL, NULL },
+	};
+	luaL_setfuncs(L, l, 0);
 
 	lua_pushvalue(L, -1);
-
 	lua_setfield(L, -2, "__index");
 
-	luaL_setfuncs(L, lua_reg_member_funcs, 0);
-
-	luaL_newlib(L, lua_reg_construct_funcs);
+	lua_pushcfunction(L, lcreate);
 
 	return 1;
 }

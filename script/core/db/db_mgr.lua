@@ -9,7 +9,7 @@ local DBMgr =
 
 
 function DBMgr.connect_to_mysql(ip, port, username, password, db_name)
-	local mysqlmgr = cmysql.create()
+	local mysqlmgr = cmysql()
 	local ret = mysqlmgr:connect(ip, port, username, password, db_name)
 	if ret ~= 0 then
 		Log.err("connect_to_mysql fail %d [%d] [%s]", ret, mysqlmgr:get_errno(), mysqlmgr:get_error())

@@ -130,3 +130,8 @@ function ccall_listen_ret_handler(listen_id, session_id)
 		Log.err(msg)
 	end
 end
+
+-- default do nothing
+function ccall_stdin_handler(buffer)
+	Log.info("ccall_stdin_handler buffer=%s", buffer)
+end
