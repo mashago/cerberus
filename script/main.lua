@@ -68,11 +68,6 @@ local function run()
 	local main_entry = require(entry_path .. ".main")
 	main_entry()
 
-	-- local lfs = require("lfs")
-	-- local cerberus_mysql = require("cerberus_mysql")
-	-- local hotfix = require("hotfix.main")
-	-- hotfix.run()
-
 	add_debug_timer()
 end
 
