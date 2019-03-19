@@ -22,62 +22,13 @@ local cutil = require "cerberus.util"
 
 local conf_file = ...
 
-local function add_debug_timer()
-	local timer_cb = function()
-		g_funcs.debug_timer_cb()
-	end
-	Core.timer_mgr:add_timer(5000, timer_cb, 0, true)
-end
-
-local function check_write_global()
-	local mt = 
-	{
-		__newindex = function(t, k, v)
-			local info = debug.getinfo(2)
-			Log.warn("WRITE GLOBAL %s:%d %s %s [%s]"
-			, info.short_src, info.currentline, info.namewhat, type(v), k)
-			rawset(t, k, v)
-		end
-	}
-	setmetatable(_G, mt)
-end
-
-local function run()
-
-	local server_conf = Core.server_conf
-	local ip = server_conf._ip
-	local port = server_conf._port
-	if ip ~= "" and port ~= 0 then
-		Log.debug("main run listen ip=%s port=%d", ip, port)
-		local listen_id = Core.net_mgr:listen(ip, port)
-		Log.info("main run listen_id=%d", listen_id)
-		if listen_id < 0 then
-			Log.err("main run listen fail ip=%s port=%d", ip, port)
-			return
-		end
-	end
-	
-	local server_mgr = Core.server_mgr
-	for _, v in ipairs(Core.server_conf._connect_to) do
-		Log.debug("connect ip=%s port=%d", v.ip, v.port)
-		server_mgr:do_connect(v.ip, v.port)
-	end
-
-	local entry_path = Core.server_conf._path
-	package.path = "script/" .. entry_path .. "/?.lua;" .. package.path
-	local main_entry = require(entry_path .. ".main")
-	main_entry()
-
-	add_debug_timer()
-end
-
 local function main()
 	Log.info("------------------------------")
 	Log.info("conf_file=%s", conf_file)
 	Log.info("------------------------------")
 	math.randomseed(os.time())
 
-	check_write_global()
+	Util.check_write_global()
 
 	local config = dofile(conf_file)
 	Log.debug("config=%s", Util.table_to_string(config))
@@ -90,7 +41,16 @@ local function main()
 	Core.http_mgr = HttpMgr.new()
 
 	-- warp main logic in a rpc run
-	Core.rpc_mgr:run(run)
+	Core.rpc_mgr:run(function()
+		Core.server_mgr:create_mesh()
+
+		local entry_path = Core.server_conf._path
+		package.path = "script/" .. entry_path .. "/?.lua;" .. package.path
+		local main_entry = require(entry_path .. ".main")
+		main_entry()
+
+		Util.add_debug_timer()
+	end)
 end
 
 local status, msg = xpcall(main, function(m) local msg = debug.traceback(m, 3) return msg end)

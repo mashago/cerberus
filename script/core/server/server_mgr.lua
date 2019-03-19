@@ -86,6 +86,27 @@ end
 
 -------------------------------------------------
 
+function ServerMgr:create_mesh()
+	local server_conf = Core.server_conf
+	local ip = server_conf._ip
+	local port = server_conf._port
+	if ip ~= "" and port ~= 0 then
+		Log.debug("ServerMgr:create_mesh listen ip=%s port=%d", ip, port)
+		local listen_id = Core.net_mgr:listen(ip, port)
+		Log.info("ServerMgr:create_mesh listen_id=%d", listen_id)
+		if listen_id < 0 then
+			Log.err("ServerMgr:create_mesh listen fail ip=%s port=%d", ip, port)
+			return false
+		end
+	end
+	
+	for _, v in ipairs(Core.server_conf._connect_to) do
+		Log.debug("ServerMgr:create_mesh connect ip=%s port=%d", v.ip, v.port)
+		self:do_connect(v.ip, v.port)
+	end
+	return true
+end
+
 function ServerMgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect)
 
 	server_id = server_id or 0

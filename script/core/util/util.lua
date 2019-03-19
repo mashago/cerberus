@@ -1,3 +1,6 @@
+local Core = require "core"
+local Log = require "core.log.logger"
+-- local g_funcs = require "core.global.global_funcs"
 
 local Util = {}
 
@@ -203,6 +206,26 @@ function Util.map2mergepath(input, output, tmp)
 		table.insert(output, {terminal})
 	end
 	return terminal
+end
+
+function Util.check_write_global()
+	local mt = 
+	{
+		__newindex = function(t, k, v)
+			local info = debug.getinfo(2)
+			Log.warn("WRITE GLOBAL %s:%d %s %s [%s]"
+			, info.short_src, info.currentline, info.namewhat, type(v), k)
+			rawset(t, k, v)
+		end
+	}
+	setmetatable(_G, mt)
+end
+
+function Util.add_debug_timer()
+	local timer_cb = function()
+		-- g_funcs.debug_timer_cb()
+	end
+	Core.timer_mgr:add_timer(5000, timer_cb, 0, true)
 end
 
 return Util
