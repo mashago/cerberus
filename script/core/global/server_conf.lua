@@ -1,10 +1,9 @@
-local Log = require "core.log.logger"
-local class = require "core.util.class"
-local Util = require "core.util.util"
+local Log = require "log.logger"
+local Util = require "util.util"
 
-local ServerConfig = class()
+local ServerConfig = {}
 
-function ServerConfig:ctor(config)
+function ServerConfig:load(config)
 
 	self._config = config
 	self._all_scene_list = {}
@@ -89,6 +88,7 @@ function ServerConfig:ctor(config)
 		self._db_name_map[db_type] = real_db_name
 	end
 	
+	return self
 end
 
 function ServerConfig:print()

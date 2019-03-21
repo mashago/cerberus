@@ -68,7 +68,7 @@ bool LuaWorld::Init(const char *conf_file, EventPipe *inputPipe, EventPipe *outp
 		lua_pop(m_L, 1);
 	}
 
-	if (LUA_OK != luaL_loadfile(m_L, "script/main.lua"))
+	if (LUA_OK != luaL_loadfile(m_L, "script/core/bios.lua"))
 	{
 		const char * msg = lua_tostring(m_L, -1);
 		LOG_ERROR("msg=%s", msg);
