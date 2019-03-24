@@ -1,5 +1,5 @@
 
-local Log = require "core.log.logger"
+local Log = require "log.logger"
 local Env = require "env"
 function g_net_event_server_disconnect(server_id)
 	Env.area_mgr:remove_by_server_id(server_id)

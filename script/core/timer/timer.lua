@@ -1,7 +1,7 @@
 
 local Core = require "core"
-local Log = require "core.log.logger"
-local class = require "core.util.class"
+local Log = require "log.logger"
+local class = require "util.class"
 local ctimer = require "cerberus.timer"
 
 local Timer = class()

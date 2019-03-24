@@ -1,6 +1,6 @@
 
 local Core = require "core"
-local Log = require "core.log.logger"
+local Log = require "log.logger"
 local Env = require "env"
 
 function g_net_event_server_disconnect(server_id)

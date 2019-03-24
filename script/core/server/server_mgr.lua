@@ -1,9 +1,9 @@
 
 local Core = require "core"
-local Log = require "core.log.logger"
-local Util = require "core.util.util"
-local class = require "core.util.class"
-local ServerInfo = require "core.server.server_info"
+local Log = require "log.logger"
+local Util = require "util.util"
+local class = require "util.class"
+local ServerInfo = require "server.server_info"
 local ServerMgr = class()
 
 function ServerMgr:ctor()

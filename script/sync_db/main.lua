@@ -1,7 +1,7 @@
 
 local Core = require "core"
-local Log = require "core.log.logger"
-local DBMgr = require "core.db.db_mgr"
+local Log = require "log.logger"
+local DBMgr = require "db.db_mgr"
 local cutil = require "cerberus.util"
 
 

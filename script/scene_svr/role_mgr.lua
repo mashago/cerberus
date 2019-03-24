@@ -1,6 +1,6 @@
 
 local Core = require "core"
-local class = require "core.util.class"
+local class = require "util.class"
 local RoleMgr = class()
 
 function RoleMgr:ctor()

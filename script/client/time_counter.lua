@@ -1,6 +1,6 @@
 
-local Log = require "core.log.logger"
-local class = require "core.util.class"
+local Log = require "log.logger"
+local class = require "util.class"
 local cutil = require "cerberus.util"
 
 local TimeCounter = class()

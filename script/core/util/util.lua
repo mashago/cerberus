@@ -1,6 +1,6 @@
 local Core = require "core"
-local Log = require "core.log.logger"
--- local g_funcs = require "core.global.global_funcs"
+local Log = require "log.logger"
+-- local g_funcs = require "global.global_funcs"
 
 local Util = {}
 

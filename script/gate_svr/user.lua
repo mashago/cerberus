@@ -1,7 +1,7 @@
 local Core = require "core"
-local Log = require "core.log.logger"
-local g_funcs = require "core.global.global_funcs"
-local class = require "core.util.class"
+local Log = require "log.logger"
+local g_funcs = require "global.global_funcs"
+local class = require "util.class"
 
 local MAILBOX_ID_NIL = MAILBOX_ID_NIL
 local MID = MID

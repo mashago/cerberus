@@ -1,6 +1,6 @@
 
-local Log = require "core.log.logger"
-local Util = require "core.util.util"
+local Log = require "log.logger"
+local Util = require "util.util"
 -- NOTE:
 -- 1. should set by coder handly
 -- 2. field position will be random, you have to accept this

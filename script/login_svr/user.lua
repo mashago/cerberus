@@ -1,8 +1,8 @@
 
 local Core = require "core"
-local Log = require "core.log.logger"
-local Util = require "core.util.util"
-local class = require "core.util.class"
+local Log = require "log.logger"
+local Util = require "util.util"
+local class = require "util.class"
 local Env = require "env"
 local ServerType = ServerType
 local ErrorCode = ErrorCode

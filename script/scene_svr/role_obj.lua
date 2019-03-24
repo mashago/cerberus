@@ -1,8 +1,8 @@
 
 local Core = require "core"
-local class = require "core.util.class"
-local g_funcs = require "core.global.global_funcs"
-local SheetObj = require "core.obj.sheet_obj"
+local class = require "util.class"
+local g_funcs = require "global.global_funcs"
+local SheetObj = require "obj.sheet_obj"
 local SHEET_NAME = "role_info"
 local MID = MID
 local Env = require "env"

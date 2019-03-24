@@ -1,5 +1,5 @@
 local Core = require "core"
-local Log = require "core.log.logger"
+local Log = require "log.logger"
 
 -- for c call
 function ccall_recv_msg_handler(mailbox_id, msg_id)

@@ -1,6 +1,6 @@
 
-local Log = require "core.log.logger"
-local g_funcs = require "core.global.global_funcs"
+local Log = require "log.logger"
+local g_funcs = require "global.global_funcs"
 local g_msg_handler = {}
 
 function g_msg_handler.s2s_shake_hand_req(data, mailbox_id)

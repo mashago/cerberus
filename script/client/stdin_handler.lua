@@ -1,8 +1,8 @@
 
 local Core = require "core"
-local Log = require "core.log.logger"
-local Util = require "core.util.util"
-local g_funcs = require "core.global.global_funcs"
+local Log = require "log.logger"
+local Util = require "util.util"
+local g_funcs = require "global.global_funcs"
 local Env = require "env"
 local TestRole = require "test_role"
 local TestBag = require "test_bag"

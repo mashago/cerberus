@@ -13,9 +13,7 @@ local Timer = require "timer.timer"
 local ServerMgr = require "server.server_mgr"
 local RpcMgr = require "rpc.rpc_mgr"
 local HttpMgr = require "http.http_mgr"
-local g_funcs = require "global.global_funcs"
 local Util = require "util.util"
-local cutil = require "cerberus.util"
 
 Util.check_write_global()
 

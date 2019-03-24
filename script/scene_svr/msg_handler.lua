@@ -1,8 +1,8 @@
 
 local Core = require "core"
-local Log = require "core.log.logger"
-local g_msg_handler = require "core.global.msg_handler"
-local Util = require "core.util.util"
+local Log = require "log.logger"
+local g_msg_handler = require "global.msg_handler"
+local Util = require "util.util"
 local MID = MID
 local Env = require "env"
 local ErrorCode = ErrorCode

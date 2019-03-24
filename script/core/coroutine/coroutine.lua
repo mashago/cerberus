@@ -1,5 +1,5 @@
 
-local class = require "core.util.class"
+local class = require "util.class"
 local CoroutineMgr = class()
 
 function CoroutineMgr:ctor()

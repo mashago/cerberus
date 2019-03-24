@@ -1,6 +1,6 @@
 local M = { }
 
-local Log = require "core.log.logger"
+local Log = require "log.logger"
 local lfs = require("lfs")
 local hotfix = require("hotfix.hotfix")
 

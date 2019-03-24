@@ -1,6 +1,6 @@
 
 local Core = require "core"
-local Log = require "core.log.logger"
+local Log = require "log.logger"
 local ServerType = ServerType
 local Env = require "env"
 

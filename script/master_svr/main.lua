@@ -1,5 +1,5 @@
 
-local Log = require "core.log.logger"
+local Log = require "log.logger"
 local Env = require "env"
 
 require "master_svr.net_event_handler"

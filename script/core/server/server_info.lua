@@ -1,7 +1,7 @@
 
 local Core = require "core"
-local Log = require "core.log.logger"
-local class = require "core.util.class"
+local Log = require "log.logger"
+local class = require "util.class"
 local ServerInfo = class()
 
 function ServerInfo:ctor(ip, port, no_shakehand, no_reconnect, mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)

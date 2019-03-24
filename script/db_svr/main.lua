@@ -1,7 +1,7 @@
 
 local Core = require "core"
-local Log = require "core.log.logger"
-local DBMgr = require "core.db.db_mgr"
+local Log = require "log.logger"
+local DBMgr = require "db.db_mgr"
 
 require "db_svr.msg_handler"
 require "db_svr.rpc_handler"

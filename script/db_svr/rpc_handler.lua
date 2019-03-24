@@ -1,9 +1,9 @@
 
 local Core = require "core"
-local Log = require "core.log.logger"
-local Util = require "core.util.util"
-local g_funcs = require "core.global.global_funcs"
-local DBMgr = require "core.db.db_mgr"
+local Log = require "log.logger"
+local Util = require "util.util"
+local g_funcs = require "global.global_funcs"
+local DBMgr = require "db.db_mgr"
 local rpc_mgr = Core.rpc_mgr
 local ErrorCode = ErrorCode
 local DBType = DBType
