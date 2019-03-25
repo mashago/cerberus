@@ -2,19 +2,16 @@
 local Core = require "core"
 local Log = require "log.logger"
 local Util = require "util.util"
-local class = require "util.class"
 local RPC_SEND_SESSION_ID = -1
 local RPC_FIN_SESSION_ID = -2
 
-local RpcMgr = class()
+local RpcMgr = {
+	_cur_session_id = 0,
+	_all_session_map = {}, -- {[session_id] = coroutine}
+	_origin_route_map = {}, -- { [new_session_id] = {from_server_id=x, to_server_id=y, session_id=z} }
 
-function RpcMgr:ctor()
-	self._cur_session_id = 0
-	self._all_session_map = {} -- {[session_id] = coroutine}
-	self._origin_route_map = {} -- { [new_session_id] = {from_server_id=x, to_server_id=y, session_id=z} }
-
-	self._running_call_env = nil
-end
+	_running_call_env = nil,
+}
 
 function RpcMgr:print()
 	Log.warn("---- RpcMgr:print() ----")

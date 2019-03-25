@@ -3,14 +3,12 @@ local Core = require "core"
 local Log = require "log.logger"
 local Util = require "util.util"
 local g_msg_handler = require "global.msg_handler"
-local class = require "util.class"
 local cnetwork = require "cerberus.network"
 
-local NetMgr = class()
-function NetMgr:ctor()
-	self._all_mailbox = {}
+local NetMgr = {
+	_all_mailbox = {},
 
-	self._read_val_funcs =
+	_read_val_funcs =
 	{
 		[_Byte] = function() return cnetwork.read_byte() end,
 		[_Bool] = function() return cnetwork.read_bool() end,
@@ -27,9 +25,9 @@ function NetMgr:ctor()
 		[_ShortArray] = function() return cnetwork.read_short_array() end,
 		[_Int64Array] = function() return cnetwork.read_int64_array() end,
 		[_StringArray] = function() return cnetwork.read_string_array() end,
-	}
+	},
 
-	self._write_val_funcs = 
+	_write_val_funcs =
 	{
 		[_Byte] = function(val) return cnetwork.write_byte(val) end,
 		[_Bool] = function(val) return cnetwork.write_bool(val) end,
@@ -46,8 +44,8 @@ function NetMgr:ctor()
 		[_ShortArray] = function(val) return cnetwork.write_short_array(val) end,
 		[_Int64Array] = function(val) return cnetwork.write_int64_array(val) end,
 		[_StringArray] = function(val) return cnetwork.write_string_array(val) end,
-	}
-end
+	},
+}
 
 local VALUE_NAME_INDEX = 1
 local VALUE_TYPE_INDEX = 2

@@ -1,13 +1,11 @@
 
 local Core = require "core"
 local Log = require "log.logger"
-local class = require "util.class"
 local ctimer = require "cerberus.timer"
 
-local Timer = class()
-function Timer:ctor()
-	self._timer_index_map = {}
-end
+local Timer = {
+	_timer_index_map = {},
+}
 
 function Timer:add_timer(ms, cb_func, arg, is_loop)
 	local timer_index, ret = ctimer.add_timer(ms, is_loop)

@@ -6,29 +6,28 @@ require "global.msg_handler"
 require "ccall.ccall_funcs"
 
 local Core = require "core"
-local Log = require "log.logger"
 local server_conf = require "global.server_conf"
-local NetMgr = require "net.net_mgr"
-local Timer = require "timer.timer"
-local ServerMgr = require "server.server_mgr"
-local RpcMgr = require "rpc.rpc_mgr"
-local HttpMgr = require "http.http_mgr"
+local net_mgr = require "net.net_mgr"
+local timer = require "timer.timer"
+local server_mgr = require "server.server_mgr"
+local rpc_mgr = require "rpc.rpc_mgr"
+local http_mgr = require "http.http_mgr"
 local Util = require "util.util"
+local cerberus = require "cerberus"
 
 Util.check_write_global()
 
 Core.server_conf = server_conf
-Core.net_mgr = NetMgr.new()
-Core.timer_mgr = Timer.new()
-Core.server_mgr = ServerMgr.new()
-Core.rpc_mgr = RpcMgr.new()
-Core.http_mgr = HttpMgr.new()
+Core.net_mgr = net_mgr
+Core.timer_mgr = timer
+Core.server_mgr = server_mgr
+Core.rpc_mgr = rpc_mgr
+Core.http_mgr = http_mgr
 
--- warp main logic in a rpc run
-Core.rpc_mgr:run(function()
-	Core.server_mgr:create_mesh()
+cerberus.start(function()
+	server_mgr:create_mesh()
 
-	local entry_path = Core.server_conf._path
+	local entry_path = server_conf._path
 	package.path = "script/" .. entry_path .. "/?.lua;" .. package.path
 	local main_entry = require(entry_path .. ".main")
 	main_entry()

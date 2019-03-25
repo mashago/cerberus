@@ -2,10 +2,9 @@
 local Core = require "core"
 local Log = require "log.logger"
 local class = require "util.class"
-local HttpMgr = class()
 
-function HttpMgr:ctor()
-	self._cur_session_id = 0
+local HttpMgr = {
+	_cur_session_id = 0,
 	--[[
 	{
 		[session_id] = 
@@ -14,8 +13,8 @@ function HttpMgr:ctor()
 		}
 	}
 	--]]
-	self._all_session_map = {}
-end
+	_all_session_map = {},
+}
 
 function HttpMgr:gen_session_id()
 	self._cur_session_id = self._cur_session_id + 1

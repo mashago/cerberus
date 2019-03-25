@@ -4,25 +4,22 @@ local Log = require "log.logger"
 local Util = require "util.util"
 local class = require "util.class"
 local ServerInfo = require "server.server_info"
-local ServerMgr = class()
 
-function ServerMgr:ctor()
-
+local ServerMgr = {
 	-- store not connected or not shake hand server
 	-- {server_info, server_info, ...}
-	self._wait_server_list = {} 
+	_wait_server_list = {},
 
 	-- store active server map
 	-- {server_id = server_info, ...}
-	self._active_server_map = {}
+	_active_server_map = {},
 
 	-- {server_type = {server_id, server_id, ...}
-	self._type_server_map = {}
+	_type_server_map = {},
 
 	-- {scene_id = {server_id, server_id, ...}
-	self._scene_server_map = {}
-
-end
+	_scene_server_map = {},
+}
 
 function ServerMgr:get_server_by_id(server_id)
 	return self._active_server_map[server_id]
