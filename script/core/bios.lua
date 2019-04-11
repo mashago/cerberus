@@ -13,7 +13,9 @@ function()
 	Log.info("------------------------------")
 	Log.info("conf_file=%s", conf_file)
 	Log.info("------------------------------")
-	math.randomseed(os.time())
+
+	local Util = require "util.util"
+	Util.check_write_global()
 
 	local config = dofile(conf_file)
 	server_conf:load(config)

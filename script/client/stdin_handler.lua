@@ -9,6 +9,8 @@ local Env = require "env"
 local TestRole = require "test_role"
 local TestBag = require "test_bag"
 local cutil = require "cerberus.util"
+local msg_def = require "global.net_msg_def"
+local MID = msg_def.MID
 
 local cmd_handler = {}
 function cmd_handler.execute(buffer)

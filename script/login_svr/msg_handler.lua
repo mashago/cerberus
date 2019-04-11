@@ -7,7 +7,8 @@ local Log = require "log.logger"
 local Util = require "util.util"
 local ErrorCode = ErrorCode
 local ServerType = ServerType
-local MID = MID
+local msg_def = require "global.net_msg_def"
+local MID = msg_def.MID
 local Env = require "env"
 
 function g_msg_handler.c2s_rpc_test_req(data, mailbox_id, msg_id)

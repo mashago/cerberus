@@ -5,6 +5,8 @@ local Util = require "util.util"
 local class = require "util.class"
 local ServerInfo = require "server.server_info"
 local cerberus = require "cerberus"
+local msg_def = require "global.net_msg_def"
+local MID = msg_def.MID
 
 local ServerMgr = {
 	-- store not connected or not shake hand server

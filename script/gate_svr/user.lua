@@ -5,7 +5,8 @@ local g_funcs = require "global.global_funcs"
 local class = require "util.class"
 
 local MAILBOX_ID_NIL = MAILBOX_ID_NIL
-local MID = MID
+local msg_def = require "global.net_msg_def"
+local MID = msg_def.MID
 
 local User = class()
 

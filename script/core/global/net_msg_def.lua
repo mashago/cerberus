@@ -1,5 +1,5 @@
 
-MID = {}
+local MID = {}
 MID._id_name_map = 
 {
 	-- msg for test
@@ -460,7 +460,7 @@ end
 create_msg_def_array()
 
 -- do msg handler function directly
-RAW_MID = 
+local RAW_MID = 
 {
 	[MID.c2s_client_test_req] = true,
 	[MID.c2s_rpc_test_req] = true,
@@ -496,3 +496,7 @@ TRUST_MID =
 }
 --]]
 
+return {
+	MID = MID,
+	RAW_MID = RAW_MID,
+}

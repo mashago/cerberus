@@ -5,7 +5,8 @@ local class = require "util.class"
 local g_funcs = require "global.global_funcs"
 local SheetObj = require "obj.sheet_obj"
 local SHEET_NAME = "role_info"
-local MID = MID
+local msg_def = require "global.net_msg_def"
+local MID = msg_def.MID
 local Env = require "env"
 
 local Role = class(SheetObj)

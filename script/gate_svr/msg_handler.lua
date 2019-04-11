@@ -6,7 +6,8 @@ local Util = require "util.util"
 local g_msg_handler = require "global.msg_handler"
 local Env = require "env"
 local ErrorCode = ErrorCode
-local MID = MID
+local msg_def = require "global.net_msg_def"
+local MID = msg_def.MID
 
 
 function g_msg_handler.c2s_role_enter_req(data, mailbox_id)

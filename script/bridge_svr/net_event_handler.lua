@@ -2,6 +2,8 @@
 local Env = require "env"
 local server_conf = require "global.server_conf"
 local server_mgr = require "server.server_mgr"
+local msg_def = require "global.net_msg_def"
+local MID = msg_def.MID
 
 function g_net_event_server_connect(server_id)
 

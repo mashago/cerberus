@@ -3,6 +3,8 @@ local server_mgr = require "server.server_mgr"
 local Log = require "log.logger"
 local Util = require "util.util"
 local cutil = require "cerberus.util"
+local msg_def = require "global.net_msg_def"
+local MID = msg_def.MID
 
 local g_funcs = {}
 function g_funcs.debug_timer_cb()

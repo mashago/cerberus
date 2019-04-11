@@ -7,7 +7,8 @@ local class = require "util.class"
 local Env = require "env"
 local ServerType = ServerType
 local ErrorCode = ErrorCode
-local MID = MID
+local msg_def = require "global.net_msg_def"
+local MID = msg_def.MID
 
 local User = class()
 

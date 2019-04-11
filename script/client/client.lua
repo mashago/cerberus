@@ -6,6 +6,8 @@ local Log = require "log.logger"
 local g_funcs = require "global.global_funcs"
 local class = require "util.class"
 local cutil = require "cerberus.util"
+local msg_def = require "global.net_msg_def"
+local MID = msg_def.MID
 
 local Client = class()
 function Client:ctor()

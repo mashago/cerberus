@@ -2,6 +2,8 @@ local net_mgr = require "net.net_mgr"
 local timer_mgr = require "timer.timer"
 local Log = require "log.logger"
 local cnetwork = require "cerberus.network"
+local msg_def = require "global.net_msg_def"
+local MID = msg_def.MID
 
 -- for c call
 function ccall_recv_msg_handler(mailbox_id, msg_id)

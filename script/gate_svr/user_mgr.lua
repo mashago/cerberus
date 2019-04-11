@@ -3,7 +3,8 @@ local rpc_mgr = require "rpc.rpc_mgr"
 local timer_mgr = require "timer.timer"
 local Log = require "log.logger"
 local class = require "util.class"
-local MID = MID
+local msg_def = require "global.net_msg_def"
+local MID = msg_def.MID
 local ServerType = ServerType
 
 local UserMgr = class()
