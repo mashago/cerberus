@@ -1,5 +1,5 @@
 
-local Core = require "core"
+local server_mgr = require "server.server_mgr"
 local Log = require "log.logger"
 local Util = require "util.util"
 local cutil = require "cerberus.util"
@@ -7,7 +7,8 @@ local cutil = require "cerberus.util"
 local g_funcs = {}
 function g_funcs.debug_timer_cb()
 	-- Log.debug("********* g_funcs.debug_timer_cb")
-	-- Core.rpc_mgr:print()
+	-- local rpc_mgr = require "rpc.rpc_mgr"
+	-- rpc_mgr:print()
 	-- local count = collectgarbage("count")
 	-- Log.debug("mem count=%f", count)
 end
@@ -25,21 +26,23 @@ function g_funcs.handle_shake_hand_req(data, mailbox_id)
 	-- local ip = data.ip -- will ignore
 	-- local port = data.port -- will ignore
 
+	local server_conf = require "global.server_conf"
 	local msg = 
 	{
 		result = ErrorCode.SUCCESS,
-		server_id = Core.server_conf._server_id,
-		server_type = Core.server_conf._server_type,
-		single_scene_list = Core.server_conf._single_scene_list,
-		from_to_scene_list = Core.server_conf._from_to_scene_list,
+		server_id = server_conf._server_id,
+		server_type = server_conf._server_type,
+		single_scene_list = server_conf._single_scene_list,
+		from_to_scene_list = server_conf._from_to_scene_list,
 	}
 
 	-- add server
-	local server_info = Core.server_mgr:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
+	local server_info = server_mgr:add_server(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
 	if not server_info then
 		Log.warning("g_funcs.handle_shake_hand_req add_server fail server_id=%d server_type=%d", server_id, server_type)
 		msg.result = ErrorCode.SHAKE_HAND_FAIL
-		Core.net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
+		local net_mgr = require "net.net_mgr"
+		net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
 		return
 	end
 
@@ -62,7 +65,7 @@ function g_funcs.handle_shake_hand_ret(data, mailbox_id)
 	local single_scene_list = data.single_scene_list
 	local from_to_scene_list = data.from_to_scene_list
 
-	local ret = Core.server_mgr:shake_hand_success(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
+	local ret = server_mgr:shake_hand_success(mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)
 
 	if not ret then
 		return
@@ -84,11 +87,11 @@ function g_funcs.handle_shake_hand_invite(data, mailbox_id)
 		local no_shakehand = false
 		local no_reconnect = false
 		
-		local server_info = Core.server_mgr:get_server_by_host(ip, port)
+		local server_info = server_mgr:get_server_by_host(ip, port)
 		if server_info then
 			server_info:set_no_reconnect(no_reconnect)
 		else
-			Core.server_mgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect)
+			server_mgr:do_connect(ip, port, server_id, server_type, no_shakehand, no_reconnect)
 		end
 	end
 end
@@ -105,7 +108,7 @@ function g_funcs.handle_shake_hand_cancel(data, mailbox_id)
 	local ip = data.ip
 	local port = data.port
 
-	local server_info = Core.server_mgr:get_server_by_host(ip, port)
+	local server_info = server_mgr:get_server_by_host(ip, port)
 	if not server_info then
 		return
 	end

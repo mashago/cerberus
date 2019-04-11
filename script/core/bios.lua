@@ -4,6 +4,7 @@ package.cpath =  "luaclib/?.dll;luaclib/lib?.dll;luaclib/?.so;luaclib/lib?.so;lu
 
 local Log = require "log.logger"
 local server_conf = require "global.server_conf"
+local cutil = require "cerberus.util"
 
 local conf_file = ...
 
@@ -31,5 +32,6 @@ function(m)
 end)
 if not status then
 	Log.err(msg)
+	cutil.sleep(5)
 end
 

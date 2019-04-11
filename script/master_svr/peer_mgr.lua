@@ -1,5 +1,7 @@
 
-local Core = require "core"
+local server_conf = require "global.server_conf"
+local net_mgr = require "net.net_mgr"
+local server_mgr = require "server.server_mgr"
 local Log = require "log.logger"
 local Util = require "util.util"
 local class = require "util.class"
@@ -33,18 +35,18 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 	local msg = 
 	{
 		result = ErrorCode.SUCCESS,
-		server_id = Core.server_conf._server_id,
-		server_type = Core.server_conf._server_type,
-		single_scene_list = Core.server_conf._single_scene_list,
-		from_to_scene_list = Core.server_conf._from_to_scene_list,
+		server_id = server_conf._server_id,
+		server_type = server_conf._server_type,
+		single_scene_list = server_conf._single_scene_list,
+		from_to_scene_list = server_conf._from_to_scene_list,
 	}
 
 	-- add server
-	local new_server_info = Core.server_mgr:add_server(mailbox_id, server_id, server_type
+	local new_server_info = server_mgr:add_server(mailbox_id, server_id, server_type
 	, single_scene_list, from_to_scene_list)
 	if not new_server_info then
 		msg.result = ErrorCode.SHAKE_HAND_FAIL
-		Core.net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
+		net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
 		return false
 	end
 
@@ -67,7 +69,7 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 		if peer.mailbox_id ~= 0 then
 			Log.err("PeerMgr:shake_hand duplicate server_id register %d", server_id)
 			msg.result = ErrorCode.SHAKE_HAND_FAIL
-			Core.net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
+			net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
 			return false
 		end
 
@@ -86,7 +88,7 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 		::continue::
 	end
 
-	Core.net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
+	net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_ret, msg)
 
 	-- in peer is reconnect peer
 	if reconn_peer_index > 0 then
@@ -96,7 +98,7 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 			{
 				peer_list = front_peer_list
 			}
-			Core.net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_invite, msg2)
+			net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_invite, msg2)
 		end
 
 		-- send new peer addr to back peer
@@ -113,7 +115,7 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 		for i=reconn_peer_index+1, #self._register_peer_list do
 			local peer = self._register_peer_list[i]
 			if peer.mailbox_id ~= MAILBOX_ID_NIL then
-				Core.net_mgr:send_msg(peer.mailbox_id, MID.s2s_shake_hand_invite, msg2)
+				net_mgr:send_msg(peer.mailbox_id, MID.s2s_shake_hand_invite, msg2)
 			end
 		end
 		self:print()
@@ -136,7 +138,7 @@ function PeerMgr:shake_hand(mailbox_id, server_id, server_type, single_scene_lis
 				})
 			end
 		end
-		Core.net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_invite, msg2)
+		net_mgr:send_msg(mailbox_id, MID.s2s_shake_hand_invite, msg2)
 	end
 
 	-- push back into peer list
@@ -172,7 +174,7 @@ function PeerMgr:server_disconnect(server_id)
 
 	for _, peer in ipairs(self._register_peer_list) do
 		if peer.mailbox_id ~= 0 then
-			Core.net_mgr:send_msg(peer.mailbox_id, MID.s2s_shake_hand_cancel, target_peer)
+			net_mgr:send_msg(peer.mailbox_id, MID.s2s_shake_hand_cancel, target_peer)
 		end
 	end
 
@@ -192,14 +194,14 @@ function PeerMgr:save_peer_list()
 
 	local str = Util.serialize(peer_list)
 	-- Log.debug("PeerMgr:save_peer_list str=%s", str)
-	local file_name = string.format("dat/peer%d.dat", Core.server_conf._server_id)
+	local file_name = string.format("dat/peer%d.dat", server_conf._server_id)
 	local file = io.open(file_name, "w")
 	file:write(str)
 	file:close()
 end
 
 function PeerMgr:load_peer_list()
-	local file_name = string.format("dat/peer%d.dat", Core.server_conf._server_id)
+	local file_name = string.format("dat/peer%d.dat", server_conf._server_id)
 	local file = io.open(file_name, "r")
 	if not file then
 		Log.warn("PeerMgr:load_peer_list peer data not exists")

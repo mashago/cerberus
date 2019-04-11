@@ -1,15 +1,16 @@
 
-local Core = require "core"
 local Env = require "env"
+local server_conf = require "global.server_conf"
+local server_mgr = require "server.server_mgr"
 
 function g_net_event_server_connect(server_id)
 
-	local server_info = Core.server_mgr:get_server_by_id(server_id)
+	local server_info = server_mgr:get_server_by_id(server_id)
 	if server_info._server_type == ServerType.LOGIN then
 		-- register area
 		local msg = 
 		{
-			area_list = Core.server_conf._area_list,
+			area_list = server_conf._area_list,
 		}
 
 		server_info:send_msg(MID.s2s_register_area_req, msg)

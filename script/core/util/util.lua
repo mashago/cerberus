@@ -1,6 +1,4 @@
-local Core = require "core"
 local Log = require "log.logger"
--- local g_funcs = require "global.global_funcs"
 
 local Util = {}
 
@@ -221,11 +219,15 @@ function Util.check_write_global()
 	setmetatable(_G, mt)
 end
 
+--[[
 function Util.add_debug_timer()
+	local timer_mgr = require "timer.timer"
+	local g_funcs = require "global.global_funcs"
 	local timer_cb = function()
-		-- g_funcs.debug_timer_cb()
+		g_funcs.debug_timer_cb()
 	end
-	Core.timer_mgr:add_timer(5000, timer_cb, 0, true)
+	timer_mgr:add_timer(5000, timer_cb, 0, true)
 end
 
+--]]
 return Util

@@ -1,5 +1,6 @@
 
-local Core = require "core"
+local rpc_mgr = require "rpc.rpc_mgr"
+local timer_mgr = require "timer.timer"
 local class = require "util.class"
 local Env = require "env"
 
@@ -14,7 +15,7 @@ function CommonHandler:sync_conn_num()
 	{
 		num = Env.user_mgr._all_user_num
 	}
-	Core.rpc_mgr:send_by_server_type(ServerType.BRIDGE, "bridge_sync_gate_conn_num", rpc_data)
+	rpc_mgr:send_by_server_type(ServerType.BRIDGE, "bridge_sync_gate_conn_num", rpc_data)
 end
 
 function CommonHandler:add_sync_conn_num_timer()
@@ -27,7 +28,7 @@ function CommonHandler:add_sync_conn_num_timer()
 		self:sync_conn_num()
 	end
 
-	self._sync_conn_num_timer_index = Core.timer_mgr:add_timer(timer_interval_ms, timer_cb, 0, true)
+	self._sync_conn_num_timer_index = timer_mgr:add_timer(timer_interval_ms, timer_cb, 0, true)
 
 end
 
@@ -36,7 +37,7 @@ function CommonHandler:del_sync_conn_num_timer()
 		return
 	end
 
-	Core.timer_mgr:del_timer(self._sync_conn_num_timer_index)
+	timer_mgr:del_timer(self._sync_conn_num_timer_index)
 	self._sync_conn_num_timer_index = 0
 end
 

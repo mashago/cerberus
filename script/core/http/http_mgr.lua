@@ -1,5 +1,5 @@
 
-local Core = require "core"
+local net_mgr = require "net.net_mgr"
 local Log = require "log.logger"
 local class = require "util.class"
 
@@ -27,7 +27,7 @@ function HttpMgr:request_get(url, cb)
 	{
 		cb = cb,
 	}
-	Core.net_mgr:http_request_get(url, session_id)
+	net_mgr:http_request_get(url, session_id)
 end
 
 function HttpMgr:request_post(url, post_data, post_data_len, cb)
@@ -36,7 +36,7 @@ function HttpMgr:request_post(url, post_data, post_data_len, cb)
 	{
 		cb = cb,
 	}
-	Core.net_mgr:http_request_post(url, session_id, post_data, post_data_len)
+	net_mgr:http_request_post(url, session_id, post_data, post_data_len)
 end
 
 function HttpMgr:handle_request(session_id, response_code, content)

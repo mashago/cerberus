@@ -1,5 +1,3 @@
-
-local Core = require "core"
 local Log = require "log.logger"
 local ctimer = require "cerberus.timer"
 
@@ -44,9 +42,10 @@ function Timer:on_timer(timer_index, is_loop)
 		self._timer_index_map[timer_index] = nil
 	end
 
+	local rpc_mgr = require "rpc.rpc_mgr"
 	local function wrapper()
 		-- timer_param[1](timer_param[2])
-		Core.rpc_mgr:run(timer_param[1], timer_param[2])
+		rpc_mgr:run(timer_param[1], timer_param[2])
 	end
 
 	local function error_handler(m)

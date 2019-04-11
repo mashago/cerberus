@@ -1,5 +1,7 @@
 
-local Core = require "core"
+local net_mgr = require "net.net_mgr"
+local server_mgr = require "server.server_mgr"
+local rpc_mgr = require "rpc.rpc_mgr"
 local g_msg_handler = require "global.msg_handler"
 local Log = require "log.logger"
 local Util = require "util.util"
@@ -30,11 +32,11 @@ function g_msg_handler.c2s_rpc_test_req(data, mailbox_id, msg_id)
 	}
 
 	-- 1. rpc to db
-	local status, ret = Core.rpc_mgr:call_by_server_type(ServerType.DB, "db_rpc_test", {buff=buff, sum=sum})
+	local status, ret = rpc_mgr:call_by_server_type(ServerType.DB, "db_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("c2s_rpc_test_req rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
-		Core.net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
+		net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 		return
 	end
 	Log.debug("c2s_rpc_test_req: callback ret=%s", Util.table_to_string(ret))
@@ -46,11 +48,11 @@ function g_msg_handler.c2s_rpc_test_req(data, mailbox_id, msg_id)
 
 	-- 2. get bridge
 	local server_id = Env.area_mgr:get_server_id(area_id)
-	status, ret = Core.rpc_mgr:call_by_server_id(server_id, "bridge_rpc_test", {buff=buff, sum=sum})
+	status, ret = rpc_mgr:call_by_server_id(server_id, "bridge_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("c2s_rpc_test_req rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
-		Core.net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
+		net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 		return
 	end
 	Log.debug("c2s_rpc_test_req: callback ret=%s", Util.table_to_string(ret))
@@ -61,7 +63,7 @@ function g_msg_handler.c2s_rpc_test_req(data, mailbox_id, msg_id)
 	msg.buff = buff
 	msg.sum = sum
 
-	Core.net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
+	net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 end
 
 
@@ -80,7 +82,7 @@ function g_msg_handler.c2s_rpc_send_test_req(data, mailbox_id, msg_id)
 		index = index,
 		sum = 1,
 	}
-	Core.rpc_mgr:send_by_server_type(ServerType.DB, "db_rpc_send_test", rpc_data)
+	rpc_mgr:send_by_server_type(ServerType.DB, "db_rpc_send_test", rpc_data)
 
 	rpc_data =
 	{
@@ -88,7 +90,7 @@ function g_msg_handler.c2s_rpc_send_test_req(data, mailbox_id, msg_id)
 		index = index,
 		sum = 2,
 	}
-	Core.rpc_mgr:send_by_server_type(ServerType.DB, "db_rpc_send_test", rpc_data)
+	rpc_mgr:send_by_server_type(ServerType.DB, "db_rpc_send_test", rpc_data)
 
 	-- rpc send to bridge
 	local area_id = 1
@@ -99,7 +101,7 @@ function g_msg_handler.c2s_rpc_send_test_req(data, mailbox_id, msg_id)
 		index = index,
 		sum = 1,
 	}
-	Core.rpc_mgr:send_by_server_id(server_id, "bridge_rpc_send_test", rpc_data)
+	rpc_mgr:send_by_server_id(server_id, "bridge_rpc_send_test", rpc_data)
 end
 
 function g_msg_handler.c2s_rpc_mix_test_req(data, mailbox_id, msg_id)
@@ -120,11 +122,11 @@ function g_msg_handler.c2s_rpc_mix_test_req(data, mailbox_id, msg_id)
 	}
 
 	-- rpc to db
-	local status, ret = Core.rpc_mgr:call_by_server_type(ServerType.DB, "db_rpc_test", {buff=buff, sum=sum})
+	local status, ret = rpc_mgr:call_by_server_type(ServerType.DB, "db_rpc_test", {buff=buff, sum=sum})
 	if not status then
 		Log.err("c2s_rpc_mix_test_req rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
-		Core.net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
+		net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 		return
 	end
 	Log.debug("c2s_rpc_mix_test_req: callback ret=%s", Util.table_to_string(ret))
@@ -141,7 +143,7 @@ function g_msg_handler.c2s_rpc_mix_test_req(data, mailbox_id, msg_id)
 		index = index,
 		sum = 1,
 	}
-	Core.rpc_mgr:send_by_server_type(ServerType.DB, "db_rpc_send_test", rpc_data)
+	rpc_mgr:send_by_server_type(ServerType.DB, "db_rpc_send_test", rpc_data)
 
 	-- rpc to bridge
 	rpc_data =
@@ -151,11 +153,11 @@ function g_msg_handler.c2s_rpc_mix_test_req(data, mailbox_id, msg_id)
 		sum = sum,
 	}
 	local server_id = Env.area_mgr:get_server_id(area_id)
-	status, ret = Core.rpc_mgr:call_by_server_id(server_id, "bridge_rpc_mix_test", rpc_data)
+	status, ret = rpc_mgr:call_by_server_id(server_id, "bridge_rpc_mix_test", rpc_data)
 	if not status then
 		Log.err("c2s_rpc_mix_test_req rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
-		Core.net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
+		net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 		return
 	end
 	Log.debug("c2s_rpc_mix_test_req: callback ret=%s", Util.table_to_string(ret))
@@ -166,7 +168,7 @@ function g_msg_handler.c2s_rpc_mix_test_req(data, mailbox_id, msg_id)
 	msg.buff = buff
 	msg.sum = sum
 
-	Core.net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
+	net_mgr:send_msg(mailbox_id, MID.s2c_rpc_test_ret, msg)
 end
 
 
@@ -175,7 +177,7 @@ end
 function g_msg_handler.s2s_register_area_req(data, mailbox_id, msg_id)
 	Log.debug("s2s_register_area_req: data=%s", Util.table_to_string(data))
 
-	local server_info = Core.server_mgr:get_server_by_mailbox(mailbox_id)
+	local server_info = server_mgr:get_server_by_mailbox(mailbox_id)
 	if not server_info then
 		Log.warn("s2s_register_area_req: unknow server mailbox_id=%d", mailbox_id)
 	end
@@ -212,7 +214,7 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 	if user then
 		Log.warn("c2s_user_login_req duplicate login [%s]", data.username)
 		msg.result = ErrorCode.USER_LOGIN_DUPLICATE_LOGIN
-		Core.net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
+		net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 		return
 	end
 
@@ -226,11 +228,11 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 		password=password, 
 		channel_id=channel_id,
 	}
-	local status, ret = Core.rpc_mgr:call_by_server_type(ServerType.DB, "db_user_login", rpc_data)
+	local status, ret = rpc_mgr:call_by_server_type(ServerType.DB, "db_user_login", rpc_data)
 	if not status then
 		Log.err("c2s_user_login_req rpc call fail")
 		msg.result = ErrorCode.SYS_ERROR
-		Core.net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
+		net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 		return
 	end
 
@@ -238,7 +240,7 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 
 	-- check after rpc
 	-- check connection
-	local mailbox = Core.net_mgr:get_mailbox(mailbox_id)
+	local mailbox = net_mgr:get_mailbox(mailbox_id)
 	if not mailbox then
 		Log.warn("c2s_user_login_req: connect close username=%s", username)
 		return
@@ -247,7 +249,7 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 	-- check result
 	if ret.result ~= ErrorCode.SUCCESS then
 		msg.result = ret.result
-		Core.net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
+		net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 		return
 	end
 
@@ -256,7 +258,7 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 	if user then
 		Log.warn("c2s_user_login_req duplicate login [%s]", data.username)
 		msg.result = ErrorCode.USER_LOGIN_DUPLICATE_LOGIN
-		Core.net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
+		net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 		return
 	end
 
@@ -264,7 +266,7 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 	Log.debug("c2s_user_login_req: user_id=%d", user_id)
 
 	if XXX_DEBUG_TEST_LOGINX then
-		Core.net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
+		net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 		return
 	end
 
@@ -285,7 +287,7 @@ function g_msg_handler.c2s_user_login_req(data, mailbox_id, msg_id)
 		if not user_mgr:add_user(user) then
 			Log.warn("c2s_user_login_req duplicate login2 [%s]", username)
 			msg.result = ErrorCode.USER_LOGIN_DUPLICATE_LOGIN
-			Core.net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
+			net_mgr:send_msg(mailbox_id, MID.s2c_user_login_ret, msg)
 			return
 		end
 	end

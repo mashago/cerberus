@@ -1,5 +1,6 @@
 
-local Core = require "core"
+local net_mgr = require "net.net_mgr"
+local rpc_mgr = require "rpc.rpc_mgr"
 local Log = require "log.logger"
 local Util = require "util.util"
 local class = require "util.class"
@@ -41,7 +42,7 @@ function User:send_msg(msg_id, msg)
 	if not self._is_online then
 		return false
 	end
-	return Core.net_mgr:send_msg(self._mailbox_id, msg_id, msg)
+	return net_mgr:send_msg(self._mailbox_id, msg_id, msg)
 end
 
 function User:add_role(area_id, role_id, role_name)
@@ -64,7 +65,7 @@ function User:_db_get_role_list()
 			is_delete = 0,
 		}
 	}
-	local status, ret = Core.rpc_mgr:call_by_server_type(ServerType.DB, "db_login_select", rpc_data)
+	local status, ret = rpc_mgr:call_by_server_type(ServerType.DB, "db_login_select", rpc_data)
 	if not status then
 		Log.err("handle_role_list_req rpc call fail")
 		return false, ErrorCode.SYS_ERROR
@@ -81,7 +82,7 @@ function User:_db_create_role(area_id, role_name)
 		role_name=role_name,
 		max_role=5,
 	}
-	local status, ret = Core.rpc_mgr:call_by_server_type(ServerType.DB, "db_create_role", rpc_data, self._user_id)
+	local status, ret = rpc_mgr:call_by_server_type(ServerType.DB, "db_create_role", rpc_data, self._user_id)
 	if not status then
 		return false, ErrorCode.SYS_ERROR
 	end
@@ -104,7 +105,7 @@ function User:_area_create_role(area_id, role_id, role_name)
 		channel_id=self._channel_id, 
 		area_id=area_id, 
 	}
-	local status, ret = Core.rpc_mgr:call_by_server_id(server_id, "bridge_create_role", rpc_data)
+	local status, ret = rpc_mgr:call_by_server_id(server_id, "bridge_create_role", rpc_data)
 	if not status then
 		Log.err("_area_create_role rpc call fail")
 		-- delete in user_role
@@ -113,7 +114,7 @@ function User:_area_create_role(area_id, role_id, role_name)
 			table_name = "user_role",
 			conditions = {role_id = role_id},
 		}
-		Core.rpc_mgr:send_by_server_type(ServerType.DB, "db_login_delete", rpc_data, self._user_id)
+		rpc_mgr:send_by_server_type(ServerType.DB, "db_login_delete", rpc_data, self._user_id)
 
 		return false, ErrorCode.CREATE_ROLE_FAIL
 	end
@@ -150,7 +151,7 @@ function User:_area_delete_role(area_id, role_id)
 		user_id=self._user_id,
 		role_id=role_id,
 	}
-	local status, ret = Core.rpc_mgr:call_by_server_id(server_id, "bridge_delete_role", rpc_data)
+	local status, ret = rpc_mgr:call_by_server_id(server_id, "bridge_delete_role", rpc_data)
 	if not status then
 		return false, ErrorCode.DELETE_ROLE_FAIL
 	end
@@ -169,7 +170,7 @@ function User:_db_delete_role(role_id)
 		fields={is_delete = 1},
 		conditions={role_id=role_id}
 	}
-	local status, ret = Core.rpc_mgr:call_by_server_type(ServerType.DB, "db_login_update", rpc_data)
+	local status, ret = rpc_mgr:call_by_server_type(ServerType.DB, "db_login_update", rpc_data)
 	if not status then
 		Log.err("_db_delete_role rpc call fail")
 		return false, ErrorCode.DELETE_ROLE_FAIL
@@ -190,7 +191,7 @@ function User:_area_select_role(area_id, role_id)
 		user_id=self._user_id,
 		role_id=role_id,
 	}
-	local status, ret = Core.rpc_mgr:call_by_server_id(server_id, "bridge_select_role", rpc_data)
+	local status, ret = rpc_mgr:call_by_server_id(server_id, "bridge_select_role", rpc_data)
 	if not status then
 		Log.err("User:_area_select_role rpc call fail")
 		return false, ErrorCode.SELECT_ROLE_FAIL

@@ -1,5 +1,5 @@
 
-local Core = require "core"
+local net_mgr = require "net.net_mgr"
 local Log = require "log.logger"
 local g_msg_handler = require "global.msg_handler"
 local Util = require "util.util"
@@ -61,7 +61,7 @@ function g_msg_handler.c2s_client_test_req(data, mailbox_id, msg_id)
 		},
 
 	}
-	Core.net_mgr:send_msg(mailbox_id, MID.s2c_client_test_ret, msg)
+	net_mgr:send_msg(mailbox_id, MID.s2c_client_test_ret, msg)
 end
 
 function g_msg_handler.s2s_gate_role_enter_req(data, mailbox_id)
@@ -89,7 +89,7 @@ function g_msg_handler.s2s_gate_role_enter_req(data, mailbox_id)
 		result = ErrorCode.SUCCESS,
 		role_id = role_id,
 	}
-	Core.net_mgr:send_msg(mailbox_id, MID.s2s_gate_role_enter_ret, msg)
+	net_mgr:send_msg(mailbox_id, MID.s2s_gate_role_enter_ret, msg)
 
 	-- 4. sync to client
 	role:send_module_data()

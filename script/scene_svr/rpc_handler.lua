@@ -1,6 +1,5 @@
 
-local Core = require "core"
-local rpc_mgr = Core.rpc_mgr
+local rpc_mgr = require "rpc.rpc_mgr"
 local Log = require "log.logger"
 local Util = require "util.util"
 local ErrorCode = ErrorCode

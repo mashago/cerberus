@@ -1,10 +1,10 @@
 
-local Core = require "core"
+local server_mgr = require "server.server_mgr"
 local Log = require "log.logger"
 local Env = require "env"
 
 function g_net_event_server_disconnect(server_id)
-	local server_info = Core.server_mgr:get_server_by_id(server_id)
+	local server_info = server_mgr:get_server_by_id(server_id)
 	if server_info._server_type == ServerType.MASTER then
 		-- save all role
 		Env.role_mgr:force_save_all_role()

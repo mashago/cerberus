@@ -1,5 +1,5 @@
 
-local Core = require "core"
+local net_mgr = require "net.net_mgr"
 local Log = require "log.logger"
 local class = require "util.class"
 local ServerInfo = class()
@@ -79,7 +79,7 @@ function ServerInfo:send_msg_ext(msg_id, ext, msg)
 		Log.warn("ServerInfo:send_msg not connected msg_id=%d", msg_id)
 		return false
 	end
-	return Core.net_mgr:send_msg_ext(mailbox_id, msg_id, ext, msg)
+	return net_mgr:send_msg_ext(mailbox_id, msg_id, ext, msg)
 end
 
 function ServerInfo:transfer_msg(ext)
@@ -88,26 +88,29 @@ function ServerInfo:transfer_msg(ext)
 		Log.err("ServerInfo:send_msg mailbox nil msg_id")
 		return false
 	end
-	return Core.net_mgr:transfer_msg(mailbox_id, ext)
+	return net_mgr:transfer_msg(mailbox_id, ext)
 end
 
 function ServerInfo:connect()
 	self._last_connect_time = os.time()
 	self._connect_status = ServiceConnectStatus.CONNECTING
-	Core.timer_mgr:fork(function()
-		local mailbox_id = Core.net_mgr:connect(self._ip, self._port)
+	local timer_mgr = require "timer.timer"
+	local server_mgr = require "server.server_mgr"
+	local cerberus = require "cerberus"
+	timer_mgr:fork(function()
+		local mailbox_id = cerberus:connect(self._ip, self._port)
 		if mailbox_id ~= MAILBOX_ID_NIL then
 			if self._connect_status == ServiceConnectStatus.DISCONNECTING then
-				Core.net_mgr:close_mailbox(mailbox_id)
+				net_mgr:close_mailbox(mailbox_id)
 				return
 			end
 			self._mailbox_id = mailbox_id
 			self._connect_status = ServiceConnectStatus.CONNECTED
-			Core.net_mgr:add_mailbox(mailbox_id, self._ip, self._port)
-			Core.server_mgr:on_connect_success(self)
+			net_mgr:add_mailbox(mailbox_id, self._ip, self._port)
+			server_mgr:on_connect_success(self)
 		else
 			self._connect_status = ServiceConnectStatus.DISCONNECT
-			Core.server_mgr:on_connect_fail(self)
+			server_mgr:on_connect_fail(self)
 		end
 	end)
 end

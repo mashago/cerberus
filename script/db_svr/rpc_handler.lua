@@ -1,10 +1,10 @@
 
-local Core = require "core"
 local Log = require "log.logger"
 local Util = require "util.util"
 local g_funcs = require "global.global_funcs"
 local DBMgr = require "db.db_mgr"
-local rpc_mgr = Core.rpc_mgr
+local rpc_mgr = require "rpc.rpc_mgr"
+local server_conf = require "global.server_conf"
 local ErrorCode = ErrorCode
 local DBType = DBType
 
@@ -52,7 +52,7 @@ function rpc_mgr.db_user_login(data)
 	-- 1. insert account, if success, means register, return insert user_id
 	-- 2. select account, if not success, means password mismatch
 
-	local db_name = Core.server_conf._db_name_map[DBType.LOGIN]
+	local db_name = server_conf._db_name_map[DBType.LOGIN]
 	local username = data.username
 	local password = data.password
 	local channel_id = data.channel_id
@@ -92,7 +92,7 @@ function rpc_mgr.db_create_role(data)
 	
 	Log.debug("db_create_role: data=%s", Util.table_to_string(data))
 
-	local db_name = Core.server_conf._db_name_map[DBType.LOGIN]
+	local db_name = server_conf._db_name_map[DBType.LOGIN]
 	local user_id = data.user_id
 	local area_id = data.area_id
 	local role_name = data.role_name
@@ -305,28 +305,28 @@ end
 
 function rpc_mgr.db_login_select(data)
 	
-	local db_name = Core.server_conf._db_name_map[DBType.LOGIN]
+	local db_name = server_conf._db_name_map[DBType.LOGIN]
 	data.db_name = db_name
 	return rpc_mgr:ret(db_select(data))
 end
 
 function rpc_mgr.db_login_insert(data)
 	
-	local db_name = Core.server_conf._db_name_map[DBType.LOGIN]
+	local db_name = server_conf._db_name_map[DBType.LOGIN]
 	data.db_name = db_name
 	return rpc_mgr:ret(db_insert(data))
 end
 
 function rpc_mgr.db_login_delete(data)
 	
-	local db_name = Core.server_conf._db_name_map[DBType.LOGIN]
+	local db_name = server_conf._db_name_map[DBType.LOGIN]
 	data.db_name = db_name
 	return rpc_mgr:ret(db_delete(data))
 end
 
 function rpc_mgr.db_login_update(data)
 	
-	local db_name = Core.server_conf._db_name_map[DBType.LOGIN]
+	local db_name = server_conf._db_name_map[DBType.LOGIN]
 	data.db_name = db_name
 	return rpc_mgr:ret(db_update(data))
 end
@@ -334,7 +334,7 @@ end
 -- will convert data by DataStructDef
 function rpc_mgr.db_game_select(data)
 	
-	local db_name = Core.server_conf._db_name_map[DBType.GAME]
+	local db_name = server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
 
 	local ret = db_select(data)
@@ -380,42 +380,42 @@ end
 
 function rpc_mgr.db_game_insert(data)
 	
-	local db_name = Core.server_conf._db_name_map[DBType.GAME]
+	local db_name = server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
 	return rpc_mgr:ret(db_insert(data))
 end
 
 function rpc_mgr.db_game_insert_multi(data)
 	
-	local db_name = Core.server_conf._db_name_map[DBType.GAME]
+	local db_name = server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
 	return rpc_mgr:ret(db_insert_multi(data))
 end
 
 function rpc_mgr.db_game_delete(data)
 	
-	local db_name = Core.server_conf._db_name_map[DBType.GAME]
+	local db_name = server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
 	return rpc_mgr:ret(db_delete(data))
 end
 
 function rpc_mgr.db_game_delete_multi(data)
 	
-	local db_name = Core.server_conf._db_name_map[DBType.GAME]
+	local db_name = server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
 	return rpc_mgr:ret(db_delete_multi(data))
 end
 
 function rpc_mgr.db_game_update(data)
 	
-	local db_name = Core.server_conf._db_name_map[DBType.GAME]
+	local db_name = server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
 	return rpc_mgr:ret(db_update(data))
 end
 
 function rpc_mgr.db_game_update_multi(data)
 	
-	local db_name = Core.server_conf._db_name_map[DBType.GAME]
+	local db_name = server_conf._db_name_map[DBType.GAME]
 	data.db_name = db_name
 	return rpc_mgr:ret(db_update_multi(data))
 end

@@ -1,5 +1,7 @@
 
-local Core = require "core"
+local server_conf = require "global.server_conf"
+local server_mgr = require "server.server_mgr"
+local timer_mgr = require "timer.timer"
 local Log = require "log.logger"
 local g_funcs = require "global.global_funcs"
 local class = require "util.class"
@@ -27,7 +29,6 @@ function Client:ctor()
 end
 
 function Client:load_server_list()
-	local server_conf = Core.server_conf
 	local server_list = server_conf._config.server_list or {}
 	for _, v in ipairs(server_list) do
 		local server_id = v.id
@@ -45,11 +46,11 @@ end
 
 
 function Client:send_to_login(msg_id, msg)
-	Core.server_mgr:send_by_server_type(ServerType.LOGIN, msg_id, msg)
+	server_mgr:send_by_server_type(ServerType.LOGIN, msg_id, msg)
 end
 
 function Client:send_to_gate(msg_id, msg)
-	Core.server_mgr:send_by_server_type(ServerType.GATE, msg_id, msg)
+	server_mgr:send_by_server_type(ServerType.GATE, msg_id, msg)
 end
 
 function Client:random_change_attr()
@@ -85,7 +86,7 @@ end
 
 function Client:loop_random_change_attr()
 	if self._loop_random_change_attr_timer_index then
-		Core.timer_mgr:del_timer(self._loop_random_change_attr_timer_index)
+		timer_mgr:del_timer(self._loop_random_change_attr_timer_index)
 		self._loop_random_change_attr_timer_index = nil
 		return
 	end
@@ -94,7 +95,7 @@ function Client:loop_random_change_attr()
 		self:random_change_attr()
 	end
 
-	self._loop_random_change_attr_timer_index = Core.timer_mgr:add_timer(200, timer_cb, 0, true)
+	self._loop_random_change_attr_timer_index = timer_mgr:add_timer(200, timer_cb, 0, true)
 end
 
 function Client:auto_run_cmd_once()
@@ -117,7 +118,7 @@ function Client:auto_run_cmd_once()
 	local cmd_index = 1
 	local timer_cb = function()
 		if cmd_index > #cmd_list then
-			Core.timer_mgr:del_timer(self._auto_run_cmd_timer_index)
+			timer_mgr:del_timer(self._auto_run_cmd_timer_index)
 			return
 		end
 		
@@ -125,7 +126,7 @@ function Client:auto_run_cmd_once()
 		cmd_index = cmd_index + 1
 	end
 
-	self._auto_run_cmd_timer_index = Core.timer_mgr:add_timer(1000, timer_cb, 0, true)
+	self._auto_run_cmd_timer_index = timer_mgr:add_timer(1000, timer_cb, 0, true)
 	
 end
 

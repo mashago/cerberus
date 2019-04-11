@@ -1,8 +1,6 @@
 
-local Core = require "core"
 local Log = require "log.logger"
 local Util = require "util.util"
-local g_msg_handler = require "global.msg_handler"
 local cnetwork = require "cerberus.network"
 
 local NetMgr = {
@@ -136,6 +134,7 @@ function NetMgr:recv_msg_handler(mailbox_id, msg_id)
 	
 	-- check msg is local handle or transfer
 	local msg_name = MID._id_name_map[msg_id]
+	local g_msg_handler = require "global.msg_handler"
 	local msg_func = g_msg_handler[msg_name]
 	if not msg_func then
 		if not g_msg_handler.transfer_msg then
@@ -164,17 +163,18 @@ function NetMgr:recv_msg_handler(mailbox_id, msg_id)
 		end
 	end
 
+	local rpc_mgr = require "rpc.rpc_mgr"
 	if msg_id == MID.s2s_rpc_req then
-		Core.rpc_mgr:handle_call(data, mailbox_id, msg_id, false)
+		rpc_mgr:handle_call(data, mailbox_id, msg_id, false)
 	elseif msg_id == MID.s2s_rpc_send_req then
-		Core.rpc_mgr:handle_call(data, mailbox_id, msg_id, true)
+		rpc_mgr:handle_call(data, mailbox_id, msg_id, true)
 	elseif msg_id == MID.s2s_rpc_ret then
-		Core.rpc_mgr:handle_callback(data, mailbox_id, msg_id)
+		rpc_mgr:handle_callback(data, mailbox_id, msg_id)
 	elseif not RAW_MID[msg_id] and g_net_event_client_msg then
 		-- check msg is need convert
-		Core.rpc_mgr:run(g_net_event_client_msg, msg_func, data, mailbox_id, msg_id, ext)
+		rpc_mgr:run(g_net_event_client_msg, msg_func, data, mailbox_id, msg_id, ext)
 	else
-		Core.rpc_mgr:run(msg_func, data, mailbox_id, msg_id, ext)
+		rpc_mgr:run(msg_func, data, mailbox_id, msg_id, ext)
 	end
 
 end
@@ -254,14 +254,6 @@ function NetMgr:write_struct_array(data, structdef, deep)
 end
 
 ------------------------------------
-
-function NetMgr:connect(ip, port)
-	return Core.rpc_mgr:sync(cnetwork.connect, ip, port)
-end
-
-function NetMgr:listen(ip, port)
-	return Core.rpc_mgr:sync(cnetwork.listen, ip, port)
-end
 
 function NetMgr:send_msg_ext(mailbox_id, msg_id, ext, data)
 	-- Log.debug("NetMgr:send_msg_ext msgdef mailbox_id=%d msg_id=%d ext=%d", mailbox_id, msg_id, ext)

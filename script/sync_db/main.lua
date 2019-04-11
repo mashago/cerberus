@@ -1,5 +1,5 @@
 
-local Core = require "core"
+local server_conf = require "global.server_conf"
 local Log = require "log.logger"
 local DBMgr = require "db.db_mgr"
 local cutil = require "cerberus.util"
@@ -10,7 +10,7 @@ local sync_db = nil
 local function main_entry()
 	Log.info("sync_db main_entry")
 
-	for _, v in ipairs(Core.server_conf._mysql_list) do
+	for _, v in ipairs(server_conf._mysql_list) do
 		assert(DBMgr.connect_to_mysql(v.ip, v.port, v.username, v.password, v.real_db_name), "connect_to_mysql fail " .. string.format("%s:%d %s:%s %s", v.ip, v.port, v.username, v.password, v.real_db_name))
 	end
 
@@ -34,7 +34,7 @@ sync_db = function()
 		[_Struct] = "blob",
 	}
 
-	local db_name = Core.server_conf._db_name_map[DBType.GAME]
+	local db_name = server_conf._db_name_map[DBType.GAME]
 	Log.debug("db_name=%s", db_name)
 
 	for table_name, table_def in pairs(DataStructDef.data) do

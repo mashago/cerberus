@@ -1,9 +1,10 @@
 
-local Core = require "core"
+local server_conf = require "global.server_conf"
 local Log = require "log.logger"
 local Util = require "util.util"
 local class = require "util.class"
 local ServerInfo = require "server.server_info"
+local cerberus = require "cerberus"
 
 local ServerMgr = {
 	-- store not connected or not shake hand server
@@ -84,12 +85,12 @@ end
 -------------------------------------------------
 
 function ServerMgr:create_mesh()
-	local server_conf = Core.server_conf
+	local server_conf = server_conf
 	local ip = server_conf._ip
 	local port = server_conf._port
 	if ip ~= "" and port ~= 0 then
 		Log.debug("ServerMgr:create_mesh listen ip=%s port=%d", ip, port)
-		local listen_id = Core.net_mgr:listen(ip, port)
+		local listen_id = cerberus:listen(ip, port)
 		Log.info("ServerMgr:create_mesh listen_id=%d", listen_id)
 		if listen_id < 0 then
 			Log.err("ServerMgr:create_mesh listen fail ip=%s port=%d", ip, port)
@@ -97,7 +98,7 @@ function ServerMgr:create_mesh()
 		end
 	end
 	
-	for _, v in ipairs(Core.server_conf._connect_to) do
+	for _, v in ipairs(server_conf._connect_to) do
 		Log.debug("ServerMgr:create_mesh connect ip=%s port=%d", v.ip, v.port)
 		self:do_connect(v.ip, v.port)
 	end
@@ -245,12 +246,12 @@ function ServerMgr:on_connect_success(server_info)
 	-- send shake hand
 	local msg =
 	{
-		server_id = Core.server_conf._server_id,
-		server_type = Core.server_conf._server_type,
-		single_scene_list = Core.server_conf._single_scene_list,
-		from_to_scene_list = Core.server_conf._from_to_scene_list,
-		ip = Core.server_conf._ip,
-		port = Core.server_conf._port,
+		server_id = server_conf._server_id,
+		server_type = server_conf._server_type,
+		single_scene_list = server_conf._single_scene_list,
+		from_to_scene_list = server_conf._from_to_scene_list,
+		ip = server_conf._ip,
+		port = server_conf._port,
 	}
 	server_info:send_msg(MID.s2s_shake_hand_req, msg)
 end
@@ -340,7 +341,8 @@ function ServerMgr:close_connection(server_info, no_reconnect)
 	server_info._no_reconnect = no_reconnect
 	server_info._connect_status = ServiceConnectStatus.DISCONNECTING
 	if server_info._mailbox_id ~= MAILBOX_ID_NIL then
-		Core.net_mgr:close_mailbox(server_info._mailbox_id)
+		local net_mgr = require "net.net_mgr"
+		net_mgr:close_mailbox(server_info._mailbox_id)
 	end
 end
 

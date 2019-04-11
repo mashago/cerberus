@@ -1,5 +1,6 @@
 
-local Core = require "core"
+local timer_mgr = require "timer.timer"
+local net_mgr = require "net.net_mgr"
 local class = require "util.class"
 local g_funcs = require "global.global_funcs"
 local SheetObj = require "obj.sheet_obj"
@@ -18,7 +19,7 @@ end
 
 function Role:send_msg(msg_id, msg)
 	-- add role_id into ext
-	return Core.net_mgr:send_msg_ext(self._mailbox_id, msg_id, self._role_id, msg)
+	return net_mgr:send_msg_ext(self._mailbox_id, msg_id, self._role_id, msg)
 end
 
 function Role:init()
@@ -76,7 +77,7 @@ function Role:force_save()
 		return
 	end
 	Env.role_mgr:unmark_save_role(self._role_id)
-	Core.timer_mgr:del_timer(timer_index)
+	timer_mgr:del_timer(timer_index)
 	self._db_save_timer_index = 0
 	self:save_dirty()
 end
@@ -116,7 +117,7 @@ function Role:active_save()
 	end
 
 	local ROLE_DB_SAVE_INTERVAL = 10000 -- ms
-	self._db_save_timer_index = Core.timer_mgr:add_timer(ROLE_DB_SAVE_INTERVAL, timer_cb, self, false)
+	self._db_save_timer_index = timer_mgr:add_timer(ROLE_DB_SAVE_INTERVAL, timer_cb, self, false)
 end
 
 ---------------------------------------

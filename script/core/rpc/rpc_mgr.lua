@@ -1,5 +1,5 @@
 
-local Core = require "core"
+local server_conf = require "global.server_conf"
 local Log = require "log.logger"
 local Util = require "util.util"
 local RPC_SEND_SESSION_ID = -1
@@ -73,6 +73,7 @@ function RpcMgr:ret(data)
 	assert(running_call_env.session_id ~= RPC_FIN_SESSION_ID
 	, "RpcMgr:already ret error " .. running_call_env.session_id)
 
+	local net_mgr = require "net.net_mgr"
 	local msg =
 	{
 		result = true, 
@@ -81,7 +82,7 @@ function RpcMgr:ret(data)
 		session_id = running_call_env.session_id, 
 		param = Util.serialize(data)
 	}
-	Core.net_mgr:send_msg(running_call_env.mailbox_id, MID.s2s_rpc_ret, msg)
+	net_mgr:send_msg(running_call_env.mailbox_id, MID.s2s_rpc_ret, msg)
 
 	-- mark already call ret
 	running_call_env.session_id = RPC_FIN_SESSION_ID
@@ -106,7 +107,7 @@ function RpcMgr:call(server_info, func_name, data)
 	local session_id = self:_gen_session_id()
 	local msg = 
 	{
-		from_server_id = Core.server_conf._server_id, 
+		from_server_id = server_conf._server_id, 
 		to_server_id = server_info._server_id, 
 		session_id = session_id, 
 		func_name = func_name, 
@@ -119,13 +120,15 @@ function RpcMgr:call(server_info, func_name, data)
 end
 
 function RpcMgr:call_by_server_type(server_type, func_name, data, opt_key)
-	local server_info = Core.server_mgr:get_server_by_type(server_type, opt_key)
+	local server_mgr = require "server.server_mgr"
+	local server_info = server_mgr:get_server_by_type(server_type, opt_key)
 	if not server_info then return false end
 	return self:call(server_info, func_name, data)
 end
 
 function RpcMgr:call_by_server_id(server_id, func_name, data)
-	local server_info = Core.server_mgr:get_server_by_id(server_id)
+	local server_mgr = require "server.server_mgr"
+	local server_info = server_mgr:get_server_by_id(server_id)
 	if not server_info then return false end
 	return self:call(server_info, func_name, data)
 end
@@ -135,7 +138,7 @@ end
 function RpcMgr:send(server_info, func_name, data)
 	local msg = 
 	{
-		from_server_id = Core.server_conf._server_id, 
+		from_server_id = server_conf._server_id, 
 		to_server_id = server_info._server_id, 
 		session_id = RPC_SEND_SESSION_ID,
 		func_name = func_name, 
@@ -147,13 +150,15 @@ function RpcMgr:send(server_info, func_name, data)
 end
 
 function RpcMgr:send_by_server_type(server_type, func_name, data, opt_key)
-	local server_info = Core.server_mgr:get_server_by_type(server_type, opt_key)
+	local server_mgr = require "server.server_mgr"
+	local server_info = server_mgr:get_server_by_type(server_type, opt_key)
 	if not server_info then return false end
 	return self:send(server_info, func_name, data)
 end
 
 function RpcMgr:send_by_server_id(server_id, func_name, data)
-	local server_info = Core.server_mgr:get_server_by_id(server_id)
+	local server_mgr = require "server.server_mgr"
+	local server_info = server_mgr:get_server_by_id(server_id)
 	if not server_info then return false end
 	return self:send(server_info, func_name, data)
 end
@@ -169,6 +174,7 @@ end
 ---------------------------------------
 
 local function send_error_ret(mailbox_id, from_server_id, to_server_id, session_id, errno)
+	local net_mgr = require "net.net_mgr"
 	local msg =
 	{
 		result = false, 
@@ -177,7 +183,7 @@ local function send_error_ret(mailbox_id, from_server_id, to_server_id, session_
 		session_id = session_id, 
 		param = tostring(errno),
 	}
-	Core.net_mgr:send_msg(mailbox_id, MID.s2s_rpc_ret, msg)
+	net_mgr:send_msg(mailbox_id, MID.s2s_rpc_ret, msg)
 end
 
 function RpcMgr:_call(data, mailbox_id, msg_id, is_send)
@@ -190,8 +196,8 @@ function RpcMgr:_call(data, mailbox_id, msg_id, is_send)
 	self._running_call_env = self:_gen_running_call_env(mailbox_id, from_server_id, to_server_id, session_id)
 
 	-- server_id mismatch
-	if to_server_id ~= Core.server_conf._server_id then
-		Log.err("RpcMgr:_call server_id mismatch to_server_id=%d local_server_id=%d", to_server_id, Core.server_conf._server_id)
+	if to_server_id ~= server_conf._server_id then
+		Log.err("RpcMgr:_call server_id mismatch to_server_id=%d local_server_id=%d", to_server_id, server_conf._server_id)
 		if not is_send then
 			send_error_ret(mailbox_id, from_server_id, to_server_id, session_id, -1)
 
@@ -260,11 +266,12 @@ function RpcMgr:_callback(session_id, result, data)
 	end
 	self._all_session_map[session_id] = nil	
 
+	local server_mgr = require "server.server_mgr"
 	-- for rpc:ret if necessary
 	local origin_route = self._origin_route_map[session_id]
 	if origin_route then
 		self._running_call_env = origin_route
-		local server_info = Core.server_mgr:get_server_by_id(origin_route.from_server_id)
+		local server_info = server_mgr:get_server_by_id(origin_route.from_server_id)
 		if server_info then
 			self._running_call_env.mailbox_id = server_info:get_mailbox_id()
 		else
@@ -315,8 +322,8 @@ function RpcMgr:handle_callback(data, mailbox_id, msg_id)
 	-- local to_server_id = data.to_server_id
 
 	-- server_id mismatch
-	if from_server_id ~= Core.server_conf._server_id then
-		Log.err("RpcMgr:handle_callback server_id mismatch from_server_id=%d local_server_id=%d", from_server_id, Core.server_conf._server_id)
+	if from_server_id ~= server_conf._server_id then
+		Log.err("RpcMgr:handle_callback server_id mismatch from_server_id=%d local_server_id=%d", from_server_id, server_conf._server_id)
 		return
 	end
 

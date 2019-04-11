@@ -1,5 +1,5 @@
 
-local Core = require "core"
+local rpc_mgr = require "rpc.rpc_mgr"
 local Log = require "log.logger"
 local Util = require "util.util"
 local class = require "util.class"
@@ -58,7 +58,7 @@ function CommonMgr:rpc_create_role(custom_data)
 		table_name = "role_info",
 		kvs = role_data,
 	}
-	local status, ret = Core.rpc_mgr:call_by_server_type(ServerType.DB, "db_game_insert", rpc_data)
+	local status, ret = rpc_mgr:call_by_server_type(ServerType.DB, "db_game_insert", rpc_data)
 	if not status then
 		Log.err("CommonMgr:rpc_create_role rpc call fail")
 		return {result = ErrorCode.SYS_ERROR}
@@ -81,7 +81,7 @@ function CommonMgr:rpc_delete_role(user_id, role_id)
 			role_id = role_id,
 			reason = ErrorCode.ROLE_KICK_RELOGIN,
 		}
-		local status, ret = Core.rpc_mgr:call_by_server_id(online_user.gate_server_id, "gate_kick_role", rpc_data)
+		local status, ret = rpc_mgr:call_by_server_id(online_user.gate_server_id, "gate_kick_role", rpc_data)
 		if not status then
 			Log.err("rpc_delete_role rpc call fail")
 			return {result = ErrorCode.SYS_ERROR}
@@ -100,7 +100,7 @@ function CommonMgr:rpc_delete_role(user_id, role_id)
 		fields = {is_delete = 1},
 		conditions = {role_id = role_id}
 	}
-	local status, ret = Core.rpc_mgr:call_by_server_type(ServerType.DB, "db_game_update", rpc_data, role_id)
+	local status, ret = rpc_mgr:call_by_server_type(ServerType.DB, "db_game_update", rpc_data, role_id)
 	if not status then
 		Log.err("rpc_delete_role rpc call fail")
 		return {result = ErrorCode.SYS_ERROR}
@@ -173,7 +173,7 @@ function CommonMgr:rpc_select_role(user_id, role_id)
 			role_id = role_id,
 			reason = ErrorCode.ROLE_KICK_RELOGIN,
 		}
-		local status, ret = Core.rpc_mgr:call_by_server_id(online_user.gate_server_id, "gate_kick_role", rpc_data)
+		local status, ret = rpc_mgr:call_by_server_id(online_user.gate_server_id, "gate_kick_role", rpc_data)
 		if not status then
 			Log.err("rpc_delete_role rpc call fail")
 			return {result = ErrorCode.SYS_ERROR}
@@ -196,7 +196,7 @@ function CommonMgr:rpc_select_role(user_id, role_id)
 			fields = {"server_id", "scene_id"},
 			conditions = {role_id = role_id}
 		}
-		local status, ret = Core.rpc_mgr:call_by_server_type(ServerType.DB, "db_game_select", rpc_data, role_id)
+		local status, ret = rpc_mgr:call_by_server_type(ServerType.DB, "db_game_select", rpc_data, role_id)
 		if not status then
 			Log.err("rpc_select_role rpc call fail")
 			return {result = ErrorCode.SYS_ERROR}
@@ -231,7 +231,7 @@ function CommonMgr:rpc_select_role(user_id, role_id)
 		scene_id = scene_id,
 		token = token,
 	}
-	local status, ret = Core.rpc_mgr:call_by_server_id(online_user.gate_server_id, "gate_select_role", rpc_data)
+	local status, ret = rpc_mgr:call_by_server_id(online_user.gate_server_id, "gate_select_role", rpc_data)
 	if not status then
 		Log.err("rpc_select_role rpc call fail")
 		return {result = ErrorCode.SYS_ERROR}
