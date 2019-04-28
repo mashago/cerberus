@@ -2,7 +2,13 @@ local server_mgr = require "server.server_mgr"
 local Log = require "log.logger"
 local Util = require "util.util"
 local g_msg_handler = require "global.msg_handler"
+local ErrorCode = require "global.error_code"
 local Env = require "env"
+
+local ErrorCodeText = {}
+for k, v in pairs(ErrorCode) do
+	ErrorCodeText[v] = k
+end
 
 function g_msg_handler.s2c_rpc_test_ret(data, mailbox_id, msg_id)
 	Log.debug("s2c_rpc_test_ret: data=%s", Util.table_to_string(data))

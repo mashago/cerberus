@@ -2,6 +2,9 @@
 local net_mgr = require "net.net_mgr"
 local Log = require "log.logger"
 local class = require "util.class"
+local global_define = require "global.global_define"
+
+local ServiceConnectStatus = global_define.ServiceConnectStatus
 local ServerInfo = class()
 
 function ServerInfo:ctor(ip, port, no_shakehand, no_reconnect, mailbox_id, server_id, server_type, single_scene_list, from_to_scene_list)

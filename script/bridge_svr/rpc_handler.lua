@@ -7,7 +7,7 @@ local rpc_mgr = require "rpc.rpc_mgr"
 local server_mgr = require "server.server_mgr"
 
 local ServerType = ServerType
-local ErrorCode = ErrorCode
+local ErrorCode = require "global.error_code"
 
 
 function rpc_mgr.bridge_rpc_test(data)

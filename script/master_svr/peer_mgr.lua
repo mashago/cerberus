@@ -9,7 +9,7 @@ local msg_def = require "global.net_msg_def"
 local MID = msg_def.MID
 local MAILBOX_ID_NIL = MAILBOX_ID_NIL
 local ServerType = ServerType
-local ErrorCode = ErrorCode
+local ErrorCode = require "global.error_code"
 
 local PeerMgr = class()
 

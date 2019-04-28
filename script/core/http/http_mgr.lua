@@ -1,7 +1,6 @@
 
 local net_mgr = require "net.net_mgr"
 local Log = require "log.logger"
-local class = require "util.class"
 
 local HttpMgr = {
 	_cur_session_id = 0,

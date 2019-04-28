@@ -3,7 +3,9 @@ local server_conf = require "global.server_conf"
 local Log = require "log.logger"
 local DBMgr = require "db.db_mgr"
 local cutil = require "cerberus.util"
+local global_define = require "global.global_define"
 
+local DBType = global_define.DBType
 
 local sync_db = nil
 

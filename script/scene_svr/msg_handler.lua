@@ -6,7 +6,7 @@ local Util = require "util.util"
 local msg_def = require "global.net_msg_def"
 local MID = msg_def.MID
 local Env = require "env"
-local ErrorCode = ErrorCode
+local ErrorCode = require "global.error_code"
 
 function g_msg_handler.c2s_client_test_req(data, mailbox_id, msg_id)
 	-- Log.debug("client_time=%d client_data=%s", data.client_time, data.client_data)	

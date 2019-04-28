@@ -2,7 +2,7 @@
 local rpc_mgr = require "rpc.rpc_mgr"
 local Log = require "log.logger"
 local Util = require "util.util"
-local ErrorCode = ErrorCode
+local ErrorCode = require "global.error_code"
 
 function rpc_mgr.scene_rpc_test(data)
 	Log.debug("scene_rpc_test: data=%s", Util.table_to_string(data))

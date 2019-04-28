@@ -4,7 +4,7 @@ local Util = require "util.util"
 local Env = require "env"
 local rpc_mgr = require "rpc.rpc_mgr"
 local server_conf = require "global.server_conf"
-local ErrorCode = ErrorCode
+local ErrorCode = require "global.error_code"
 
 function rpc_mgr.gate_rpc_test(data)
 	

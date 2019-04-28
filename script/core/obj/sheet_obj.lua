@@ -4,6 +4,7 @@ local Log = require "log.logger"
 local Util = require "util.util"
 local class = require "util.class"
 local g_funcs = require "global.global_funcs"
+local ErrorCode = require "global.error_code"
 local SheetObj = class()
 
 --[[

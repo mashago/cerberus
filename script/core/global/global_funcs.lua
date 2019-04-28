@@ -4,6 +4,7 @@ local Log = require "log.logger"
 local Util = require "util.util"
 local cutil = require "cerberus.util"
 local msg_def = require "global.net_msg_def"
+local ErrorCode = require "global.error_code"
 local MID = msg_def.MID
 
 local g_funcs = {}

@@ -2,10 +2,12 @@
 local server_conf = require "global.server_conf"
 local Log = require "log.logger"
 local Util = require "util.util"
-local class = require "util.class"
 local ServerInfo = require "server.server_info"
 local cerberus = require "cerberus"
 local msg_def = require "global.net_msg_def"
+local global_define = require "global.global_define"
+
+local ServiceConnectStatus = global_define.ServiceConnectStatus
 local MID = msg_def.MID
 
 local ServerMgr = {

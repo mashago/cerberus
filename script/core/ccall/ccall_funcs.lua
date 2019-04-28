@@ -1,8 +1,10 @@
 local net_mgr = require "net.net_mgr"
 local timer_mgr = require "timer.timer"
 local Log = require "log.logger"
-local cnetwork = require "cerberus.network"
 local msg_def = require "global.net_msg_def"
+local global_define = require "global.global_define"
+
+local ServiceConnectStatus = global_define.ServiceConnectStatus
 local MID = msg_def.MID
 
 -- for c call

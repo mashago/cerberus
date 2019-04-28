@@ -5,6 +5,11 @@ local cnetwork = require "cerberus.network"
 local msg_def = require "global.net_msg_def"
 local MID = msg_def.MID
 local RAW_MID = msg_def.RAW_MID
+local global_define = require "global.global_define"
+
+local ConnType = global_define.ConnType
+local TrustIPList = global_define.TrustIPList
+local HttpRequestType = global_define.HttpRequestType
 
 local NetMgr = {
 	_all_mailbox = {},

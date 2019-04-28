@@ -5,8 +5,10 @@ local g_funcs = require "global.global_funcs"
 local DBMgr = require "db.db_mgr"
 local rpc_mgr = require "rpc.rpc_mgr"
 local server_conf = require "global.server_conf"
-local ErrorCode = ErrorCode
-local DBType = DBType
+local ErrorCode = require "global.error_code"
+local global_define = require "global.global_define"
+
+local DBType = global_define.DBType
 
 function rpc_mgr.db_rpc_test(data)
 	Log.debug("db_rpc_test: data=%s", Util.table_to_string(data))

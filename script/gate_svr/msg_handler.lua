@@ -5,7 +5,7 @@ local Log = require "log.logger"
 local Util = require "util.util"
 local g_msg_handler = require "global.msg_handler"
 local Env = require "env"
-local ErrorCode = ErrorCode
+local ErrorCode = require "global.error_code"
 local msg_def = require "global.net_msg_def"
 local MID = msg_def.MID
 

@@ -6,7 +6,7 @@ local Util = require "util.util"
 local class = require "util.class"
 local Env = require "env"
 local ServerType = ServerType
-local ErrorCode = ErrorCode
+local ErrorCode = require "global.error_code"
 local msg_def = require "global.net_msg_def"
 local MID = msg_def.MID
 
