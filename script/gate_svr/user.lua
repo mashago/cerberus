@@ -4,8 +4,9 @@ local Log = require "log.logger"
 local g_funcs = require "global.global_funcs"
 local class = require "util.class"
 
-local MAILBOX_ID_NIL = MAILBOX_ID_NIL
 local msg_def = require "global.net_msg_def"
+local global_define = require "global.global_define"
+local MAILBOX_ID_NIL = global_define.MAILBOX_ID_NIL
 local MID = msg_def.MID
 
 local User = class()

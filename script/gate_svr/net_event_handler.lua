@@ -1,8 +1,9 @@
 
 local server_mgr = require "server.server_mgr"
 local Log = require "log.logger"
-local ServerType = ServerType
 local Env = require "env"
+local global_define = require "global.global_define"
+local ServerType = global_define.ServerType
 
 function g_net_event_server_connect(server_id)
 	local server_info = server_mgr:get_server_by_id(server_id)

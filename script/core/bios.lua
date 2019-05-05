@@ -2,6 +2,9 @@
 package.path =  "script/core/?.lua;script/?.lua;" .. package.path
 package.cpath =  "luaclib/?.dll;luaclib/lib?.dll;luaclib/?.so;luaclib/lib?.so;luaclib/?.dylib;luaclib/lib?.dylib;" .. package.cpath
 
+require "global.global_define"
+require "global.data_struct_def"
+require "ccall.ccall_funcs"
 local Log = require "log.logger"
 local server_conf = require "global.server_conf"
 local cutil = require "cerberus.util"

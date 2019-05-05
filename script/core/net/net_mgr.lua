@@ -10,6 +10,7 @@ local global_define = require "global.global_define"
 local ConnType = global_define.ConnType
 local TrustIPList = global_define.TrustIPList
 local HttpRequestType = global_define.HttpRequestType
+local MAILBOX_ID_NIL = global_define.MAILBOX_ID_NIL
 
 local NetMgr = {
 	_all_mailbox = {},

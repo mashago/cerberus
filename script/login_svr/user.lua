@@ -5,9 +5,10 @@ local Log = require "log.logger"
 local Util = require "util.util"
 local class = require "util.class"
 local Env = require "env"
-local ServerType = ServerType
 local ErrorCode = require "global.error_code"
 local msg_def = require "global.net_msg_def"
+local global_define = require "global.global_define"
+local ServerType = global_define.ServerType
 local MID = msg_def.MID
 
 local User = class()

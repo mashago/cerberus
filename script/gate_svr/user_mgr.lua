@@ -4,8 +4,9 @@ local timer_mgr = require "timer.timer"
 local Log = require "log.logger"
 local class = require "util.class"
 local msg_def = require "global.net_msg_def"
+local global_define = require "global.global_define"
+local ServerType = global_define.ServerType
 local MID = msg_def.MID
-local ServerType = ServerType
 
 local UserMgr = class()
 

@@ -6,8 +6,9 @@ local g_msg_handler = require "global.msg_handler"
 local Log = require "log.logger"
 local Util = require "util.util"
 local ErrorCode = require "global.error_code"
-local ServerType = ServerType
 local msg_def = require "global.net_msg_def"
+local global_define = require "global.global_define"
+local ServerType = global_define.ServerType
 local MID = msg_def.MID
 local Env = require "env"
 

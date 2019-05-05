@@ -3,6 +3,8 @@ local rpc_mgr = require "rpc.rpc_mgr"
 local timer_mgr = require "timer.timer"
 local class = require "util.class"
 local Env = require "env"
+local global_define = require "global.global_define"
+local ServerType = global_define.ServerType
 
 local CommonHandler = class()
 

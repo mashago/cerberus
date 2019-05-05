@@ -6,8 +6,10 @@ local ServerInfo = require "server.server_info"
 local cerberus = require "cerberus"
 local msg_def = require "global.net_msg_def"
 local global_define = require "global.global_define"
+local ServerTypeName = global_define.ServerTypeName
 
 local ServiceConnectStatus = global_define.ServiceConnectStatus
+local MAILBOX_ID_NIL = global_define.MAILBOX_ID_NIL
 local MID = msg_def.MID
 
 local ServerMgr = {

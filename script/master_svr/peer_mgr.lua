@@ -7,9 +7,11 @@ local Util = require "util.util"
 local class = require "util.class"
 local msg_def = require "global.net_msg_def"
 local MID = msg_def.MID
-local MAILBOX_ID_NIL = MAILBOX_ID_NIL
-local ServerType = ServerType
 local ErrorCode = require "global.error_code"
+local global_define = require "global.global_define"
+local ServerType = global_define.ServerType
+local ServerTypeName = global_define.ServerTypeName
+local MAILBOX_ID_NIL = global_define.MAILBOX_ID_NIL
 
 local PeerMgr = class()
 
@@ -235,7 +237,6 @@ end
 
 function PeerMgr:print()
 	Log.info("\n####### PeerMgr:print #######")
-	local ServerTypeName = ServerTypeName
 	for k, v in ipairs(self._register_peer_list) do
 		Log.info("[%d] mailbox_id=%d server_id=%d server_type=[%d:%s] single_scene_list=[%s] from_to_scene_list=[%s] ip=%s port=%d"
 		, k, v.mailbox_id, v.server_id, v.server_type, ServerTypeName[v.server_type]

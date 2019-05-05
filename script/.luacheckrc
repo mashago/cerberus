@@ -20,12 +20,7 @@ globals = {
 "_StringArray",
 "_StructArray",
 
-"ServerType",
-"ServerTypeName",
-"MID",
-"MAILBOX_ID_NIL",
 "DataStructDef",
-"LuaTinyXMLDoc",
 "MSG_DEF_MAP",
 "RAW_MID",
 

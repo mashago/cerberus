@@ -5,9 +5,9 @@ local Util = require "util.util"
 local Env = require "env"
 local rpc_mgr = require "rpc.rpc_mgr"
 local server_mgr = require "server.server_mgr"
-
-local ServerType = ServerType
 local ErrorCode = require "global.error_code"
+local global_define = require "global.global_define"
+local ServerType = global_define.ServerType
 
 
 function rpc_mgr.bridge_rpc_test(data)

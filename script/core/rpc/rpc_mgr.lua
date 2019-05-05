@@ -6,6 +6,8 @@ local msg_def = require "global.net_msg_def"
 local MID = msg_def.MID
 local RPC_SEND_SESSION_ID = -1
 local RPC_FIN_SESSION_ID = -2
+local global_define = require "global.global_define"
+local MAILBOX_ID_NIL = global_define.MAILBOX_ID_NIL
 
 local RpcMgr = {
 	_cur_session_id = 0,

@@ -7,6 +7,8 @@ local g_funcs = require "global.global_funcs"
 local class = require "util.class"
 local cutil = require "cerberus.util"
 local msg_def = require "global.net_msg_def"
+local global_define = require "global.global_define"
+local ServerType = global_define.ServerType
 local MID = msg_def.MID
 
 local Client = class()

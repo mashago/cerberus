@@ -4,6 +4,8 @@ local Util = require "util.util"
 local g_msg_handler = require "global.msg_handler"
 local ErrorCode = require "global.error_code"
 local Env = require "env"
+local global_define = require "global.global_define"
+local ServerType = global_define.ServerType
 
 local ErrorCodeText = {}
 for k, v in pairs(ErrorCode) do

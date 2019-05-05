@@ -1,28 +1,26 @@
 
 local M = {}
 
-M.DataDefine = {
-	-- data define
-	_Null 			= 0,
-	_Byte 			= 1,
-	_Bool 			= 2,
-	_Int 			= 3,
-	_Float 			= 4,
-	_Short 			= 5,
-	_Int64 			= 6,
-	_String			= 7,
-	_Struct 		= 8,
-	_StructString 	= 9, -- only for network transfer
+-- data define
+_Null 			= 0
+_Byte 			= 1
+_Bool 			= 2
+_Int 			= 3
+_Float 			= 4
+_Short 			= 5
+_Int64 			= 6
+_String			= 7
+_Struct 		= 8
+_StructString 	= 9 -- only for network transfer
 
-	_ByteArray 		= 11,
-	_BoolArray		= 12,
-	_IntArray		= 13,
-	_FloatArray		= 14,
-	_ShortArray 	= 15,
-	_Int64Array 	= 16,
-	_StringArray 	= 17,
-	_StructArray 	= 18,
-}
+_ByteArray 		= 11
+_BoolArray		= 12
+_IntArray		= 13
+_FloatArray		= 14
+_ShortArray 	= 15
+_Int64Array 	= 16
+_StringArray 	= 17
+_StructArray 	= 18
 
 M.ServerType =
 {
@@ -39,7 +37,7 @@ M.ServerType =
 }
 
 M.ServerTypeName = { }
-for k, v in pairs(ServerType) do
+for k, v in pairs(M.ServerType) do
 	M.ServerTypeName[v] = k
 end
 
