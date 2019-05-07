@@ -4,24 +4,11 @@ local Log = require "log.logger"
 local DBMgr = require "db.db_mgr"
 local cutil = require "cerberus.util"
 local global_define = require "global.global_define"
+local cerberus = require "cerberus"
 
 local DBType = global_define.DBType
 
-local sync_db = nil
-
-local function main_entry()
-	Log.info("sync_db main_entry")
-
-	for _, v in ipairs(server_conf._mysql_list) do
-		assert(DBMgr.connect_to_mysql(v.ip, v.port, v.username, v.password, v.real_db_name), "connect_to_mysql fail " .. string.format("%s:%d %s:%s %s", v.ip, v.port, v.username, v.password, v.real_db_name))
-	end
-
-	-- sync db
-	sync_db()
-	
-end
-
-sync_db = function()
+local sync_db = function()
 	Log.debug("sync_db")
 
 	local type_str_map = 
@@ -283,4 +270,14 @@ sync_db = function()
 	return true
 end
 
-return main_entry
+
+cerberus.start(function()
+	Log.info("sync_db main_entry")
+
+	for _, v in ipairs(server_conf._mysql_list) do
+		assert(DBMgr.connect_to_mysql(v.ip, v.port, v.username, v.password, v.real_db_name), "connect_to_mysql fail " .. string.format("%s:%d %s:%s %s", v.ip, v.port, v.username, v.password, v.real_db_name))
+	end
+
+	-- sync db
+	sync_db()
+end)

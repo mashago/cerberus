@@ -1,11 +1,12 @@
 
 local Log = require "log.logger"
 local Env = require "env"
+local cerberus = require "cerberus"
 
 require "client.msg_handler"
 require "client.stdin_handler"
 
-local function main_entry()
+cerberus.start(function()
 	Log.info("client main_entry")
 
 	local Client = require "client.client"
@@ -16,6 +17,5 @@ local function main_entry()
 	local TimeCounter = require "client.time_counter"
 	Env.time_counter = TimeCounter.new()
 
-end
+end)
 
-return main_entry

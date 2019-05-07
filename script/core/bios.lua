@@ -24,12 +24,9 @@ function()
 	server_conf:load(config)
 	server_conf:print()
 
-	-- local entry_path = server_conf._path
-	-- package.path = "script/" .. entry_path .. "/?.lua;" .. package.path
-
-	-- local main_entry = require(entry_path .. ".main")
-	-- main_entry()
-	require "main"
+	local entry_path = server_conf._path
+	package.path = "script/" .. entry_path .. "/?.lua;" .. package.path
+	require("main")
 end,
 function(m) 
 	local msg = debug.traceback(m, 3)
