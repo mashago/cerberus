@@ -60,6 +60,7 @@ function ccall_disconnect_handler(mailbox_id)
 			if g_net_event_server_disconnect and server_info._connect_status == ServiceConnectStatus.CONNECTED then
 				g_net_event_server_disconnect(server_info._server_id)
 			end
+			net_mgr:dispatch_net_event("server_disconnect", server_info._server_id)
 			server_mgr:on_connection_close(server_info)
 		else
 			-- client disconnect, login and gate handle
@@ -67,6 +68,7 @@ function ccall_disconnect_handler(mailbox_id)
 			if g_net_event_client_disconnect then
 				g_net_event_client_disconnect(id)
 			end
+			net_mgr:dispatch_net_event("client_disconnect", id)
 		end
 
 		net_mgr:del_mailbox(id)

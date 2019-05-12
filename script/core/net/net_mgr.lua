@@ -52,6 +52,8 @@ local NetMgr = {
 		[_Int64Array] = function(val) return cnetwork.write_int64_array(val) end,
 		[_StringArray] = function(val) return cnetwork.write_string_array(val) end,
 	},
+
+	_net_event_handler = {},
 }
 
 local VALUE_NAME_INDEX = 1
@@ -334,6 +336,23 @@ end
 
 function NetMgr:http_request_post(url, session_id, post_data, post_data_len)
 	cnetwork.http_request(url, session_id, HttpRequestType.POST, post_data, post_data_len)
+end
+
+function NetMgr:register_net_event(event, func)
+	local handler = self._net_event_handler[event]
+	if not handler then
+		handler = {}
+		self._net_event_handler[event] = handler
+	end
+	table.insert(handler, func)
+end
+
+function NetMgr:dispatch_net_event(event, ...)
+	local handler = self._net_event_handler[event]
+	if not handler then return end
+	for _, func in ipairs(handler) do
+		pcall(func, ...)
+	end
 end
 
 return NetMgr
