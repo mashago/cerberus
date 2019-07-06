@@ -22,6 +22,7 @@ public:
 
 	struct bufferevent *GetBEV();
 	void SetBEV(struct bufferevent *bev);
+	void ClearBEV();
 
 	void SetDelete(bool flag);
 	bool IsDelete();

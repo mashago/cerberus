@@ -27,6 +27,7 @@ struct evhttp_connection;
 
 class Pluto;
 class Mailbox;
+class MailboxMgr;
 class Listener;
 class EventPipe;
 struct EventNode;
@@ -46,6 +47,8 @@ public:
 	int64_t Connect(const char *addr, unsigned int port);
 
 	void SendEvent(EventNode *node);
+	void SendConnectCloseEvent(int64_t mailboxId);
+
 	int HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int socklen);
 	int HandleSocketRead(struct bufferevent *bev);
 	int HandleSocketClosed(evutil_socket_t fd);
@@ -61,17 +64,9 @@ public:
 	};
 
 private:
-
-	Mailbox *NewMailbox(int fd);
-	Mailbox *GetMailboxByFd(int fd);
-	Mailbox *GetMailboxByMailboxId(int64_t mailboxId);
-	void CloseMailbox(Mailbox *pmb);
-	void CloseMailboxByFd(int fd);
-	void CloseMailboxByMailboxId(int64_t mailboxId);
-
 	int SocketReadMessage(struct bufferevent *bev);
+	void CloseMailbox(Mailbox *pmb);
 	void HandleWorldEvent();
-	void HandleSendPluto();
 	bool HttpRequest(const char *url, int64_t session_id, int request_type, const char *post_data, int post_data_len);
 	struct evhttp_connection * GetHttpConnection(struct event_base *main_event, struct evdns_base *dns, const char *host, int port);
 
@@ -84,10 +79,7 @@ private:
 	EventPipe *m_inputPipe;
 	EventPipe *m_outputPipe;
 
-	std::map<int, Mailbox *> m_fds;
-	std::map<int64_t, Mailbox *> m_mailboxs;
-	std::list<Mailbox *> m_delMailboxs;
-	std::set<Mailbox *> m_sendMailboxs;
+	MailboxMgr *m_mailboxMgr;
 	std::map<int, Listener *> m_listenerFds;
 	std::map<int64_t, Listener *> m_listeners;
 	std::map<int64_t, int64_t> m_connectSessions;

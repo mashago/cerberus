@@ -66,6 +66,18 @@ void Mailbox::SetBEV(struct bufferevent *bev)
 {
 	m_bev = bev;
 }
+void Mailbox::ClearBEV()
+{
+	if (m_bev != nullptr)
+	{
+		bufferevent_free(m_bev);
+		m_bev = nullptr;
+	}
+	else
+	{
+		LOG_WARN("m_bev null %d", m_mailboxId);
+	}
+}
 
 void Mailbox::SetDelete(bool flag)
 {

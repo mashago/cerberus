@@ -29,6 +29,7 @@ extern "C"
 #include "event_pipe.h"
 #include "pluto.h"
 #include "mailbox.h"
+#include "mailbox_mgr.h"
 #include "listener.h"
 #include "net_service.h"
 
@@ -49,7 +50,14 @@ static void http_conn_close_cb(struct evhttp_connection *http_conn, void *user_d
 static void http_done_cb(struct evhttp_request *http_request, void *user_data);
 
 
-NetService::NetService() : m_mainEvent(nullptr), m_mainLoopEvent(nullptr), m_tickTimerEvent(nullptr), m_stdinEvent(nullptr), m_evconnlistener(nullptr), m_inputPipe(nullptr), m_outputPipe(nullptr)
+NetService::NetService() : 
+	m_mainEvent(nullptr),
+	m_mainLoopEvent(nullptr),
+	m_tickTimerEvent(nullptr),
+	m_stdinEvent(nullptr),
+	m_evconnlistener(nullptr),
+	m_inputPipe(nullptr),
+	m_outputPipe(nullptr)
 {
 }
 
@@ -113,6 +121,7 @@ bool NetService::Init(bool isDaemon, EventPipe *inputPipe, EventPipe *outputPipe
 
 	m_inputPipe = inputPipe;
 	m_outputPipe = outputPipe;
+	m_mailboxMgr = new MailboxMgr();
 
 	return true;
 }
@@ -215,7 +224,7 @@ int64_t NetService::Connect(const char *addr, unsigned int port)
 	// evutil_make_socket_nonblocking(fd); // already set non-block in bufferevent_socket_connect()
 
 	// new mailbox
-	Mailbox *pmb = NewMailbox(fd);
+	Mailbox *pmb = m_mailboxMgr->NewMailbox(fd);
 	if (!pmb)
 	{
 		LOG_ERROR("mailbox null fd=%d", fd);
@@ -227,78 +236,19 @@ int64_t NetService::Connect(const char *addr, unsigned int port)
 	return pmb->GetMailboxId();
 }
 
-////////////////// mainbox function start [
-
-Mailbox * NetService::NewMailbox(int fd)
+void NetService::SendEvent(EventNode *node)
 {
-	Mailbox *pmb = new Mailbox();
-	if (!pmb)
-	{
-		return nullptr;
-	}
-
-	pmb->SetFd(fd);
-
-	auto iter = m_fds.lower_bound(fd);
-	if (iter != m_fds.end() && iter->first == fd)
-	{
-		// still has old mailbox
-		Mailbox *oldmb = iter->second;
-		if (oldmb != pmb)
-		{
-			delete oldmb;
-			iter->second = pmb;
-		}
-		LOG_WARN("has old mailbox fd=%d", fd);
-	}
-	else
-	{
-		// normal logic, insert new mailbox
-		m_fds.insert(iter, std::make_pair(fd, pmb));
-	}
-	m_mailboxs[pmb->GetMailboxId()] = pmb;
-
-	return pmb;
+	m_outputPipe->Push(node);
 }
 
-Mailbox *NetService::GetMailboxByFd(int fd)
+void NetService::SendConnectCloseEvent(int64_t mailboxId)
 {
-	auto iter = m_fds.find(fd);
-	if (iter == m_fds.end())
-	{
-		return nullptr;
-	}
-	return iter->second;
-}
-
-Mailbox *NetService::GetMailboxByMailboxId(int64_t mailboxId)
-{
-	auto iter = m_mailboxs.find(mailboxId);
-	if (iter == m_mailboxs.end())
-	{
-		return nullptr;
-	}
-	return iter->second;
-}
-
-void NetService::CloseMailbox(Mailbox *pmb)
-{
-	if (pmb->GetBEV() != nullptr)
-	{
-		bufferevent_free(pmb->GetBEV());
-		pmb->SetBEV(nullptr);
-	}
-	else
-	{
-		LOG_WARN("m_bev null %d", pmb->GetMailboxId());
-	}
-
-	auto iter = m_connectSessions.find(pmb->GetMailboxId());
+	auto iter = m_connectSessions.find(mailboxId);
 	if (iter == m_connectSessions.end())
 	{
 		// notice to world
 		EventNodeDisconnect *node = new EventNodeDisconnect();
-		node->mailboxId = pmb->GetMailboxId();
+		node->mailboxId = mailboxId;
 		SendEvent(node);
 	}
 	else
@@ -309,43 +259,6 @@ void NetService::CloseMailbox(Mailbox *pmb)
 		SendEvent(node);
 		m_connectSessions.erase(iter);
 	}
-
-
-	// push to list, delete by tick
-	pmb->SetDelete(true);
-	m_fds.erase(pmb->GetFd());
-	m_mailboxs.erase(pmb->GetMailboxId());
-	m_delMailboxs.push_back(pmb);
-	m_sendMailboxs.erase(pmb);
-}
-
-void NetService::CloseMailboxByFd(int fd)
-{
-	Mailbox *pmb = GetMailboxByFd(fd);
-	if (pmb == nullptr)
-	{
-		LOG_WARN("mailbox null fd=%d", fd);
-		return;
-	}
-	CloseMailbox(pmb);
-}
-
-void NetService::CloseMailboxByMailboxId(int64_t mailboxId)
-{
-	Mailbox *pmb = GetMailboxByMailboxId(mailboxId);
-	if (pmb == nullptr)
-	{
-		LOG_WARN("mailbox null mailboxId=%ld", mailboxId);
-		return;
-	}
-	CloseMailbox(pmb);
-}
-
-////////////////////// mainbox function end ]
-
-void NetService::SendEvent(EventNode *node)
-{
-	m_outputPipe->Push(node);
 }
 
 int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int socklen)
@@ -374,7 +287,7 @@ int NetService::HandleNewConnection(evutil_socket_t fd, struct sockaddr *sa, int
 	bufferevent_enable(bev, EV_READ);
 	
 	// new mailbox
-	Mailbox *pmb = NewMailbox(fd);
+	Mailbox *pmb = m_mailboxMgr->NewMailbox(fd);
 	if (!pmb)
 	{
 		LOG_ERROR("mailbox null fd=%d", fd);
@@ -413,7 +326,7 @@ int NetService::SocketReadMessage(struct bufferevent *bev)
 {
 	evutil_socket_t fd = bufferevent_getfd(bev);
 
-	Mailbox *pmb = GetMailboxByFd(fd);
+	Mailbox *pmb = m_mailboxMgr->GetMailboxByFd(fd);
 	if (pmb == nullptr)
 	{
 		return READ_MSG_ERROR;
@@ -523,23 +436,36 @@ int NetService::SocketReadMessage(struct bufferevent *bev)
 	return READ_MSG_FINISH;
 }
 
+void NetService::CloseMailbox(Mailbox *pmb)
+{
+	m_mailboxMgr->CloseMailbox(pmb);
+	SendConnectCloseEvent(pmb->GetMailboxId());
+}
 
 int NetService::HandleSocketClosed(evutil_socket_t fd)
 {
-	CloseMailboxByFd(fd);
+	Mailbox *pmb = m_mailboxMgr->GetMailboxByFd(fd);
+	if (pmb)
+	{
+		CloseMailbox(pmb);
+	}
 	return 0;
 }
 
 int NetService::HandleSocketError(evutil_socket_t fd)
 {
-	CloseMailboxByFd(fd);
+	Mailbox *pmb = m_mailboxMgr->GetMailboxByFd(fd);
+	if (pmb)
+	{
+		CloseMailbox(pmb);
+	}
 	return 0;
 }
 
 int NetService::HandleSocketConnectSuccess(evutil_socket_t fd)
 {
-	Mailbox *pmb = GetMailboxByFd(fd);
-	if (pmb == NULL)
+	Mailbox *pmb = m_mailboxMgr->GetMailboxByFd(fd);
+	if (pmb == nullptr)
 	{
 		LOG_WARN("mailbox null fd=%d", fd);
 		return 0;
@@ -573,7 +499,11 @@ void NetService::HandleWorldEvent()
 			{
 				const EventNodeDisconnect &real_node = (EventNodeDisconnect&)node;
 				// LOG_DEBUG("mailboxId=%ld", real_node.mailboxId);
-				CloseMailboxByMailboxId(real_node.mailboxId);
+				Mailbox *pmb = m_mailboxMgr->GetMailboxByMailboxId(real_node.mailboxId);
+				if (pmb)
+				{
+					CloseMailbox(pmb);
+				}
 				break;
 			}
 			case EVENT_TYPE::EVENT_TYPE_MSG:
@@ -582,7 +512,7 @@ void NetService::HandleWorldEvent()
 				const EventNodeMsg &real_node = (EventNodeMsg&)node;
 				int64_t mailboxId = real_node.pu->GetMailboxId();
 				// LOG_DEBUG("mailboxId=%ld", mailboxId);
-				Mailbox *pmb = GetMailboxByMailboxId(mailboxId);
+				Mailbox *pmb = m_mailboxMgr->GetMailboxByMailboxId(mailboxId);
 				if (!pmb)
 				{
 					LOG_WARN("mail box null %ld", mailboxId);
@@ -590,7 +520,7 @@ void NetService::HandleWorldEvent()
 					break;
 				}
 				pmb->Push(real_node.pu);
-				m_sendMailboxs.insert(pmb);
+				m_mailboxMgr->MarkSend(pmb);
 				break;
 			}
 			case EVENT_TYPE::EVENT_TYPE_CONNECT_REQ:
@@ -635,62 +565,16 @@ void NetService::HandleWorldEvent()
 	}
 }
 
-void NetService::HandleSendPluto()
-{
-	// loop all mailbox, do send all
-	std::list<Mailbox *> ls4del;
-	for (auto iter = m_sendMailboxs.begin(); iter != m_sendMailboxs.end(); )
-	{
-		Mailbox *pmb = *iter;
-		if (!pmb)
-		{
-			m_sendMailboxs.erase(iter++);	
-			LOG_ERROR("mailbox nil");
-			continue;
-		}
-		// LOG_DEBUG("mailboxId=%ld", pmb->GetMailboxId());
-
-		int ret = pmb->SendAll();
-		if (ret == -1)
-		{
-			// send error
-			m_sendMailboxs.erase(iter++);	
-			ls4del.push_back(pmb);
-			LOG_ERROR("send error %ld", pmb->GetMailboxId());
-			continue;
-		}
-		else if (ret == 1)
-		{
-			// send finish
-			m_sendMailboxs.erase(iter++);	
-			continue;
-		}
-
-		// send not finish, keep mailbox in set
-		++iter;
-	}
-
-	// close error mailbox
-	for (auto iter = ls4del.begin(); iter != ls4del.end(); iter++)
-	{
-		CloseMailbox(*iter);
-	}
-}
-
 void NetService::HandleMainLoop()
 {
 	// 1. handle world event
 	// 2. handle send pluto
-	// 3. delete mailbox
 
 	// handle world event
 	HandleWorldEvent();
 
 	// handle send pluto
-	HandleSendPluto();
-
-	// delete mailbox
-	ClearContainer(m_delMailboxs);
+	m_mailboxMgr->Send();
 }
 
 void NetService::HandleHttpConnClose(struct evhttp_connection *http_conn)

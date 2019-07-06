@@ -6,8 +6,6 @@ extern "C"
 #include <stdint.h>
 }
 
-class Mailbox;
-
 /*
  * msg:
  * [msgLen:4] [msgId:4] [ext:8] [content] 

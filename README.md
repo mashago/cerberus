@@ -15,10 +15,8 @@ Server core:
 ## Depend
 
 CMake  
-Lua 5.2 or 5.3  
+Lua 5.3 (build by shared lib)  
 Libevent 2  
-Mysql Connector C  
-Tinyxml2  
 Lfs  
 
 win64 Libs in [here](https://github.com/mashago/Libs), please copy dir 'lib' and 'include' to `${PROJECT_DIR}`.  
@@ -28,7 +26,7 @@ copy libmysql.dll to `${PROJECT_DIR}/bin` when build as debug project in win64.
 in linux or macos  
 `cmake .`  
 `make`  
-  
+
 in win64  
 use cmake-gui
 
